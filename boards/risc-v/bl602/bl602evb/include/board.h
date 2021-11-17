@@ -41,8 +41,17 @@
 
 #define BOARD_GPIO_IN1    (GPIO_INPUT | GPIO_PULLUP | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN0)
-#define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_SWGPIO | GPIO_PIN1)
+
+////  GPIO Output Pin:
+////  Changed GPIO_PIN1 to GPIO_PIN11 (Blue LED on PineCone BL602)
+////  Changed GPIO_PULLDOWN to GPIO_FLOAT
+#define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_FLOAT | \
+                            GPIO_FUNC_SWGPIO | GPIO_PIN11)
+
+////  Previously:
+////  #define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_PULLDOWN | \
+////                              GPIO_FUNC_SWGPIO | GPIO_PIN1)
+
 #define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_PULLUP | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN2)
 
