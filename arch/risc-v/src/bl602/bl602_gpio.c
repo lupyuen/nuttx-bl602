@@ -29,6 +29,9 @@
 #include "hardware/bl602_glb.h"
 #include "bl602_gpio.h"
 
+#include <stdio.h>                  ////  For debugging
+static char debug_buf[1024] = {0};  ////  For debugging
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -130,10 +133,19 @@ int bl602_configgpio(gpio_pinset_t cfgset)
 
   modifyreg32(regaddr, mask, cfg);
 
+  ////  For debugging
+  char buf[256] = {0};
+  snprintf(buf, sizeof(buf), "\nbl602_configgpio:\n  pin=%d\n  addr=0x%x\n  clearbits=0x%lx\n  setbits=0x%lx\n\n", pin, regaddr, mask, cfg); ////
+  strncat(debug_buf, buf, sizeof(debug_buf)); ////
+
   /* Enable pin output if requested */
   if (!(cfgset & GPIO_INPUT))
     {
       modifyreg32(BL602_GPIO_CFGCTL34, 0, (1 << pin));
+
+      ////  For debugging
+      snprintf(buf, sizeof(buf), "\nbl602_configgpio enable output:\n  pin=%d\n  addr=0x%x\n  clearbits=0x%x\n  setbits=0x%x\n\n", pin, BL602_GPIO_CFGCTL34, 0, (1 << pin)); ////
+      strncat(debug_buf, buf, sizeof(debug_buf)); ////
     }
 
   return OK;
@@ -204,14 +216,24 @@ int bl602_config_uart_sel(gpio_pinset_t pinset, uint8_t sig_sel)
 
 void bl602_gpiowrite(gpio_pinset_t pinset, bool value)
 {
+  ////  For debugging
+  if (debug_buf[0]) { printf("%s\n", debug_buf); debug_buf[0] = 0; } ////
+
   uint8_t pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
   if (value)
     {
       modifyreg32(BL602_GPIO_CFGCTL32, 0, (1 << pin));
+
+      ////  For debugging
+      printf("\nbl602_gpiowrite high:\n  pin=%d\n  addr=0x%x\n  clearbits=0x%x\n  setbits=0x%x\n\n", pin, BL602_GPIO_CFGCTL32, 0, (1 << pin)); ////
+
     }
   else
     {
       modifyreg32(BL602_GPIO_CFGCTL32, (1 << pin), 0);
+
+      ////  For debugging
+      printf("\nbl602_gpiowrite low:\n  pin=%d\n  addr=0x%x\n  clearbits=0x%x\n  setbits=0x%x\n\n", pin, BL602_GPIO_CFGCTL32, (1 << pin), 0); ////
     }
 }
 
