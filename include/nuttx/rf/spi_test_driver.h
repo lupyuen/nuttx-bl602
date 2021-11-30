@@ -44,21 +44,10 @@ extern "C"
  * Name: spi_test_driver_register
  *
  * Description:
- *   Register the spi_test_driver character device as 'devpath'. WARNING:
- *   the DAT-31R5-SP+ is not spi compatible because it hasn't a proper
- *   chip-select input, but it can coexist with other devices on the
- *   spi bus assuming that the LE (Latch Enable) is always 0 when the
- *   device isn't selected. With LE=0 the internal shift-register will
- *   store the last 6 bits sent through the bus, but it will only
- *   change the attenuation level when LE=1. This driver sends the
- *   attenuation bitstream and gives a small positive pulse to LE.
- *
- *   Remember when implementing the corresponding spi select function
- *   when selected == true LE should be 1, and when selected == false
- *   LE should be 0.
+ *   Register the spi_test_driver character device as 'devpath'. 
  *
  * Input Parameters:
- *   devpath - The full path to the driver to register. E.g., "/dev/att0"
+ *   devpath - The full path to the driver to register. E.g., "/dev/spitest0"
  *   spi     - An instance of the SPI interface to use to communicate with
  *   spidev  - Number of the spi device (used to drive the Latch Enable pin).
  *
