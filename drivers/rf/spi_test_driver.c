@@ -35,6 +35,7 @@
 #include <nuttx/spi/spi.h>
 #include <nuttx/rf/ioctl.h>
 #include <nuttx/rf/attenuator.h>
+#include <nuttx/rf/spi_test_driver.h>
 
 /****************************************************************************
  * Pre-processor Definitions
