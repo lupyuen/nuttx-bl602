@@ -1,5 +1,5 @@
 /****************************************************************************
- * drivers/rf/dat-31r5-sp.c
+ * drivers/rf/spi_test_driver.c
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  *
  ****************************************************************************/
 
-/* Character driver for the Mini-Circuits DAT-31R5-SP+ digital step
- * attenuator.
- */
+/* SPI Test Driver */
 
 /****************************************************************************
  * Included Files
