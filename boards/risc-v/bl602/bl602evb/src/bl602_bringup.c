@@ -75,6 +75,10 @@
                                  - BL602_XIP_OFFSET)
 #endif /* CONFIG_FS_ROMFS */
 
+#ifdef CONFIG_RF_SPI_TEST_DRIVER
+#include <nuttx/rf/spi_test_driver.h>
+#endif /* CONFIG_RF_SPI_TEST_DRIVER */
+
 #include "chip.h"
 
 /****************************************************************************
@@ -591,6 +595,26 @@ int bl602_bringup(void)
         }
     }
 #endif /* CONFIG_FS_ROMFS */
+
+#ifdef CONFIG_RF_SPI_TEST_DRIVER
+
+  /* Init SPI bus again */
+
+  struct spi_dev_s *spitest = bl602_spibus_initialize(0);
+  if (!spitest)
+    {
+      _err("ERROR: Failed to initialize SPI %d bus\n", 0);
+    }
+
+  /* Register the SPI Test Driver */
+
+  ret = spi_test_driver_register("/dev/spitest0", spitest, 0);
+  if (ret < 0)
+    {
+      _err("ERROR: Failed to register SPI Test Driver\n");
+    }
+
+#endif /* CONFIG_RF_SPI_TEST_DRIVER */
 
   return ret;
 }
