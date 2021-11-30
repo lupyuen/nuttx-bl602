@@ -17,8 +17,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NUTTX_RF_DAT_31R5_SP_H_
-#define __INCLUDE_NUTTX_RF_DAT_31R5_SP_H_
+#ifndef __INCLUDE_NUTTX_RF_SPI_TEST_DRIVER_H_
+#define __INCLUDE_NUTTX_RF_SPI_TEST_DRIVER_H_
 
 /****************************************************************************
  * Included Files
@@ -78,4 +78,4 @@ int spi_test_driver_register(FAR const char *devpath,
 }
 #endif
 
-#endif /* __INCLUDE_NUTTX_RF_DAT_31R5_SP_H_ */
+#endif /* __INCLUDE_NUTTX_RF_SPI_TEST_DRIVER_H_ */
