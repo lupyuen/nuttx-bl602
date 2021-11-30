@@ -40,19 +40,19 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#if defined(CONFIG_SPI) && defined(CONFIG_RF_DAT31R5SP)
+#if defined(CONFIG_SPI) && defined(CONFIG_RF_SPI_TEST_DRIVER)
 
-#ifndef CONFIG_DAT31R5SP_SPI_FREQUENCY
-#  define CONFIG_DAT31R5SP_SPI_FREQUENCY 1000000
+#ifndef CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY
+#  define CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY 1000000
 #endif
 
-#define DAT31R5SP_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
+#define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct dat31r5sp_dev_s
+struct spi_test_driver_dev_s
 {
   FAR struct spi_dev_s *spi;    /* Saved SPI driver instance */
   int spidev;
@@ -64,27 +64,27 @@ struct dat31r5sp_dev_s
 
 /* Character driver methods */
 
-static int dat31r5sp_open(FAR struct file *filep);
-static int dat31r5sp_close(FAR struct file *filep);
-static ssize_t dat31r5sp_read(FAR struct file *filep, FAR char *buffer,
+static int spi_test_driver_open(FAR struct file *filep);
+static int spi_test_driver_close(FAR struct file *filep);
+static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen);
-static ssize_t dat31r5sp_write(FAR struct file *filep,
+static ssize_t spi_test_driver_write(FAR struct file *filep,
                                FAR const char *buffer, size_t buflen);
-static int dat31r5sp_ioctl(FAR struct file *filep, int cmd,
+static int spi_test_driver_ioctl(FAR struct file *filep, int cmd,
                            unsigned long arg);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct file_operations g_dat31r5sp_fops =
+static const struct file_operations g_spi_test_driver_fops =
 {
-  dat31r5sp_open,
-  dat31r5sp_close,
-  dat31r5sp_read,
-  dat31r5sp_write,
+  spi_test_driver_open,
+  spi_test_driver_close,
+  spi_test_driver_read,
+  spi_test_driver_write,
   NULL,
-  dat31r5sp_ioctl,
+  spi_test_driver_ioctl,
   NULL
 };
 
@@ -93,7 +93,7 @@ static const struct file_operations g_dat31r5sp_fops =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: dat31r5sp_configspi
+ * Name: spi_test_driver_configspi
  *
  * Description:
  *   Configure the SPI instance for to match the DAT-31R5-SP+
@@ -101,28 +101,28 @@ static const struct file_operations g_dat31r5sp_fops =
  *
  ****************************************************************************/
 
-static inline void dat31r5sp_configspi(FAR struct spi_dev_s *spi)
+static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 {
-  SPI_SETMODE(spi, DAT31R5SP_SPI_MODE);
+  SPI_SETMODE(spi, SPI_TEST_DRIVER_SPI_MODE);
   SPI_SETBITS(spi, 8);
   SPI_HWFEATURES(spi, 0);
-  SPI_SETFREQUENCY(spi, CONFIG_DAT31R5SP_SPI_FREQUENCY);
+  SPI_SETFREQUENCY(spi, CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY);
 }
 
 /****************************************************************************
- * Name: dat31r5sp_set_attenuation
+ * Name: spi_test_driver_set_attenuation
  *
  * Description:
  *   Set the attenuation level in dB (16.16 bits fixed point).
  *
  ****************************************************************************/
 
-static void dat31r5sp_set_attenuation(FAR struct dat31r5sp_dev_s *priv,
+static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *priv,
                                       b16_t attenuation)
 {
   SPI_LOCK(priv->spi, true);
 
-  dat31r5sp_configspi(priv->spi);
+  spi_test_driver_configspi(priv->spi);
 
   SPI_SELECT(priv->spi, priv->spidev, false);
 
@@ -140,7 +140,7 @@ static void dat31r5sp_set_attenuation(FAR struct dat31r5sp_dev_s *priv,
 }
 
 /****************************************************************************
- * Name: dat31r5sp_open
+ * Name: spi_test_driver_open
  *
  * Description:
  *   This function is called whenever the DAT-31R5-SP+ device is
@@ -148,13 +148,13 @@ static void dat31r5sp_set_attenuation(FAR struct dat31r5sp_dev_s *priv,
  *
  ****************************************************************************/
 
-static int dat31r5sp_open(FAR struct file *filep)
+static int spi_test_driver_open(FAR struct file *filep)
 {
   return OK;
 }
 
 /****************************************************************************
- * Name: dat31r5sp_close
+ * Name: spi_test_driver_close
  *
  * Description:
  *   This function is called whenever the DAT-31R5-SP+ device is
@@ -162,19 +162,19 @@ static int dat31r5sp_open(FAR struct file *filep)
  *
  ****************************************************************************/
 
-static int dat31r5sp_close(FAR struct file *filep)
+static int spi_test_driver_close(FAR struct file *filep)
 {
   return OK;
 }
 
 /****************************************************************************
- * Name: dat31r5sp_write
+ * Name: spi_test_driver_write
  *
  * Description:
  *   Write is not permitted, only IOCTLs.
  ****************************************************************************/
 
-static ssize_t dat31r5sp_write(FAR struct file *filep,
+static ssize_t spi_test_driver_write(FAR struct file *filep,
                                FAR const char *buffer,
                                size_t buflen)
 {
@@ -182,20 +182,20 @@ static ssize_t dat31r5sp_write(FAR struct file *filep,
 }
 
 /****************************************************************************
- * Name: dat31r5sp_read
+ * Name: spi_test_driver_read
  *
  * Description:
  *   Read is ignored.
  ****************************************************************************/
 
-static ssize_t dat31r5sp_read(FAR struct file *filep, FAR char *buffer,
+static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
   return 0;
 }
 
 /****************************************************************************
- * Name: dat31r5sp_ioctl
+ * Name: spi_test_driver_ioctl
  *
  * Description:
  *   The only available ICTL is RFIOC_SETATT. It expects a struct
@@ -204,12 +204,12 @@ static ssize_t dat31r5sp_read(FAR struct file *filep, FAR char *buffer,
  *   single attenuator.
  ****************************************************************************/
 
-static int dat31r5sp_ioctl(FAR struct file *filep,
+static int spi_test_driver_ioctl(FAR struct file *filep,
                            int cmd,
                            unsigned long arg)
 {
   FAR struct inode *inode = filep->f_inode;
-  FAR struct dat31r5sp_dev_s *priv = inode->i_private;
+  FAR struct spi_test_driver_dev_s *priv = inode->i_private;
   int ret = OK;
 
   switch (cmd)
@@ -219,7 +219,7 @@ static int dat31r5sp_ioctl(FAR struct file *filep,
           FAR struct attenuator_control *att =
             (FAR struct attenuator_control *)((uintptr_t)arg);
           DEBUGASSERT(att != NULL);
-          dat31r5sp_set_attenuation(priv, att->attenuation);
+          spi_test_driver_set_attenuation(priv, att->attenuation);
         }
         break;
 
@@ -237,18 +237,18 @@ static int dat31r5sp_ioctl(FAR struct file *filep,
  ****************************************************************************/
 
 /****************************************************************************
- * Name: dat31r5sp_register
+ * Name: spi_test_driver_register
  *
  * Description:
- *   Register the dat31r5sp character device as 'devpath'.
+ *   Register the spi_test_driver character device as 'devpath'.
  *
  ****************************************************************************/
 
-int dat31r5sp_register(FAR const char *devpath,
+int spi_test_driver_register(FAR const char *devpath,
                        FAR struct spi_dev_s *spi,
                        int spidev)
 {
-  FAR struct dat31r5sp_dev_s *priv;
+  FAR struct spi_test_driver_dev_s *priv;
   int ret;
 
   /* Sanity check */
@@ -257,8 +257,8 @@ int dat31r5sp_register(FAR const char *devpath,
 
   /* Initialize the DAT-31R5-SP+ device structure */
 
-  priv = (FAR struct dat31r5sp_dev_s *)
-      kmm_malloc(sizeof(struct dat31r5sp_dev_s));
+  priv = (FAR struct spi_test_driver_dev_s *)
+      kmm_malloc(sizeof(struct spi_test_driver_dev_s));
   if (priv == NULL)
     {
       snerr("ERROR: Failed to allocate instance\n");
@@ -274,7 +274,7 @@ int dat31r5sp_register(FAR const char *devpath,
 
   /* Register the character driver */
 
-  ret = register_driver(devpath, &g_dat31r5sp_fops, 0666, priv);
+  ret = register_driver(devpath, &g_spi_test_driver_fops, 0666, priv);
   if (ret < 0)
     {
       snerr("ERROR: Failed to register driver: %d\n", ret);
