@@ -42,10 +42,10 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Name: dat31r5sp_register
+ * Name: spi_test_driver_register
  *
  * Description:
- *   Register the dat31r5sp character device as 'devpath'. WARNING:
+ *   Register the spi_test_driver character device as 'devpath'. WARNING:
  *   the DAT-31R5-SP+ is not spi compatible because it hasn't a proper
  *   chip-select input, but it can coexist with other devices on the
  *   spi bus assuming that the LE (Latch Enable) is always 0 when the
@@ -69,7 +69,7 @@ extern "C"
  *
  ****************************************************************************/
 
-int dat31r5sp_register(FAR const char *devpath,
+int spi_test_driver_register(FAR const char *devpath,
                        FAR struct spi_dev_s *spi,
                        int spidev);
 
