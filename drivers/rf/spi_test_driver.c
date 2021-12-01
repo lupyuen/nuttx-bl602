@@ -105,8 +105,13 @@ static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
   printf("spi_test_driver_configspi\n");
   DEBUGASSERT(spi != NULL);
 
+  /* Set SPI Mode (Polarity and Phase) and Transfer Size (8 bits) */
+
   SPI_SETMODE(spi, SPI_TEST_DRIVER_SPI_MODE);
   SPI_SETBITS(spi, 8);
+
+  /* Set SPI Hardware Features and Frequency*/
+
   SPI_HWFEATURES(spi, 0);
   SPI_SETFREQUENCY(spi, CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY);
 }
