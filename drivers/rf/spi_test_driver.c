@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
+#include <stdio.h>
 
 #include <nuttx/kmalloc.h>
 #include <nuttx/fs/fs.h>
@@ -95,14 +96,15 @@ static const struct file_operations g_spi_test_driver_fops =
  * Name: spi_test_driver_configspi
  *
  * Description:
- *   Configure the SPI instance for to match the DAT-31R5-SP+
- *   specifications
+ *   Configure the SPI instance
  *
  ****************************************************************************/
 
 static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 {
   printf("spi_test_driver_configspi\n");
+  DEBUGASSERT(spi != NULL);
+
   SPI_SETMODE(spi, SPI_TEST_DRIVER_SPI_MODE);
   SPI_SETBITS(spi, 8);
   SPI_HWFEATURES(spi, 0);
@@ -121,6 +123,8 @@ static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *pr
                                       b16_t attenuation)
 {
   printf("spi_test_driver_set_attenuation\n");
+  DEBUGASSERT(priv != NULL);
+
   SPI_LOCK(priv->spi, true);
 
   spi_test_driver_configspi(priv->spi);
@@ -151,6 +155,7 @@ static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *pr
 static int spi_test_driver_open(FAR struct file *filep)
 {
   printf("spi_test_driver_open\n");
+  DEBUGASSERT(filep != NULL);
   return OK;
 }
 
@@ -165,6 +170,7 @@ static int spi_test_driver_open(FAR struct file *filep)
 static int spi_test_driver_close(FAR struct file *filep)
 {
   printf("spi_test_driver_close\n");
+  DEBUGASSERT(filep != NULL);
   return OK;
 }
 
@@ -180,11 +186,15 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
                                size_t buflen)
 {
   printf("spi_test_driver_write: buflen=%u\n  ", buflen);
+  DEBUGASSERT(filep  != NULL);
+  DEBUGASSERT(buffer != NULL);
   for (int i = 0; i < buflen; i++) 
     {
       printf("%02x ", buffer[i]);
     }
   printf("\n");
+
+  /* TODO: Write the buffer to the device */
 
   return buflen;
 }
@@ -200,6 +210,11 @@ static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
   printf("spi_test_driver_read: buflen=%ul\n", buflen);
+  DEBUGASSERT(filep  != NULL);
+  DEBUGASSERT(buffer != NULL);
+
+  /* TODO: Read the buffer from the device */
+
   return 0;  /* TODO: Return the number of bytes written */
 }
 
@@ -207,23 +222,24 @@ static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
  * Name: spi_test_driver_ioctl
  *
  * Description:
- *   The only available ICTL is RFIOC_SETATT. It expects a struct
- *   attenuator_control* as the argument to set the attenuation
- *   level. The channel is ignored as the DAT-31R5-SP+ has just a
- *   single attenuator.
+ *   Execute ioctl commands for the device.
  ****************************************************************************/
 
 static int spi_test_driver_ioctl(FAR struct file *filep,
                            int cmd,
                            unsigned long arg)
 {
-  printf("spi_test_driver_ioctl: cmd=0x%x, arg=0x%x\n", cmd, arg);
+  printf("spi_test_driver_ioctl: cmd=0x%x, arg=0x%lx\n", cmd, arg);
+  DEBUGASSERT(filep != NULL);
+
   FAR struct inode *inode = filep->f_inode;
   FAR struct spi_test_driver_dev_s *priv = inode->i_private;
   int ret = OK;
 
   switch (cmd)
     {
+      /* TODO: Handle ioctl commands */
+
       case RFIOC_SETATT:
         {
           FAR struct attenuator_control *att =
@@ -263,9 +279,10 @@ int spi_test_driver_register(FAR const char *devpath,
 
   /* Sanity check */
 
+  DEBUGASSERT(devpath != NULL);
   DEBUGASSERT(spi != NULL);
 
-  /* Initialize the DAT-31R5-SP+ device structure */
+  /* Initialize the device structure */
 
   priv = (FAR struct spi_test_driver_dev_s *)
       kmm_malloc(sizeof(struct spi_test_driver_dev_s));
