@@ -82,9 +82,9 @@ static const struct file_operations g_spi_test_driver_fops =
   spi_test_driver_close,
   spi_test_driver_read,
   spi_test_driver_write,
-  NULL,
+  NULL,  /* Seek not implemented */
   spi_test_driver_ioctl,
-  NULL
+  NULL   /* Poll not implemented */
 };
 
 /****************************************************************************
@@ -102,6 +102,7 @@ static const struct file_operations g_spi_test_driver_fops =
 
 static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 {
+  printf("spi_test_driver_configspi\n");
   SPI_SETMODE(spi, SPI_TEST_DRIVER_SPI_MODE);
   SPI_SETBITS(spi, 8);
   SPI_HWFEATURES(spi, 0);
@@ -119,6 +120,7 @@ static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *priv,
                                       b16_t attenuation)
 {
+  printf("spi_test_driver_set_attenuation\n");
   SPI_LOCK(priv->spi, true);
 
   spi_test_driver_configspi(priv->spi);
@@ -142,13 +144,13 @@ static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *pr
  * Name: spi_test_driver_open
  *
  * Description:
- *   This function is called whenever the DAT-31R5-SP+ device is
- *   opened.
+ *   This function is called whenever the device is opened.
  *
  ****************************************************************************/
 
 static int spi_test_driver_open(FAR struct file *filep)
 {
+  printf("spi_test_driver_open\n");
   return OK;
 }
 
@@ -156,13 +158,13 @@ static int spi_test_driver_open(FAR struct file *filep)
  * Name: spi_test_driver_close
  *
  * Description:
- *   This function is called whenever the DAT-31R5-SP+ device is
- *   closed.
+ *   This function is called whenever the device is closed.
  *
  ****************************************************************************/
 
 static int spi_test_driver_close(FAR struct file *filep)
 {
+  printf("spi_test_driver_close\n");
   return OK;
 }
 
@@ -170,27 +172,35 @@ static int spi_test_driver_close(FAR struct file *filep)
  * Name: spi_test_driver_write
  *
  * Description:
- *   Write is not permitted, only IOCTLs.
+ *   Write the buffer to the device.
  ****************************************************************************/
 
 static ssize_t spi_test_driver_write(FAR struct file *filep,
                                FAR const char *buffer,
                                size_t buflen)
 {
-  return -ENOSYS;
+  printf("spi_test_driver_write: buflen=%u\n  ", buflen);
+  for (int i = 0; i < buflen; i++) 
+    {
+      printf("%02x ", buffer[i]);
+    }
+  printf("\n");
+
+  return buflen;
 }
 
 /****************************************************************************
  * Name: spi_test_driver_read
  *
  * Description:
- *   Read is ignored.
+ *   Read the buffer from the device.
  ****************************************************************************/
 
 static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
-  return 0;
+  printf("spi_test_driver_read: buflen=%ul\n", buflen);
+  return 0;  /* TODO: Return the number of bytes written */
 }
 
 /****************************************************************************
@@ -207,6 +217,7 @@ static int spi_test_driver_ioctl(FAR struct file *filep,
                            int cmd,
                            unsigned long arg)
 {
+  printf("spi_test_driver_ioctl: cmd=0x%x, arg=0x%x\n", cmd, arg);
   FAR struct inode *inode = filep->f_inode;
   FAR struct spi_test_driver_dev_s *priv = inode->i_private;
   int ret = OK;
@@ -239,7 +250,7 @@ static int spi_test_driver_ioctl(FAR struct file *filep,
  * Name: spi_test_driver_register
  *
  * Description:
- *   Register the spi_test_driver character device as 'devpath'.
+ *   Register the spi_test_driver character device as 'devpath' during NuttX startup.
  *
  ****************************************************************************/
 
