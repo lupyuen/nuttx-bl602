@@ -186,15 +186,49 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
                                size_t buflen)
 {
   printf("spi_test_driver_write: buflen=%u\n  ", buflen);
-  DEBUGASSERT(filep  != NULL);
-  DEBUGASSERT(buffer != NULL);
-  for (int i = 0; i < buflen; i++) 
+  for (int i = 0; buffer != NULL && i < buflen; i++) 
     {
       printf("%02x ", buffer[i]);
     }
   printf("\n");
 
-  /* TODO: Write the buffer to the device */
+  static char recv_buffer[256];  /* Buffer for SPI response */
+  DEBUGASSERT(buflen <= sizeof(recv_buffer));
+  DEBUGASSERT(filep  != NULL);
+  DEBUGASSERT(buffer != NULL);
+
+  /* Get the SPI interface */
+
+  FAR struct inode *inode = filep->f_inode;
+  FAR struct spi_test_driver_dev_s *priv = inode->i_private;
+
+  /* Lock the SPI bus and configure the SPI interface */
+
+  SPI_LOCK(priv->spi, true);
+  spi_test_driver_configspi(priv->spi);
+
+  /* Select the SPI device (unused for BL602) */
+
+  SPI_SELECT(priv->spi, priv->spidev, true);
+
+  /* Transmit buffer to SPI device and receive the response */
+
+  SPI_EXCHANGE(priv->spi, buffer, recv_buffer, buflen);
+
+  printf("spi_test_driver_write: received\n  ");
+  for (int i = 0; i < buflen; i++) 
+    {
+      printf("%02x ", recv_buffer[i]);
+    }
+  printf("\n");
+
+  /* Deselect the SPI device (unused for BL602) */
+
+  SPI_SELECT(priv->spi, priv->spidev, false);
+
+  /* Unlock the SPI bus */
+
+  SPI_LOCK(priv->spi, false);
 
   return buflen;
 }
