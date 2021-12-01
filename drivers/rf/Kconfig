@@ -19,4 +19,11 @@ config RF_DAT31R5SP
 		Enable driver support for the Mini-Circuits DAT-31R5-SP digital
 		attenuator.
 
+config RF_SPI_TEST_DRIVER
+	bool "SPI Test Driver"
+	default n
+	select SPI
+	---help---
+		Enable SPI Test Driver.
+
 endif # DRIVERS_RF
