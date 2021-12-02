@@ -259,7 +259,7 @@ static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
   /* Copy the SPI response to the buffer */
 
   DEBUGASSERT(recv_buffer_len >= 0);
-  DEBUGASSERT(buflen <= recv_buffer_len);
+  DEBUGASSERT(recv_buffer_len <= buflen);
   memcpy(buffer, recv_buffer, recv_buffer_len);
 
   /* Return the number of bytes read */
