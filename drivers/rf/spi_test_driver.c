@@ -252,7 +252,7 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
 static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
-  printf("spi_test_driver_read: buflen=%ul\n", buflen);
+  printf("spi_test_driver_read: buflen=%u\n", buflen);
   DEBUGASSERT(filep  != NULL);
   DEBUGASSERT(buffer != NULL);
 
