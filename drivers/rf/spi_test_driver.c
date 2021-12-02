@@ -88,6 +88,10 @@ static const struct file_operations g_spi_test_driver_fops =
   NULL   /* Poll not implemented */
 };
 
+static char recv_buffer[256];  /* Buffer for SPI response */
+
+static int recv_buffer_len = 0;  /* Length of SPI response */
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -197,7 +201,6 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
     }
   printf("\n");
 
-  static char recv_buffer[256];  /* Buffer for SPI response */
   DEBUGASSERT(buflen <= sizeof(recv_buffer));
   DEBUGASSERT(filep  != NULL);
   DEBUGASSERT(buffer != NULL);
@@ -219,6 +222,7 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
   /* Transmit buffer to SPI device and receive the response */
 
   SPI_EXCHANGE(priv->spi, buffer, recv_buffer, buflen);
+  recv_buffer_len = buflen;
 
   printf("spi_test_driver_write: received\n  ");
   for (int i = 0; i < buflen; i++) 
@@ -242,7 +246,7 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
  * Name: spi_test_driver_read
  *
  * Description:
- *   Read the buffer from the device.
+ *   Return the data received from the device.
  ****************************************************************************/
 
 static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
@@ -252,9 +256,15 @@ static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
   DEBUGASSERT(filep  != NULL);
   DEBUGASSERT(buffer != NULL);
 
-  /* TODO: Read the buffer from the device */
+  /* Copy the SPI response to the buffer */
 
-  return 0;  /* TODO: Return the number of bytes written */
+  DEBUGASSERT(recv_buffer_len >= 0);
+  DEBUGASSERT(buflen <= recv_buffer_len);
+  memcpy(buffer, recv_buffer, recv_buffer_len);
+
+  /* Return the number of bytes read */
+
+  return recv_buffer_len;
 }
 
 /****************************************************************************
