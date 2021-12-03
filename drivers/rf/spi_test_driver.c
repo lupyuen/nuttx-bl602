@@ -46,7 +46,8 @@
 #  define CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY 1000000
 #endif
 
-#define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
+////#define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
+#define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE1) /* SPI Mode 1 */
 
 /****************************************************************************
  * Private Types
