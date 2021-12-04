@@ -44,7 +44,7 @@
 #define BOARD_GPIO_IN1    (GPIO_INPUT | GPIO_FLOAT | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN10)
 
-/* SPI Chip Selecct for PineDio SX1262 */
+/* SPI Chip Select for PineDio SX1262 */
 
 #define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_PULLUP | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN15)
