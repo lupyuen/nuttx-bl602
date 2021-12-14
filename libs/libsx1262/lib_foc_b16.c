@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_foc_b16.c
+ * libs/libsx1262/lib_foc_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -52,8 +52,8 @@ static void foc_current_controller_b16(FAR struct foc_data_b16_s *foc,
   FAR pid_controller_b16_t *id_pid = &foc->id_pid;
   FAR pid_controller_b16_t *iq_pid = &foc->iq_pid;
 
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(v_dq_req != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(v_dq_req != NULL);
 
   /* Get dq current error */
 
@@ -88,7 +88,7 @@ static void foc_current_controller_b16(FAR struct foc_data_b16_s *foc,
 static void foc_vab_mod_scale_set_b16(FAR struct foc_data_b16_s *foc,
                                       b16_t scale)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
 
   foc->vab_mod_scale = scale;
 }
@@ -111,7 +111,7 @@ static void foc_vab_mod_scale_set_b16(FAR struct foc_data_b16_s *foc,
 static void foc_vdq_mag_max_set_b16(FAR struct foc_data_b16_s *foc,
                                     b16_t max)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
 
   foc->vdq_mag_max = max;
 
@@ -139,8 +139,8 @@ static void foc_vdq_mag_max_set_b16(FAR struct foc_data_b16_s *foc,
 static void foc_vdq_ref_set_b16(FAR struct foc_data_b16_s *foc,
                                 FAR dq_frame_b16_t *vdq_ref)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(vdq_ref != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(vdq_ref != NULL);
 
   foc->v_dq.d = vdq_ref->d;
   foc->v_dq.q = vdq_ref->q;
@@ -164,8 +164,8 @@ static void foc_vdq_ref_set_b16(FAR struct foc_data_b16_s *foc,
 static void foc_idq_ref_set_b16(FAR struct foc_data_b16_s *foc,
                                 FAR dq_frame_b16_t *idq_ref)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(idq_ref != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(idq_ref != NULL);
 
   foc->i_dq_ref.d = idq_ref->d;
   foc->i_dq_ref.q = idq_ref->q;
@@ -272,8 +272,8 @@ void foc_vbase_update_b16(FAR struct foc_data_b16_s *foc, b16_t vbase)
 void foc_angle_update_b16(FAR struct foc_data_b16_s *foc,
                           FAR phase_angle_b16_t *angle)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   /* Copy angle to foc data */
 
@@ -305,8 +305,8 @@ void foc_iabc_update_b16(FAR struct foc_data_b16_s *foc,
 {
   dq_frame_b16_t i_dq;
 
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(i_abc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(i_abc != NULL);
 
   /* Reset data */
 
@@ -351,7 +351,7 @@ void foc_iabc_update_b16(FAR struct foc_data_b16_s *foc,
 void foc_voltage_control_b16(FAR struct foc_data_b16_s *foc,
                              FAR dq_frame_b16_t *vdq_ref)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
 
   /* Update VDQ request */
 
@@ -361,7 +361,7 @@ void foc_voltage_control_b16(FAR struct foc_data_b16_s *foc,
 
   inv_park_transform_b16(&foc->angle, &foc->v_dq, &foc->v_ab);
 
-#ifdef CONFIG_LIBDSP_FOC_VABC
+#ifdef CONFIG_LIBSX1262_FOC_VABC
   /* Inverse Clarke transform (voltage alpha-beta -> voltage abc) */
 
   inv_clarke_transform_b16(&foc->v_ab, &foc->v_abc);
@@ -399,7 +399,7 @@ void foc_current_control_b16(FAR struct foc_data_b16_s *foc,
                              FAR dq_frame_b16_t *vdq_comp,
                              FAR dq_frame_b16_t *vdq_ref)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
 
   /* Update IDQ reference */
 
@@ -434,8 +434,8 @@ void foc_current_control_b16(FAR struct foc_data_b16_s *foc,
 void foc_vabmod_get_b16(FAR struct foc_data_b16_s *foc,
                         FAR ab_frame_b16_t *v_ab_mod)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
-  LIBDSP_DEBUGASSERT(v_ab_mod != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(v_ab_mod != NULL);
 
   v_ab_mod->a = foc->v_ab_mod.a;
   v_ab_mod->b = foc->v_ab_mod.b;
@@ -458,7 +458,7 @@ void foc_vabmod_get_b16(FAR struct foc_data_b16_s *foc,
 
 void foc_vdq_mag_max_get_b16(FAR struct foc_data_b16_s *foc, FAR b16_t *max)
 {
-  LIBDSP_DEBUGASSERT(foc != NULL);
+  LIBSX1262_DEBUGASSERT(foc != NULL);
 
   *max = foc->vdq_mag_max;
 }

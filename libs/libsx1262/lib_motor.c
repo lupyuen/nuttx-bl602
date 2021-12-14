@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_motor.c
+ * libs/libsx1262/lib_motor.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -51,8 +51,8 @@
 
 void motor_openloop_init(FAR struct openloop_data_f32_s *op, float per)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
-  LIBDSP_DEBUGASSERT(per > 0.0f);
+  LIBSX1262_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(per > 0.0f);
 
   /* Reset openloop structure */
 
@@ -82,9 +82,9 @@ void motor_openloop_init(FAR struct openloop_data_f32_s *op, float per)
 void motor_openloop(FAR struct openloop_data_f32_s *op, float speed,
                     float dir)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
-  LIBDSP_DEBUGASSERT(speed >= 0.0f);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
+  LIBSX1262_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(speed >= 0.0f);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
 
   float phase_step = 0.0f;
 
@@ -117,7 +117,7 @@ void motor_openloop(FAR struct openloop_data_f32_s *op, float speed,
 
 float motor_openloop_angle_get(FAR struct openloop_data_f32_s *op)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(op != NULL);
 
   return op->angle;
 }
@@ -169,8 +169,8 @@ float motor_openloop_angle_get(FAR struct openloop_data_f32_s *op)
 
 void motor_angle_init(FAR struct motor_angle_f32_s *angle, uint8_t p)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(p > 0);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(p > 0);
 
   /* Reset structure */
 
@@ -204,9 +204,9 @@ void motor_angle_init(FAR struct motor_angle_f32_s *angle, uint8_t p)
 void motor_angle_e_update(FAR struct motor_angle_f32_s *angle,
                           float angle_new, float dir)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(angle_new >= 0.0f && angle_new <= MOTOR_ANGLE_E_MAX);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle_new >= 0.0f && angle_new <= MOTOR_ANGLE_E_MAX);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
 
   /* Check if we crossed electrical angle boundaries */
 
@@ -277,9 +277,9 @@ void motor_angle_e_update(FAR struct motor_angle_f32_s *angle,
 void motor_angle_m_update(FAR struct motor_angle_f32_s *angle,
                           float angle_new, float dir)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(angle_new >= 0.0f && angle_new <= MOTOR_ANGLE_E_MAX);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle_new >= 0.0f && angle_new <= MOTOR_ANGLE_E_MAX);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
 
   float angle_el = 0.0f;
 
@@ -316,7 +316,7 @@ void motor_angle_m_update(FAR struct motor_angle_f32_s *angle,
 
 float motor_angle_m_get(FAR struct motor_angle_f32_s *angle)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   return angle->anglem;
 }
@@ -337,7 +337,7 @@ float motor_angle_m_get(FAR struct motor_angle_f32_s *angle)
 
 float motor_angle_e_get(FAR struct motor_angle_f32_s *angle)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   return angle->angle_el.angle;
 }
@@ -363,7 +363,7 @@ float motor_angle_e_get(FAR struct motor_angle_f32_s *angle)
 void motor_phy_params_init(FAR struct motor_phy_params_f32_s *phy,
                            uint8_t poles, float res, float ind)
 {
-  LIBDSP_DEBUGASSERT(phy != NULL);
+  LIBSX1262_DEBUGASSERT(phy != NULL);
 
   memset(phy, 0, sizeof(struct motor_phy_params_f32_s));
 
@@ -400,7 +400,7 @@ void pmsm_phy_params_init(FAR struct pmsm_phy_params_f32_s *phy,
                           float iner, float flux,
                           float ind_d, float ind_q)
 {
-  LIBDSP_DEBUGASSERT(phy != NULL);
+  LIBSX1262_DEBUGASSERT(phy != NULL);
 
   /* Initialize motor phy */
 

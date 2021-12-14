@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_svm_b16.c
+ * libs/libsx1262/lib_svm_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -195,7 +195,7 @@ static void svm3_duty_calc_b16(FAR struct svm3_state_b16_s *s,
         {
           /* We should not get here */
 
-          LIBDSP_DEBUGASSERT(0);
+          LIBSX1262_DEBUGASSERT(0);
           break;
         }
     }
@@ -260,7 +260,7 @@ static void svm3_duty_calc_b16(FAR struct svm3_state_b16_s *s,
         {
           /* We should not get here */
 
-          LIBDSP_DEBUGASSERT(0);
+          LIBSX1262_DEBUGASSERT(0);
           break;
         }
     }
@@ -320,8 +320,8 @@ static void svm3_duty_calc_b16(FAR struct svm3_state_b16_s *s,
 
 void svm3_b16(FAR struct svm3_state_b16_s *s, FAR ab_frame_b16_t *v_ab)
 {
-  LIBDSP_DEBUGASSERT(s != NULL);
-  LIBDSP_DEBUGASSERT(v_ab != NULL);
+  LIBSX1262_DEBUGASSERT(s != NULL);
+  LIBSX1262_DEBUGASSERT(v_ab != NULL);
 
   abc_frame_b16_t ijk;
 
@@ -431,7 +431,7 @@ void svm3_current_correct_b16(FAR struct svm3_state_b16_s *s,
 
 void svm3_init_b16(FAR struct svm3_state_b16_s *s)
 {
-  LIBDSP_DEBUGASSERT(s != NULL);
+  LIBSX1262_DEBUGASSERT(s != NULL);
 
   memset(s, 0, sizeof(struct svm3_state_b16_s));
 }

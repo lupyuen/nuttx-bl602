@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_misc_b16.c
+ * libs/libsx1262/lib_misc_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -100,7 +100,7 @@ b16_t vector2d_mag_b16(b16_t x, b16_t y)
       return 0;
     }
 
-#if CONFIG_LIBDSP_PRECISION == 0
+#if CONFIG_LIBSX1262_PRECISION == 0
   /* Use ub8 sqrt */
 
   return ub8toub16(ub16sqrtub8(t3));
@@ -435,7 +435,7 @@ void angle_norm_2pi_b16(FAR b16_t *angle, b16_t bottom, b16_t top)
 
 void phase_angle_update_b16(FAR struct phase_angle_b16_s *angle, b16_t val)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   /* Normalize angle to <0.0, 2PI> */
 
@@ -445,7 +445,7 @@ void phase_angle_update_b16(FAR struct phase_angle_b16_s *angle, b16_t val)
 
   angle->angle = val;
 
-#if CONFIG_LIBDSP_PRECISION == 0
+#if CONFIG_LIBSX1262_PRECISION == 0
   angle->sin = fast_sin_b16(val);
   angle->cos = fast_cos_b16(val);
 #else

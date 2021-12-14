@@ -1,6 +1,4 @@
-libdsp
-======
+libsx1262
+=========
 
-This directory contains various DSP functions.
-
-At the moment you will find here mainly functions related to BLDC/PMSM control.
+This directory contains functions for Semtech SX1262 LoRa Transceiver.

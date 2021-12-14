@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_pmsm_model_b16.c
+ * libs/libsx1262/lib_pmsm_model_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with

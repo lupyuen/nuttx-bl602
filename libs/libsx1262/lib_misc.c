@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_misc.c
+ * libs/libsx1262/lib_misc.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -433,7 +433,7 @@ void angle_norm_2pi(FAR float *angle, float bottom, float top)
 
 void phase_angle_update(FAR struct phase_angle_f32_s *angle, float val)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   /* Normalize angle to <0.0, 2PI> */
 
@@ -443,10 +443,10 @@ void phase_angle_update(FAR struct phase_angle_f32_s *angle, float val)
 
   angle->angle = val;
 
-#if CONFIG_LIBDSP_PRECISION == 1
+#if CONFIG_LIBSX1262_PRECISION == 1
   angle->sin = fast_sin2(val);
   angle->cos = fast_cos2(val);
-#elif CONFIG_LIBDSP_PRECISION == 2
+#elif CONFIG_LIBSX1262_PRECISION == 2
   angle->sin = sin(val);
   angle->cos = cos(val);
 #else

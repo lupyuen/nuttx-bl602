@@ -1,5 +1,5 @@
 ############################################################################
-# libs/libdsp/Makefile
+# libs/libsx1262/Makefile
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -20,7 +20,7 @@
 
 include $(TOPDIR)/Make.defs
 
-ifeq ($(CONFIG_LIBDSP),y)
+ifeq ($(CONFIG_LIBSX1262),y)
 CSRCS += lib_pid.c
 CSRCS += lib_svm.c
 CSRCS += lib_transform.c
@@ -45,7 +45,7 @@ COBJS = $(CSRCS:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
-BIN ?= libdsp$(LIBEXT)
+BIN ?= libsx1262$(LIBEXT)
 
 all: $(BIN)
 .PHONY:  depend clean distclean

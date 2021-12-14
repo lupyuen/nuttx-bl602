@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_motor_b16.c
+ * libs/libsx1262/lib_motor_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -51,8 +51,8 @@
 
 void motor_openloop_init_b16(FAR struct openloop_data_b16_s *op, b16_t per)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
-  LIBDSP_DEBUGASSERT(per > 0);
+  LIBSX1262_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(per > 0);
 
   /* Reset openloop structure */
 
@@ -82,9 +82,9 @@ void motor_openloop_init_b16(FAR struct openloop_data_b16_s *op, b16_t per)
 void motor_openloop_b16(FAR struct openloop_data_b16_s *op, b16_t speed,
                         b16_t dir)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
-  LIBDSP_DEBUGASSERT(speed >= 0);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
+  LIBSX1262_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(speed >= 0);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
 
   b16_t phase_step = 0;
   b16_t tmp = 0;
@@ -120,7 +120,7 @@ void motor_openloop_b16(FAR struct openloop_data_b16_s *op, b16_t speed,
 
 b16_t motor_openloop_angle_get_b16(FAR struct openloop_data_b16_s *op)
 {
-  LIBDSP_DEBUGASSERT(op != NULL);
+  LIBSX1262_DEBUGASSERT(op != NULL);
 
   return op->angle;
 }
@@ -143,9 +143,9 @@ b16_t motor_openloop_angle_get_b16(FAR struct openloop_data_b16_s *op)
 void motor_angle_e_update_b16(FAR struct motor_angle_b16_s *angle,
                               b16_t angle_new, b16_t dir)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(angle_new >= 0 && angle_new <= MOTOR_ANGLE_E_MAX_B16);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle_new >= 0 && angle_new <= MOTOR_ANGLE_E_MAX_B16);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
 
   b16_t tmp1 = 0;
   b16_t tmp2 = 0;
@@ -222,9 +222,9 @@ void motor_angle_e_update_b16(FAR struct motor_angle_b16_s *angle,
 void motor_angle_m_update_b16(FAR struct motor_angle_b16_s *angle,
                               b16_t angle_new, b16_t dir)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(angle_new >= 0 && angle_new <= MOTOR_ANGLE_E_MAX_B16);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle_new >= 0 && angle_new <= MOTOR_ANGLE_E_MAX_B16);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW_B16 || dir == DIR_CCW_B16);
 
   b16_t angle_el = 0;
   b16_t tmp1     = 0;
@@ -268,7 +268,7 @@ void motor_angle_m_update_b16(FAR struct motor_angle_b16_s *angle,
 
 b16_t motor_angle_m_get_b16(FAR struct motor_angle_b16_s *angle)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   return angle->anglem;
 }
@@ -289,7 +289,7 @@ b16_t motor_angle_m_get_b16(FAR struct motor_angle_b16_s *angle)
 
 b16_t motor_angle_e_get_b16(FAR struct motor_angle_b16_s *angle)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
 
   return angle->angle_el.angle;
 }
@@ -315,7 +315,7 @@ b16_t motor_angle_e_get_b16(FAR struct motor_angle_b16_s *angle)
 void motor_phy_params_init_b16(FAR struct motor_phy_params_b16_s *phy,
                                uint8_t poles, b16_t res, b16_t ind)
 {
-  LIBDSP_DEBUGASSERT(phy != NULL);
+  LIBSX1262_DEBUGASSERT(phy != NULL);
 
   memset(phy, 0, sizeof(struct motor_phy_params_b16_s));
 
@@ -352,7 +352,7 @@ void pmsm_phy_params_init_b16(FAR struct pmsm_phy_params_b16_s *phy,
                               b16_t iner, b16_t flux,
                               b16_t ind_d, b16_t ind_q)
 {
-  LIBDSP_DEBUGASSERT(phy != NULL);
+  LIBSX1262_DEBUGASSERT(phy != NULL);
 
   /* Initialize motor phy */
 

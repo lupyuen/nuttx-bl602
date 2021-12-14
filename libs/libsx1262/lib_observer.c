@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_observer.c
+ * libs/libsx1262/lib_observer.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -54,10 +54,10 @@
 void motor_observer_init(FAR struct motor_observer_f32_s *observer,
                          FAR void *ao, FAR void *so, float per)
 {
-  LIBDSP_DEBUGASSERT(observer != NULL);
-  LIBDSP_DEBUGASSERT(ao != NULL);
-  LIBDSP_DEBUGASSERT(so != NULL);
-  LIBDSP_DEBUGASSERT(per > 0.0f);
+  LIBSX1262_DEBUGASSERT(observer != NULL);
+  LIBSX1262_DEBUGASSERT(ao != NULL);
+  LIBSX1262_DEBUGASSERT(so != NULL);
+  LIBSX1262_DEBUGASSERT(per > 0.0f);
 
   /* Reset observer data */
 
@@ -95,9 +95,9 @@ void motor_observer_init(FAR struct motor_observer_f32_s *observer,
 void motor_observer_smo_init(FAR struct motor_observer_smo_f32_s *smo,
                              float kslide, float err_max)
 {
-  LIBDSP_DEBUGASSERT(smo != NULL);
-  LIBDSP_DEBUGASSERT(kslide > 0.0f);
-  LIBDSP_DEBUGASSERT(err_max > 0.0f);
+  LIBSX1262_DEBUGASSERT(smo != NULL);
+  LIBSX1262_DEBUGASSERT(kslide > 0.0f);
+  LIBSX1262_DEBUGASSERT(err_max > 0.0f);
 
   /* Reset structure */
 
@@ -175,10 +175,10 @@ void motor_observer_smo(FAR struct motor_observer_f32_s *o,
                         FAR ab_frame_f32_t *i_ab, FAR ab_frame_f32_t *v_ab,
                         FAR struct motor_phy_params_f32_s *phy, float dir)
 {
-  LIBDSP_DEBUGASSERT(o != NULL);
-  LIBDSP_DEBUGASSERT(i_ab != NULL);
-  LIBDSP_DEBUGASSERT(v_ab != NULL);
-  LIBDSP_DEBUGASSERT(phy != NULL);
+  LIBSX1262_DEBUGASSERT(o != NULL);
+  LIBSX1262_DEBUGASSERT(i_ab != NULL);
+  LIBSX1262_DEBUGASSERT(v_ab != NULL);
+  LIBSX1262_DEBUGASSERT(phy != NULL);
 
   FAR struct motor_observer_smo_f32_s *smo =
     (FAR struct motor_observer_smo_f32_s *)o->ao;
@@ -377,9 +377,9 @@ void motor_observer_smo(FAR struct motor_observer_f32_s *o,
 void motor_sobserver_div_init(FAR struct motor_sobserver_div_f32_s *so,
                               uint8_t samples, float filter, float per)
 {
-  LIBDSP_DEBUGASSERT(so != NULL);
-  LIBDSP_DEBUGASSERT(samples > 0);
-  LIBDSP_DEBUGASSERT(filter > 0.0f);
+  LIBSX1262_DEBUGASSERT(so != NULL);
+  LIBSX1262_DEBUGASSERT(samples > 0);
+  LIBSX1262_DEBUGASSERT(filter > 0.0f);
 
   /* Reset observer data */
 
@@ -416,9 +416,9 @@ void motor_sobserver_div_init(FAR struct motor_sobserver_div_f32_s *so,
 void motor_sobserver_div(FAR struct motor_observer_f32_s *o,
                          float angle, float dir)
 {
-  LIBDSP_DEBUGASSERT(o != NULL);
-  LIBDSP_DEBUGASSERT(angle >= 0.0f && angle <= 2*M_PI_F);
-  LIBDSP_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
+  LIBSX1262_DEBUGASSERT(o != NULL);
+  LIBSX1262_DEBUGASSERT(angle >= 0.0f && angle <= 2*M_PI_F);
+  LIBSX1262_DEBUGASSERT(dir == DIR_CW || dir == DIR_CCW);
 
   FAR struct motor_sobserver_div_f32_s *so =
     (FAR struct motor_sobserver_div_f32_s *)o->so;
@@ -510,7 +510,7 @@ void motor_sobserver_div(FAR struct motor_observer_f32_s *o,
 
 float motor_observer_speed_get(FAR struct motor_observer_f32_s *o)
 {
-  LIBDSP_DEBUGASSERT(o != NULL);
+  LIBSX1262_DEBUGASSERT(o != NULL);
 
   return o->speed;
 }
@@ -531,7 +531,7 @@ float motor_observer_speed_get(FAR struct motor_observer_f32_s *o)
 
 float motor_observer_angle_get(FAR struct motor_observer_f32_s *o)
 {
-  LIBDSP_DEBUGASSERT(o != NULL);
+  LIBSX1262_DEBUGASSERT(o != NULL);
 
   return o->angle;
 }

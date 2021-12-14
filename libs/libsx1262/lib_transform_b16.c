@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_transform_b16.c
+ * libs/libsx1262/lib_transform_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -54,8 +54,8 @@
 void clarke_transform_b16(FAR abc_frame_b16_t *abc,
                           FAR ab_frame_b16_t *ab)
 {
-  LIBDSP_DEBUGASSERT(abc != NULL);
-  LIBDSP_DEBUGASSERT(ab != NULL);
+  LIBSX1262_DEBUGASSERT(abc != NULL);
+  LIBSX1262_DEBUGASSERT(ab != NULL);
 
   ab->a = abc->a;
   ab->b = (b16mulb16(ONE_BY_SQRT3_B16, abc->a) +
@@ -81,8 +81,8 @@ void clarke_transform_b16(FAR abc_frame_b16_t *abc,
 void inv_clarke_transform_b16(FAR ab_frame_b16_t *ab,
                               FAR abc_frame_b16_t *abc)
 {
-  LIBDSP_DEBUGASSERT(ab != NULL);
-  LIBDSP_DEBUGASSERT(abc != NULL);
+  LIBSX1262_DEBUGASSERT(ab != NULL);
+  LIBSX1262_DEBUGASSERT(abc != NULL);
 
   /* Assume non-power-invariant transform and balanced system */
 
@@ -113,9 +113,9 @@ void park_transform_b16(FAR phase_angle_b16_t *angle,
                         FAR ab_frame_b16_t *ab,
                         FAR dq_frame_b16_t *dq)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(ab != NULL);
-  LIBDSP_DEBUGASSERT(dq != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(ab != NULL);
+  LIBSX1262_DEBUGASSERT(dq != NULL);
 
   dq->d = b16mulb16(angle->cos, ab->a) + b16mulb16(angle->sin, ab->b);
   dq->q = b16mulb16(angle->cos, ab->b) - b16mulb16(angle->sin, ab->a);
@@ -142,9 +142,9 @@ void inv_park_transform_b16(FAR phase_angle_b16_t *angle,
                             FAR dq_frame_b16_t *dq,
                             FAR ab_frame_b16_t *ab)
 {
-  LIBDSP_DEBUGASSERT(angle != NULL);
-  LIBDSP_DEBUGASSERT(dq != NULL);
-  LIBDSP_DEBUGASSERT(ab != NULL);
+  LIBSX1262_DEBUGASSERT(angle != NULL);
+  LIBSX1262_DEBUGASSERT(dq != NULL);
+  LIBSX1262_DEBUGASSERT(ab != NULL);
 
   ab->a = b16mulb16(angle->cos, dq->d) - b16mulb16(angle->sin, dq->q);
   ab->b = b16mulb16(angle->cos, dq->q) + b16mulb16(angle->sin, dq->d);

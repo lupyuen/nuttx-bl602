@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libdsp/lib_pid_b16.c
+ * libs/libsx1262/lib_pid_b16.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -49,7 +49,7 @@
 void pid_controller_init_b16(FAR pid_controller_b16_t *pid, b16_t KP,
                              b16_t KI, b16_t KD)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
 
   /* Reset controller data */
 
@@ -83,7 +83,7 @@ void pid_controller_init_b16(FAR pid_controller_b16_t *pid, b16_t KP,
 void pi_controller_init_b16(FAR pid_controller_b16_t *pid, b16_t KP,
                             b16_t KI)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
 
   /* Reset controller data */
 
@@ -123,8 +123,8 @@ void pi_controller_init_b16(FAR pid_controller_b16_t *pid, b16_t KP,
 void pid_saturation_set_b16(FAR pid_controller_b16_t *pid, b16_t min,
                             b16_t max)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
-  LIBDSP_DEBUGASSERT(min < max);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(min < max);
 
   pid->sat.max = max;
   pid->sat.min = min;
@@ -152,8 +152,8 @@ void pid_saturation_set_b16(FAR pid_controller_b16_t *pid, b16_t min,
 void pi_saturation_set_b16(FAR pid_controller_b16_t *pid, b16_t min,
                            b16_t max)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
-  LIBDSP_DEBUGASSERT(min < max);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(min < max);
 
   pid->sat.max = max;
   pid->sat.min = min;
@@ -219,7 +219,7 @@ void pi_integral_reset_b16(FAR pid_controller_b16_t *pid)
 
 b16_t pi_controller_b16(FAR pid_controller_b16_t *pid, b16_t err)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
 
   b16_t tmp = 0;
 
@@ -310,7 +310,7 @@ b16_t pi_controller_b16(FAR pid_controller_b16_t *pid, b16_t err)
 
 b16_t pid_controller_b16(FAR pid_controller_b16_t *pid, b16_t err)
 {
-  LIBDSP_DEBUGASSERT(pid != NULL);
+  LIBSX1262_DEBUGASSERT(pid != NULL);
 
   /* Get PI output */
 
