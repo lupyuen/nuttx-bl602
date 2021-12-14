@@ -202,6 +202,12 @@ libs$(DELIM)libdsp$(DELIM)libdsp$(LIBEXT): pass2dep
 staging$(DELIM)libdsp$(LIBEXT): libs$(DELIM)libdsp$(DELIM)libdsp$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)libsx1262$(DELIM)libsx1262$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libsx1262 libsx1262$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libsx1262$(LIBEXT): libs$(DELIM)libsx1262$(DELIM)libsx1262$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else
