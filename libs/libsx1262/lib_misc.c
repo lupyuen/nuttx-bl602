@@ -22,6 +22,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdio.h>  /* TODO: Fix this for kernel mode */
 #include <dsp.h>
 
 /****************************************************************************
@@ -453,4 +454,9 @@ void phase_angle_update(FAR struct phase_angle_f32_s *angle, float val)
   angle->sin = fast_sin(val);
   angle->cos = fast_cos(val);
 #endif
+}
+
+void test_libsx1262(void)
+{
+  puts("libsx1262 OK!");
 }
