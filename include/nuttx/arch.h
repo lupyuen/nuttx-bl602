@@ -85,6 +85,7 @@
 #include <nuttx/compiler.h>
 #include <nuttx/cache.h>
 #include <nuttx/sched.h>
+#include <nuttx/tls.h>
 
 /****************************************************************************
  * Pre-processor definitions
@@ -1791,9 +1792,51 @@ int up_timer_start(FAR const struct timespec *ts);
 /* struct tls_info_s;
  * FAR struct tls_info_s *up_tls_info(void);
  *
- * The actual declaration or definition is provided in arch/tls.h.  The
- * actual implementation may be a MACRO or an inline function.
+ * The actual definition is provided in arch/arch.h as a macro. The default
+ * implementation provided here assume the arch has a "push down" stack.
  */
+
+#ifndef up_tls_info
+#  ifdef CONFIG_TLS_ALIGNED
+#    define up_tls_info() TLS_INFO((uintptr_t)up_getsp())
+#  else
+#    define up_tls_info() tls_get_info()
+#  endif
+#endif
+
+/****************************************************************************
+ * Name: up_tls_size
+ *
+ * Description:
+ *   Get TLS (sizeof(struct tls_info_s) + tdata + tbss) section size.
+ *
+ * Returned Value:
+ *   Size of (sizeof(struct tls_info_s) + tdata + tbss).
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SCHED_THREAD_LOCAL
+int up_tls_size(void);
+#else
+#define up_tls_size() sizeof(struct tls_info_s) 
+#endif
+
+/****************************************************************************
+ * Name: up_tls_initialize
+ *
+ * Description:
+ *   Initialize thread local region
+ *
+ * Input Parameters:
+ *   tls_data - The memory region to initialize
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SCHED_THREAD_LOCAL
+void up_tls_initialize(FAR struct tls_info_s *info);
+#else
+#define up_tls_initialize(x)
+#endif
 
 /****************************************************************************
  * Multiple CPU support

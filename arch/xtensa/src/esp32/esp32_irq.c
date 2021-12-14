@@ -32,7 +32,9 @@
 
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
+#include <nuttx/board.h>
 #include <arch/irq.h>
+#include <arch/board/board.h>
 
 #include "xtensa.h"
 
@@ -564,9 +566,9 @@ void up_disable_irq(int irq)
 #ifdef CONFIG_SMP
       /* The APP's CPU GPIO is a special case. See esp32/irq.h */
 
-      if (periph == ESP32_IRQ_APPCPU_GPIO)
+      if (irq == ESP32_IRQ_APPCPU_GPIO)
         {
-          periph = ESP32_IRQ_CPU_GPIO;
+          periph = ESP32_PERIPH_CPU_GPIO;
         }
 #endif
 #endif
@@ -619,9 +621,9 @@ void up_enable_irq(int irq)
 #ifdef CONFIG_SMP
       /* The APP's CPU GPIO is a special case. See esp32/irq.h */
 
-      if (periph == ESP32_IRQ_APPCPU_GPIO)
+      if (irq == ESP32_IRQ_APPCPU_GPIO)
         {
-          periph = ESP32_IRQ_CPU_GPIO;
+          periph = ESP32_PERIPH_CPU_GPIO;
         }
 #endif
 #endif
@@ -819,6 +821,15 @@ int esp32_setup_irq(int cpu, int periphid, int priority, int type)
 
   irq = ESP32_PERIPH2IRQ(periphid);
 
+#ifdef CONFIG_ESP32_GPIO_IRQ
+#ifdef CONFIG_SMP
+  if (cpu == 1 && periphid == ESP32_PERIPH_CPU_GPIO)
+    {
+      irq = ESP32_IRQ_APPCPU_GPIO;
+    }
+#endif
+#endif
+
   DEBUGASSERT(periphid >= 0 && periphid < ESP32_NPERIPHERALS);
   DEBUGASSERT(cpuint >= 0 && cpuint <= ESP32_CPUINT_MAX);
 
@@ -913,6 +924,10 @@ uint32_t *xtensa_int_decode(uint32_t cpuints, uint32_t *regs)
   int bit;
 #ifdef CONFIG_SMP
   int cpu;
+#endif
+
+#ifdef CONFIG_ARCH_LEDS_CPU_ACTIVITY
+  board_autoled_on(LED_CPU);
 #endif
 
 #ifdef CONFIG_SMP

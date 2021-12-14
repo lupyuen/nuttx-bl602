@@ -99,11 +99,16 @@ static const struct file_operations g_batteryops =
  ****************************************************************************/
 
 static int battery_charger_notify(FAR struct battery_charger_priv_s *priv,
-                                   uint32_t mask)
+                                  uint32_t mask)
 {
   FAR struct pollfd *fd = priv->fds;
   int semcnt;
   int ret;
+
+  if (!fd)
+    {
+      return OK;
+    }
 
   ret = nxsem_wait_uninterruptible(&priv->lock);
   if (ret < 0)
@@ -356,6 +361,26 @@ static int bat_charger_ioctl(FAR struct file *filep, int cmd,
           if (ptr)
             {
               ret = dev->ops->operate(dev, (uintptr_t)arg);
+            }
+        }
+        break;
+
+      case BATIOC_CHIPID:
+        {
+          FAR unsigned int *ptr = (FAR unsigned int *)((uintptr_t)arg);
+          if (ptr)
+            {
+              ret = dev->ops->chipid(dev, ptr);
+            }
+        }
+        break;
+
+      case BATIOC_GET_VOLTAGE:
+        {
+          FAR int *outvoltsp = (FAR int *)((uintptr_t)arg);
+          if (outvoltsp)
+            {
+              ret = dev->ops->get_voltage(dev, outvoltsp);
             }
         }
         break;

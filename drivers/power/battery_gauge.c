@@ -101,11 +101,16 @@ static const struct file_operations g_batteryops =
  ****************************************************************************/
 
 static int battery_gauge_notify(FAR struct battery_gauge_priv_s *priv,
-                                   uint32_t mask)
+                                uint32_t mask)
 {
   FAR struct pollfd *fd = priv->fds;
   int semcnt;
   int ret;
+
+  if (!fd)
+    {
+      return OK;
+    }
 
   ret = nxsem_wait_uninterruptible(&priv->lock);
   if (ret < 0)
@@ -344,6 +349,16 @@ static int bat_gauge_ioctl(FAR struct file *filep,
           if (ptr)
             {
               ret = dev->ops->temp(dev, ptr);
+            }
+        }
+        break;
+
+      case BATIOC_CHIPID:
+        {
+          FAR unsigned int *ptr = (FAR unsigned int *)((uintptr_t)arg);
+          if (ptr)
+            {
+              ret = dev->ops->chipid(dev, ptr);
             }
         }
         break;

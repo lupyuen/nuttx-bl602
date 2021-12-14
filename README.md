@@ -542,7 +542,7 @@ if you want to build the sim:
 
   * ELF toolchain (if you want to build modules for CONFIG_LIBC_MODLIB)
 
-    brew install x86_64-elf-gc
+    brew install x86_64-elf-gcc
 
 # INSTALLATION
 
@@ -2084,6 +2084,8 @@ Below is a guide to the available README files in the NuttX source tree:
      |   |   |   `- metro-m4/
      |   |   |      `- README.txt
      |   |   |- samv7/
+     |   |   |   |- same70-qmtech/
+     |   |   |   |   `- README.txt
      |   |   |   |- same70-xplained/
      |   |   |   |   `- README.txt
      |   |   |   `- samv71-xult/
