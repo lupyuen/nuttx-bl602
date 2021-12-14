@@ -42,11 +42,19 @@
 
 #if defined(CONFIG_SPI) && defined(CONFIG_RF_SPI_TEST_DRIVER)
 
+/* We set SPI Frequency to 1 MHz */
+
 #ifndef CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY
 #  define CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY 1000000
-#endif
+#endif /* CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY */
 
-#define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
+/* For BL602 we use SPI Mode 1 instead of Mode 0 due to SPI quirk */
+
+#ifdef CONFIG_BL602_SPI0
+#  define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE1) /* SPI Mode 1: Workaround for BL602 */
+#else
+#  define SPI_TEST_DRIVER_SPI_MODE (SPIDEV_MODE0) /* SPI Mode 0: CPOL=0,CPHA=0 */
+#endif /* CONFIG_BL602_SPI0 */
 
 /****************************************************************************
  * Private Types
@@ -88,6 +96,10 @@ static const struct file_operations g_spi_test_driver_fops =
   NULL   /* Poll not implemented */
 };
 
+static char recv_buffer[256];  /* Buffer for SPI response */
+
+static int recv_buffer_len = 0;  /* Length of SPI response */
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -102,46 +114,18 @@ static const struct file_operations g_spi_test_driver_fops =
 
 static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 {
-  printf("spi_test_driver_configspi\n");
+  _info("\n");
   DEBUGASSERT(spi != NULL);
+
+  /* Set SPI Mode (Polarity and Phase) and Transfer Size (8 bits) */
 
   SPI_SETMODE(spi, SPI_TEST_DRIVER_SPI_MODE);
   SPI_SETBITS(spi, 8);
+
+  /* Set SPI Hardware Features and Frequency */
+
   SPI_HWFEATURES(spi, 0);
   SPI_SETFREQUENCY(spi, CONFIG_SPI_TEST_DRIVER_SPI_FREQUENCY);
-}
-
-/****************************************************************************
- * Name: spi_test_driver_set_attenuation
- *
- * Description:
- *   Set the attenuation level in dB (16.16 bits fixed point).
- *
- ****************************************************************************/
-
-static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *priv,
-                                      b16_t attenuation)
-{
-  printf("spi_test_driver_set_attenuation\n");
-  DEBUGASSERT(priv != NULL);
-
-  SPI_LOCK(priv->spi, true);
-
-  spi_test_driver_configspi(priv->spi);
-
-  SPI_SELECT(priv->spi, priv->spidev, false);
-
-  /* Convert the attenuation value from 16.16 bits to 5.1 bits. */
-
-  SPI_SEND(priv->spi, (uint8_t)(attenuation >> 15));
-
-  /* Send a pulse to the LE pin */
-
-  SPI_SELECT(priv->spi, priv->spidev, true);
-  up_udelay(1);
-  SPI_SELECT(priv->spi, priv->spidev, false);
-
-  SPI_LOCK(priv->spi, false);
 }
 
 /****************************************************************************
@@ -154,7 +138,7 @@ static void spi_test_driver_set_attenuation(FAR struct spi_test_driver_dev_s *pr
 
 static int spi_test_driver_open(FAR struct file *filep)
 {
-  printf("spi_test_driver_open\n");
+  _info("\n");
   DEBUGASSERT(filep != NULL);
   return OK;
 }
@@ -169,7 +153,7 @@ static int spi_test_driver_open(FAR struct file *filep)
 
 static int spi_test_driver_close(FAR struct file *filep)
 {
-  printf("spi_test_driver_close\n");
+  _info("\n");
   DEBUGASSERT(filep != NULL);
   return OK;
 }
@@ -185,16 +169,40 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
                                FAR const char *buffer,
                                size_t buflen)
 {
-  printf("spi_test_driver_write: buflen=%u\n  ", buflen);
-  DEBUGASSERT(filep  != NULL);
+  _info("buflen=%u\n", buflen);
+  DEBUGASSERT(buflen <= sizeof(recv_buffer));  /* TODO: Range eheck */
   DEBUGASSERT(buffer != NULL);
-  for (int i = 0; i < buflen; i++) 
-    {
-      printf("%02x ", buffer[i]);
-    }
-  printf("\n");
+  DEBUGASSERT(filep  != NULL);
 
-  /* TODO: Write the buffer to the device */
+  /* Get the SPI interface */
+
+  FAR struct inode *inode = filep->f_inode;
+  DEBUGASSERT(inode != NULL);
+  FAR struct spi_test_driver_dev_s *priv = inode->i_private;
+  DEBUGASSERT(priv != NULL);
+
+  /* Lock the SPI bus and configure the SPI interface */
+
+  DEBUGASSERT(priv->spi != NULL);
+  SPI_LOCK(priv->spi, true);
+  spi_test_driver_configspi(priv->spi);
+
+  /* Select the SPI device (unused for BL602) */
+
+  SPI_SELECT(priv->spi, priv->spidev, true);
+
+  /* Transmit buffer to SPI device and receive the response */
+
+  SPI_EXCHANGE(priv->spi, buffer, recv_buffer, buflen);
+  recv_buffer_len = buflen;
+
+  /* Deselect the SPI device (unused for BL602) */
+
+  SPI_SELECT(priv->spi, priv->spidev, false);
+
+  /* Unlock the SPI bus */
+
+  SPI_LOCK(priv->spi, false);
 
   return buflen;
 }
@@ -203,19 +211,25 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
  * Name: spi_test_driver_read
  *
  * Description:
- *   Read the buffer from the device.
+ *   Return the data received from the device.
  ****************************************************************************/
 
 static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
-  printf("spi_test_driver_read: buflen=%ul\n", buflen);
+  _info("buflen=%u\n", buflen);
   DEBUGASSERT(filep  != NULL);
   DEBUGASSERT(buffer != NULL);
 
-  /* TODO: Read the buffer from the device */
+  /* Copy the SPI response to the buffer */
 
-  return 0;  /* TODO: Return the number of bytes written */
+  DEBUGASSERT(recv_buffer_len >= 0);
+  DEBUGASSERT(recv_buffer_len <= buflen);  /* TODO: Range check */
+  memcpy(buffer, recv_buffer, recv_buffer_len);
+
+  /* Return the number of bytes read */
+
+  return recv_buffer_len;
 }
 
 /****************************************************************************
@@ -229,25 +243,14 @@ static int spi_test_driver_ioctl(FAR struct file *filep,
                            int cmd,
                            unsigned long arg)
 {
-  printf("spi_test_driver_ioctl: cmd=0x%x, arg=0x%lx\n", cmd, arg);
+  _info("cmd=0x%x, arg=0x%lx\n", cmd, arg);
   DEBUGASSERT(filep != NULL);
 
-  FAR struct inode *inode = filep->f_inode;
-  FAR struct spi_test_driver_dev_s *priv = inode->i_private;
   int ret = OK;
 
   switch (cmd)
     {
       /* TODO: Handle ioctl commands */
-
-      case RFIOC_SETATT:
-        {
-          FAR struct attenuator_control *att =
-            (FAR struct attenuator_control *)((uintptr_t)arg);
-          DEBUGASSERT(att != NULL);
-          spi_test_driver_set_attenuation(priv, att->attenuation);
-        }
-        break;
 
       default:
         sninfo("Unrecognized cmd: %d\n", cmd);
@@ -274,6 +277,7 @@ int spi_test_driver_register(FAR const char *devpath,
                        FAR struct spi_dev_s *spi,
                        int spidev)
 {
+  _info("devpath=%s, spidev=%d\n", devpath, spidev);
   FAR struct spi_test_driver_dev_s *priv;
   int ret;
 
