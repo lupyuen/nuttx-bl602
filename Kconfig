@@ -2007,6 +2007,7 @@ menu "Library Routines"
 source "libs/libc/Kconfig"
 source "libs/libxx/Kconfig"
 source "libs/libdsp/Kconfig"
+source "libs/libsx1262/Kconfig"
 endmenu
 
 menu "Open Asymmetric Multi Processing"

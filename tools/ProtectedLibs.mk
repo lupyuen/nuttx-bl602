@@ -132,6 +132,12 @@ ifeq ($(CONFIG_OPENAMP),y)
 NUTTXLIBS += staging$(DELIM)libopenamp$(LIBEXT)
 endif
 
+# Add Semtech SX1262 library
+
+ifeq ($(CONFIG_LIBSX1262),y)
+NUTTXLIBS += staging$(DELIM)libsx1262$(LIBEXT)
+endif
+
 # Export only the user libraries
 
 EXPORTLIBS = $(USERLIBS)
