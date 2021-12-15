@@ -1,0 +1,4 @@
+[submodule "libs/libsx1262"]
+	path = libs/libsx1262
+	url = https://github.com/lupyuen/lora-sx1262
+	branch = nuttx
