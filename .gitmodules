@@ -2,3 +2,6 @@
 	path = libs/libsx1262
 	url = https://github.com/lupyuen/lora-sx1262
 	branch = nuttx
+[submodule "libs/liblorawan"]
+	path = libs/liblorawan
+	url = https://github.com/lupyuen/LoRaMac-node-nuttx
