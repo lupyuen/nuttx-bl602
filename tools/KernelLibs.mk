@@ -124,6 +124,12 @@ ifeq ($(CONFIG_LIBSX1262),y)
 NUTTXLIBS += staging$(DELIM)libsx1262$(LIBEXT)
 endif
 
+# Add LoRaWAN library
+
+ifeq ($(CONFIG_LIBLORAWAN),y)
+NUTTXLIBS += staging$(DELIM)liblorawan$(LIBEXT)
+endif
+
 # Export only the user libraries
 
 EXPORTLIBS = $(USERLIBS)
