@@ -155,6 +155,12 @@ else
 CLEANDIRS += libs$(DELIM)liblorawan
 endif
 
+ifeq ($(CONFIG_LIBNPL),y)
+KERNDEPDIRS += libs$(DELIM)libnpl
+else
+CLEANDIRS += libs$(DELIM)libnpl
+endif
+
 # Add networking directories to KERNDEPDIRS and CLEANDIRS
 
 ifeq ($(CONFIG_NET),y)

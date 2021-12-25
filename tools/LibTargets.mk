@@ -214,6 +214,12 @@ libs$(DELIM)liblorawan$(DELIM)liblorawan$(LIBEXT): pass2dep
 staging$(DELIM)liblorawan$(LIBEXT): libs$(DELIM)liblorawan$(DELIM)liblorawan$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libnpl libnpl$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libnpl$(LIBEXT): libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else
