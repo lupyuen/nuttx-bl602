@@ -51,7 +51,7 @@
 
 /* GPIO Interrupt (DIO1) for PineDio SX1262 */
 
-#define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_PULLUP | \
+#define BOARD_GPIO_INT1   (GPIO_INTERRUPT_RISING_PIN | GPIO_FLOAT | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN19)
 
 /* UART Configuration */
