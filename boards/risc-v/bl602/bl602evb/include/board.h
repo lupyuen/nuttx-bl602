@@ -66,6 +66,7 @@
 #define BOARD_UART_1_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
                               GPIO_FUNC_UART | GPIO_PIN4)
 
+#ifdef TODO
 /* PWM Configuration */
 
 #define BOARD_PWM_CH0_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
@@ -78,11 +79,14 @@
                             GPIO_FUNC_PWM | GPIO_PIN3)
 #define BOARD_PWM_CH4_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
                             GPIO_FUNC_PWM | GPIO_PIN4)
+#endif  /* TODO */
 
+#ifdef TODO
 /* I2C Configuration */
 
 #define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN4)
 #define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN3)
+#endif  /* TODO */
 
 /* SPI Configuration */
 
