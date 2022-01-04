@@ -44,9 +44,7 @@ To install the SPI Test Driver in your NuttX project...
     make menuconfig 
     ```
 
-1.  Call `spi_test_driver_register` in `bl602_bringup` (or `esp32_bringup`)
-
-    In menuconfig...
+1.  In menuconfig...
     
     -   Enable the SPI Port (SPI0)
 
@@ -57,5 +55,19 @@ To install the SPI Test Driver in your NuttX project...
     As explained here...
 
     ["Load the SPI Test Driver"](https://lupyuen.github.io/articles/spi2#load-the-spi-test-driver)
+
+1.  Edit the function `bl602_bringup` or `esp32_bringup` in this file...
+
+    ```text
+    ## For BL602:
+    nuttx/boards/risc-v/bl602/bl602evb/src/bl602_bringup.c
+
+    ## For ESP32: Change "esp32-devkitc" to our ESP32 board 
+    nuttx/boards/xtensa/esp32/esp32-devkitc/src/esp32_bringup.c
+    ```
+
+    And call `spi_test_driver_register` to register our SPI Test Driver.
+    
+    [(See this)](https://lupyuen.github.io/articles/spi2#register-device-driver)
 
 1.  The SPI Test Driver is accessible by NuttX Apps as "`/dev/spitest0`"
