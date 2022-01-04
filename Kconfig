@@ -2008,6 +2008,8 @@ source "libs/libc/Kconfig"
 source "libs/libxx/Kconfig"
 source "libs/libdsp/Kconfig"
 source "libs/libsx1262/Kconfig"
+source "libs/liblorawan/Kconfig"
+source "libs/libnpl/Kconfig"
 endmenu
 
 menu "Open Asymmetric Multi Processing"

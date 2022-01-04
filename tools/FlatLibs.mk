@@ -138,6 +138,18 @@ ifeq ($(CONFIG_LIBSX1262),y)
 NUTTXLIBS += staging$(DELIM)libsx1262$(LIBEXT)
 endif
 
+# Add LoRaWAN library
+
+ifeq ($(CONFIG_LIBLORAWAN),y)
+NUTTXLIBS += staging$(DELIM)liblorawan$(LIBEXT)
+endif
+
+# Add NimBLE Porting Layer library
+
+ifeq ($(CONFIG_LIBNPL),y)
+NUTTXLIBS += staging$(DELIM)libnpl$(LIBEXT)
+endif
+
 # Export all libraries
 
 EXPORTLIBS = $(NUTTXLIBS)

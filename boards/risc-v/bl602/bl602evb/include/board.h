@@ -51,7 +51,7 @@
 
 /* GPIO Interrupt (DIO1) for PineDio SX1262 */
 
-#define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_PULLUP | \
+#define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_FLOAT | \
                             GPIO_FUNC_SWGPIO | GPIO_PIN19)
 
 /* UART Configuration */
@@ -65,7 +65,7 @@
 #define BOARD_UART_1_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
                               GPIO_FUNC_UART | GPIO_PIN4)
 
-#ifdef TODO
+#ifdef TODO  /* Remember to check for duplicate pins! */
 /* PWM Configuration */
 
 #define BOARD_PWM_CH0_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
@@ -80,7 +80,7 @@
                             GPIO_FUNC_PWM | GPIO_PIN4)
 #endif  /* TODO */
 
-#ifdef TODO
+#ifdef TODO  /* Remember to check for duplicate pins! */
 /* I2C Configuration */
 
 #define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN4)
