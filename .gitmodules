@@ -8,3 +8,6 @@
 [submodule "libs/libnpl"]
 	path = libs/libnpl
 	url = https://github.com/lupyuen/nimble-porting-nuttx
+[submodule "libs/libtinycbor"]
+	path = libs/libtinycbor
+	url = https://github.com/lupyuen2/tinycbor-nuttx
