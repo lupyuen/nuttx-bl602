@@ -150,6 +150,12 @@ ifeq ($(CONFIG_LIBNPL),y)
 NUTTXLIBS += staging$(DELIM)libnpl$(LIBEXT)
 endif
 
+# Add TinyCBOR library
+
+ifeq ($(CONFIG_LIBTINYCBOR),y)
+NUTTXLIBS += staging$(DELIM)libtinycbor$(LIBEXT)
+endif
+
 # Export all libraries
 
 EXPORTLIBS = $(NUTTXLIBS)

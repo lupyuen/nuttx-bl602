@@ -161,6 +161,12 @@ else
 CLEANDIRS += libs$(DELIM)libnpl
 endif
 
+ifeq ($(CONFIG_LIBTINYCBOR),y)
+KERNDEPDIRS += libs$(DELIM)libtinycbor
+else
+CLEANDIRS += libs$(DELIM)libtinycbor
+endif
+
 # Add networking directories to KERNDEPDIRS and CLEANDIRS
 
 ifeq ($(CONFIG_NET),y)
