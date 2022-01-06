@@ -220,6 +220,12 @@ libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT): pass2dep
 staging$(DELIM)libnpl$(LIBEXT): libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libtinycbor libtinycbor$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libtinycbor$(LIBEXT): libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else
