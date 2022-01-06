@@ -156,6 +156,12 @@ ifeq ($(CONFIG_LIBTINYCBOR),y)
 NUTTXLIBS += staging$(DELIM)libtinycbor$(LIBEXT)
 endif
 
+# Add Rust library
+
+ifeq ($(CONFIG_LIBRUST),y)
+NUTTXLIBS += staging$(DELIM)librust$(LIBEXT)
+endif
+
 # Export only the user libraries
 
 EXPORTLIBS = $(USERLIBS)

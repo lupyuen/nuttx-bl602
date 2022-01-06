@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig LIBRUST
+	bool "Rust Library"
+	default n
+	---help---
+		Enable build for Rust Library
+
+if LIBRUST
+
+config LIBRUST_DEBUG
+	bool "Rust Library debugging"
+	default n
+	---help---
+		Enable debugging for Rust Library
+
+endif # LIBRUST

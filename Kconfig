@@ -2011,6 +2011,7 @@ source "libs/libsx1262/Kconfig"
 source "libs/liblorawan/Kconfig"
 source "libs/libnpl/Kconfig"
 source "libs/libtinycbor/Kconfig"
+source "libs/librust/Kconfig"
 endmenu
 
 menu "Open Asymmetric Multi Processing"
