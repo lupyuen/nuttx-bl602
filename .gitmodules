@@ -11,3 +11,6 @@
 [submodule "libs/libtinycbor"]
 	path = libs/libtinycbor
 	url = https://github.com/lupyuen2/tinycbor-nuttx
+[submodule "libs/librust"]
+	path = libs/librust
+	url = https://github.com/lupyuen/rust-nuttx
