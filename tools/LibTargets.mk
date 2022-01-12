@@ -226,6 +226,12 @@ libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT): pass2dep
 staging$(DELIM)libtinycbor$(LIBEXT): libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)librust$(DELIM)librust$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)librust librust$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)librust$(LIBEXT): libs$(DELIM)librust$(DELIM)librust$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else
