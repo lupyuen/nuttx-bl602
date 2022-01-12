@@ -173,6 +173,12 @@ else
 CLEANDIRS += libs$(DELIM)librust
 endif
 
+ifeq ($(CONFIG_LIBBL602_ADC),y)
+KERNDEPDIRS += libs$(DELIM)libbl602_adc
+else
+CLEANDIRS += libs$(DELIM)libbl602_adc
+endif
+
 # Add networking directories to KERNDEPDIRS and CLEANDIRS
 
 ifeq ($(CONFIG_NET),y)

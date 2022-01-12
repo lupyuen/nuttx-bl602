@@ -232,6 +232,12 @@ libs$(DELIM)librust$(DELIM)librust$(LIBEXT): pass2dep
 staging$(DELIM)librust$(LIBEXT): libs$(DELIM)librust$(DELIM)librust$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)libbl602_adc$(DELIM)libbl602_adc$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libbl602_adc libbl602_adc$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libbl602_adc$(LIBEXT): libs$(DELIM)libbl602_adc$(DELIM)libbl602_adc$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else

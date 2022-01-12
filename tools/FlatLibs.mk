@@ -162,6 +162,12 @@ ifeq ($(CONFIG_LIBRUST),y)
 NUTTXLIBS += staging$(DELIM)librust$(LIBEXT)
 endif
 
+# Add BL602 ADC library
+
+ifeq ($(CONFIG_LIBBL602_ADC),y)
+NUTTXLIBS += staging$(DELIM)libbl602_adc$(LIBEXT)
+endif
+
 # Export all libraries
 
 EXPORTLIBS = $(NUTTXLIBS)
