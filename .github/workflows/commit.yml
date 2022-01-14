@@ -1,0 +1,69 @@
+# Build NuttX for BL602 on commit
+
+name: Commit
+
+on:
+
+  # Run on every commit
+  push:
+    branches: [ master ]
+
+  # Run on every pull request
+  # pull_request:
+  #   branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Install Build Tools
+      run:  |
+        sudo apt -y install \
+        bison flex gettext texinfo libncurses5-dev libncursesw5-dev \
+        gperf automake libtool pkg-config build-essential gperf genromfs \
+        libgmp-dev libmpc-dev libmpfr-dev libisl-dev binutils-dev libelf-dev \
+        libexpat-dev gcc-multilib g++-multilib picocom u-boot-tools util-linux \
+        kconfig-frontends \
+        wget
+
+    - name: Install Toolchain
+      run:  |
+        wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
+        tar -xvf riscv64-unknown-elf-gcc*.tar.gz
+        find .
+
+    # - uses: actions/checkout@v2
+    
+    - name: Checkout Source Files
+      run:  |
+        mkdir nuttx
+        cd nuttx
+        git clone https://github.com/lupyuen/incubator-nuttx nuttx
+        git clone https://github.com/lupyuen/incubator-nuttx-apps apps
+          
+    - name: Build
+      run: |
+        export PATH=$PATH:$PWD/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin
+        cd nuttx/nuttx
+        
+        # Configure the build
+        ./tools/configure.sh bl602evb:nsh
+        
+        # Run the build
+        make
+
+        # Dump the disassembly to nuttx.S
+        riscv64-unknown-elf-objdump \
+          -t -S --demangle --line-numbers --wide \
+          nuttx \
+          >nuttx.S \
+          2>&1
+
+    - name: Upload Build Outputs
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuttx.zip
+        path: nuttx/nuttx/nuttx*
