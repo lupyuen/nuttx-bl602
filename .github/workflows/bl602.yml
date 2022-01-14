@@ -1,8 +1,9 @@
-# Build upstream NuttX every day
-# TODO: Auto-deploy to BL602 after build and capture the output
+# Build upstream NuttX every day and test
+# TODO: Auto-deploy to BL602 after build, capture the UART output and look for errors
 # TODO: Use an SBC (Rock64) to auto-flash BL602 over UART (USB)
 # TODO: SBC will toggle GPIO 8 to set the flashing mode
 # TODO: SBC will restart BL602 before and after flashing
+# Why are we doing this? So that we can pick a stable upstream version of NuttX to merge into our fork of NuttX
 
 name: Makefile CI
 
