@@ -1,0 +1,45 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Install build tools
+      run:  |
+        sudo apt -y install \
+        bison flex gettext texinfo libncurses5-dev libncursesw5-dev \
+        gperf automake libtool pkg-config build-essential gperf genromfs \
+        libgmp-dev libmpc-dev libmpfr-dev libisl-dev binutils-dev libelf-dev \
+        libexpat-dev gcc-multilib g++-multilib picocom u-boot-tools util-linux \
+        kconfig-frontends \
+        wget
+
+    - name: Install toolchain
+      run:  |
+        wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
+        tar -xvf riscv64-unknown-elf-gcc*.tar.gz
+        find .
+
+    # - uses: actions/checkout@v2
+    
+    - name: Checkout source files
+      run:  |
+        mkdir nuttx
+        cd nuttx
+        git clone https://github.com/apache/incubator-nuttx nuttx
+        git clone gpio https://github.com/apache/incubator-nuttx-apps apps
+          
+    - name: Build
+      run: |
+        cd nuttx
+        ./tools/configure.sh bl602evb:nsh
+        make
