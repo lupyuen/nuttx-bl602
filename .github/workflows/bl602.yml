@@ -40,6 +40,7 @@ jobs:
           
     - name: Build
       run: |
-        cd nuttx
+        export PATH=$PATH:$PWD/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin
+        cd nuttx/nuttx
         ./tools/configure.sh bl602evb:nsh
         make
