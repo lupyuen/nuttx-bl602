@@ -36,7 +36,7 @@ jobs:
         mkdir nuttx
         cd nuttx
         git clone https://github.com/apache/incubator-nuttx nuttx
-        git clone gpio https://github.com/apache/incubator-nuttx-apps apps
+        git clone https://github.com/apache/incubator-nuttx-apps apps
           
     - name: Build
       run: |
