@@ -5,7 +5,7 @@
 # TODO: SBC will restart BL602 before and after flashing
 # Why are we doing this? So that we can pick a stable upstream version of NuttX to merge into our fork of NuttX
 
-name: Makefile CI
+name: BL602 Upstream
 
 on:
 
