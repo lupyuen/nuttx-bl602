@@ -1,10 +1,24 @@
+# Build upstream NuttX every day
+# TODO: Auto-deploy to BL602 after build and capture the output
+# TODO: Use an SBC (Rock64) to auto-flash BL602 over UART (USB)
+# TODO: SBC will toggle GPIO 8 to set the flashing mode
+# TODO: SBC will restart BL602 before and after flashing
+
 name: Makefile CI
 
 on:
+
+  # Run every day at 6:00 and 18:00 UTC
+  schedule:
+    - cron: '0 6,18 * * *'
+
+  # Run on every commit
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+
+  # Run on every pull request
+  # pull_request:
+  #   branches: [ master ]
 
 jobs:
   build:
@@ -13,7 +27,7 @@ jobs:
 
     steps:
     
-    - name: Install build tools
+    - name: Install Build Tools
       run:  |
         sudo apt -y install \
         bison flex gettext texinfo libncurses5-dev libncursesw5-dev \
@@ -23,7 +37,7 @@ jobs:
         kconfig-frontends \
         wget
 
-    - name: Install toolchain
+    - name: Install Toolchain
       run:  |
         wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
         tar -xvf riscv64-unknown-elf-gcc*.tar.gz
@@ -31,7 +45,7 @@ jobs:
 
     # - uses: actions/checkout@v2
     
-    - name: Checkout source files
+    - name: Checkout Source Files
       run:  |
         mkdir nuttx
         cd nuttx
@@ -42,5 +56,22 @@ jobs:
       run: |
         export PATH=$PATH:$PWD/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin
         cd nuttx/nuttx
+        
+        # Configure the build
         ./tools/configure.sh bl602evb:nsh
+        
+        # Run the build
         make
+
+        # Dump the disassembly to nuttx.S
+        riscv64-unknown-elf-objdump \
+          -t -S --demangle --line-numbers --wide \
+          nuttx \
+          >nuttx.S \
+          2>&1
+
+    - name: Upload Build Outputs
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuttx.zip
+        path: nuttx/nuttx/nuttx*
