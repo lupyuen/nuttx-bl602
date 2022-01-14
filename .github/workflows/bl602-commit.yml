@@ -1,6 +1,6 @@
 # Build NuttX for BL602 on commit
 
-name: Commit
+name: BL602 Commit
 
 on:
 
@@ -41,8 +41,8 @@ jobs:
       run:  |
         mkdir nuttx
         cd nuttx
-        git clone https://github.com/lupyuen/incubator-nuttx nuttx
-        git clone https://github.com/lupyuen/incubator-nuttx-apps apps
+        git clone --recursive https://github.com/lupyuen/incubator-nuttx nuttx
+        git clone --recursive https://github.com/lupyuen/incubator-nuttx-apps apps
           
     - name: Build
       run: |
