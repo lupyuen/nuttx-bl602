@@ -41,12 +41,12 @@ REQUIREDOBJS = $(LINKOBJS)
 
 ifeq ($(CONFIG_HOST_X86_64),y)
 ifeq ($(CONFIG_SIM_M32),y)
-  ASRCS += up_vfork32.S
+  ASRCS += up_vfork_x86.S
 else
-  ASRCS += up_vfork64.S
+  ASRCS += up_vfork_x86_64.S
 endif
 else ifeq ($(CONFIG_HOST_X86),y)
-  ASRCS += up_vfork32.S
+  ASRCS += up_vfork_x86.S
 else ifeq ($(CONFIG_HOST_ARM),y)
   ASRCS += up_vfork_arm.S
 endif
@@ -60,6 +60,10 @@ CSRCS += up_reprioritizertr.c up_exit.c up_schedulesigaction.c
 CSRCS += up_heap.c up_uart.c up_assert.c up_puts.c
 CSRCS += up_copyfullstate.c
 CSRCS += up_sigdeliver.c
+
+ifeq ($(CONFIG_SCHED_BACKTRACE),y)
+CSRCS += up_backtrace.c
+endif
 
 ifeq ($(CONFIG_ARCH_HAVE_VFORK),y)
 ifeq ($(CONFIG_SCHED_WAITPID),y)
@@ -75,7 +79,7 @@ ifeq ($(CONFIG_HOST_MACOS),y)
   HOSTCFLAGS += -Wno-deprecated-declarations
 endif
 
-HOSTSRCS = up_hostirq.c up_hostmemory.c up_hosttime.c up_simuart.c up_host_abort.c
+HOSTSRCS = up_hostirq.c up_hostmemory.c up_hosttime.c up_simuart.c up_hostmisc.c
 STDLIBS += -lpthread
 ifeq ($(CONFIG_HOST_MACOS),y)
 ifeq ($(CONFIG_LIBCXX),y)
@@ -113,10 +117,8 @@ endif
 
 ifeq ($(CONFIG_SIM_LCDDRIVER),y)
   CSRCS += up_lcd.c
-else
-  ifeq ($(CONFIG_SIM_FRAMEBUFFER),y)
-    CSRCS += up_framebuffer.c
-  endif
+else ifeq ($(CONFIG_SIM_FRAMEBUFFER),y)
+  CSRCS += up_framebuffer.c
 endif
 
 ifeq ($(CONFIG_SIM_X11FB),y)
@@ -134,18 +136,6 @@ else ifeq ($(CONFIG_SIM_BUTTONS),y)
 endif
 endif
 
-ifeq ($(CONFIG_SIM_IOEXPANDER),y)
-  CSRCS += up_ioexpander.c
-endif
-
-ifeq ($(CONFIG_SIM_SPIFLASH),y)
-  CSRCS += up_spiflash.c
-endif
-
-ifeq ($(CONFIG_SIM_QSPIFLASH),y)
-  CSRCS += up_qspiflash.c
-endif
-
 ifeq ($(CONFIG_FS_FAT),y)
   CSRCS += up_blockdevice.c up_deviceimage.c
   STDLIBS += -lz
@@ -153,10 +143,6 @@ endif
 
 ifeq ($(CONFIG_ARCH_ROMGETC),y)
   CSRCS += up_romgetc.c
-endif
-
-ifeq ($(CONFIG_SIM_MOTOR_FOC),y)
-CSRCS += up_foc.c
 endif
 
 ifeq ($(CONFIG_SIM_NETDEV_TAP),y)

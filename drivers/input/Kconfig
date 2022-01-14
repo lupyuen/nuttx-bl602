@@ -14,7 +14,7 @@ menuconfig INPUT
 if INPUT
 
 config INPUT_MOUSE
-	bool "Enable mouse support"
+	bool
 	default n
 	---help---
 		Enable support for mouse devices.
@@ -551,7 +551,7 @@ config INPUT_SPQ10KBD
 if INPUT_SPQ10KBD
 
 config SPQ10KBD_DJOY
-    bool "Joystick Interface for Buttons"
+	bool "Joystick Interface for Buttons"
 	select INPUT_DJOYSTICK
 	default n
 
