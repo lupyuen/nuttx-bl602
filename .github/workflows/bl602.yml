@@ -9,9 +9,9 @@ name: BL602 Upstream
 
 on:
 
-  # Run every day at 6:00 and 18:00 UTC
+  # Run every day at 0:00 UTC
   schedule:
-    - cron: '0 6,18 * * *'
+    - cron: '0 0 * * *'
 
   # Run on every commit
   push:
@@ -42,10 +42,7 @@ jobs:
       run:  |
         wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
         tar -xvf riscv64-unknown-elf-gcc*.tar.gz
-        find .
 
-    # - uses: actions/checkout@v2
-    
     - name: Checkout Source Files
       run:  |
         mkdir nuttx
@@ -76,3 +73,40 @@ jobs:
       with:
         name: nuttx.zip
         path: nuttx/nuttx/nuttx*
+
+    - name: Zip Build Outputs
+      run: |
+        cd nuttx/nuttx
+        zip nuttx.zip nuttx*
+
+    - name: Get Current Date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        
+    - name: Create Draft Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: upstream-${{ steps.date.outputs.date }}
+        release_name: upstream-${{ steps.date.outputs.date }}
+        draft: true
+        prerelease: false
+
+    - name: Upload Release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: nuttx/nuttx/nuttx.zip
+        asset_name: nuttx.zip
+        asset_content_type: application/zip
+
+    - name: Publish Release
+      uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
