@@ -10,9 +10,9 @@ name: BL602 Upstream
 
 on:
 
-  ## Run every day at 0:00 UTC
+  ## Run every day at 0:30 and 1:30 UTC
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '30 0,1 * * *'
 
   ## Run on every commit
   ## push:
