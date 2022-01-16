@@ -49,9 +49,120 @@ jobs:
         
         # Configure the build
         ./tools/configure.sh bl602evb:nsh
-        
-        # Run the build
-        make
+
+        # Update the build config
+        kconfig-tweak --enable CONFIG_DEBUG_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_INFO
+        kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
+
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_INFO
+        kconfig-tweak --enable CONFIG_DEBUG_SPI
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_INFO
+
+        kconfig-tweak --enable CONFIG_STACK_CANARIES
+
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_HELP
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_LS
+
+        kconfig-tweak --enable CONFIG_BL602_SPI0
+
+        kconfig-tweak --enable CONFIG_CLOCK_MONOTONIC
+        kconfig-tweak --enable CONFIG_SIG_EVTHREAD
+        kconfig-tweak --set-val CONFIG_SIG_SIGWORK 17
+        kconfig-tweak --set-val CONFIG_PREALLOC_MQ_MSGS 4
+        kconfig-tweak --set-val CONFIG_PREALLOC_MQ_IRQ_MSGS 4
+        kconfig-tweak --set-val CONFIG_MQ_MAXMSGSIZE 32
+        kconfig-tweak --enable CONFIG_SCHED_WORKQUEUE
+        kconfig-tweak --enable CONFIG_SCHED_HPWORK
+        kconfig-tweak --set-val CONFIG_SCHED_HPNTHREADS 1
+        kconfig-tweak --set-val CONFIG_SCHED_HPWORKPRIORITY 224
+        kconfig-tweak --set-val CONFIG_SCHED_HPWORKSTACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_SCHED_BACKTRACE
+
+        kconfig-tweak --enable CONFIG_DEV_URANDOM
+        kconfig-tweak --enable CONFIG_DEV_URANDOM_RANDOM_POOL
+
+        kconfig-tweak --enable CONFIG_SPI
+        kconfig-tweak --enable CONFIG_SPI_EXCHANGE
+        kconfig-tweak --enable CONFIG_SPI_DRIVER
+
+        kconfig-tweak --enable CONFIG_DEV_GPIO
+        kconfig-tweak --set-val CONFIG_DEV_GPIO_NSIGNALS 1
+
+        kconfig-tweak --enable CONFIG_DRIVERS_RF
+        kconfig-tweak --enable CONFIG_RF_SPI_TEST_DRIVER
+
+        kconfig-tweak --enable CONFIG_CRYPTO
+        kconfig-tweak --enable CONFIG_CRYPTO_BLAKE2S
+        kconfig-tweak --enable CONFIG_CRYPTO_RANDOM_POOL
+        kconfig-tweak --enable CONFIG_CRYPTO_RANDOM_POOL_COLLECT_IRQ_RANDOMNESS
+
+        kconfig-tweak --set-str CONFIG_FS_MQUEUE_MPATH "/var/mqueue"
+        kconfig-tweak --set-val CONFIG_FS_MQUEUE_NPOLLWAITERS 4
+
+        kconfig-tweak --enable CONFIG_LIBC_FLOATINGPOINT
+
+        kconfig-tweak --enable CONFIG_LIBSX1262
+        kconfig-tweak --set-val CONFIG_LIBSX1262_PRECISION 0
+        kconfig-tweak --enable CONFIG_LIBLORAWAN
+        kconfig-tweak --enable CONFIG_LIBNPL
+        kconfig-tweak --enable CONFIG_LIBTINYCBOR
+        kconfig-tweak --enable CONFIG_LIBRUST
+        kconfig-tweak --enable CONFIG_LIBBL602_ADC
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_BL602_ADC_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_BL602_ADC_TEST_PROGNAME "bl602_adc_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_GPIO
+        kconfig-tweak --set-str CONFIG_EXAMPLES_GPIO_PROGNAME "gpio"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_LORAWAN_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_LORAWAN_TEST_PROGNAME "lorawan_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_LORAWAN_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_LORAWAN_TEST_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_SPI_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SPI_TEST_PROGNAME "spi_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_SPI_TEST2
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SPI_TEST2_PROGNAME "spi_test2"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_SX1262_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SX1262_TEST_PROGNAME "sx1262_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SX1262_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SX1262_TEST_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_EXAMPLES_TINYCBOR_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_TINYCBOR_TEST_PROGNAME "tinycbor_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_TINYCBOR_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_TINYCBOR_TEST_STACKSIZE 2048
+
+        kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
+        kconfig-tweak --set-str CONFIG_INTERPRETER_BAS_VERSION "2.4"
+        kconfig-tweak --set-val CONFIG_INTERPRETER_BAS_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_INTERPRETER_BAS_STACKSIZE 4096
+        kconfig-tweak --enable CONFIG_INTERPRETER_BAS_VT100
+
+        # Preserve the build config
+        cp .config nutt.config
+
+        # Run the build with the updated config
+        make olddefconfig
 
         # Dump the disassembly to nuttx.S
         riscv64-unknown-elf-objdump \

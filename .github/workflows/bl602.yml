@@ -54,8 +54,17 @@ jobs:
         # Configure the build
         ./tools/configure.sh bl602evb:nsh
         
-        # Run the build
-        make
+        # Enable errors, warnings, info messages and assertions
+        kconfig-tweak --enable CONFIG_DEBUG_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_INFO
+        kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
+
+        # Preserve the build config
+        cp .config nutt.config
+        
+        # Run the build with the updated config
+        make olddefconfig
 
         # Dump the disassembly to nuttx.S
         riscv64-unknown-elf-objdump \
