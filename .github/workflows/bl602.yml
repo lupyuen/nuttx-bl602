@@ -63,7 +63,7 @@ jobs:
         kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
 
         ## Preserve the build config
-        cp .config nutt.config
+        cp .config nuttx.config
         
         ## Run the build
         make

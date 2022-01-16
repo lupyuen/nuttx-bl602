@@ -179,7 +179,7 @@ jobs:
         kconfig-tweak --enable CONFIG_INTERPRETER_BAS_VT100
 
         ## Preserve the build config
-        cp .config nutt.config
+        cp .config nuttx.config
 
         ## Run the build
         make
