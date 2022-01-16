@@ -92,20 +92,20 @@ jobs:
         ## Enable errors, warnings, info messages and assertions
         kconfig-tweak --enable CONFIG_DEBUG_ERROR
         kconfig-tweak --enable CONFIG_DEBUG_WARN
-        kconfig-tweak --enable CONFIG_DEBUG_INFO
+        ## kconfig-tweak --enable CONFIG_DEBUG_INFO
         kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
 
         ## Enable GPIO errors, warnings and info messages
         kconfig-tweak --enable CONFIG_DEBUG_GPIO
         kconfig-tweak --enable CONFIG_DEBUG_GPIO_ERROR
         kconfig-tweak --enable CONFIG_DEBUG_GPIO_WARN
-        kconfig-tweak --enable CONFIG_DEBUG_GPIO_INFO
+        ## kconfig-tweak --enable CONFIG_DEBUG_GPIO_INFO
 
         ## Enable SPI errors, warnings and info messages
         kconfig-tweak --enable CONFIG_DEBUG_SPI
         kconfig-tweak --enable CONFIG_DEBUG_SPI_ERROR
         kconfig-tweak --enable CONFIG_DEBUG_SPI_WARN
-        kconfig-tweak --enable CONFIG_DEBUG_SPI_INFO
+        ## kconfig-tweak --enable CONFIG_DEBUG_SPI_INFO
 
         ## Enable Floating Point
         kconfig-tweak --enable CONFIG_LIBC_FLOATINGPOINT
