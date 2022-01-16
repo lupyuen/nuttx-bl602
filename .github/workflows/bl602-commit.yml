@@ -161,8 +161,8 @@ jobs:
         # Preserve the build config
         cp .config nutt.config
 
-        # Run the build with the updated config
-        make olddefconfig
+        # Run the build
+        make
 
         # Dump the disassembly to nuttx.S
         riscv64-unknown-elf-objdump \
