@@ -32,7 +32,7 @@ jobs:
     - name: Install Toolchain
       run:  |
         wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
-        tar -xvf riscv64-unknown-elf-gcc*.tar.gz
+        tar -xf riscv64-unknown-elf-gcc*.tar.gz
 
     - name: Checkout Source Files
       run:  |
