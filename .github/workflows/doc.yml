@@ -13,7 +13,11 @@
 name: "Build Documentation"
 on:
   pull_request:
+    branches:
+      - NOTUSED
   push:
+    branches:
+      - NOTUSED
 
 jobs:
   build-html:
