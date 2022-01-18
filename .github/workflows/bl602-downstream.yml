@@ -38,8 +38,8 @@ jobs:
       run:  |
         mkdir nuttx
         cd nuttx
-        git clone --recursive https://github.com/lupyuen/incubator-nuttx nuttx
-        git clone --recursive https://github.com/lupyuen/incubator-nuttx-apps apps
+        git clone --recursive --branch downstream https://github.com/lupyuen/incubator-nuttx nuttx
+        git clone --recursive --branch downstream https://github.com/lupyuen/incubator-nuttx-apps apps
 
     - name: Update BL602 Pins
       run: |
