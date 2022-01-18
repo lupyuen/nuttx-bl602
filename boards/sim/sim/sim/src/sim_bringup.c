@@ -105,7 +105,9 @@ int sim_bringup(void)
 #ifdef CONFIG_SIM_SPI
   FAR struct spi_dev_s *spidev;
 #endif
-
+#if defined(CONFIG_RTC_RPMSG) && !defined(CONFIG_RTC_RPMSG_SERVER)
+  FAR struct rtc_lowerhalf_s *rtc;
+#endif
   int ret = OK;
 
 #ifdef CONFIG_FS_BINFS
@@ -281,17 +283,7 @@ int sim_bringup(void)
   sim_ajoy_initialize();
 #endif
 
-#if defined(CONFIG_NX) && defined(CONFIG_SIM_TOUCHSCREEN)
-  /* Initialize the touchscreen */
-
-  ret = sim_tsc_setup(0);
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: sim_tsc_setup failed: %d\n", ret);
-    }
-#else
-
-#  ifdef CONFIG_VIDEO_FB
+#ifdef CONFIG_VIDEO_FB
   /* Initialize and register the simulated framebuffer driver */
 
   ret = fb_register(0, 0);
@@ -299,9 +291,9 @@ int sim_bringup(void)
     {
       syslog(LOG_ERR, "ERROR: fb_register() failed: %d\n", ret);
     }
-#  endif
+#endif
 
-#  ifdef CONFIG_LCD
+#ifdef CONFIG_LCD
 
   ret = board_lcd_initialize();
   if (ret < 0)
@@ -319,9 +311,9 @@ int sim_bringup(void)
 
 #  endif
 
-#  endif
+#endif
 
-#  ifdef CONFIG_SIM_TOUCHSCREEN
+#ifdef CONFIG_SIM_TOUCHSCREEN
   /* Initialize the touchscreen */
 
   ret = sim_tsc_initialize(0);
@@ -329,8 +321,6 @@ int sim_bringup(void)
     {
       syslog(LOG_ERR, "ERROR: sim_tsc_initialize failed: %d\n", ret);
     }
-#  endif
-
 #endif
 
 #ifdef CONFIG_IEEE802154_LOOPBACK
@@ -437,7 +427,7 @@ int sim_bringup(void)
     }
 #endif
 
-#ifdef CONFIG_SIM_MOTOR_FOC
+#ifdef CONFIG_MOTOR_FOC_DUMMY
   /* Setup FOC device */
 
   ret = sim_foc_setup();
@@ -458,14 +448,14 @@ int sim_bringup(void)
   syslog_rpmsg_server_init();
 #endif
 
-#ifndef CONFIG_RTC_RPMSG_SERVER
-  up_rtc_set_lowerhalf(rpmsg_rtc_initialize(0));
+#if defined(CONFIG_RTC_RPMSG) && !defined(CONFIG_RTC_RPMSG_SERVER)
+  rtc = rpmsg_rtc_initialize();
+  up_rtc_set_lowerhalf(rtc, true);
+  rtc_initialize(0, rtc);
 #endif
 
-#ifdef CONFIG_FS_RPMSGFS
-#ifdef CONFIG_SIM_RPTUN_MASTER
+#if defined(CONFIG_FS_RPMSGFS) && defined(CONFIG_SIM_RPTUN_MASTER)
   rpmsgfs_server_init();
-#endif
 #endif
 #endif
 

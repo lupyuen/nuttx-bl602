@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef _NET_TCP_TCP_H
-#define _NET_TCP_TCP_H
+#ifndef __NET_TCP_TCP_H
+#define __NET_TCP_TCP_H
 
 /****************************************************************************
  * Included Files
@@ -215,7 +215,8 @@ struct tcp_conn_s
   int32_t  snd_bufs;      /* Maximum amount of bytes queued in send */
   sem_t    snd_sem;       /* Semaphore signals send completion */
 #endif
-#ifdef CONFIG_NET_TCP_WRITE_BUFFERS
+#if defined(CONFIG_NET_TCP_WRITE_BUFFERS) || \
+    defined(CONFIG_NET_TCP_WINDOW_SCALE)
   uint32_t tx_unacked;    /* Number bytes sent but not yet ACKed */
 #else
   uint16_t tx_unacked;    /* Number bytes sent but not yet ACKed */
@@ -284,6 +285,10 @@ struct tcp_conn_s
   bool       keepalive;   /* True: KeepAlive enabled; false: disabled */
   uint8_t    keepcnt;     /* Number of retries before the socket is closed */
   uint8_t    keepretries; /* Number of retries attempted */
+#endif
+
+#if defined(CONFIG_NET_SENDFILE) && defined(CONFIG_NET_TCP_WRITE_BUFFERS)
+  bool       sendfile;    /* True if sendfile operation is in progress */
 #endif
 
   /* connevents is a list of callbacks for each socket the uses this
@@ -1927,4 +1932,4 @@ void tcp_sendbuffer_notify(FAR struct tcp_conn_s *conn);
 #endif
 
 #endif /* CONFIG_NET_TCP && !CONFIG_NET_TCP_NO_STACK */
-#endif /* _NET_TCP_TCP_H */
+#endif /* __NET_TCP_TCP_H */

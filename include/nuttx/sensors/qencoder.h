@@ -50,8 +50,10 @@
  *   Argument: int32_t pointer to the location to return the position.
  * QEIOC_RESET - Reset the position to zero.
  *   Argument: None
- * QEIOC_POSMAX - Set the maximum position for the encoder.
+ * QEIOC_SETPOSMAX - Set the maximum position for the encoder.
  *   Argument: uint32_t maximum position
+ * QEIOC_SETINDEX - Set the index position for the encoder.
+ *   Argument: uint32_t index position
  */
 
 #define QEIOC_POSITION     _QEIOC(0x0001) /* Arg: int32_t* pointer */
@@ -76,13 +78,13 @@
 
 /* See include/nuttx/sensors/as5048b.h */
 
-#define QE_AS5048B_FIRST   (QE_TIVA_FIRST + QEIOC_TIVA_NCMDS)
+#define QE_AS5048B_FIRST   (QE_TIVA_FIRST + QE_TIVA_NCMDS)
 #define QE_AS5048B_NCMDS   4
 
 /* See arch/arm/src/imxrt/imxrt_enc.h */
 
-#define QE_IMXRT_FIRST      (QE_FIRST + QE_NCMDS)
-#define QE_IMXRT_NCMDS      7
+#define QE_IMXRT_FIRST     (QE_AS5048B_FIRST + QE_AS5048B_NCMDS)
+#define QE_IMXRT_NCMDS     7
 
 /****************************************************************************
  * Public Types
