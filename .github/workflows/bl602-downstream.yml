@@ -1,6 +1,6 @@
 ## Build NuttX for BL602 in the "downstream" branch after merging "master" branch with upstream updates
 
-name: BL602 Commit
+name: BL602 Downstream
 
 on:
 
