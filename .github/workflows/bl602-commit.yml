@@ -1,0 +1,274 @@
+## Build NuttX for BL602 on commit
+
+name: BL602 Commit
+
+on:
+
+  ## Run on every commit
+  push:
+    branches: [ master ]
+
+  ## Run on every pull request
+  ## pull_request:
+  ##   branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Install Build Tools
+      run:  |
+        sudo apt -y install \
+        bison flex gettext texinfo libncurses5-dev libncursesw5-dev \
+        gperf automake libtool pkg-config build-essential gperf genromfs \
+        libgmp-dev libmpc-dev libmpfr-dev libisl-dev binutils-dev libelf-dev \
+        libexpat-dev gcc-multilib g++-multilib picocom u-boot-tools util-linux \
+        kconfig-frontends \
+        wget
+
+    - name: Install Toolchain
+      run:  |
+        wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
+        tar -xvf riscv64-unknown-elf-gcc*.tar.gz
+
+    - name: Checkout Source Files
+      run:  |
+        mkdir nuttx
+        cd nuttx
+        git clone --recursive https://github.com/lupyuen/incubator-nuttx nuttx
+        git clone --recursive https://github.com/lupyuen/incubator-nuttx-apps apps
+
+    - name: Update BL602 Pins
+      run: |
+        ## BL602 Pin Definitions
+        board=nuttx/nuttx/boards/risc-v/bl602/bl602evb/include/board.h
+        echo "#ifndef __BL602_PINS" >>$board
+        echo "#define __BL602_PINS" >>$board
+
+        ## Busy Pin for SX1262
+        echo "#define BOARD_GPIO_IN1  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)" >>$board
+
+        ## SPI Chip Select for SX1262
+        echo "#define BOARD_GPIO_OUT1 (GPIO_OUTPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN11)" >>$board
+
+        ## GPIO Interrupt (DIO1) for SX1262
+        echo "#define BOARD_GPIO_INT1 (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN17)" >>$board
+
+        ## SPI Configuration: Chip Select is unused because we control via GPIO instead
+        echo "#define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN2) /* Unused */" >>$board
+        echo "#define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN1)" >>$board
+        echo "#define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)" >>$board
+        echo "#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN3)" >>$board
+
+        ## Unused: PWM Configuration
+        echo "#undef BOARD_PWM_CH0_PIN" >>$board
+        echo "#undef BOARD_PWM_CH1_PIN" >>$board
+        echo "#undef BOARD_PWM_CH2_PIN" >>$board
+        echo "#undef BOARD_PWM_CH3_PIN" >>$board
+        echo "#undef BOARD_PWM_CH4_PIN" >>$board
+
+        ## Unused: I2C Configuration
+        echo "#undef BOARD_I2C_SCL" >>$board
+        echo "#undef BOARD_I2C_SDA" >>$board
+
+        ## Must be last line
+        echo "#endif  //  __BL602_PINS" >>$board
+        cp $board nuttx/nuttx/nuttx.board
+        cat $board
+
+    - name: Build
+      run: |
+        ## Add toolchain to PATH
+        export PATH=$PATH:$PWD/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin
+        cd nuttx/nuttx
+        
+        ## Configure the build
+        ./tools/configure.sh bl602evb:nsh
+
+        ## Update the build config
+        ## Enable errors, warnings, info messages and assertions
+        kconfig-tweak --enable CONFIG_DEBUG_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_WARN
+        ## kconfig-tweak --enable CONFIG_DEBUG_INFO
+        kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
+
+        ## Enable GPIO errors, warnings and info messages
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_WARN
+        ## kconfig-tweak --enable CONFIG_DEBUG_GPIO_INFO
+
+        ## Enable SPI errors, warnings and info messages
+        kconfig-tweak --enable CONFIG_DEBUG_SPI
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_WARN
+        ## kconfig-tweak --enable CONFIG_DEBUG_SPI_INFO
+
+        ## Enable Floating Point
+        kconfig-tweak --enable CONFIG_LIBC_FLOATINGPOINT
+
+        ## Enable Compiler Stack Canaries
+        kconfig-tweak --enable CONFIG_STACK_CANARIES
+
+        ## Enable NuttX Shell commands: help, ls
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_HELP
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_LS
+
+        ## Enable GPIO
+        kconfig-tweak --enable CONFIG_DEV_GPIO
+        kconfig-tweak --set-val CONFIG_DEV_GPIO_NSIGNALS 1
+
+        ## Enable GPIO Test App
+        kconfig-tweak --enable CONFIG_EXAMPLES_GPIO
+        kconfig-tweak --set-str CONFIG_EXAMPLES_GPIO_PROGNAME "gpio"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_STACKSIZE 2048
+
+        ## Enable SPI and SPI Test Driver
+        kconfig-tweak --enable CONFIG_BL602_SPI0
+        kconfig-tweak --enable CONFIG_SPI
+        kconfig-tweak --enable CONFIG_SPI_EXCHANGE
+        kconfig-tweak --enable CONFIG_SPI_DRIVER
+        kconfig-tweak --enable CONFIG_DRIVERS_RF
+        kconfig-tweak --enable CONFIG_RF_SPI_TEST_DRIVER
+
+        ## Enable SPI Test Apps
+        kconfig-tweak --enable CONFIG_EXAMPLES_SPI_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SPI_TEST_PROGNAME "spi_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST_STACKSIZE 2048
+        kconfig-tweak --enable CONFIG_EXAMPLES_SPI_TEST2
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SPI_TEST2_PROGNAME "spi_test2"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_STACKSIZE 2048
+
+        ## For NimBLE Porting Layer: Enable POSIX timers, pthreads, mqueues
+        kconfig-tweak --disable CONFIG_DISABLE_POSIX_TIMERS
+        kconfig-tweak --disable CONFIG_DISABLE_PTHREAD
+        kconfig-tweak --disable CONFIG_DISABLE_MQUEUE
+        kconfig-tweak --set-str CONFIG_FS_MQUEUE_MPATH "/var/mqueue"
+        kconfig-tweak --set-val CONFIG_FS_MQUEUE_NPOLLWAITERS 4
+
+        ## For NimBLE Porting Layer: Clock, signals, work queues
+        kconfig-tweak --enable CONFIG_CLOCK_MONOTONIC
+        kconfig-tweak --enable CONFIG_SIG_EVTHREAD
+        kconfig-tweak --set-val CONFIG_SIG_SIGWORK 17
+        kconfig-tweak --set-val CONFIG_PREALLOC_MQ_MSGS 4
+        kconfig-tweak --set-val CONFIG_PREALLOC_MQ_IRQ_MSGS 4
+        kconfig-tweak --set-val CONFIG_MQ_MAXMSGSIZE 32
+        kconfig-tweak --enable CONFIG_SCHED_WORKQUEUE
+        kconfig-tweak --enable CONFIG_SCHED_HPWORK
+        kconfig-tweak --set-val CONFIG_SCHED_HPNTHREADS 1
+        kconfig-tweak --set-val CONFIG_SCHED_HPWORKPRIORITY 224
+        kconfig-tweak --set-val CONFIG_SCHED_HPWORKSTACKSIZE 2048
+        kconfig-tweak --enable CONFIG_SCHED_BACKTRACE
+
+        ## For NimBLE Porting Layer: Enable Library
+        kconfig-tweak --enable CONFIG_LIBNPL
+
+        ## For LoRa SX1262: Enable Library and Test App
+        kconfig-tweak --enable CONFIG_LIBSX1262
+        kconfig-tweak --set-val CONFIG_LIBSX1262_PRECISION 0
+        kconfig-tweak --enable CONFIG_EXAMPLES_SX1262_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_SX1262_TEST_PROGNAME "sx1262_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SX1262_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_SX1262_TEST_STACKSIZE 2048
+
+        ## For LoRaWAN: Enable Strong Random Number Generator
+        kconfig-tweak --enable CONFIG_CRYPTO
+        kconfig-tweak --enable CONFIG_CRYPTO_BLAKE2S
+        kconfig-tweak --enable CONFIG_CRYPTO_RANDOM_POOL
+        kconfig-tweak --enable CONFIG_CRYPTO_RANDOM_POOL_COLLECT_IRQ_RANDOMNESS
+        kconfig-tweak --enable CONFIG_DEV_URANDOM
+        kconfig-tweak --enable CONFIG_DEV_URANDOM_RANDOM_POOL
+        
+        ## For LoRaWAN: Enable Library and Test App
+        kconfig-tweak --enable CONFIG_LIBLORAWAN
+        kconfig-tweak --enable CONFIG_EXAMPLES_LORAWAN_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_LORAWAN_TEST_PROGNAME "lorawan_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_LORAWAN_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_LORAWAN_TEST_STACKSIZE 2048
+
+        ## For TinyCBOR: Enable Library and Test App
+        kconfig-tweak --enable CONFIG_LIBTINYCBOR
+        kconfig-tweak --enable CONFIG_EXAMPLES_TINYCBOR_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_TINYCBOR_TEST_PROGNAME "tinycbor_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_TINYCBOR_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_TINYCBOR_TEST_STACKSIZE 2048
+
+        ## For Rust: Enable Library
+        kconfig-tweak --enable CONFIG_LIBRUST
+
+        ## For BL602 ADC: Enable Library and Test App
+        kconfig-tweak --enable CONFIG_LIBBL602_ADC
+        kconfig-tweak --enable CONFIG_EXAMPLES_BL602_ADC_TEST
+        kconfig-tweak --set-str CONFIG_EXAMPLES_BL602_ADC_TEST_PROGNAME "bl602_adc_test"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
+
+        ## Enable BASIC Interpreter
+        kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
+        kconfig-tweak --set-str CONFIG_INTERPRETER_BAS_VERSION "2.4"
+        kconfig-tweak --set-val CONFIG_INTERPRETER_BAS_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_INTERPRETER_BAS_STACKSIZE 4096
+        kconfig-tweak --enable CONFIG_INTERPRETER_BAS_VT100
+
+        ## Preserve the build config
+        cp .config nuttx.config
+
+        ## Run the build
+        make
+
+        ## Dump the disassembly to nuttx.S
+        riscv64-unknown-elf-objdump \
+          -t -S --demangle --line-numbers --wide \
+          nuttx \
+          >nuttx.S \
+          2>&1
+
+    - name: Upload Build Outputs
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuttx.zip
+        path: nuttx/nuttx/nuttx*
+
+    - name: Zip Build Outputs
+      run: |
+        cd nuttx/nuttx
+        zip nuttx.zip nuttx*
+
+    - name: Get Current Date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        
+    - name: Create Draft Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: release-${{ steps.date.outputs.date }}
+        release_name: release-${{ steps.date.outputs.date }}
+        draft: true
+        prerelease: false
+
+    - name: Upload Release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: nuttx/nuttx/nuttx.zip
+        asset_name: nuttx.zip
+        asset_content_type: application/zip
+
+    - name: Publish Release
+      uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        

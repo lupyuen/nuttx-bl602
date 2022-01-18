@@ -202,6 +202,42 @@ libs$(DELIM)libdsp$(DELIM)libdsp$(LIBEXT): pass2dep
 staging$(DELIM)libdsp$(LIBEXT): libs$(DELIM)libdsp$(DELIM)libdsp$(LIBEXT)
 	$(Q) $(call INSTALL_LIB,$<,$@)
 
+libs$(DELIM)libsx1262$(DELIM)libsx1262$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libsx1262 libsx1262$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libsx1262$(LIBEXT): libs$(DELIM)libsx1262$(DELIM)libsx1262$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
+libs$(DELIM)liblorawan$(DELIM)liblorawan$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)liblorawan liblorawan$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)liblorawan$(LIBEXT): libs$(DELIM)liblorawan$(DELIM)liblorawan$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
+libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libnpl libnpl$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libnpl$(LIBEXT): libs$(DELIM)libnpl$(DELIM)libnpl$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
+libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libtinycbor libtinycbor$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libtinycbor$(LIBEXT): libs$(DELIM)libtinycbor$(DELIM)libtinycbor$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
+libs$(DELIM)librust$(DELIM)librust$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)librust librust$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)librust$(LIBEXT): libs$(DELIM)librust$(DELIM)librust$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
+libs$(DELIM)libbl602_adc$(DELIM)libbl602_adc$(LIBEXT): pass2dep
+	$(Q) $(MAKE) -C libs$(DELIM)libbl602_adc libbl602_adc$(LIBEXT) EXTRAFLAGS="$(EXTRAFLAGS)"
+
+staging$(DELIM)libbl602_adc$(LIBEXT): libs$(DELIM)libbl602_adc$(DELIM)libbl602_adc$(LIBEXT)
+	$(Q) $(call INSTALL_LIB,$<,$@)
+
 ifeq ($(CONFIG_BUILD_FLAT),y)
 $(APPDIR)$(DELIM)libapps$(LIBEXT): pass2dep
 else

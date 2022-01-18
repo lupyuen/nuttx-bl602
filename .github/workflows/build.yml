@@ -16,11 +16,13 @@ on:
   pull_request:
     paths-ignore:
       - 'Documentation/**'
+    branches:
+      - NOTUSED
   push:
     paths-ignore:
       - 'Documentation/**'
     branches:
-      - master
+      - NOTUSED_master
       - 'releases/*'
     tags:
 
