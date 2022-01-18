@@ -220,7 +220,7 @@ jobs:
         cp .config nuttx.config
 
         ## Run the build
-        make --trace
+        make
 
         ## Dump the disassembly to nuttx.S
         riscv64-unknown-elf-objdump \
