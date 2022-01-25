@@ -23,6 +23,8 @@ on:
 
   # Run builds for any PRs.
   pull_request:
+    branches:
+      - NOTUSED
     paths:
       - 'tools/ci/docker/linux/**'
       - '.github/workflows/docker_linux.yml'

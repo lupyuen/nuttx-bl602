@@ -10,9 +10,9 @@ name: BL602 Upstream
 
 on:
 
-  ## Run every day at 0:30, 1:30, 2:30, 3:30 UTC
+  ## Run every day at 0:30 UTC, because 0:00 UTC seems too busy for the scheduler
   schedule:
-    - cron: '30 0,1,2,3 * * *'
+    - cron: '30 0 * * *'
 
   ## Run on every commit
   ## push:
@@ -61,6 +61,44 @@ jobs:
         kconfig-tweak --enable CONFIG_DEBUG_WARN
         kconfig-tweak --enable CONFIG_DEBUG_INFO
         kconfig-tweak --enable CONFIG_DEBUG_ASSERTIONS
+
+        ## Enable GPIO errors, warnings and info messages
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_GPIO_INFO
+
+        ## Enable SPI errors, warnings and info messages
+        kconfig-tweak --enable CONFIG_DEBUG_SPI
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_ERROR
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_WARN
+        kconfig-tweak --enable CONFIG_DEBUG_SPI_INFO
+
+        ## Enable Floating Point
+        kconfig-tweak --enable CONFIG_LIBC_FLOATINGPOINT
+
+        ## Enable Compiler Stack Canaries
+        kconfig-tweak --enable CONFIG_STACK_CANARIES
+
+        ## Enable NuttX Shell commands: help, ls
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_HELP
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_LS
+
+        ## Enable GPIO
+        kconfig-tweak --enable CONFIG_DEV_GPIO
+        kconfig-tweak --set-val CONFIG_DEV_GPIO_NSIGNALS 1
+
+        ## Enable GPIO Test App
+        kconfig-tweak --enable CONFIG_EXAMPLES_GPIO
+        kconfig-tweak --set-str CONFIG_EXAMPLES_GPIO_PROGNAME "gpio"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_PRIORITY 100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_GPIO_STACKSIZE 2048
+
+        ## Enable SPI
+        kconfig-tweak --enable CONFIG_BL602_SPI0
+        kconfig-tweak --enable CONFIG_SPI
+        kconfig-tweak --enable CONFIG_SPI_EXCHANGE
+        kconfig-tweak --enable CONFIG_SPI_DRIVER
 
         ## Preserve the build config
         cp .config nuttx.config
