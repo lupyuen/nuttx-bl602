@@ -802,7 +802,7 @@ static void wlan_rxpoll(void *arg)
       else
 #endif
 #ifdef CONFIG_NET_ARP
-      if (eth_hdr->type == htons(ETHTYPE_ARP))
+      if (eth_hdr->type == HTONS(ETHTYPE_ARP))
         {
           ninfo("ARP frame\n");
 
@@ -1077,7 +1077,7 @@ static void wlan_txtimeout_expiry(wdparm_t arg)
 static void wlan_poll_work(void *arg)
 {
   int32_t delay_tick = WLAN_WDDELAY;
-  FAR struct wlan_priv_s *priv = (FAR struct wlan_priv_s *)arg;
+  struct wlan_priv_s *priv = (struct wlan_priv_s *)arg;
   struct net_driver_s *dev = &priv->dev;
   struct wlan_pktbuf *pktbuf;
 

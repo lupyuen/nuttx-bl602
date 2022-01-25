@@ -67,8 +67,8 @@
 #  define NEED_IPDOMAIN_SUPPORT 1
 #endif
 
-#define TCPIPv4BUF ((struct tcp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv4_HDRLEN])
-#define TCPIPv6BUF ((struct tcp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv6_HDRLEN])
+#define TCPIPv4BUF ((FAR struct tcp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv4_HDRLEN])
+#define TCPIPv6BUF ((FAR struct tcp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv6_HDRLEN])
 
 /****************************************************************************
  * Private Types
@@ -170,8 +170,29 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
                                      FAR void *pvconn,
                                      FAR void *pvpriv, uint16_t flags)
 {
-  FAR struct tcp_conn_s *conn = (FAR struct tcp_conn_s *)pvconn;
+  /* FAR struct tcp_conn_s *conn = (FAR struct tcp_conn_s *)pvconn;
+   *
+   * Do not use pvconn argument to get the TCP connection pointer (the above
+   * commented line) because pvconn is normally NULL for some events like
+   * NETDEV_DOWN. Instead, the TCP connection pointer can be reliably
+   * obtained from the corresponding TCP socket.
+   */
+
   FAR struct send_s *pstate = (FAR struct send_s *)pvpriv;
+  FAR struct socket *psock;
+  FAR struct tcp_conn_s *conn;
+
+  DEBUGASSERT(pstate != NULL);
+
+  psock = pstate->snd_sock;
+  DEBUGASSERT(psock != NULL);
+
+  /* Get the TCP connection pointer reliably from
+   * the corresponding TCP socket.
+   */
+
+  conn = psock->s_conn;
+  DEBUGASSERT(conn != NULL);
 
   /* The TCP socket is connected and, hence, should be bound to a device.
    * Make sure that the polling device is the one that we are bound to.
@@ -186,8 +207,21 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
   ninfo("flags: %04x acked: %" PRId32 " sent: %zd\n",
         flags, pstate->snd_acked, pstate->snd_sent);
 
+  /* The TCP_ACKDATA, TCP_REXMIT and TCP_DISCONN_EVENTS flags are expected to
+   * appear here strictly one at a time
+   */
+
+  DEBUGASSERT((flags & TCP_ACKDATA) == 0 ||
+              (flags & TCP_REXMIT) == 0);
+  DEBUGASSERT((flags & TCP_DISCONN_EVENTS) == 0 ||
+              (flags & TCP_ACKDATA) == 0);
+  DEBUGASSERT((flags & TCP_DISCONN_EVENTS) == 0 ||
+              (flags & TCP_REXMIT) == 0);
+
   /* If this packet contains an acknowledgement, then update the count of
    * acknowledged bytes.
+   * This condition is located here for performance reasons
+   * (TCP_ACKDATA is the most frequent event).
    */
 
   if ((flags & TCP_ACKDATA) != 0)
@@ -226,7 +260,7 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
       ackno = tcp_getsequence(tcp->ackno);
       pstate->snd_acked = TCP_SEQ_SUB(ackno,
                                       pstate->snd_isn);
-      ninfo("ACK: acked=%" PRId32 " sent=%zd buflen=%zd\n",
+      ninfo("ACK: acked=%" PRId32 " sent=%zd buflen=%zu\n",
             pstate->snd_acked, pstate->snd_sent, pstate->snd_buflen);
 
       /* Have all of the bytes in the buffer been sent and acknowledged? */
@@ -270,17 +304,24 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
       pstate->snd_prev_wnd = conn->snd_wnd;
     }
 
-  /* Check if we are being asked to retransmit data */
+  /* Check if we are being asked to retransmit data.
+   * This condition is located here after TCP_ACKDATA for performance reasons
+   * (TCP_REXMIT is less frequent than TCP_ACKDATA).
+   */
 
   if ((flags & TCP_REXMIT) != 0)
     {
+      uint32_t sndlen;
+
+      nwarn("WARNING: TCP_REXMIT\n");
+
       /* According to RFC 6298 (5.4), retransmit the earliest segment
        * that has not been acknowledged by the TCP receiver.
        */
 
       /* Reconstruct the length of the earliest segment to be retransmitted */
 
-      uint32_t sndlen = pstate->snd_buflen - pstate->snd_acked;
+      sndlen = pstate->snd_buflen - pstate->snd_acked;
 
       if (sndlen > conn->mss)
         {
@@ -311,12 +352,13 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
       return flags;
     }
 
-  /* Check for a loss of connection */
+  /* Check for a loss of connection.
+   * This condition is located here after both the TCP_ACKDATA and TCP_REXMIT
+   * because TCP_DISCONN_EVENTS is the least frequent event.
+   */
 
   else if ((flags & TCP_DISCONN_EVENTS) != 0)
     {
-      FAR struct socket *psock = pstate->snd_sock;
-
       ninfo("Lost connection\n");
 
       /* We could get here recursively through the callback actions of
@@ -324,7 +366,6 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
        * already been disconnected.
        */
 
-      DEBUGASSERT(psock != NULL);
       if (_SS_ISCONNECTED(psock->s_flags))
         {
           /* Report not connected */
@@ -390,8 +431,12 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
           /* Update the amount of data sent (but not necessarily ACKed) */
 
           pstate->snd_sent += sndlen;
-          ninfo("SEND: acked=%" PRId32 " sent=%zd buflen=%zd\n",
+          ninfo("SEND: acked=%" PRId32 " sent=%zd buflen=%zu\n",
                 pstate->snd_acked, pstate->snd_sent, pstate->snd_buflen);
+        }
+      else
+        {
+          nwarn("WARNING: Window full, wait for ack\n");
         }
     }
 
@@ -402,6 +447,8 @@ static uint16_t tcpsend_eventhandler(FAR struct net_driver_s *dev,
 end_wait:
 
   /* Do not allow any further callbacks */
+
+  DEBUGASSERT(pstate->snd_cb != NULL);
 
   pstate->snd_cb->flags   = 0;
   pstate->snd_cb->priv    = NULL;
@@ -509,7 +556,6 @@ ssize_t psock_tcp_send(FAR struct socket *psock,
   /* Make sure that we have the IP address mapping */
 
   conn = (FAR struct tcp_conn_s *)psock->s_conn;
-  DEBUGASSERT(conn);
 
 #if defined(CONFIG_NET_ARP_SEND) || defined(CONFIG_NET_ICMPv6_NEIGHBOR)
 #ifdef CONFIG_NET_ARP_SEND
