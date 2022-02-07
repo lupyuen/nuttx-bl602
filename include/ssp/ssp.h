@@ -1,5 +1,5 @@
 /****************************************************************************
- * boards/arm/stm32/omnibusf4/src/stm32_critmon.c
+ * include/ssp/ssp.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,48 +18,31 @@
  *
  ****************************************************************************/
 
+#ifndef __INCLUDE_SSP_SSP_H
+#define __INCLUDE_SSP_SSP_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <time.h>
-#include <fixedmath.h>
-
-#include "dwt.h"
-#include "arm_arch.h"
-
-#include <nuttx/clock.h>
-
-#include <arch/board/board.h>
-
-#ifdef CONFIG_SCHED_CRITMONITOR
-
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Name: up_critmon_gettime
- ****************************************************************************/
-
-uint32_t up_critmon_gettime(void)
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
 {
-  return getreg32(DWT_CYCCNT);
+#else
+#define EXTERN extern
+#endif
+
+void __stack_chk_fail(void);
+
+#undef EXTERN
+#if defined(__cplusplus)
 }
+#endif
 
-/****************************************************************************
- * Name: up_critmon_gettime
- ****************************************************************************/
-
-void up_critmon_convert(uint32_t elapsed, FAR struct timespec *ts)
-{
-  b32_t b32elapsed;
-
-  b32elapsed  = itob32(elapsed) / STM32_SYSCLK_FREQUENCY;
-  ts->tv_sec  = b32toi(b32elapsed);
-  ts->tv_nsec = NSEC_PER_SEC * b32frac(b32elapsed) / b32ONE;
-}
-
-#endif /* CONFIG_SCHED_CRITMONITOR */
+#endif /* __INCLUDE_SSP_SSP_H */
