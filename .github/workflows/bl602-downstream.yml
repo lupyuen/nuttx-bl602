@@ -113,7 +113,8 @@ jobs:
         ## Enable Compiler Stack Canaries
         kconfig-tweak --enable CONFIG_STACK_CANARIES
 
-        ## Enable NuttX Shell commands: help, ls
+        ## Enable NuttX Shell commands: cat, help, ls
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_CAT
         kconfig-tweak --disable CONFIG_NSH_DISABLE_HELP
         kconfig-tweak --disable CONFIG_NSH_DISABLE_LS
 
