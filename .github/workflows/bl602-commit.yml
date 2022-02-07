@@ -113,7 +113,8 @@ jobs:
         ## Enable Compiler Stack Canaries
         kconfig-tweak --enable CONFIG_STACK_CANARIES
 
-        ## Enable NuttX Shell commands: help, ls
+        ## Enable NuttX Shell commands: cat, help, ls
+        kconfig-tweak --disable CONFIG_NSH_DISABLE_CAT
         kconfig-tweak --disable CONFIG_NSH_DISABLE_HELP
         kconfig-tweak --disable CONFIG_NSH_DISABLE_LS
 
@@ -146,9 +147,11 @@ jobs:
         kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_STACKSIZE 2048
 
         ## For NimBLE Porting Layer: Enable POSIX timers, pthreads, mqueues
+        ## TODO: Remove obsolete CONFIG_FS_MQUEUE_MPATH
         kconfig-tweak --disable CONFIG_DISABLE_POSIX_TIMERS
         kconfig-tweak --disable CONFIG_DISABLE_PTHREAD
         kconfig-tweak --disable CONFIG_DISABLE_MQUEUE
+        kconfig-tweak --set-str CONFIG_FS_MQUEUE_VFS_PATH "/var/mqueue"
         kconfig-tweak --set-str CONFIG_FS_MQUEUE_MPATH "/var/mqueue"
         kconfig-tweak --set-val CONFIG_FS_MQUEUE_NPOLLWAITERS 4
 
@@ -208,6 +211,10 @@ jobs:
         kconfig-tweak --set-str CONFIG_EXAMPLES_BL602_ADC_TEST_PROGNAME "bl602_adc_test"
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
+
+        ## Enable UART1
+        kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+        kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
 
         ## Enable BASIC Interpreter
         kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
