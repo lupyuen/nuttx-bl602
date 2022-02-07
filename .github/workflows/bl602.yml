@@ -100,6 +100,9 @@ jobs:
         kconfig-tweak --enable CONFIG_SPI_EXCHANGE
         kconfig-tweak --enable CONFIG_SPI_DRIVER
 
+        ## Enable UART1
+        kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+
         ## Preserve the build config
         cp .config nuttx.config
         

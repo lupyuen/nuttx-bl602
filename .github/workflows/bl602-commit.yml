@@ -209,6 +209,9 @@ jobs:
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
 
+        ## Enable UART1
+        kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+
         ## Enable BASIC Interpreter
         kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
         kconfig-tweak --set-str CONFIG_INTERPRETER_BAS_VERSION "2.4"
