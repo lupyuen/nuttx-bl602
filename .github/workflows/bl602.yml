@@ -103,6 +103,7 @@ jobs:
 
         ## Enable UART1
         kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+        kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
 
         ## Preserve the build config
         cp .config nuttx.config

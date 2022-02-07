@@ -212,6 +212,7 @@ jobs:
 
         ## Enable UART1
         kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+        kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
 
         ## Enable BASIC Interpreter
         kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
