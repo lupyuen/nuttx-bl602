@@ -299,12 +299,14 @@ void ptmx_minor_free(uint8_t minor)
   int index;
   int bitno;
 
+  nxsem_wait_uninterruptible(&g_ptmx.px_exclsem);
+
   /* Free the address by clearing the associated bit in the px_alloctab[]; */
 
   index = minor >> 5;
   bitno = minor & 31;
 
-  DEBUGASSERT((g_ptmx.px_alloctab[index] |= (1 << bitno)) != 0);
+  DEBUGASSERT((g_ptmx.px_alloctab[index] & (1 << bitno)) != 0);
   g_ptmx.px_alloctab[index] &= ~(1 << bitno);
 
   /* Reset the next pointer if the one just released has a lower value */
@@ -313,4 +315,6 @@ void ptmx_minor_free(uint8_t minor)
     {
       g_ptmx.px_next = minor;
     }
+
+  nxsem_post(&g_ptmx.px_exclsem);
 }
