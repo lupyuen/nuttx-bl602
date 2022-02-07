@@ -147,9 +147,11 @@ jobs:
         kconfig-tweak --set-val CONFIG_EXAMPLES_SPI_TEST2_STACKSIZE 2048
 
         ## For NimBLE Porting Layer: Enable POSIX timers, pthreads, mqueues
+        ## TODO: Remove obsolete CONFIG_FS_MQUEUE_MPATH
         kconfig-tweak --disable CONFIG_DISABLE_POSIX_TIMERS
         kconfig-tweak --disable CONFIG_DISABLE_PTHREAD
         kconfig-tweak --disable CONFIG_DISABLE_MQUEUE
+        kconfig-tweak --set-str CONFIG_FS_MQUEUE_VFS_PATH "/var/mqueue"
         kconfig-tweak --set-str CONFIG_FS_MQUEUE_MPATH "/var/mqueue"
         kconfig-tweak --set-val CONFIG_FS_MQUEUE_NPOLLWAITERS 4
 
