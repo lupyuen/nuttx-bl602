@@ -212,9 +212,15 @@ jobs:
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
 
-        ## Enable UART1
-        kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
+        ## Enable UART1 for IKEA Air Quality Sensor
+        kconfig-tweak --enable  CONFIG_BL602_HAVE_UART1
         kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
+
+        ## Enable IKEA Air Quality Sensor App
+        kconfig-tweak --enable  CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR
+        kconfig-tweak --set-str CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_PROGNAME  "ikea_air_quality_sensor"
+        kconfig-tweak --set-val CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_PRIORITY  100
+        kconfig-tweak --set-val CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_STACKSIZE 2048
 
         ## Enable BASIC Interpreter
         kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
