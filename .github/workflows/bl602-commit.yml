@@ -21,6 +21,7 @@ jobs:
     
     - name: Install Build Tools
       run:  |
+        sudo apt -y update
         sudo apt -y install \
         bison flex gettext texinfo libncurses5-dev libncursesw5-dev \
         gperf automake libtool pkg-config build-essential gperf genromfs \
