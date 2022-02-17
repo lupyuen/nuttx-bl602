@@ -54,7 +54,7 @@
 ////  #define DEVID               0x58
 
 #warning Testing: Device ID of BME280
-#define DEVID               0x60 //// BME260
+#define DEVID               0x60 //// BME280
 
 #define BMP280_DIG_T1_LSB   0x88
 #define BMP280_DIG_T1_MSB   0x89
