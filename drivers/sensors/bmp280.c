@@ -42,9 +42,19 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define BMP280_ADDR         0x76
+////  Previously: I2C Address of BMP280
+////  #define BMP280_ADDR         0x76
+
+#warning Testing: I2C Address of BME280
+#define BMP280_ADDR         0x77 //// BME280
+
 #define BMP280_FREQ         CONFIG_BMP280_I2C_FREQUENCY
-#define DEVID               0x58
+
+////  Previously: Device ID of BMP280
+////  #define DEVID               0x58
+
+#warning Testing: Device ID of BME280
+#define DEVID               0x60 //// BME260
 
 #define BMP280_DIG_T1_LSB   0x88
 #define BMP280_DIG_T1_MSB   0x89
