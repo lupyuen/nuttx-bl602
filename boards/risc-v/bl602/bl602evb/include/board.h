@@ -60,10 +60,12 @@
                               GPIO_FUNC_UART | GPIO_PIN7)
 #define BOARD_UART_0_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
                               GPIO_FUNC_UART | GPIO_PIN16)
+#ifdef TODO  /* Remember to check for duplicate pins! */
 #define BOARD_UART_1_RX_PIN (GPIO_INPUT | GPIO_PULLUP | \
                               GPIO_FUNC_UART | GPIO_PIN3)
 #define BOARD_UART_1_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
                               GPIO_FUNC_UART | GPIO_PIN4)
+#endif  /* TODO */
 
 #ifdef TODO  /* Remember to check for duplicate pins! */
 /* PWM Configuration */
@@ -80,12 +82,10 @@
                             GPIO_FUNC_PWM | GPIO_PIN4)
 #endif  /* TODO */
 
-#ifdef TODO  /* Remember to check for duplicate pins! */
 /* I2C Configuration */
 
 #define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN4)
 #define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN3)
-#endif  /* TODO */
 
 /* SPI Configuration: Chip Select is unused because we control via GPIO instead */
 
