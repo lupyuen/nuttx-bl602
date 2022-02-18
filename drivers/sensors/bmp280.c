@@ -207,7 +207,12 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
-  msg[0].flags     = 0;
+
+  //// Previously msg[0].flags     = 0;
+
+  #warning Testing: I2C_M_NOSTOP for I2C Sub Address
+  msg[0].flags     = I2C_M_NOSTOP;  ////  Testing I2C Sub Address
+
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
