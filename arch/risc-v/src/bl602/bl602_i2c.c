@@ -193,6 +193,7 @@ static void bl602_i2c_send_data(struct bl602_i2c_priv_s *priv)
 
   putreg32(temp, BL602_I2C_FIFO_WDATA);
   priv->bytes += count;
+  i2cinfo("count=%d, temp=0x%x\n", count, temp); ////
 }
 
 /****************************************************************************
@@ -212,6 +213,7 @@ static void bl602_i2c_recvdata(struct bl602_i2c_priv_s *priv)
 
   count = msg->length - priv->bytes;
   temp  = getreg32(BL602_I2C_FIFO_RDATA);
+  i2cinfo("count=%d, temp=0x%x\n", count, temp); ////
   if (count >= 4)
     {
       PUT_UINT32_LE(temp, msg->buffer, priv->bytes);
@@ -736,6 +738,7 @@ static int bl602_i2c_transfer(struct i2c_master_s *dev,
         }
 
       priv->msgid = i;
+      i2cinfo("subflag=%d, subaddr=0x%x, sublen=%d\n", priv->subflag, priv->subaddr, priv->sublen); ////
       bl602_i2c_start_transfer(priv);
 
       /* wait for transter finished */
