@@ -201,6 +201,7 @@ static const struct sensor_ops_s g_sensor_ops =
 
 static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 {
+  sninfo("regaddr=0x%02x\n", regaddr); ////
   struct i2c_msg_s msg[2];
   uint8_t regval = 0;
   int ret;
@@ -230,6 +231,7 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
       return 0;
     }
 
+  sninfo("regaddr=0x%02x, regval=0x%02x\n", regaddr, regval); ////
   return regval;
 }
 
@@ -244,6 +246,7 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 static int bmp280_getregs(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
                           uint8_t *rxbuffer, uint8_t length)
 {
+  sninfo("regaddr=0x%02x, length=%d\n", regaddr, length); ////
   struct i2c_msg_s msg[2];
   int ret;
 
