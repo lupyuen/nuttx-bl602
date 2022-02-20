@@ -89,6 +89,21 @@ config BH1750FVI_I2C_FREQUENCY
 	default 400000
 	depends on SENSORS_BH1750FVI
 
+config SENSORS_BME280
+	bool "Bosch BME280 Humidity / Temperaure / Barometic Pressure Sensor"
+	default n
+	select I2C
+	---help---
+		Enable driver for the Bosch BME280 humidity / temperature / barometic pressure sensor.
+
+if SENSORS_BME280
+
+config BME280_I2C_FREQUENCY
+	int "BME280 I2C frequency"
+	default 400000
+
+endif # SENSORS_BME280
+
 config SENSORS_BMG160
 	bool "Bosch BMG160 Gyroscope Sensor support"
 	default n
