@@ -17,3 +17,6 @@
 [submodule "libs/libbl602_adc"]
 	path = libs/libbl602_adc
 	url = https://github.com/lupyuen/bl602_adc
+[submodule "drivers/sensors/bme280"]
+	path = drivers/sensors/bme280
+	url = https://github.com/lupyuen/bme280-nuttx
