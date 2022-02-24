@@ -59,7 +59,7 @@
  *     processor, etc.  This value is retained only for debug
  *     purposes.
  *   - stack_alloc_ptr: Pointer to allocated stack
- *   - adj_stack_ptr: Adjusted stack_alloc_ptr for HW.  The
+ *   - stack_base_ptr: Adjusted stack_alloc_ptr for HW.  The
  *     initial value of the stack pointer.
  *
  * Inputs:
@@ -81,7 +81,7 @@ int up_use_stack(FAR struct tcb_s *tcb, FAR void *stack, size_t stack_size)
 #ifdef CONFIG_TLS
   /* Make certain that the user provided stack is properly aligned */
 
-  DEBUGASSERT((uintptr_t)stack & (B2C(TLS_STACK_ALIGN) - 1) == 0);
+  DEBUGASSERT((uintptr_t)stack & (TLS_STACK_ALIGN - 1) == 0);
 #else
   DEBUGASSERT((uintptr_t)stack & STACK_ALIGN_MASK == 0);
 #endif
@@ -115,27 +115,15 @@ int up_use_stack(FAR struct tcb_s *tcb, FAR void *stack, size_t stack_size)
 
   /* Save the adjusted stack values in the struct tcb_s */
 
-  tcb->adj_stack_ptr  = top_of_stack;
+  tcb->stack_base_ptr = top_of_stack;
   tcb->adj_stack_size = size_of_stack;
-
-#ifdef CONFIG_TLS
-  /* Initialize the TLS data structure */
-
-  memset(tcb->stack_alloc_ptr, 0, sizeof(struct tls_info_s));
-#endif
 
 #ifdef CONFIG_STACK_COLORATION
   /* If stack debug is enabled, then fill the stack with a recognizable
    * value that we can use later to test for high water marks.
    */
 
-#ifdef CONFIG_TLS
-  up_stack_color(
-      tcb->stack_alloc_ptr + sizeof(struct tls_info_s),
-      tcb->adj_stack_size - sizeof(struct tls_info_s));
-#else
   up_stack_color(tcb->stack_alloc_ptr, tcb->adj_stack_size);
-#endif
 #endif
 
   return OK;

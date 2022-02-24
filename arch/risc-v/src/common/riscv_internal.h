@@ -115,6 +115,10 @@ EXTERN volatile uintptr_t *g_current_regs[CONFIG_SMP_NCPUS];
 #define CURRENT_REGS (g_current_regs[up_cpu_index()])
 EXTERN uintptr_t g_idle_topstack;
 
+/* Address of per-cpu idle stack base */
+
+EXTERN const uint8_t * const g_cpu_basestack[CONFIG_SMP_NCPUS];
+
 /* Address of the saved user stack pointer */
 
 #if CONFIG_ARCH_INTERRUPTSTACK > 15
@@ -217,6 +221,7 @@ void rpmsg_serialinit(void);
 
 /* Exception Handler ********************************************************/
 
+void riscv_fault(int irq, uintptr_t *regs);
 void riscv_exception(uintptr_t mcause, uintptr_t *regs);
 
 /* Debug ********************************************************************/
