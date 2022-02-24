@@ -47,8 +47,9 @@ exception_common:
 
 	/* Complete the context save */
 
+	pop     {r4}
 	mrs		r1, msp
-	add		r1, #8
+	add		r1, #4
 	msr		msp, r1
 	/* Get the current stack pointer.  The EXC_RETURN value tells us whether
 	 * the context is on the MSP or PSP.
@@ -155,7 +156,6 @@ exception_common:
 	mov		r10, r4
 	mov		r11, r5
 
-
 	/* Recover SP (R2), PRIMASK (R3), and R4-R7. Determine the value of
 	 * the stack pointer as it was on entry to the exception handler.
 	 */
@@ -192,7 +192,6 @@ exception_common:
  *   Shouldn't happen
  *
  ****************************************************************************/
-
 
 	.text
 	.align	2
@@ -309,7 +308,6 @@ exception_common_inline:
 	mov		r10, r4
 	mov		r11, r5
 
-
 	/* Recover SP (R2), PRIMASK (R3), and R4-R7. Determine the value of
 	 * the stack pointer as it was on entry to the exception handler.
 	 */
@@ -347,5 +345,15 @@ exception_common_inline:
  *
  ****************************************************************************/
 
+#if CONFIG_ARCH_INTERRUPTSTACK > 3
+	.bss
+	.global	g_intstackalloc
+	.global	g_intstacktop
+	.balign	4
+g_intstackalloc:
+	.skip	(CONFIG_ARCH_INTERRUPTSTACK & ~3)
+g_intstacktop:
+	.size	g_intstackalloc, .-g_intstackalloc
+#endif
 
 	.end
