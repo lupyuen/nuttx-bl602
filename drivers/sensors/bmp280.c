@@ -42,19 +42,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-////  Previously: I2C Address of BMP280
-////  #define BMP280_ADDR         0x76
-
-#warning Testing: I2C Address of BME280
-#define BMP280_ADDR         0x77 //// BME280
-
+#define BMP280_ADDR         0x76
 #define BMP280_FREQ         CONFIG_BMP280_I2C_FREQUENCY
-
-////  Previously: Device ID of BMP280
-////  #define DEVID               0x58
-
-#warning Testing: Device ID of BME280
-#define DEVID               0x60 //// BME280
+#define DEVID               0x58
 
 #define BMP280_DIG_T1_LSB   0x88
 #define BMP280_DIG_T1_MSB   0x89
@@ -201,20 +191,13 @@ static const struct sensor_ops_s g_sensor_ops =
 
 static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 {
-  sninfo("regaddr=0x%02x\n", regaddr); ////
   struct i2c_msg_s msg[2];
   uint8_t regval = 0;
   int ret;
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
-
-  //// Previously:
-  //// msg[0].flags     = 0;
-
-  #warning Testing: I2C_M_NOSTOP for I2C Sub Address
-  msg[0].flags     = I2C_M_NOSTOP;  ////  Testing I2C Sub Address
-
+  msg[0].flags     = 0;
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
@@ -231,7 +214,6 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
       return 0;
     }
 
-  sninfo("regaddr=0x%02x, regval=0x%02x\n", regaddr, regval); ////
   return regval;
 }
 
@@ -246,19 +228,12 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 static int bmp280_getregs(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
                           uint8_t *rxbuffer, uint8_t length)
 {
-  sninfo("regaddr=0x%02x, length=%d\n", regaddr, length); ////
   struct i2c_msg_s msg[2];
   int ret;
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
-
-  //// Previously:
-  //// msg[0].flags     = 0;
-
-  #warning Testing: I2C_M_NOSTOP for I2C Sub Address
-  msg[0].flags     = I2C_M_NOSTOP;  ////  Testing I2C Sub Address
-
+  msg[0].flags     = 0;
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
@@ -289,7 +264,6 @@ static int bmp280_getregs(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
 static int bmp280_putreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
                           uint8_t regval)
 {
-  sninfo("regaddr=0x%02x, regval=0x%02x\n", regaddr, regval); ////
   struct i2c_msg_s msg[2];
   uint8_t txbuffer[2];
   int ret;
