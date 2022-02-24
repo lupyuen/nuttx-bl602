@@ -59,6 +59,15 @@ RUN mkdir bloaty -p \
   && cmake -DCMAKE_SYSTEM_PREFIX_PATH=/tools/bloaty \
   && make install
 
+# Install Rust and targets supported from NuttX
+ENV RUST_HOME=/tools/rust
+ENV CARGO_HOME=$RUST_HOME/cargo
+ENV RUSTUP_HOME=$RUST_HOME/rustup
+RUN mkdir -p $CARGO_HOME \
+  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+  && $CARGO_HOME/bin/rustup target add thumbv6m-none-eabi \
+  && $CARGO_HOME/bin/rustup target add thumbv7m-none-eabi
+
 CMD [ "/bin/bash" ]
 
 ###############################################################################
@@ -191,7 +200,6 @@ RUN cd renesas-tools/source/newlib && \
 RUN cd /tools/renesas-tools/build/gcc && \
   make && make install
 
-
 ###############################################################################
 # Final Docker image used for running CI system.  This includes all toolchains
 # supported by the CI system.
@@ -234,7 +242,6 @@ RUN apt-get update -qq && DEBIAN_FRONTEND="noninteractive" apt-get install -y -q
   xxd \
   && rm -rf /var/lib/apt/lists/*
 
-
 # Configure out base setup for adding python packages
 ENV PIP_DISABLE_PIP_VERSION_CHECK=true
 # This disables the cache with value 0. We do not want caching as it
@@ -255,6 +262,12 @@ COPY --from=nuttx-tools /tools/kconfig-frontends/ kconfig-frontends/
 ENV PATH="/tools/kconfig-frontends/bin:$PATH"
 COPY --from=nuttx-tools /tools/bloaty/ bloaty/
 ENV PATH="/tools/bloaty/bin:$PATH"
+
+# Pull in the Rust toolchain including supported targets
+COPY --from=nuttx-tools /tools/rust/ /tools/rust/
+ENV CARGO_HOME=/tools/rust/cargo
+ENV RUSTUP_HOME=/tools/rust/rustup
+ENV PATH="/tools/rust/cargo/bin:$PATH"
 
 # ARM toolchain
 COPY --from=nuttx-toolchain-arm /tools/gcc-arm-none-eabi/ gcc-arm-none-eabi/
