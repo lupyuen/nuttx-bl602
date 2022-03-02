@@ -197,7 +197,13 @@ static uint8_t bmp280_getreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr)
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
+#ifdef CONFIG_BL602_I2C0
+  //  For BL602: Register ID must be passed as I2C Sub Address
+  msg[0].flags     = I2C_M_NOSTOP;
+#else
+  //  Otherwise pass Register ID as I2C Data
   msg[0].flags     = 0;
+#endif  //  CONFIG_BL602_I2C0
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
@@ -233,7 +239,13 @@ static int bmp280_getregs(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
+#ifdef CONFIG_BL602_I2C0
+  //  For BL602: Register ID must be passed as I2C Sub Address
+  msg[0].flags     = I2C_M_NOSTOP;
+#else
+  //  Otherwise pass Register ID as I2C Data
   msg[0].flags     = 0;
+#endif  //  CONFIG_BL602_I2C0
   msg[0].buffer    = &regaddr;
   msg[0].length    = 1;
 
