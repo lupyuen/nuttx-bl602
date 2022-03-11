@@ -64,16 +64,16 @@ jobs:
         echo "#define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)" >>$board
         echo "#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN3)" >>$board
 
+        ## I2C Configuration
+        echo "#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN6)" >>$board
+        echo "#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN5)" >>$board
+        
         ## Unused: PWM Configuration
         echo "#undef BOARD_PWM_CH0_PIN" >>$board
         echo "#undef BOARD_PWM_CH1_PIN" >>$board
         echo "#undef BOARD_PWM_CH2_PIN" >>$board
         echo "#undef BOARD_PWM_CH3_PIN" >>$board
         echo "#undef BOARD_PWM_CH4_PIN" >>$board
-
-        ## Unused: I2C Configuration
-        echo "#undef BOARD_I2C_SCL" >>$board
-        echo "#undef BOARD_I2C_SDA" >>$board
 
         ## Must be last line
         echo "#endif  //  __BL602_PINS" >>$board
@@ -213,15 +213,33 @@ jobs:
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_PRIORITY 100
         kconfig-tweak --set-val CONFIG_EXAMPLES_BL602_ADC_TEST_STACKSIZE 2048
 
-        ## Enable UART1 for IKEA Air Quality Sensor
-        kconfig-tweak --enable  CONFIG_BL602_HAVE_UART1
-        kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
+        ## Previously: Enable UART1 for IKEA Air Quality Sensor
+        ## kconfig-tweak --enable  CONFIG_BL602_HAVE_UART1
+        ## kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
 
         ## Enable IKEA Air Quality Sensor App
         kconfig-tweak --enable  CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR
         kconfig-tweak --set-str CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_PROGNAME  "ikea_air_quality_sensor"
         kconfig-tweak --set-val CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_PRIORITY  100
         kconfig-tweak --set-val CONFIG_EXAMPLES_IKEA_AIR_QUALITY_SENSOR_STACKSIZE 2048
+
+        ## For BME280: Enable I2C0, BME280 Driver and Sensor Test App
+        kconfig-tweak --enable  CONFIG_BL602_I2C0
+        kconfig-tweak --enable  CONFIG_I2C
+        kconfig-tweak --enable  CONFIG_I2C_DRIVER
+        kconfig-tweak --enable  CONFIG_MM_CIRCBUF
+        kconfig-tweak --enable  CONFIG_SENSORS
+        kconfig-tweak --set-val CONFIG_SENSORS_NPOLLWAITERS 2
+        kconfig-tweak --enable  CONFIG_SENSORS_BME280
+        kconfig-tweak --set-val CONFIG_BME280_I2C_FREQUENCY 400000
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_ERROR
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_WARN
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_INFO
+        kconfig-tweak --enable  CONFIG_TESTING_SENSORTEST
+        kconfig-tweak --set-str CONFIG_TESTING_SENSORTEST_PROGNAME  "sensortest"
+        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_PRIORITY  100
+        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_STACKSIZE 2048
 
         ## Enable BASIC Interpreter
         kconfig-tweak --enable CONFIG_INTERPRETERS_BAS
