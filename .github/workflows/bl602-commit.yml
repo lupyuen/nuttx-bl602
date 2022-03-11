@@ -64,6 +64,10 @@ jobs:
         echo "#define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)" >>$board
         echo "#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN3)" >>$board
 
+        ## I2C Configuration
+        echo "#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN6)" >>$board
+        echo "#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN5)" >>$board
+
         ## Unused: PWM Configuration
         echo "#undef BOARD_PWM_CH0_PIN" >>$board
         echo "#undef BOARD_PWM_CH1_PIN" >>$board
