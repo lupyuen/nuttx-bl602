@@ -297,10 +297,24 @@ arm_vectorsvc:
 
 	mov		fp, #0				/* Init frame pointer */
 	mov		r0, sp				/* Get r0=xcp */
+
+#if CONFIG_ARCH_INTERRUPTSTACK > 7
+	/* Call arm_syscall() on the interrupt stack */
+
+	ldr		sp, .Lirqstacktop		/* SP = interrupt stack top */
+	str		r0, [sp, #-4]!			/* Save the xcp address at SP-4 then update SP */
+	mov		r4, sp				/* Save the SP in a preserved register */
+	bic		sp, sp, #7			/* Force 8-byte alignment */
+	bl		arm_syscall			/* Call the handler */
+	ldr		sp, [r4]			/* Restore the user stack pointer */
+#else
+	/* Call arm_syscall() on the user stack */
+
 	mov		r4, sp				/* Save the SP in a preserved register */
 	bic		sp, sp, #7			/* Force 8-byte alignment */
 	bl		arm_syscall			/* Call the handler */
 	mov		sp, r4				/* Restore the possibly unaligned stack pointer */
+#endif
 
 	/* Upon return from arm_syscall, r0 holds the pointer to the register
 	 * state save area to use to restore the registers.  This may or may not
@@ -363,7 +377,11 @@ arm_vectordata:
 	 * r13 and r14
 	 */
 
+#ifdef CONFIG_ARMV7A_DECODEFIQ
 	mov		r13, #(PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT)
+#else
+	mov		r13, #(PSR_MODE_SVC | PSR_I_BIT)
+#endif
 	msr		cpsr_c, r13			/* Switch to SVC mode */
 
 	/* Create a context structure.  First set aside a stack frame
@@ -373,7 +391,11 @@ arm_vectordata:
 	sub		sp, sp, #XCPTCONTEXT_SIZE
 	stmia		sp, {r0-r12}			/* Save the SVC mode regs */
 
+#ifdef CONFIG_ARMV7A_DECODEFIQ
 	mov		r0, #(PSR_MODE_ABT | PSR_I_BIT | PSR_F_BIT)
+#else
+	mov		r0, #(PSR_MODE_ABT | PSR_I_BIT)
+#endif
 	msr		cpsr_c, r0			/* Switch back ABT mode */
 
 	/* Get the values for r15(pc) and CPSR in r3 and r4 */
@@ -383,7 +405,11 @@ arm_vectordata:
 
 	/* Then switch back to SVC mode */
 
+#ifdef CONFIG_ARMV7A_DECODEFIQ
 	mov		r0, #(PSR_MODE_SVC | PSR_I_BIT | PSR_F_BIT)
+#else
+	mov		r0, #(PSR_MODE_SVC | PSR_I_BIT)
+#endif
 	msr		cpsr_c, r0
 
 #ifdef CONFIG_BUILD_PROTECTED
@@ -812,7 +838,7 @@ arm_vectorfiq:
 
 #ifdef CONFIG_BUILD_PROTECTED
 	/* Did we enter from user mode?  If so then we need get the values of
-	 * USER mode rr13(sp) and r14(lr).
+	 * USER mode r13(sp) and r14(lr).
 	 */
 
 	and		r1, r4, #PSR_MODE_MASK		/* Interrupted mode */
@@ -862,6 +888,8 @@ arm_vectorfiq:
 	mov		r0, sp				/* Get r0=xcp */
 
 #if CONFIG_ARCH_INTERRUPTSTACK > 7
+	/* Call arm_decodefiq() on the interrupt stack */
+
 	ldr		sp, .Lfiqstacktop		/* SP = interrupt stack top */
 	str		r0, [sp, #-4]!			/* Save the xcp address at SP-4 then update SP */
 	mov		r4, sp				/* Save the SP in a preserved register */
@@ -869,6 +897,8 @@ arm_vectorfiq:
 	bl		arm_decodefiq			/* Call the handler */
 	ldr		sp, [r4]			/* Restore the user stack pointer */
 #else
+	/* Call arm_decodefiq() on the user stack */
+
 	mov		r4, sp				/* Save the SP in a preserved register */
 	bic		sp, sp, #7			/* Force 8-byte alignment */
 	bl		arm_decodefiq			/* Call the handler */
