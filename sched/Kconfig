@@ -17,8 +17,7 @@ if DISABLE_OS_API
 
 config DISABLE_POSIX_TIMERS
 	bool "Disable POSIX timers"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default DEFAULT_SMALL
 	---help---
 		Disable support for the the entire POSIX timer family
 		including timer_create(), timer_gettime(), timer_settime(),
@@ -29,18 +28,15 @@ config DISABLE_POSIX_TIMERS
 
 config DISABLE_PTHREAD
 	bool "Disable pthread support"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default DEFAULT_SMALL
 
 config DISABLE_MQUEUE
 	bool "Disable POSIX message queue support"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default DEFAULT_SMALL
 
 config DISABLE_ENVIRON
 	bool "Disable environment variable support"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default DEFAULT_SMALL
 
 endif # DISABLE_OS_API
 
@@ -1367,7 +1363,7 @@ config SIG_PREALLOC_IRQ_ACTIONS
 		The number of pre-allocated irq action structures.
 
 config SIG_EVTHREAD
-	bool "Support SIGEV_THHREAD"
+	bool "Support SIGEV_THREAD"
 	default n
 	depends on !BUILD_KERNEL && SCHED_WORKQUEUE
 	select LIBC_USRWORK if BUILD_PROTECTED
@@ -1384,7 +1380,7 @@ config SIG_EVTHREAD_HPWORK
 	default n
 	depends on SIG_EVTHREAD && SCHED_HPWORK
 	---help---
-		if selected, SIGEV_THHREAD will use the high priority work queue.
+		if selected, SIGEV_THREAD will use the high priority work queue.
 		If not, it will use the low priority work queue (if available).
 
 		REVISIT:  This solution is non-optimal.  Some notifications should

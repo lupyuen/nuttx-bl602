@@ -1,4 +1,4 @@
-                                Apache License
+                               Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
@@ -404,6 +404,34 @@ libs/libc/math
   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 
+libs/libc/lzf
+include/lzf
+======================
+
+Copyright (c) 2000-2007 Marc Alexander Lehmann <schmorp@schmorp.de>
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+  1.  Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+
+  2.  Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 drivers/video/ov2640
 ====================
 
@@ -490,6 +518,239 @@ include/nuttx/input/x11_xf86keysym.h
   ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
   SOFTWARE.
 
+include/nuttx/input/xbox-controller.h
+=====================================
+
+  Copyright (C) 2016 Brian Webb.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+include/nuttx/ioexpander/tca64xx.h
+===================================
+
+  Copyright (C) 2016 Gregory Nutt. All rights reserved.
+
+This header file derives, in part, from the Project Ara TCA64xx driver
+which has this copyright:
+
+  Copyright (c) 2014-2015 Google Inc.
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from this
+software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+include/nuttx/power/relay.h
+============================
+
+  Copyright (C) 2015 Max Nekludov. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+include/nuttx/sensors/kxtj9.h
+=============================
+
+  Copyright (C) 2016 Gregory Nutt. All rights reserved.
+
+This driver derives from the Motorola Moto Z MDK:
+
+  Copyright (c) 2016 Motorola Mobility, LLC.
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+include/nuttx/tree.h
+====================
+
+Copyright 2002 Niels Provos <provos@citi.umich.edu>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+include/nuttx/video/edid.h
+include/nuttx/video/vesagtf.h
+include/nuttx/video/videomode.h
+=================================
+
+  Copyright (C) 2019 Gregory Nutt. All rights reserved.
+
+Updated and extended with definitions from FreeBSD which has a compatible
+2-clause BSD license:
+
+ Copyright (c) 2006 Itronix Inc. All rights reserved.
+ Written by Garrett D'Amore for Itronix Inc.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+include/sys/epoll.h
+====================
+
+  Copyright (C) 2015 Anton D. Kachalov. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
 arch/xtensa/src/esp32/chip_macros.h
 ===================================
 
@@ -518,7 +779,6 @@ arch/arm/src/arm/arm_cache.S
 ============================
 
    Copyright (C) 2007, 2009, 2013 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Several of these cache operations come from Atmel sample code with
  modifications for better integration with NuttX.  The Atmel sample code
@@ -559,7 +819,6 @@ arch/arm/src/armv6-m/arm_exception.S
 ==================================
 
    Copyright (C) 2013 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This file was leveraged from the ARMv7-M version which has, in addition:
 
@@ -601,7 +860,6 @@ arch/arm/src/armv7-a/cp15_invalidate_dcache_all.S
 =================================================
 
    Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Portions of this file derive from Atmel sample code for the SAMA5D3
  Cortex-A5 which also has a modified BSD-style license:
@@ -641,8 +899,6 @@ arch/arm/src/armv8-m/arm_cache.c
 ================================
 
    Copyright (C) 2015, 2018-2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
-           Bob Feretich <bob.feretich@rafresearch.com>
 
  Some logic in this header file derives from the ARM CMSIS core_cm7.h
  header file which has a compatible 3-clause BSD license:
@@ -783,8 +1039,6 @@ arch/arm/src/armv8-m/tpi.h
 
    Copyright (C) 2014 Pierre-noel Bouteville . All rights reserved.
    Copyright (C) 2014 Gregory Nutt. All rights reserved.
-   Authors: Pierre-noel Bouteville <pnb990@gmail.com>
-            Gregory Nutt <gnutt@nuttx.org>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -820,7 +1074,6 @@ arch/arm/src/armv8-m/arm_exception.S
    Copyright (C) 2009-2013, 2015-2016, 2018 Gregory Nutt.
    All rights reserved.
    Copyright (C) 2012 Michael Smith. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -884,7 +1137,7 @@ arch/arm/src/efm32/hardware/efm32_usart.h
 arch/arm/src/efm32/hardware/efm32_usb.h
 arch/arm/src/efm32/hardware/efm32_vcmp.h
 arch/arm/src/efm32/hardware/efm32_wdog.h
-==========================
+========================================
 
   Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
 
@@ -911,8 +1164,6 @@ arch/arm/src/efm32/hardware/efm32_wdog.h
 
    Copyright (C) 2014 Pierre-noel Bouteville . All rights reserved.
    Copyright (C) 2014 Gregory Nutt. All rights reserved.
-   Authors: Pierre-noel Bouteville <pnb990@gmail.com>
-            Gregory Nutt <gnutt@nuttx.org>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -945,7 +1196,6 @@ arch/arm/src/armv7-r/cp15_cacheops.h
 ====================================
 
    Copyright (C) 2015 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Portions of this file derive from Atmel sample code for the SAMA5D3
  Cortex-A5 which also has a modified BSD-style license:
@@ -989,7 +1239,6 @@ arch/arm/src/armv7-r/cp15_invalidate_dcache_all.S
 =================================================
 
    Copyright (C) 2015 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Portions of this file derive from Atmel sample code for the SAMA5D3
  Cortex-A5 which also has a modified BSD-style license:
@@ -1033,7 +1282,6 @@ arch/arm/src/sama5/sam_pmecc.c
 ===================================
 
    Copyright (C) 2015 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  References:
 
@@ -1094,7 +1342,6 @@ arch/arm/src/samv7/sam_twihs.c
 ==============================
 
    Copyright (C) 2013, 2015-2017 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  The Atmel sample code has a BSD compatible license that requires this
  copyright notice:
@@ -1132,7 +1379,6 @@ arch/arm/src/samv7/sam_usbdevhs.c
 =================================
 
    Copyright (C) 2015-2016, 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.orgr>
 
  This code derives from the UDPHS device controller driver for the SAMA5D3.
  That code, in turn, includes some reference logic extracted from the
@@ -1226,12 +1472,10 @@ arch/xtensa/include/xtensa/xtensa_specregs.h
 arch/xtensa/include/xtensa/xtensa_corebits.h
 ============================================
 
- Xtensa Special Register symbolic names
 
  Adapted from use in NuttX by:
 
    Copyright (C) 2016 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Derives from logic originally provided by Tensilica Inc.
 
@@ -1259,16 +1503,10 @@ arch/xtensa/include/xtensa/xtensa_corebits.h
 arch/xtensa/src/common/xtensa_windowspill.S
 ===========================================
 
- Register window spill routine
-
- Adapted from use in NuttX by:
-
    Copyright (C) 2016 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Derives from logic originally provided by Tensilica Inc.
 
-   $Id: //depot/rel/Eaglenest/Xtensa/OS/hal/windowspill_asm.S#1 $
    Copyright (c) 1999-2010 Tensilica Inc.
 
  Permission is hereby granted, free of charge, to any person obtaining
@@ -1363,10 +1601,7 @@ arch/xtensa/src/common/xtensa_window_vector.S
 arch/xtensa/src/esp32/chip_macros.h
 ===================================
 
- Adapted from use in NuttX by:
-
    Copyright (C) 2016 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Derives from logic originally provided by Cadence Design Systems Inc.
 
@@ -1394,14 +1629,10 @@ arch/xtensa/src/esp32/chip_macros.h
 drivers/analog/ad5410.c
 drivers/analog/ads1255.c
 ==============================
+
   Copyright (C) 2008, 2009, 2010, 2016 Gregory Nutt. All rights reserved.
   Copyright (C) 2011 Li Zhuoyi. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com>
-          Gregory Nutt <gnutt@nuttx.org>
 
-This file is a part of NuttX:
-
-  Copyright (C) 2008, 2009, 2010 Gregory Nutt. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1432,9 +1663,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 drivers/lcd/ra8875.c
 drivers/lcd/ra8875.h
+include/nuttx/lcd/ra8875.h
 ================================
+
   Copyright (C) 2015 Intuitive Aerial AB. All rights reserved.
-  Author: Marten Svanfeldt <marten@intuitiveaerial.com>
 
 References: RA8875, Rev 1.6, Apr 2013, RAiO Technologies Inc
 
@@ -1466,9 +1698,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 drivers/modem/u-blox.c
+include/nuttx/modem/u-blox.h
 =======================
+
   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
-  Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1499,8 +1732,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 drivers/net/tun.c
 =======================
+
   Copyright (C) 2015-2016 Max Nekludov. All rights reserved.
-  Author: Max Nekludov <macscomp@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1530,14 +1763,12 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 drivers/power/bq2429x.c
+include/nuttx/power/bq2429x.h
 ===========================
+
   Copyright (C) 2017 Neil Hancock. All rights reserved.
-
   Copyright (C) 2017 Haltian Ltd. All rights reserved.
-  Author: Juha Niskanen <juha.niskanen@haltian.com>
-
   Copyright (C) 2016 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1567,10 +1798,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 drivers/sensors/as726x.c
+include/nuttx/sensors/as726x.h
 ============================
+
   Copyright (C) 2019 Fabian Justi. All rights reserved.
-  Author: Fabian Justi <Fabian.Justi@gmx.de> and
-          Andreas Kurz <andreas.kurz@methodpark.de>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1600,9 +1831,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 drivers/sensors/lis3dh.c
+include/nuttx/sensors/lis3dh.h
 ===========================
+
   Copyright (C) 2018 Extent3D. All rights reserved.
-  Author: Matt Thompson <matt@extent3d.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1634,17 +1866,10 @@ POSSIBILITY OF SUCH DAMAGE.
 drivers/sensors/lsm303agr.c
 drivers/sensors/lsm6dsl.c
 ===============================
+
   Copyright (C) 2018 Inc. All rights reserved.
-  Author: Ben vd Veen <disruptivesolutionsnl@gmail.com>
-  Alias: DisruptiveNL
-
-Based on:
-
   Copyright (C) 2016 Omni Hoverboards Inc. All rights reserved.
-  Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
-
   Copyright (C) 2016, 2019 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1674,9 +1899,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 drivers/sensors/vl53l1x.c
+include/nuttx/sensors/vl53l1x.h
 ==============================
+
   Copyright (C) 2019 Acutronics Robotics
-  Author: Acutronics Robotics (Juan Flores Muñoz) <juan@erlerobotics.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -1750,16 +1976,14 @@ arch/arm/src/lc823450/lc823450_sddrv_if.h
 arch/arm/src/lc823450/lc823450_sddrv_type.h
 arch/arm/src/lc823450/lc823450_symbols.ld
 ============================================ 
+
   Copyright (C) 2014-2015 ON Semiconductor. All rights reserved.
   Copyright 2014,2015,2016,2017 Sony Video & Sound Products Inc.
-  Author: Masayuki Ishikawa Masayuki.Ishikawa@jp.sony.com
-  Author: Masatoshi Tateishi Masatoshi.Tateishi@jp.sony.com
-  Author: Nobutaka Toyoshima Nobutaka.Toyoshima@jp.sony.com
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
- 
+
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright
@@ -1769,7 +1993,7 @@ are met:
 3. Neither the name NuttX nor the names of its contributors may be
    used to endorse or promote products derived from this software
    without specific prior written permission.
- 
+
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -1845,13 +2069,470 @@ boards/arm/imxrt/imxrt1050-evk/src/imxrt_sdram_ini_dcd.c
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
+boards/arm/s32k1xx/s32k118evb/src/s32k1xx_clockconfig.c
+boards/arm/s32k1xx/s32k118evb/src/s32k1xx_periphclocks.c
+boards/arm/s32k1xx/s32k144evb/src/s32k1xx_clockconfig.c
+boards/arm/s32k1xx/s32k144evb/src/s32k1xx_periphclocks.c
+boards/arm/s32k1xx/s32k146evb/src/s32k1xx_clockconfig.c
+boards/arm/s32k1xx/s32k146evb/src/s32k1xx_periphclocks.c
+boards/arm/s32k1xx/s32k148evb/src/s32k1xx_clockconfig.c
+boards/arm/s32k1xx/s32k148evb/src/s32k1xx_periphclocks.c
+boards/arm/s32k1xx/ucans32k146/src/s32k1xx_clockconfig.c
+boards/arm/s32k1xx/ucans32k146/src/s32k1xx_periphclocks.c
+=========================================================
+  Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
+  Copyright 2016-2018 NXP
+  All rights reserved.
+
+THIS SOFTWARE IS PROVIDED BY NXP "AS IS" AND ANY EXPRESSED OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL NXP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+
+boards/or1k/mor1kx/or1k/src/or1k_boot.c
+boards/or1k/mor1kx/or1k/src/or1k_bringup.c
+=================================================
+  Copyright (C) 2018 Extent3D. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/lpc17xx_40xx/u-blox-c027/include/board.h
+boards/arm/lpc17xx_40xx/u-blox-c027/src/lpc17_40_ubxmdm.c
+boards/arm/lpc17xx_40xx/u-blox-c027/src/u-blox-c027.h
+===========================================================
+  Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/lpc2378/olimex-lpc2378/include/board.h
+boards/arm/lpc2378/olimex-lpc2378/src/lpc2378_appinit.c
+boards/arm/lpc2378/olimex-lpc2378/src/lpc2378_leds.c
+boards/arm/lpc2378/olimex-lpc2378/scripts/ld.script
+=======================================================
+  Copyright (C) 2010 Rommel Marcelo. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/rp2040/common/src/rp2040_ina219.c
+boards/arm/stm32/common/src/stm32_ina219.c
+boards/arm/stm32/olimex-stm32-e407/src/stm32_dac.c
+===============================================
+  Copyright (C) 2018,2019 Erle Robotics (Juan Flores Muñoz).
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32/nucleo-f303re/src/stm32_uid.c
+boards/arm/stm32/omnibusf4/src/stm32_uid.c
+boards/arm/stm32/stm32f4discovery/src/stm32_uid.c
+boards/arm/stm32h7/nucleo-h743zi/src/stm32_uid.c
+boards/arm/stm32h7/stm32h747i-disco/src/stm32_uid.c
+===============================================
+  Copyright (C) 2015 Marawan Ragab. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32/nucleo-f412zg/src/stm32_usb.c
+boards/arm/stm32/stm32f411e-disco/src/stm32_usb.c
+=================================================
+  Copyright (C) 2017 Gregory Nutt. All rights reserved.
+  Copyright (C) 2017 Brian Webb. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32/omnibusf4/src/stm32_romfs.h
+boards/arm/stm32/omnibusf4/src/stm32_romfs_initialize.c
+boards/arm/stm32/stm32f4discovery/src/stm32_romfs.h
+boards/arm/stm32/stm32f4discovery/src/stm32_romfs_initialize.c
+boards/arm/stm32f7/nucleo-144/src/stm32_romfs.h
+boards/arm/stm32f7/nucleo-144/src/stm32_romfs_initialize.c
+=============================================================
+  Copyright (C) 2017 Tomasz Wozniak. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32f0l0g0/nucleo-g070rb/src/stm32_gpio.c
+boards/arm/stm32f0l0g0/nucleo-g070rb/src/stm32_pwm.c
+boards/arm/stm32f0l0g0/nucleo-g070rb/src/stm32_timer.c
+=====================================================
+  Copyright (C) 2019 Fundação CERTI. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32f7/nucleo-144/src/stm32_dma_alloc.c
+boards/arm/stm32f7/stm32f746-ws/src/stm32_dma_alloc.c
+boards/arm/stm32l4/nucleo-l496zg/src/stm32_dma_alloc.c
+boards/arm/tms570/tms570ls31x-usb-kit/include/nsh_romfsimg.h
+============================================================
+  Copyright (C) 2013, 2016 PX4 Development Team. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name PX4 nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32f7/stm32f746g-disco/src/stm32_extmem.c
+=======================================================
+  Copyright (C) 2018 Marcin Wyrwas. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32l4/nucleo-l476rg/src/stm32_as726x.c
+==================================================
+  Copyright (C) 2019 Fabian Justi. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32l4/stm32l476-mdk/include/board.h
+boards/arm/stm32l4/stm32l476-mdk/include/stm32l476-mdk-clocking.h
+=================================================================
+  Copyright (C) 2016 Gregory Nutt. All rights reserved.
+  Copyright (C) 2016 Motorola Mobility, LLC.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+boards/arm/stm32l4/stm32l476vg-disco/include/boardctl.h
+boards/arm/stm32l4/stm32l4r9ai-disco/include/boardctl.h
+=======================================================
+  Copyright (C) 2016 dev@ziggurat29.com. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
 arch/arm/src/imxrt/imxrt_lcd.c
 arch/arm/src/imxrt/hardware/imxrt_lcd.h
 ==============================
 
  Copyright (C) 2019 Gregory Nutt. All rights reserved.
  Copyright (C) 2017, NXP Semiconductors, Inc.
- Author: Johannes Schock (Port)
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -1884,7 +2565,6 @@ arch/arm/src/imxrt/imxrt_edma.c
 arch/arm/src/imxrt/imxrt_edma.h
 ==================================
   Copyright (C) 2018 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Portions of the eDMA logic derive from NXP sample code which has a
 compatible BSD 3-clause license:
@@ -1949,9 +2629,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 arch/arm/src/kinetis/kinetis_edma.c
 arch/arm/src/kinetis/kinetis_edma.h
 ======================================
+
   Copyright (C) 2019, 2021 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           David Sidrane <david.sidrane@nscdg.com>
 
 This file was leveraged from the NuttX S32K port.  Portions of that eDMA
 logic derived from NXP sample code which has a compatible BSD 3-clause
@@ -1990,7 +2669,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/kl/kl_cfmconfig.c
 ==============================
-Copyright (c) 2012-2013 Andrew Payne
+
+  Copyright (c) 2012-2013 Andrew Payne
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
@@ -2019,8 +2699,6 @@ arch/arm/src/nrf52/nrf52_wdt_lowerhalf.h
 =====================================
 
   Copyright (C) 2018 Zglue Inc. All rights reserved.
-  Author: Levin Li <zhiqiang@zglue.com>
-  Author: Alan Carvalho de Assis <acassis@gmail.com>
 
 Ported from the Nordic SDK, this is the original license:
 
@@ -2056,10 +2734,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/phy62xx/phyplus_timer_lowerhalf.c
 ==============================================
+
   Copyright (C) 2015 Wail Khemir. All rights reserved.
   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
-  Authors: Wail Khemir <khemirwail@gmail.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2152,8 +2829,8 @@ arch/arm/src/s32k1xx/s32k1xx_clockconfig.h
 arch/arm/src/s32k1xx/s32k1xx_periphclocks.c
 arch/arm/src/s32k1xx/s32k1xx_periphclocks.h
 ================================================
+
   Copyright (C) 2019 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2204,8 +2881,8 @@ THE POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/s32k1xx/s32k1xx_edma.c
 arch/arm/src/s32k1xx/s32k1xx_edma.h
 ====================================
+
   Copyright (C) 2019 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 This file was leveraged from the NuttX i.MXRT port.
 Portions of that eDMA logic derived from NXP sample code which has
@@ -2244,13 +2921,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32/hardware/stm32f100_pinmap.h
 =================================================
+
   Copyright (C) 2009 Gregory Nutt. All rights reserved.
   Copyright (C) 2011 Uros Platise. All rights reserved.
   Copyright (C) 2012 Michael Smith. All Rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
-          Uros Platise <uros.platise@isotel.eu>
-          Michael Smith
-          Freddie Chopin <freddie_chopin@op.pl>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2281,10 +2955,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32/hardware/stm32f37xxx_sdadc.h
 ====================================================
+
   Copyright (C) 2009, 2011, 2013 Gregory Nutt. All rights reserved.
   Copyright (C) 2016 Studelec SA. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           Marc Rechté <mrechte@studelec-sa.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2314,18 +2987,11 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32/stm32_i2c_alt.c
-STM32 I2C Hardware Layer - Device Driver
+===================================
 
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With extensions, modifications by:
-
   Copyright (C) 2011-2014, 2016-2017 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
-
   Copyright( C) 2014 Patrizio Simona. All rights reserved.
-  Author: Patrizio Simona <psimona@ethz.ch>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2358,21 +3024,8 @@ arch/arm/src/stm32/stm32_i2c_v2.c
 ===========================================
 
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With extensions and modifications for the F1, F2, and F4 by:
-
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           John Wharington
-           David Sidrane <david_s5@nscdg.com>
-           Bob Feretich <bob.feretich@rafresearch.com>
-
-Major rewrite of ISR and supporting methods, including support
-for NACK and RELOAD by:
-
   Copyright (c) 2016 Doug Vetter.  All rights reserved.
-  Author: Doug Vetter <oss@aileronlabs.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2404,10 +3057,9 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32/stm32_sdadc.c
 arch/arm/src/stm32/stm32_sdadc.h
 ===================================
+
   Copyright (C) 2011, 2013, 2015-2017 Gregory Nutt. All rights reserved.
   Copyright (C) 2016 Studelec. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           Marc Rechté <mrechte@studelec-sa.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2438,10 +3090,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32/stm32_tickless.c
 ======================================
+
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
   Copyright (C) 2017 Ansync Labs. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           Konstantin Berezenko <kpberezenko@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2472,10 +3123,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32/stm32_tim_lowerhalf.c
 ===========================================
+
   Copyright (C) 2015 Wail Khemir. All rights reserved.
   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
-  Authors: Wail Khemir <khemirwail@gmail.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2507,8 +3157,8 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32/stm32_uid.c
 arch/arm/src/stm32/stm32_uid.h
 ===================================
+
   Copyright (C) 2015 Marawan Ragab. All rights reserved.
-  Author: Marawan Ragab <marawan31@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2539,11 +3189,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f0l0g0/hardware/stm32g0_pinmap.h
 =====================================================
-  Copyright (C) 2019 Gregory Nutt. All rights reserved.
-  Author: Mateusz Szafoni <raiden00@railab.me>
 
+  Copyright (C) 2019 Gregory Nutt. All rights reserved.
   Copyright (C) 2019 Fundação CERTI. All rights reserved.
-  Author: Daniel Pereira Volpato <dpo@certi.org.br>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2574,22 +3222,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f0l0g0/stm32_i2c.c
 ===========================================
+
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With extensions and modifications for the F1, F2, and F4 by:
-
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           John Wharington
-           David Sidrane <david_s5@nscdg.com>
-           Bob Feretich <bob.feretich@rafresearch.com>
-
-Major rewrite of ISR and supporting methods, including support
-for NACK and RELOAD by:
-
   Copyright (c) 2016 Doug Vetter.  All rights reserved.
-  Author: Doug Vetter <oss@aileronlabs.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2619,9 +3255,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f0l0g0/stm32_pwm.c
 =======================================
+
   Copyright (C) 2019 Fundação CERTI. All rights reserved.
-  Author: Daniel Pereira Volpato <dpo@certi.org.br>
-          Guillherme da Silva amaral <gvr@certi.org.br>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2654,8 +3289,8 @@ arch/arm/src/stm32f0l0g0/stm32_pwm.h
 arch/arm/src/stm32f0l0g0/stm32_tim.c
 arch/arm/src/stm32f0l0g0/stm32_tim.h
 =======================================
+
   Copyright (C) 2019 Fundação CERTI. All rights reserved.
-  Author: Daniel Pereira Volpato <dpo@certi.org.br>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2686,14 +3321,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f0l0g0/stm32_tim_lowerhalf.c
 =================================================
-  Copyright (C) 2019 Fundação CERTI. All rights reserved.
-  Author: Daniel Pereira Volpato <dpo@certi.org.br>
 
-  Based on: arch/arm/src/stm32l4/stm32l4_tim_lowerhalf.c
-  Authors: Wail Khemir <khemirwail@gmail.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
-           dev@ziggurat29.com
-           Sebastien Lorquet <sebastien@lorquet.fr>
+  Copyright (C) 2019 Fundação CERTI. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2724,13 +3353,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f7/stm32_flash.c
 =======================================
+
   Copyright (C) 2018 Wolpike LLC. All rights reserved.
-  Author: Evgeniy Bobkov <evgen@wolpike.com>
-
-Ported from stm32f20xxf40xx_flash.c, this is the original license:
-
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2762,22 +3387,10 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32f7/stm32_i2c.c
 arch/arm/src/stm32h7/stm32_i2c.c
 =======================================
+
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With extensions and modifications for the F1, F2, and F4 by:
-
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           John Wharington
-           David Sidrane <david_s5@nscdg.com>
-           Bob Feretich <bob.feretich@rafresearch.com>
-
-Major rewrite of ISR and supporting methods, including support
-for NACK and RELOAD by:
-
   Copyright (c) 2016 Doug Vetter.  All rights reserved.
-  Author: Doug Vetter <oss@aileronlabs.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2809,8 +3422,8 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32f7/stm32_sai.c
 arch/arm/src/stm32f7/stm32_sai.h
 ===================================
+
   Copyright (C) 2013-2014, 2019 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
   Copyright (c) 2016 Motorola Mobility, LLC. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -2842,10 +3455,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f7/stm32_tickless.c
 =========================================
+
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
   Copyright (C) 2017 Ansync Labs. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           Konstantin Berezenko <kpberezenko@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2876,10 +3488,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32f7/stm32_tim_lowerhalf.c
 =============================================
+
   Copyright (C) 2015 Wail Khemir. All rights reserved.
   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
-  Authors: Wail Khemir <khemirwail@gmail.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2911,8 +3522,8 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32f7/stm32_uid.c
 arch/arm/src/stm32f7/stm32_uid.h
 ======================================
+
   Copyright (C) 2015 Marawan Ragab. All rights reserved.
-  Author: Marawan Ragab <marawan31@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2943,15 +3554,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32h7/stm32_adc.c
 ====================================
+
   Copyright (C) 2017, 2019 Gregory Nutt. All rights reserved.
   Copyright (C) 2015 Motorola Mobility, LLC. All rights reserved.
   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           Diego Sanchez <dsanchez@nx-engineering.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
-           Mateusz Szafoni <raiden00@railab.me>
-           Juha Niskanen <juha.niskanen@haltian.com>
-           David Sidrane <david_s5@nscdg.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -2982,19 +3588,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32h7/stm32_flash.c
 ======================================
+
   Copyright (C) 2019 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           David Sidrane <david.sidrane@nscdg.com>
-
-Ported from stm32f7_flash.c, this is the original license:
-
   Copyright (C) 2018 Wolpike LLC. All rights reserved.
-  Author: Evgeniy Bobkov <evgen@wolpike.com>
-
-Ported from stm32f20xxf40xx_flash.c, this is the original license:
-
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3026,9 +3623,8 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32h7/stm32_uid.c
 arch/arm/src/stm32h7/stm32_uid.h
 =====================================
+
   Copyright (C) 2015 Marawan Ragab. All rights reserved.
-  Authors: Marawan Ragab <marawan31@gmail.com>
-           David Sidrane <david.sirane@nscdg.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3058,10 +3654,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32l4/hardware/stm32l4_lptim.h
+=============================================
 
   Copyright (C) 2016 Motorola Mobility, LLC. All rights reserved.
   Copyright (C) 2009, 2011-2012, 2017 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3163,11 +3759,10 @@ arch/arm/src/stm32l4/stm32l4_pmstandby.c
 arch/arm/src/stm32l4/stm32l4_pmstop.c
 arch/arm/src/stm32l4/stm32l4_sai.c
 arch/arm/src/stm32l4/stm32l4_sai.h
-
 ============================================
+
   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
   Copyright (C) 2015 Motorola Mobility, LLC. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3197,38 +3792,13 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32l4/stm32l4_i2c.c
-STM32L4 I2C driver - based on STM32F7 I2C Hardware Layer - Device Driver
-
-Original STM32L4 I2C driver:
+==================================
 
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
   Copyright (C) 2011-2013, 2016-2018 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
-  Author: John Wharington
-  Author: Sebastien Lorquet
-  Author: dev@ziggurat29.com
-
-STM32L4 I2C driver based on STM32F7 I2C driver:
-
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With extensions and modifications for the F1, F2, and F4 by:
-
   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
-  Authors: Gregory Nutt <gnutt@nuttx.org>
-           John Wharington
-           David Sidrane <david_s5@nscdg.com>
-
-Major rewrite of ISR and supporting methods, including support
-for NACK and RELOAD by:
-
   Copyright (c) 2016 Doug Vetter.  All rights reserved.
-  Author: Doug Vetter <oss@aileronlabs.com>
-
-Port from STM32F7 to STM32L4:
-  Author: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3260,14 +3830,10 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/stm32l4/stm32l4_lptim.c
 arch/arm/src/stm32l4/stm32l4_lptim.h
 ====================================
+
   Copyright (C) 2011 Uros Platise. All rights reserved.
-  Author: Uros Platise <uros.platise@isotel.eu>
-
-With modifications and updates by:
-
   Copyright (C) 2016 Motorola Mobility, LLC. All rights reserved.
   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3297,14 +3863,11 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32l4/stm32l4_tim_lowerhalf.c
+============================================
 
   Copyright (C) 2015 Wail Khemir. All rights reserved.
   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
   Copyright (C) 2016 Sebastien Lorquet All rights reserved.
-  Authors: Wail Khemir <khemirwail@gmail.com>
-           Paul Alexander Patience <paul-a.patience@polymtl.ca>
-           dev@ziggurat29.com
-           Sebastien Lorquet <sebastien@lorquet.fr>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3335,10 +3898,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 arch/arm/src/stm32l4/stm32l4_uid.c
 arch/arm/src/stm32l4/stm32l4_uid.h
+==================================
 
   Copyright (C) 2015 Marawan Ragab. All rights reserved.
-  Author: Marawan Ragab <marawan31@gmail.com>
-          dev@ziggurat9.com
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -3379,7 +3941,6 @@ arch/arm/src/xmc4/xmc4_usic.c
 ===============================================
 
    Copyright (C) 2017 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -3424,6 +3985,7 @@ arch/arm/src/xmc4/xmc4_usic.c
 
 crypto/aes.c
 include/nuttx/crypto/aes.h
+===========================
 
    Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
    Extracted from the CC3000 Host Driver Implementation.
@@ -3460,9 +4022,9 @@ arch/arm/src/tms570/tms570_selftest.c
 arch/arm/src/tms570/tms570_lowputc.c
 arch/arm/src/tms570/tms570_esm.c
 arch/arm/src/tms570/tms570_clockconfig.c
+========================================
 
    Copyright (C) 2015 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Most logic in this file was leveraged from TI's Project0 which has a
  compatible BSD license:
@@ -3551,7 +4113,6 @@ arch/arm/src/tiva/cc13xx/cc13x2_cc26x2_v2_rom.h
 ================================================
 
    Copyright (C) 2018 Gregory Nutt. All rights reserved.
-   Authors: Gregory Nutt <gnutt@nuttx.org>
 
  Technical content derives from a TI header file that has a compatible BSD
  license:
@@ -3590,7 +4151,6 @@ arch/arm/src/tms570/tms570_boot.c
 =================================
 
    Copyright (C) 2015 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is primarily original code.  However, some logic in this file was
  inspired/leveraged from TI's Project0 which has a compatible BSD license
@@ -3631,8 +4191,6 @@ arch/arm/src/tiva/common/tiva_adclow.c
 
    Copyright (C) 2016-2018 Gregory Nutt. All rights reserved.
    Copyright (C) 2015 TRD2 Inc. All rights reserved.
-   Author: Calvin Maguranis <calvin.maguranis@trd2inc.com>
-           Gregory Nutt <gnutt@nuttx.org>
 
  The Tivaware sample code has a BSD compatible license that requires this
  copyright notice:
@@ -3673,7 +4231,6 @@ arch/arm/src/tiva/common/tiva_adclib.c
 =======================================
 
    Copyright (C) 2015 TRD2 Inc. All rights reserved.
-   Author: Calvin Maguranis <calvin.maguranis@trd2inc.com>
 
  The Tivaware sample code has a BSD compatible license that requires this
  copyright notice:
@@ -3715,7 +4272,6 @@ arch/arm/src/tiva/cc13xx/cc13xx_prcm.h
 ======================================
 
    Copyright (C) 2018 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  Includes definitions from TI's prcm.c file which has a fully compatible
  BSD license:
@@ -3756,7 +4312,6 @@ arch/arm/src/tiva/cc13xx/cc13x0_trim.c
 =========================================
 
    Copyright (C) 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is a port of TI's setup.c file (revision 49363) which has a fully
  compatible BSD license:
@@ -3795,7 +4350,6 @@ arch/arm/src/tiva/cc13xx/cc13x2_cc26x2_v1_rom.h
 ===============================================
 
    Copyright (C) 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is a port of TI's rom.h file which has a fully compatible
  BSD license:
@@ -3835,7 +4389,6 @@ arch/arm/src/tiva/cc13xx/cc13x0_rom.c
 ===============================================
 
    Copyright (C) 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is a port of TI's setup_rom.c file which has a fully compatible BSD
  license:
@@ -3874,7 +4427,6 @@ arch/arm/src/tiva/cc13xx/cc13x2_aux_sysif.h
 ===========================================
 
    Copyright (C) 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is a port of TI's aux_sysif.h file which has a fully compatible BSD
  license:
@@ -3913,7 +4465,6 @@ arch/arm/src/tiva/cc13xx/cc13x2_aux_sysif.c
 ===========================================
 
    Copyright (C) 2018 Gregory Nutt. All rights reserved.
-   Authors: Gregory Nutt <gnutt@nuttx.org>
 
  Technical content derives from a TI aux_sysif.c file that has a
  compatible BSD license:
@@ -3952,91 +4503,12 @@ arch/arm/src/tiva/cc13xx/cc13x0_rom.h
 =====================================
 
    Copyright (C) 2019 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
 
  This is a port of TI's setup_rom.h file which has a fully compatible
  BSD license:
 
     Copyright (c) 2015-2017, Texas Instruments Incorporated
     All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
-
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
- 3. Neither the name NuttX nor the names of its contributors may be
-    used to endorse or promote products derived from this software
-    without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
-
-fs/nfs
-============
-   Copyright (C) 2012 Gregory Nutt. All rights reserved.
-   Copyright (C) 2012 Jose Pablo Rojas Vargas. All rights reserved.
-   Author: Jose Pablo Rojas Vargas <jrojas@nx-engineering.com>
-           Gregory Nutt <gnutt@nuttx.org>
-
- Leveraged from OpenBSD:
-
-  Copyright (c) 1989, 1993
-  The Regents of the University of California.  All rights reserved.
-
- This code is derived from software contributed to Berkeley by
- Rick Macklem at The University of Guelph.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
-
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 4. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- SUCH DAMAGE.
-
-fs/spiffs
-=========
-   Copyright (C) 2018 Gregory Nutt. All rights reserved.
-   Author: Gregory Nutt <gnutt@nuttx.org>
-
- This is a port of version 0.3.7 of SPIFFS by Peter Andersion.  That
- version was originally released under the MIT license but is here re-
- released under the NuttX BSD license.
-
-   Copyright (c) 2013-2017 Peter Andersson (pelleplutt1976@gmail.com)
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -4111,35 +4583,51 @@ include/nuttx/mtd/onfi.h
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
- drivers/usbhost/hid_parser.c
-=============================
-   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+libs/libc/machine/arm/armv7-a/arch_memcpy.S
+libs/libc/marchine/arm/armv7-r/arch_memcpy.S
+==============================================
 
- Adapted from the LUFA Library:
+Obtained via a posting on the Stellaris forum:
+ http://e2e.ti.com/support/microcontrollers/\
+      stellaris_arm_cortex-m3_microcontroller/f/473/t/44360.aspx
 
-   Copyright 2011  Dean Camera (dean [at] fourwalledcubicle [dot] com)
-   dean [at] fourwalledcubicle [dot] com, www.lufa-lib.org
+Based on the ARMv7-M version contributed by Mike Smith.  Apparently in the public
+domain and is re-released here under the modified BSD license:
 
- Permission to use, copy, modify, distribute, and sell this
- software and its documentation for any purpose is hereby granted
- without fee, provided that the above copyright notice appear in
- all copies and that both that the copyright notice and this
- permission notice and warranty disclaimer appear in supporting
- documentation, and that the name of the author not be used in
- advertising or publicity pertaining to distribution of the
- software without specific, written prior permission.
+Adapted for use with ARMv7-A and NuttX by:
 
- The author disclaim all warranties with regard to this
- software, including all implied warranties of merchantability
- and fitness.  In no event shall the author be liable for any
- special, indirect or consequential damages or any damages
- whatsoever resulting from loss of use, data or profits, whether
- in an action of contract, negligence or other tortious action,
- arising out of or in connection with the use or performance of
- this software.
+  Copyright (C) 2017 Gregory Nutt. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 
 libs/libc/machine/arm/armv8-m
 =============================
+
    Copyright (c) 2011, 2012 ARM Ltd.  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -4166,11 +4654,47 @@ libs/libc/machine/arm/armv8-m
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+libs/libc/machine/sim/arch_setjmp_arm.S
+==========================================
+
+  Copyright (C) 2017 Gregory Nutt. All rights reserved.
+
+Extracted from the MUSL C-library.  The MUSL C library has a compatible
+MIT license and is released here under the NuttX 3-clause BSD license:
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
 libs/libc/math/__cos.c
 libs/libc/math/__sin.c
 libs/libc/math/lib_lgamma.c
 libs/libc/math/lib_copysignf.c
 ======================
+
    Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 
    Developed at SunSoft, a Sun Microsystems, Inc. business.
@@ -4205,11 +4729,625 @@ libs/libc/math/lib_copysignf.c
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
+libs/libc/net/lib_inetaddr.c
+===============================
+
+  Copyright (C) 2011 Yu Qiang. All rights reserved.
+  Copyright (C) 2011 Gregory Nutt. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/net/lib_inetntop.c
+libs/libc/net/lib_inetpton.c
+============================
+
+  Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+
+Includes some logic extracted from hwport_ftpd, written by Jaehyuk Cho
+<minzkn@minzkn.com> which was released under the BSD license.
+
+  Copyright (C) HWPORT.COM. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/pthread/pthread_get_stackaddr_np.c
+libs/libc/pthread/pthread_get_stacksize_np.c
+===========================================
+
+  Copyright (C) 2018 Geoff Norton. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdio/lib_dtoa_data.c
+libs/libc/stdio/lib_dtoa_engine.c
+libs/libc/stdio/lib_dtoa_engine.h
+libs/libc/stdio/lib_ultoa_invert.c
+==================================
+
+  Copyright © 2018, Keith Packard. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdio/lib_libdtoa.c
+================================
+
+Copyright (c) 1990, 1993
+     The Regents of the University of California.  All rights reserved.
+
+This code is derived from software contributed to Berkeley by
+Chris Torek.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software
+   must display the following acknowledgement:
+     This product includes software developed by the University of
+     California, Berkeley and its contributors.
+4. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+libs/libc/stdio/lib_libvsprintf.c
+====================================
+
+  Copyright (c) 2002, Alexander Popov (sasho@vip.bg)
+  Copyright (c) 2002,2004,2005 Joerg Wunsch
+  Copyright (c) 2005, Helmut Wallner
+  Copyright (c) 2007, Dmitry Xmelkov
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdio/lib_ultoa_invert.h
+=======================================
+
+  Copyright (c) 2005, Dmitry Xmelkov. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdio/lib_vdprintf.c
+==================================
+
+  Copyright (C) 2012 Andrew Tridgell. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdlib/lib_bsearch.c
+libs/libc/stdlib/lib_qsort.c
+=============================
+
+  Copyright (c) 1990, 1993
+  The Regents of the University of California.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software
+   must display the following acknowledgement:
+     This product includes software developed by the University of
+     California, Berkeley and its contributors.
+4. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+libs/libc/stdlib/lib_itoa.c
+==============================
+
+  Copyright (C) 2013 Brooks Automation, Inc. All rights reserved.
+  Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdlib/lib_div.c
+libs/libc/stdlib/lib_ldiv.c
+libs/libc/stdlib/lib_lldiv.c
+=============================
+
+A direct leverage of the div() inplement by:
+
+  Copyright (C) 2015 Stavros Polymenis. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/stdlib/lib_mbtowc.c
+libs/libc/string/lib_strcoll.c
+libs/libc/string/lib_strxfrm.c
+===============================
+
+  Copyright (c)1999 Citrus Project. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+libs/libc/time/lib_localtime.c
+=================================
+
+Re-released as part of NuttX under the 3-clause BSD license:
+
+  Copyright (C) 2014 Gregory Nutt. All rights reserved.
+
+With these notes:
+
+  This file is in the public domain, so clarified as of
+  1996-06-05 by Arthur David Olson.
+
+  Leap second handling from Bradley White.
+  POSIX-style TZ environment variable handling from Guy Harris.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/unistd/lib_gethostname.c
+libs/libc/unistd/lib_sethostname.c
+include/sys/uio.h
+include/sys/utsname.h
+=================================
+
+  Copyright (C) 2015 Stavros Polymenis. All rights reserved.
+  Copyright (C) 2015, 2016 Gregory Nutt. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in
+   the documentation and/or other materials provided with the
+   distribution.
+3. Neither the name NuttX nor the names of its contributors may be
+   used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/wchar
+=============================
+
+  Copyright (c)1999 Citrus Project,
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+libs/libc/wchar/lib_mbrlen.c
+libs/libc/wchar/lib_mbsrtowcs.c
+================================
+
+  Copyright (c) 2002-2004 Tim J. Robbins.
+  All rights reserved.
+
+  Copyright (c) 2011 The FreeBSD Foundation
+  All rights reserved.
+
+Portions of this software were developed by David Chisnall
+under sponsorship from the FreeBSD Foundation.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
+libs/libc/wchar/lib_wcslcpy.c
+================================
+
+  Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the author may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+libs/libc/wctype
+===================
+
+   Copyright (c) 2002 Red Hat Incorporated.
+   All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+  Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+  Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+  The name of Red Hat Incorporated may not be used to endorse
+  or promote products derived from this software without specific
+  prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL RED HAT INCORPORATED BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+
 drivers/wireless/bluetooth/bt_uart.c
 drivers/wireless/bluetooth/bt_uart.h
 wireless/bluetooth
 tools/size_report
 ===========================
+
    Copyright (c) 2016, Intel Corporation
    All rights reserved.
 
@@ -4242,9 +5380,8 @@ tools/size_report
 
 drivers/wireless/spirit/
 =======================
+
    Copyright(c) 2015 STMicroelectronics
-   Author: VMA division - AMS
-   Version 3.2.2 08-July-2015
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -4273,6 +5410,7 @@ drivers/wireless/spirit/
 
 arch/arm/src/nrf52/sdk-nrfxlib
 ===============================
+
  Nordic SoftDevice Controller is based on the 3-Clause BSD License:
 
    Copyright (c) 2018, Nordic Semiconductor ASA
@@ -4314,6 +5452,7 @@ arch/arm/src/nrf52/sdk-nrfxlib
 
 arch/risc-v/src/mpfs/mpfs_opensbi_utils.S
 =========================================
+
 OpenSBI is based on the 2-Clause BSD License:
 
 The 2-Clause BSD License
@@ -4347,41 +5486,6 @@ arch/x86/src/qemu/qemu_vga.c
 =========================================
 
   Copyright (C) 2013 Li Zhuoyi. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com>
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in
-   the documentation and/or other materials provided with the
-   distribution.
-3. Neither the name NuttX nor the names of its contributors may be
-   used to endorse or promote products derived from this software
-   without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-arch/x86/src/qemu/qemu_keypad.c
-arch/x86/src/qemu/qemu_vga.c
-=========================================
-
-  Copyright (C) 2013 Li Zhuoyi. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4417,13 +5521,8 @@ arch/arm/src/lpc43xx/lpc43_adc.c
 arch/arm/src/lpc43xx/lpc43_dac.c
 arch/arm/src/lpc2378/lpc23xx_i2c.h
 ======================================
+
   Copyright (C) 2011 Li Zhuoyi. All rights reserved.
-  Copyright (C) 2016 Gregory Nutt. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com>
-          Gregory Nutt <gnutt@nuttx.org>
-
-This file is a part of NuttX:
-
   Copyright (C) 2010, 2013, 2016 Gregory Nutt. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -4457,19 +5556,10 @@ arch/arm/src/lpc17xx_40xx/lpc17_40_i2c.c
 arch/arm/src/lpc2378/lpc23xx_i2c.c
 arch/arm/src/lpc43xx/lpc43_i2c.c
 ======================================
-  Copyright (C) 2012, 2014-2016, 2019 Gregory Nutt.
+
+  Copyright (C) 2010-2011, 2012, 2014-2016, 2019 Gregory Nutt.
   All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
-
   Copyright (C) 2011 Li Zhuoyi. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com> (Original author)
-
-Derived from arch/arm/src/lpc31xx/lpc31_i2c.c
-
-  Author: David Hewson
-
-  Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4501,13 +5591,9 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/lpc2378/lpc23xx_spi.c
 arch/arm/src/lpc2378/lpc23xx_spi.h
 ==================================
+
   Copyright (C) 2013 Li Zhuoyi. All rights reserved.
-  Author: Li Zhuoyi <lzyy.cn@gmail.com>
-
-Derived from  arch/arm/src/lpc17xx_40xx/lpc17_40_spi.c
-
   Copyright (C) 2010-2017 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4543,8 +5629,7 @@ arch/arm/src/lpc43xx/spifi/src/spifilib_dev_common.c
 arch/arm/src/lpc43xx/spifi/src/spifilib_fam_standard_cmd.c
 ==============================================
 
-Copyright(C) NXP Semiconductors, 2014
-All rights reserved.
+  Copyright(C) NXP Semiconductors, 2014. All rights reserved.
 
 Software that is described herein is for illustrative purposes only
 which provides customers with programming information regarding the
@@ -4578,14 +5663,12 @@ arch/arm/src/lpc54xx/lpc54_lowputc.c
 =====================================
 
   Copyright (C) 2017-2019 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Parts of this file were adapted from sample code provided for the
 LPC54xx family from NXP which has a compatible BSD license.
 
   Copyright (c) 2016, Freescale Semiconductor, Inc.
-  Copyright (c) 2016 - 2017 , NXP
-  All rights reserved.
+  Copyright (c) 2016 - 2017 , NXP. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4634,12 +5717,7 @@ arch/arm/src/lpc2378/lpc23xx_vic.h
 ======================================
 
   Copyright (C) 2010 Rommel Marcelo. All rights reserved.
-  Author: Rommel Marcelo
-
-This file is part of the NuttX RTOS and based on the lpc2148 port:
-
   Copyright (C) 2010 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4667,6 +5745,7 @@ AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+
 arch/or1k/include/mor1kx/irq.h
 arch/or1k/include/spr.h
 arch/or1k/src/common/up_cpuinfo.c
@@ -4674,8 +5753,8 @@ arch/or1k/src/common/up_initialstate.c
 arch/or1k/src/common/up_timer.c
 arch/or1k/src/mor1kx/up_vectortab.S
 =======================================
+
   Copyright (C) 2018 Extent3D. All rights reserved.
-  Author: Matt Thompson <matt@extent3d.com>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -4707,8 +5786,8 @@ POSSIBILITY OF SUCH DAMAGE.
 arch/arm/src/am335x/am335x_edid.c
 arch/arm/src/am335x/am335x_lcdc.h
 =======================================
+
   Copyright (C) 2019 Gregory Nutt. All rights reserved.
-  Author: Gregory Nutt <gnutt@nuttx.org>
 
 The LCD driver derives from the LPC54xx LCD driver but also includes
 information from the FreeBSD AM335x LCD driver which was released under
