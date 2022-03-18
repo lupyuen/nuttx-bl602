@@ -292,6 +292,7 @@ static int bmp280_putreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
   sninfo("regaddr=0x%02x, regval=0x%02x\n", regaddr, regval); ////
   struct i2c_msg_s msg[2];
   uint8_t txbuffer[2];
+  uint8_t rxbuffer[1];
   int ret;
 
   txbuffer[0] = regaddr;
@@ -299,11 +300,24 @@ static int bmp280_putreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
 
   msg[0].frequency = priv->freq;
   msg[0].addr      = priv->addr;
+#ifdef CONFIG_BL602_I2C0
+  //  For BL602: Register ID and value must be passed as I2C Sub Address
+  msg[0].flags     = I2C_M_NOSTOP;
+#else
+  //  Otherwise pass Register ID and value as I2C Data
   msg[0].flags     = 0;
+#endif  //  CONFIG_BL602_I2C0
   msg[0].buffer    = txbuffer;
   msg[0].length    = 2;
 
-  ret = I2C_TRANSFER(priv->i2c, msg, 1);
+  //  For BL602: We read I2C Data because this forces BL602 to send the first message correctly
+  msg[1].frequency = priv->freq;
+  msg[1].addr      = priv->addr;
+  msg[1].flags     = I2C_M_READ;
+  msg[1].buffer    = rxbuffer;
+  msg[1].length    = sizeof(rxbuffer);
+
+  ret = I2C_TRANSFER(priv->i2c, msg, 2);
   if (ret < 0)
     {
       snerr("I2C_TRANSFER failed: %d\n", ret);
