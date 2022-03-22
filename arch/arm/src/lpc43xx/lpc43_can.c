@@ -38,8 +38,6 @@
 #include <nuttx/can/can.h>
 
 #include "arm_internal.h"
-#include "arm_arch.h"
-
 #include "chip.h"
 #include "lpc43_gpio.h"
 #include "hardware/lpc43_can.h"
@@ -186,7 +184,7 @@ static int can_bittiming(struct up_dev_s *priv);
 static const struct can_ops_s g_canops =
 {
   .co_reset         = can_reset,
-  .co_setup         =  can_setup,
+  .co_setup         = can_setup,
   .co_shutdown      = can_shutdown,
   .co_rxint         = can_rxint,
   .co_txint         = can_txint,

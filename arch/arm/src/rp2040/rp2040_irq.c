@@ -34,10 +34,7 @@
 
 #include "nvic.h"
 #include "ram_vectors.h"
-#include "arm_arch.h"
 #include "arm_internal.h"
-
-#include "rp2040_irq.h"
 
 /****************************************************************************
  * Pre-processor Definitions

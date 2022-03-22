@@ -45,8 +45,14 @@ ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
   ARCHOPTIMIZATIONRUST = -g
 endif
 
+ifeq ($(CONFIG_DEBUG_CUSTOMOPT),y)
+  MAXOPTIMIZATION := $(CONFIG_DEBUG_OPTLEVEL)
+else
+  MAXOPTIMIZATION ?= -O2
+endif
+
 ifneq ($(CONFIG_DEBUG_NOOPT),y)
-  ARCHOPTIMIZATION += -O2 -fno-strict-aliasing
+  ARCHOPTIMIZATION += $(MAXOPTIMIZATION) -fno-strict-aliasing
 else
   ARCHOPTIMIZATIONRUST += -C opt-level=0
 endif
@@ -203,6 +209,12 @@ endif
 
 LDELFFLAGS = -r -e main --gc-sections
 LDELFFLAGS += -T $(call CONVERT_PATH,$(BOARD_DIR)$(DELIM)scripts$(DELIM)gnu-elf.ld)
+
+ifeq ($(CONFIG_HOST_MACOS),y)
+  LDFLAGS += -Wl,-dead_strip
+else
+  LDFLAGS += -Wl,--gc-sections
+endif
 
 ifeq ($(CONFIG_SIM_M32),y)
   LDLINKFLAGS += -melf_i386

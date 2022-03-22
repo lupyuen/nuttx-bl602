@@ -85,6 +85,7 @@ config ARCH_SIM
 	select ARCH_HAVE_TESTSET
 	select ARCH_HAVE_VFORK
 	select ARCH_HAVE_SETJMP
+	select ARCH_HAVE_CUSTOMOPT
 	select ARCH_SETJMP_H
 	select ALARM_ARCH
 	select ONESHOT
@@ -324,6 +325,7 @@ config ARCH_HAVE_FPU
 config ARCH_HAVE_DPFPU
 	bool
 	default n
+	select ARCH_HAVE_FPU
 
 config ARCH_HAVE_LAZYFPU
 	bool
@@ -905,7 +907,6 @@ menu "Bring-Up Options"
 config SUPPRESS_CLOCK_CONFIG
 	bool "Suppress clock configuration"
 	default n
-	depends on ARCH_XTENSA
 	---help---
 		Do not configure clocking.  Instead relies on the reset clock
 		configuration (or clock configuration provided by a bootloader).

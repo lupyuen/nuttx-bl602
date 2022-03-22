@@ -35,6 +35,7 @@
 
 #include <arch/irq.h>
 #include <arch/csr.h>
+#include <stdint.h>
 
 #include "riscv_internal.h"
 #include "hardware/esp32c3_interrupt.h"
@@ -131,23 +132,6 @@ void up_irqinitialize(void)
 
   up_irq_enable();
 #endif
-}
-
-/****************************************************************************
- * Name: riscv_get_newintctx
- *
- * Description:
- *   Return initial mstatus when a task is created.
- *
- ****************************************************************************/
-
-uint32_t riscv_get_newintctx(void)
-{
-  /* Set machine previous privilege mode to machine mode.
-   * Also set machine previous interrupt enable
-   */
-
-  return (MSTATUS_MPPM | MSTATUS_MPIE);
 }
 
 /****************************************************************************

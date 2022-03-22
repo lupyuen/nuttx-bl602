@@ -40,9 +40,7 @@
 #include <arch/board/board.h>
 
 #include "chip.h"
-#include "arm_arch.h"
 #include "arm_internal.h"
-
 #include "rp2040_i2c.h"
 #include "hardware/rp2040_i2c.h"
 #include "hardware/rp2040_resets.h"
@@ -57,7 +55,7 @@
 #define I2C_TIMEOUT  (20*1000/CONFIG_USEC_PER_TICK) /* 20 mS */
 
 #define I2C_DEFAULT_FREQUENCY 400000
-#define I2C_FIFO_MAX_SIZE	    32
+#define I2C_FIFO_MAX_SIZE	    16
 
 #define I2C_INTR_ENABLE ((RP2040_I2C_IC_INTR_STAT_R_STOP_DET) | \
                          (RP2040_I2C_IC_INTR_STAT_R_TX_ABRT)  | \

@@ -36,7 +36,7 @@
 #include <arch/xtensa/xtensa_corebits.h>
 #include <arch/board/board.h>
 #include <arch/chip/core-isa.h>
-#include "chip.h"
+
 #include "sched/sched.h"
 #include "xtensa.h"
 
@@ -255,10 +255,6 @@ static inline void xtensa_registerdump(uintptr_t *regs)
   _alert(" LBEG: %08lx  LEND: %08lx  LCNT: %08lx\n",
          (unsigned long)regs[REG_LBEG], (unsigned long)regs[REG_LEND],
          (unsigned long)regs[REG_LCOUNT]);
-#endif
-#ifndef __XTENSA_CALL0_ABI__
-  _alert(" TMP0: %08lx  TMP1: %08lx\n",
-         (unsigned long)regs[REG_TMP0], (unsigned long)regs[REG_TMP1]);
 #endif
 }
 

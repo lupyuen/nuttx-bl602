@@ -36,8 +36,6 @@
 #include <arch/csr.h>
 
 #include "riscv_internal.h"
-#include "riscv_arch.h"
-
 #include "chip.h"
 
 /****************************************************************************
@@ -206,22 +204,4 @@ irqstate_t up_irq_enable(void)
 
   oldstat = READ_AND_SET_CSR(mstatus, MSTATUS_MIE);
   return oldstat;
-}
-
-/****************************************************************************
- * Name: riscv_get_newintctx
- *
- * Description:
- *   Return initial mstatus when a task is created.
- *
- ****************************************************************************/
-
-uint32_t riscv_get_newintctx(void)
-{
-  /* Set machine previous privilege mode to machine mode.
-   * Also set machine previous interrupt enable
-   * Note: In qemu, FPU is always exist even if don't use F|D ISA extension
-   */
-
-  return (MSTATUS_MPPM | MSTATUS_MPIE | MSTATUS_FS_INIT);
 }
