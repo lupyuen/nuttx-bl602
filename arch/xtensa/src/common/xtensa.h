@@ -233,7 +233,6 @@ void xtensa_copystate(uint32_t *dest, uint32_t *src);
 
 /* Serial output */
 
-void up_puts(const char *str);
 void up_lowputs(const char *str);
 
 /* Debug */
@@ -255,6 +254,11 @@ void xtensa_coproc_disable(struct xtensa_cpstate_s *cpstate, int cpset);
 #endif
 
 /* IRQs */
+
+#if defined(CONFIG_SMP) && CONFIG_ARCH_INTERRUPTSTACK > 15
+uintptr_t xtensa_intstack_alloc(void);
+uintptr_t xtensa_intstack_top(void);
+#endif
 
 uint32_t *xtensa_int_decode(uint32_t cpuints, uint32_t *regs);
 uint32_t *xtensa_irq_dispatch(int irq, uint32_t *regs);
@@ -315,8 +319,6 @@ void xtensa_add_region(void);
 void up_lowputc(char ch);
 void xtensa_earlyserialinit(void);
 void xtensa_serialinit(void);
-
-void rpmsg_serialinit(void);
 
 /* Network */
 

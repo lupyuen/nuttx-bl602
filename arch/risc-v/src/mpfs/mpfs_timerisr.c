@@ -32,7 +32,7 @@
 #include <arch/board/board.h>
 #include <nuttx/spinlock.h>
 
-#include "riscv_arch.h"
+#include "riscv_internal.h"
 
 #include "mpfs.h"
 #include "mpfs_clockconfig.h"
@@ -115,7 +115,7 @@ void up_timer_initialize(void)
 {
   /* what is our timecmp address for this hart */
 
-  uint64_t hart_id = READ_CSR(mhartid);
+  uintptr_t hart_id = riscv_mhartid();
   _mtime_cmp = (uint64_t *)MPFS_CLINT_MTIMECMP0 + hart_id;
 
   /* Attach timer interrupt handler */

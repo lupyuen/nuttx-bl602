@@ -36,8 +36,6 @@
 #include <arch/csr.h>
 
 #include "riscv_internal.h"
-#include "riscv_arch.h"
-
 #include "litex.h"
 
 /****************************************************************************
@@ -171,23 +169,6 @@ void up_enable_irq(int irq)
           ASSERT(false);
         }
     }
-}
-
-/****************************************************************************
- * Name: riscv_get_newintctx
- *
- * Description:
- *   Return initial mstatus when a task is created.
- *
- ****************************************************************************/
-
-uint32_t riscv_get_newintctx(void)
-{
-  /* Set machine previous privilege mode to machine mode.
-   * Also set machine previous interrupt enable
-   */
-
-  return (MSTATUS_MPPM | MSTATUS_MPIE);
 }
 
 /****************************************************************************

@@ -69,7 +69,7 @@ void env_release(FAR struct task_group_s *group)
     {
       /* Free the environment */
 
-      kumm_free(group->tg_envp);
+      group_free(group, group->tg_envp);
     }
 
   /* In any event, make sure that all environment-related variables in the

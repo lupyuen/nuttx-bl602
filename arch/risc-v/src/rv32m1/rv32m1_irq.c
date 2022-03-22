@@ -35,8 +35,6 @@
 #include <arch/csr.h>
 
 #include "riscv_internal.h"
-#include "riscv_arch.h"
-
 #include "rv32m1.h"
 #include "hardware/rv32m1_eu.h"
 
@@ -213,23 +211,6 @@ void up_enable_irq(int irq)
 
       (void)getreg32(RV32M1_EU_INTPTEN);
     }
-}
-
-/****************************************************************************
- * Name: riscv_get_newintctx
- *
- * Description:
- *   Return initial mstatus when a task is created.
- *
- ****************************************************************************/
-
-uint32_t riscv_get_newintctx(void)
-{
-  /* Set machine previous privilege mode to machine mode.
-   * Also set machine previous interrupt enable
-   */
-
-  return (MSTATUS_MPPM | MSTATUS_MPIE);
 }
 
 /****************************************************************************

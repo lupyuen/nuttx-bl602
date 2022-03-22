@@ -36,8 +36,6 @@
 #include <arch/csr.h>
 
 #include "riscv_internal.h"
-#include "riscv_arch.h"
-
 #include "hardware/bl602_clic.h"
 
 #include "chip.h"
@@ -163,27 +161,6 @@ void up_enable_irq(int irq)
       ASSERT(irq < 64 + 16 + RISCV_IRQ_ASYNC);
       bl_irq_enable(irq - RISCV_IRQ_ASYNC);
     }
-}
-
-/****************************************************************************
- * Name: riscv_get_newintctx
- *
- * Description:
- *   Return initial mstatus when a task is created.
- *
- ****************************************************************************/
-
-uint32_t riscv_get_newintctx(void)
-{
-  /* Set machine previous privilege mode to machine mode.
-   * Also set machine previous interrupt enable
-   */
-
-#ifdef CONFIG_ARCH_FPU
-  return (MSTATUS_FS_INIT | MSTATUS_MPPM | MSTATUS_MPIE);
-#else
-  return (MSTATUS_MPPM | MSTATUS_MPIE);
-#endif
 }
 
 /****************************************************************************

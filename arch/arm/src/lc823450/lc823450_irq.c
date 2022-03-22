@@ -37,9 +37,7 @@
 
 #include "nvic.h"
 #include "ram_vectors.h"
-#include "arm_arch.h"
 #include "arm_internal.h"
-#include "chip.h"
 #include "lc823450_intc.h"
 
 #ifdef CONFIG_DVFS
