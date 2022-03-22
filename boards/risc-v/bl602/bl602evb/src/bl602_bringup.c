@@ -83,6 +83,10 @@
 #include <nuttx/sensors/bme280.h>
 #endif /* CONFIG_SENSORS_BME280 */
 
+#ifdef CONFIG_SENSORS_BMP280
+#include <nuttx/sensors/bmp280.h>
+#endif /* CONFIG_SENSORS_BMP280 */
+
 #include "chip.h"
 
 /****************************************************************************
@@ -638,6 +642,25 @@ int bl602_bringup(void)
       _err("ERROR: Failed to register BME280\n");
     }
 #endif /* CONFIG_SENSORS_BME280 */
+
+#ifdef CONFIG_SENSORS_BMP280
+
+  /* Init I2C bus for BMP280 */
+
+  struct i2c_master_s *bmp280_i2c_bus = bl602_i2cbus_initialize(0);
+  if (!bmp280_i2c_bus)
+    {
+      _err("ERROR: Failed to get I2C%d interface\n", 0);
+    }
+
+  /* Register the BMP280 driver */
+
+  ret = bmp280_register(0, bmp280_i2c_bus);
+  if (ret < 0)
+    {
+      _err("ERROR: Failed to register BMP280\n");
+    }
+#endif /* CONFIG_SENSORS_BMP280 */
 
   return ret;
 }

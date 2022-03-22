@@ -232,6 +232,10 @@ jobs:
         kconfig-tweak --set-val CONFIG_SENSORS_NPOLLWAITERS 2
         kconfig-tweak --enable  CONFIG_SENSORS_BME280
         kconfig-tweak --set-val CONFIG_BME280_I2C_FREQUENCY 400000
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_ERROR
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_WARN
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_INFO
         kconfig-tweak --enable  CONFIG_DEBUG_SENSORS
         kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_ERROR
         kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_WARN
