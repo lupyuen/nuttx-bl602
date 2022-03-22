@@ -705,7 +705,8 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
   spiinfo("Change MISO to GPIO, cmd=%d\n", cmd);
-  //  MISO is now configured as SPI Pin. We configure MISO as GPIO.
+
+  //  MISO is now configured as SPI Pin. We reconfigure MISO as GPIO Pin.
   gpio_pinset_t gpio = 
     (BOARD_SPI_MISO & GPIO_PIN_MASK)  //  Get the pin number
     | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;  //  Change to GPIO Output
