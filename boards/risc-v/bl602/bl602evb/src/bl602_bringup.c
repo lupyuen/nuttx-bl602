@@ -87,6 +87,10 @@
 #include <nuttx/sensors/bmp280.h>
 #endif /* CONFIG_SENSORS_BMP280 */
 
+#ifdef CONFIG_LCD_ST7789
+#include <nuttx/lcd/st7789.h>
+#endif /* CONFIG_LCD_ST7789 */
+
 #include "chip.h"
 
 /****************************************************************************
@@ -661,6 +665,22 @@ int bl602_bringup(void)
       _err("ERROR: Failed to register BMP280\n");
     }
 #endif /* CONFIG_SENSORS_BMP280 */
+
+#ifdef CONFIG_LCD_ST7789
+
+  /* Init SPI bus for ST7789 */
+
+  struct spi_dev_s *st7789_spi_bus = bl602_spibus_initialize(0);
+  if (!st7789_spi_bus)
+    {
+      _err("ERROR: Failed to initialize SPI %d bus\n", 0);
+    }
+
+  /* Init the ST7789 Driver */
+
+  st7789_lcdinitialize(st7789_spi_bus);
+
+#endif /* CONFIG_LCD_ST7789 */
 
   return ret;
 }
