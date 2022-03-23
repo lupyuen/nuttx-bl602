@@ -811,6 +811,7 @@ static void bl602_spi_dma_exchange(struct bl602_spi_priv_s *priv,
 static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
                                     uint32_t wd)
 {
+  #warning Testing: BL602 SPI Timeout
   uint32_t val;
   uint32_t tmp_val = 0;
   uint32_t timeout_cnt = SPI_RX_TIMEOUT_COUNT;
