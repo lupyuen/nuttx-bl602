@@ -51,7 +51,13 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Default SPI frequency */
+
 #define SPI_FREQ_DEFAULT 400000
+
+/* SPI receive timeout count */
+
+#define SPI_RX_TIMEOUT_COUNT 160000
 
 /****************************************************************************
  * Private Types
@@ -805,21 +811,36 @@ static void bl602_spi_dma_exchange(struct bl602_spi_priv_s *priv,
 static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
                                     uint32_t wd)
 {
+  #warning Testing: BL602 SPI Timeout
   uint32_t val;
   uint32_t tmp_val = 0;
+  uint32_t timeout_cnt = SPI_RX_TIMEOUT_COUNT;
 
   /* write data to tx fifo */
 
   putreg32(wd, BL602_SPI_FIFO_WDATA);
 
-  while (0 == tmp_val)
+  /* wait for rx fifo ready or timeout */
+
+  while (0 == tmp_val && timeout_cnt > 0)
     {
-      /* get data from rx fifo */
+      /* get status of rx fifo */
 
       tmp_val = getreg32(BL602_SPI_FIFO_CFG_1);
       tmp_val = (tmp_val & SPI_FIFO_CFG_1_RX_CNT_MASK)
                 >> SPI_FIFO_CFG_1_RX_CNT_SHIFT;
+      timeout_cnt--;
     }
+
+  /* check rx timeout */
+
+  if (timeout_cnt == 0)
+    {
+      spiinfo("SPI rx timeout\n");
+      return 0;
+    }
+
+  /* read data from rx fifo */
 
   val = getreg32(BL602_SPI_FIFO_RDATA);
 
