@@ -87,6 +87,11 @@
 #include <nuttx/sensors/bmp280.h>
 #endif /* CONFIG_SENSORS_BMP280 */
 
+#ifdef CONFIG_LCD_DEV
+#  include <nuttx/board.h>
+#  include <nuttx/lcd/lcd_dev.h>
+#endif
+
 #ifdef CONFIG_LCD_ST7789
 #include <nuttx/lcd/st7789.h>
 #endif /* CONFIG_LCD_ST7789 */
@@ -666,21 +671,104 @@ int bl602_bringup(void)
     }
 #endif /* CONFIG_SENSORS_BMP280 */
 
-#ifdef CONFIG_LCD_ST7789
+#ifdef CONFIG_LCD_DEV
 
-  /* Init SPI bus for ST7789 */
+  /* Initialize the LCD driver */
 
-  struct spi_dev_s *st7789_spi_bus = bl602_spibus_initialize(0);
-  if (!st7789_spi_bus)
+  ret = board_lcd_initialize();
+  if (ret < 0)
     {
-      _err("ERROR: Failed to initialize SPI %d bus\n", 0);
+      syslog(LOG_ERR, "ERROR: board_lcd_initialize() failed: %d\n", ret);
     }
 
-  /* Init the ST7789 Driver */
+  /* Register the LCD driver */
 
-  st7789_lcdinitialize(st7789_spi_bus);
-
-#endif /* CONFIG_LCD_ST7789 */
+  ret = lcddev_register(0);
+  if (ret < 0)
+    {
+      syslog(LOG_ERR, "ERROR: lcddev_register() failed: %d\n", ret);
+    }
+#endif
 
   return ret;
 }
+
+#ifdef CONFIG_LCD_ST7789
+
+/* SPI Port Number for LCD */
+#define LCD_SPI_PORTNO 0
+
+/* SPI Bus for LCD */
+static struct spi_dev_s *st7789_spi_bus;
+
+/* LCD Device */
+static struct lcd_dev_s *g_lcd = NULL;
+
+/****************************************************************************
+ * Name:  board_lcd_initialize
+ *
+ * Description:
+ *   Initialize the LCD video hardware.  The initial state of the LCD is
+ *   fully initialized, display memory cleared, and the LCD ready to use, but
+ *   with the power setting at 0 (full off).
+ *
+ ****************************************************************************/
+
+int board_lcd_initialize(void)
+{
+  st7789_spi_bus = esp32c3_spibus_initialize(LCD_SPI_PORTNO);
+  if (!st7789_spi_bus)
+    {
+      lcderr("ERROR: Failed to initialize SPI port %d\n", LCD_SPI_PORTNO);
+      return -ENODEV;
+    }
+
+#ifdef TODO
+  /* SPI RX is not used. Same pin is used as LCD Data/Command control */
+
+  bl602_configgpio(LCD_DC);
+  bl602_gpiowrite(LCD_DC, true);
+#endif  //  TODO
+
+  /* Pull LCD_RESET high */
+
+  bl602_configgpio(BOARD_LCD_RST);
+  bl602_gpiowrite(BOARD_LCD_RST, false);
+  up_mdelay(1);
+  bl602_gpiowrite(BOARD_LCD_RST, true);
+  up_mdelay(10);
+
+  /* Set full brightness */
+
+  bl602_configgpio(BOARD_LCD_BL);
+  bl602_gpiowrite(BOARD_LCD_BL, true);
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name:  board_lcd_getdev
+ *
+ * Description:
+ *   Return a a reference to the LCD object for the specified LCD.  This
+ *   allows support for multiple LCD devices.
+ *
+ ****************************************************************************/
+
+FAR struct lcd_dev_s *board_lcd_getdev(int devno)
+{
+  g_lcd = st7789_lcdinitialize(st7789_spi_bus);
+  if (!g_lcd)
+    {
+      lcderr("ERROR: Failed to bind SPI port %d to LCD %d\n", LCD_SPI_PORTNO,
+      devno);
+    }
+  else
+    {
+      lcdinfo("SPI port %d bound to LCD %d\n", LCD_SPI_PORTNO, devno);
+      return g_lcd;
+    }
+
+  return NULL;
+}
+#endif  //  CONFIG_LCD_ST7789
