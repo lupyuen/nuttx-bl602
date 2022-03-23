@@ -51,7 +51,13 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Default SPI frequency */
+
 #define SPI_FREQ_DEFAULT 400000
+
+/* SPI receive timeout count */
+
+#define SPI_RX_TIMEOUT_COUNT 160000
 
 /****************************************************************************
  * Private Types
@@ -441,6 +447,15 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   /* we used hardware CS */
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
+
+#ifdef CONFIG_SPI_CMDDATA
+  //  Revert MISO from GPIO to SPI Pin. See bl602_spi_cmddata()
+  if (!selected)
+    {
+      spiinfo("Revert MISO to SPI");
+      bl602_configgpio(BOARD_SPI_MISO);
+    }
+#endif  //  CONFIG_SPI_CMDDATA
 }
 
 /****************************************************************************
@@ -695,10 +710,27 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
-  spierr("SPI cmddata not supported\n");
-  DEBUGPANIC();
+  spiinfo("Change MISO to GPIO, cmd=%d\n", cmd);
 
-  return -1;
+  //  MISO is now configured as SPI Pin. We reconfigure MISO as GPIO Pin.
+  gpio_pinset_t gpio = 
+    (BOARD_SPI_MISO & GPIO_PIN_MASK)  //  Get the pin number
+    | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;  //  Change to GPIO Output
+  int ret = bl602_configgpio(gpio);
+  if (ret < 0)
+    {
+      spierr("Failed to configure MISO as GPIO\n");
+      DEBUGPANIC();
+      return ret;
+    }
+
+  //  Set MISO to High (data) or Low (command)
+  bl602_gpiowrite(gpio, !cmd);
+
+  //  After this the caller will transmit data or command.
+  //  Then bl602_spi_select() will revert MISO back from GPIO to SPI Pin.
+  //  We must revert because the SPI Bus may be used by other drivers.
+  return OK;
 }
 #endif
 
@@ -781,19 +813,33 @@ static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
 {
   uint32_t val;
   uint32_t tmp_val = 0;
+  uint32_t timeout_cnt = SPI_RX_TIMEOUT_COUNT;
 
   /* write data to tx fifo */
 
   putreg32(wd, BL602_SPI_FIFO_WDATA);
 
-  while (0 == tmp_val)
+  /* wait for rx fifo ready or timeout */
+
+  while (0 == tmp_val && timeout_cnt > 0)
     {
-      /* get data from rx fifo */
+      /* get status of rx fifo */
 
       tmp_val = getreg32(BL602_SPI_FIFO_CFG_1);
       tmp_val = (tmp_val & SPI_FIFO_CFG_1_RX_CNT_MASK)
                 >> SPI_FIFO_CFG_1_RX_CNT_SHIFT;
+      timeout_cnt--;
     }
+
+  /* check rx timeout */
+
+  if (timeout_cnt == 0)
+    {
+      spiinfo("SPI rx timeout\n");
+      return 0;
+    }
+
+  /* read data from rx fifo */
 
   val = getreg32(BL602_SPI_FIFO_RDATA);
 
