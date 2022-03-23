@@ -94,6 +94,8 @@
 
 #ifdef CONFIG_LCD_ST7789
 #include <nuttx/lcd/st7789.h>
+#include "../boards/risc-v/bl602/bl602evb/include/board.h"
+#include "riscv_internal.h"
 #endif /* CONFIG_LCD_ST7789 */
 
 #include "chip.h"
@@ -716,7 +718,7 @@ static struct lcd_dev_s *g_lcd = NULL;
 
 int board_lcd_initialize(void)
 {
-  st7789_spi_bus = esp32c3_spibus_initialize(LCD_SPI_PORTNO);
+  st7789_spi_bus = bl602_spibus_initialize(LCD_SPI_PORTNO);
   if (!st7789_spi_bus)
     {
       lcderr("ERROR: Failed to initialize SPI port %d\n", LCD_SPI_PORTNO);

@@ -96,6 +96,13 @@
 #define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)
 #define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN3)
 
+#ifdef CONFIG_LCD_ST7789
+/* ST7789 Configuration: Reset and Backlight Pins */
+
+#define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN4)
+#define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN5)
+#endif  /* CONFIG_LCD_ST7789 */
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
