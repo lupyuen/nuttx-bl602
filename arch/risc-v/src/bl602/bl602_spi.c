@@ -710,7 +710,7 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
-  spiinfo("Change MISO to GPIO, cmd=%d\n", cmd);
+  spiinfo("Change MISO to GPIO, devid=%d, cmd=%d\n", devid, cmd);
 
   //  MISO is now configured as SPI Pin. We reconfigure MISO as GPIO Pin.
   gpio_pinset_t gpio = 
@@ -1166,6 +1166,7 @@ static void bl602_swap_spi_0_mosi_with_miso(uint8_t swap)
 
 static void bl602_spi_init(struct spi_dev_s *dev)
 {
+  spiinfo("\n"); ////
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
   const struct bl602_spi_config_s *config = priv->config;
 
@@ -1227,6 +1228,7 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
 static void bl602_spi_deinit(struct spi_dev_s *dev)
 {
+  spiinfo("\n"); ////
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
 
   bl602_swrst_ahb_slave1(AHB_SLAVE1_SPI);
@@ -1254,6 +1256,7 @@ static void bl602_spi_deinit(struct spi_dev_s *dev)
 
 struct spi_dev_s *bl602_spibus_initialize(int port)
 {
+  spiinfo("port: %d\n", port); ////
   struct spi_dev_s *spi_dev;
   struct bl602_spi_priv_s *priv;
   irqstate_t flags;
@@ -1299,6 +1302,7 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
 
 int bl602_spibus_uninitialize(struct spi_dev_s *dev)
 {
+  spiinfo("\n"); ////
   irqstate_t flags;
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
 
