@@ -308,14 +308,7 @@ static inline void st7789_sendcmd(FAR struct st7789_dev_s *dev, uint8_t cmd)
   ginfo("cmd: 0x%02x\n", cmd); ////
   st7789_select(dev->spi, 8);
   SPI_CMDDATA(dev->spi, SPIDEV_DISPLAY(0), true);
-#ifdef TODO ////
   SPI_SEND(dev->spi, cmd);
-#else
-  #warning Testing SPI exchange instead of send
-  uint8_t buffer[1] = { cmd };
-  uint8_t recv_buffer[1];
-  SPI_EXCHANGE(dev->spi, buffer, recv_buffer, sizeof(buffer));
-#endif  ////  TODO
   SPI_CMDDATA(dev->spi, SPIDEV_DISPLAY(0), false);
   st7789_deselect(dev->spi);
   ginfo("OK\n"); ////
