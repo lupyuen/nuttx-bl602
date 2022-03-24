@@ -836,7 +836,7 @@ static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
 
   if (timeout_cnt == 0)
     {
-      spiinfo("SPI rx timeout\n");
+      spiinfo("send=%lx and recv=timeout\n", wd);
       return 0;
     }
 
