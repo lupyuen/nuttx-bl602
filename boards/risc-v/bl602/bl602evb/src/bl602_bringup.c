@@ -622,7 +622,7 @@ int bl602_bringup(void)
   struct spi_dev_s *spitest = bl602_spibus_initialize(0);
   if (!spitest)
     {
-      _err("ERROR: Failed to initialize SPI %d bus\n", 0);
+      _err("ERROR: Failed to initialize SPI %d bus for SPI Test Driver\n", 0);
     }
 
   /* Register the SPI Test Driver */
@@ -680,7 +680,7 @@ int bl602_bringup(void)
   ret = board_lcd_initialize();
   if (ret < 0)
     {
-      syslog(LOG_ERR, "ERROR: board_lcd_initialize() failed: %d\n", ret);
+      _err("ERROR: board_lcd_initialize() failed: %d\n", ret);
     }
 
   /* Register the LCD driver */
@@ -688,9 +688,9 @@ int bl602_bringup(void)
   ret = lcddev_register(0);
   if (ret < 0)
     {
-      syslog(LOG_ERR, "ERROR: lcddev_register() failed: %d\n", ret);
+      _err("ERROR: lcddev_register() failed: %d\n", ret);
     }
-#endif
+#endif /* CONFIG_LCD_DEV */
 
   return ret;
 }
@@ -721,7 +721,7 @@ int board_lcd_initialize(void)
   st7789_spi_bus = bl602_spibus_initialize(LCD_SPI_PORTNO);
   if (!st7789_spi_bus)
     {
-      lcderr("ERROR: Failed to initialize SPI port %d\n", LCD_SPI_PORTNO);
+      lcderr("ERROR: Failed to initialize SPI port %d for LCD\n", LCD_SPI_PORTNO);
       return -ENODEV;
     }
 
