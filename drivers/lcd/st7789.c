@@ -771,6 +771,7 @@ FAR struct lcd_dev_s *st7789_lcdinitialize(FAR struct spi_dev_s *spi)
   st7789_display(priv, true);
   #warning Revert Fill
   //// TODO: st7789_fill(priv, 0xffff);
+  st7789_fill(priv, 0xaaaa);  //// TODO
 
   return &priv->dev;
 }
