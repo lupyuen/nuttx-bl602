@@ -51,8 +51,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Default SPI frequency */
-
 #define SPI_FREQ_DEFAULT 400000
 
 /****************************************************************************
@@ -443,15 +441,6 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   /* we used hardware CS */
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
-
-#ifdef CONFIG_SPI_CMDDATA
-  //  Revert MISO from GPIO to SPI Pin. See bl602_spi_cmddata()
-  if (!selected)
-    {
-      spiinfo("Revert MISO to SPI");
-      bl602_configgpio(BOARD_SPI_MISO);
-    }
-#endif  //  CONFIG_SPI_CMDDATA
 }
 
 /****************************************************************************
@@ -706,27 +695,10 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
-  spiinfo("Change MISO to GPIO, devid=%d, cmd=%d\n", devid, cmd);
+  spierr("SPI cmddata not supported\n");
+  DEBUGPANIC();
 
-  //  MISO is now configured as SPI Pin. We reconfigure MISO as GPIO Pin.
-  gpio_pinset_t gpio = 
-    (BOARD_SPI_MISO & GPIO_PIN_MASK)  //  Get the pin number
-    | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;  //  Change to GPIO Output
-  int ret = bl602_configgpio(gpio);
-  if (ret < 0)
-    {
-      spierr("Failed to configure MISO as GPIO\n");
-      DEBUGPANIC();
-      return ret;
-    }
-
-  //  Set MISO to High (data) or Low (command)
-  bl602_gpiowrite(gpio, !cmd);
-
-  //  After this the caller will transmit data or command.
-  //  Then bl602_spi_select() will revert MISO back from GPIO to SPI Pin.
-  //  We must revert because the SPI Bus may be used by other drivers.
-  return OK;
+  return -1;
 }
 #endif
 
@@ -807,35 +779,21 @@ static void bl602_spi_dma_exchange(struct bl602_spi_priv_s *priv,
 static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
                                     uint32_t wd)
 {
-  #warning Testing: BL602 SPI Timeout
   uint32_t val;
   uint32_t tmp_val = 0;
-
-  /* spi enable master */
-
-  modifyreg32(BL602_SPI_CFG, SPI_CFG_CR_S_EN, SPI_CFG_CR_M_EN);
-
-  /* spi fifo clear  */
-
-  modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
-              | SPI_FIFO_CFG_0_TX_CLR, 0);
 
   /* write data to tx fifo */
 
   putreg32(wd, BL602_SPI_FIFO_WDATA);
 
-  /* wait for rx fifo ready or timeout */
-
   while (0 == tmp_val)
     {
-      /* get status of rx fifo */
+      /* get data from rx fifo */
 
       tmp_val = getreg32(BL602_SPI_FIFO_CFG_1);
       tmp_val = (tmp_val & SPI_FIFO_CFG_1_RX_CNT_MASK)
                 >> SPI_FIFO_CFG_1_RX_CNT_SHIFT;
     }
-
-  /* read data from rx fifo */
 
   val = getreg32(BL602_SPI_FIFO_RDATA);
 
@@ -931,6 +889,15 @@ static void bl602_spi_poll_exchange(struct bl602_spi_priv_s *priv,
   int i;
   uint32_t w_wd = 0xffff;
   uint32_t r_wd;
+
+  /* spi enable master */
+
+  modifyreg32(BL602_SPI_CFG, SPI_CFG_CR_S_EN, SPI_CFG_CR_M_EN);
+
+  /* spi fifo clear  */
+
+  modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
+              | SPI_FIFO_CFG_0_TX_CLR, 0);
 
   for (i = 0; i < nwords; i++)
     {
@@ -1152,7 +1119,6 @@ static void bl602_swap_spi_0_mosi_with_miso(uint8_t swap)
 
 static void bl602_spi_init(struct spi_dev_s *dev)
 {
-  spiinfo("\n"); ////
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
   const struct bl602_spi_config_s *config = priv->config;
 
@@ -1214,7 +1180,6 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
 static void bl602_spi_deinit(struct spi_dev_s *dev)
 {
-  spiinfo("\n"); ////
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
 
   bl602_swrst_ahb_slave1(AHB_SLAVE1_SPI);
@@ -1242,7 +1207,6 @@ static void bl602_spi_deinit(struct spi_dev_s *dev)
 
 struct spi_dev_s *bl602_spibus_initialize(int port)
 {
-  spiinfo("port: %d\n", port); ////
   struct spi_dev_s *spi_dev;
   struct bl602_spi_priv_s *priv;
   irqstate_t flags;
@@ -1288,7 +1252,6 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
 
 int bl602_spibus_uninitialize(struct spi_dev_s *dev)
 {
-  spiinfo("\n"); ////
   irqstate_t flags;
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
 
