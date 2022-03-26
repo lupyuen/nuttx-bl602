@@ -438,14 +438,27 @@ static int bl602_spi_lock(struct spi_dev_s *dev, bool lock)
 static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
                              bool selected)
 {
-  /* we used hardware CS */
-
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
   #warning Testing ST7789 Chip Select
+  //  Configure all Chip Select as GPIO Pins
+  bl602_configgpio(BOARD_LCD_CS);     //  ST7789
+  bl602_configgpio(BOARD_SX1262_CS);  //  SX1262
+  bl602_configgpio(BOARD_FLASH_CS);   //  SPI Flash
+
+  //  Set all Chip Select to High (deselected)
+  bl602_gpiowrite(BOARD_LCD_CS,    true);  //  ST7789
+  bl602_gpiowrite(BOARD_SX1262_CS, true);  //  SX1262
+  bl602_gpiowrite(BOARD_FLASH_CS,  true);  //  SPI Flash
+
   //  Set ST7789 Chip Select to Low (if selected) or High (if deselected)
-  bl602_configgpio(BOARD_LCD_CS);
   bl602_gpiowrite(BOARD_LCD_CS, !selected);
+
+  //  Set SX1262 Chip Select to Low (if selected) or High (if deselected)
+  //  bl602_gpiowrite(BOARD_SX1262_CS, !selected);
+
+  //  Set SPI Flash Chip Select to Low (if selected) or High (if deselected)
+  //  bl602_gpiowrite(BOARD_FLASH_CS, !selected);
 
 #ifdef CONFIG_SPI_CMDDATA
   //  Revert MISO from GPIO to SPI Pin. See bl602_spi_cmddata()
