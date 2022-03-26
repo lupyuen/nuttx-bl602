@@ -725,13 +725,6 @@ int board_lcd_initialize(void)
       return -ENODEV;
     }
 
-#ifdef TODO
-  /* SPI RX is not used. Same pin is used as LCD Data/Command control */
-
-  bl602_configgpio(LCD_DC);
-  bl602_gpiowrite(LCD_DC, true);
-#endif  //  TODO
-
   /* Pull LCD_RESET high */
 
   bl602_configgpio(BOARD_LCD_RST);
