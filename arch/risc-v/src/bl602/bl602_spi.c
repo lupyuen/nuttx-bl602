@@ -444,8 +444,8 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
 
   #warning Testing ST7789 Chip Select
   //  Set ST7789 Chip Select to Low (if selected) or High (if deselected)
-  bl602_configgpio(BOARD_LED_CS);
-  bl602_gpiowrite(BOARD_LED_CS, !selected);
+  bl602_configgpio(BOARD_LCD_CS);
+  bl602_gpiowrite(BOARD_LCD_CS, !selected);
 
 #ifdef CONFIG_SPI_CMDDATA
   //  Revert MISO from GPIO to SPI Pin. See bl602_spi_cmddata()
