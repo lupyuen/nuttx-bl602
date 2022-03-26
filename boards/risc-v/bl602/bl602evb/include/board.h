@@ -104,6 +104,11 @@
 #define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
 #endif  /* CONFIG_LCD_ST7789 */
 
+/* Chip Select for PineDio Stack */
+
+#define BOARD_SX1262_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+#define BOARD_FLASH_CS   (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
