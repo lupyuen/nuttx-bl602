@@ -443,7 +443,7 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
 #ifdef CONFIG_SPI_CMDDATA
-  /*  revert MISO from GPIO Pin to SPI Pin */
+  /* revert MISO from GPIO Pin to SPI Pin */
 
   if (!selected)
     {
