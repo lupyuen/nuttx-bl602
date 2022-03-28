@@ -443,13 +443,13 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
 #ifdef CONFIG_SPI_CMDDATA
-  //  Revert MISO from GPIO to SPI Pin. See bl602_spi_cmddata()
+  /*  revert MISO from GPIO Pin to SPI Pin */
+
   if (!selected)
     {
-      spiinfo("Revert MISO to SPI");
       bl602_configgpio(BOARD_SPI_MISO);
     }
-#endif  //  CONFIG_SPI_CMDDATA
+#endif
 }
 
 /****************************************************************************
@@ -689,6 +689,11 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   every word is transferred; only when the CMD/DATA state changes.  This
  *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
  *   configuration
+ * 
+ *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
+ *   MISO to high (data) or low (command). bl602_spi_select() will revert 
+ *   MISO back from GPIO to SPI Pin.  We must revert because the SPI Bus may
+ *   be used by other drivers.
  *
  * Input Parameters:
  *   dev - Device-specific state data
@@ -704,14 +709,14 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
-  #warning Testing SPI Cmd/Data
-  spiinfo("Change MISO to GPIO, devid=%d, cmd=%d\n", devid, cmd);
+  gpio_pinset_t gpio;
+  int ret;
 
-  //  MISO is now configured as SPI Pin. We reconfigure MISO as GPIO Pin.
-  gpio_pinset_t gpio = 
-    (BOARD_SPI_MISO & GPIO_PIN_MASK)  //  Get the pin number
-    | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;  //  Change to GPIO Output
-  int ret = bl602_configgpio(gpio);
+  /* reconfigure MISO from SPI Pin to GPIO Pin */
+
+  gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
+         | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
+  ret = bl602_configgpio(gpio);
   if (ret < 0)
     {
       spierr("Failed to configure MISO as GPIO\n");
@@ -719,12 +724,10 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
       return ret;
     }
 
-  //  Set MISO to High (data) or Low (command)
+  /* set MISO to high (data) or low (command) */
+
   bl602_gpiowrite(gpio, !cmd);
 
-  //  After this the caller will transmit data or command.
-  //  Then bl602_spi_select() will revert MISO back from GPIO to SPI Pin.
-  //  We must revert because the SPI Bus may be used by other drivers.
   return OK;
 }
 #endif
