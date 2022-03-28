@@ -689,7 +689,7 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   every word is transferred; only when the CMD/DATA state changes.  This
  *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
  *   configuration
- * 
+ *
  *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
  *   MISO to high (data) or low (command). bl602_spi_select() will revert 
  *   MISO back from GPIO Pin to SPI Pin.  We must revert because the SPI Bus
