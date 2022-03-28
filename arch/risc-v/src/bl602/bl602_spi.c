@@ -709,26 +709,41 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
-  gpio_pinset_t gpio;
-  int ret;
+  spiinfo("devid: %" PRIu32 " CMD: %s\n", devid, cmd ? "command" :
+          "data");
 
-  /* reconfigure MISO from SPI Pin to GPIO Pin */
-
-  gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
-         | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
-  ret = bl602_configgpio(gpio);
-  if (ret < 0)
+#if defined(CONFIG_LCD_ST7735) || defined(CONFIG_LCD_ST7789) || \
+    defined(CONFIG_LCD_GC9A01)
+  if (devid == SPIDEV_DISPLAY(0))
     {
-      spierr("Failed to configure MISO as GPIO\n");
-      DEBUGPANIC();
-      return ret;
+      gpio_pinset_t gpio;
+      int ret;
+
+      /* reconfigure MISO from SPI Pin to GPIO Pin */
+
+      gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
+            | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
+      ret = bl602_configgpio(gpio);
+      if (ret < 0)
+        {
+          spierr("Failed to configure MISO as GPIO\n");
+          DEBUGPANIC();
+
+          return ret;
+        }
+
+      /* set MISO to high (data) or low (command) */
+
+      bl602_gpiowrite(gpio, !cmd);
+
+      return OK;
     }
+#endif
 
-  /* set MISO to high (data) or low (command) */
+  spierr("SPI cmddata not supported\n");
+  DEBUGPANIC();
 
-  bl602_gpiowrite(gpio, !cmd);
-
-  return OK;
+  return -ENODEV;
 }
 #endif
 
