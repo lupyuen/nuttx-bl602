@@ -132,9 +132,9 @@ static int ds_i2c_transfer(FAR struct i2c_master_s *i2cdev,
 
 static const struct i2c_ops_s ds_i2c_ops =
 {
-  ds_i2c_transfer
+  .transfer = ds_i2c_transfer
 #ifdef CONFIG_I2C_RESET
-  , ds_i2c_reset
+  , .reset  = ds_i2c_reset
 #endif
 };
 
