@@ -88,7 +88,7 @@ static const struct file_operations g_foc_fops =
 
 static struct foc_callbacks_s g_foc_callbacks =
 {
-  foc_notifier
+  .notifier = foc_notifier,
 };
 
 /****************************************************************************
