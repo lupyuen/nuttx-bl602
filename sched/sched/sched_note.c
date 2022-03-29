@@ -90,12 +90,13 @@ struct note_startalloc_s
 #ifdef CONFIG_SCHED_INSTRUMENTATION_FILTER
 static struct note_filter_s g_note_filter =
 {
-  {
-     CONFIG_SCHED_INSTRUMENTATION_FILTER_DEFAULT_MODE
+  .mode =
+    {
+      .flag = CONFIG_SCHED_INSTRUMENTATION_FILTER_DEFAULT_MODE,
 #ifdef CONFIG_SMP
-     , CONFIG_SCHED_INSTRUMENTATION_CPUSET
+      .cpuset = CONFIG_SCHED_INSTRUMENTATION_CPUSET,
 #endif
-  }
+    }
 };
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_IRQHANDLER
