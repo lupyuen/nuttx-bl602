@@ -1601,7 +1601,6 @@ ssize_t net_ioctl_arglen(int cmd)
 {
   switch (cmd)
     {
-      case FIONBIO:
       case FIONSPACE:
       case FIONREAD:
         return sizeof(int);

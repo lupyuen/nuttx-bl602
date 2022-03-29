@@ -82,6 +82,7 @@ void *riscv_dispatch_irq(uintptr_t vector, uintptr_t *regs)
 
   irq_dispatch(irq, regs);
 
+#if defined(CONFIG_ARCH_FPU) || defined(CONFIG_ARCH_ADDRENV)
   /* Check for a context switch.  If a context switch occurred, then
    * CURRENT_REGS will have a different value than it did on entry.  If an
    * interrupt level context switch has occurred, then restore the floating
@@ -91,6 +92,12 @@ void *riscv_dispatch_irq(uintptr_t vector, uintptr_t *regs)
 
   if (regs != CURRENT_REGS)
     {
+#ifdef CONFIG_ARCH_FPU
+      /* Restore floating point registers */
+
+      riscv_restorefpu((uintptr_t *)CURRENT_REGS);
+#endif
+
 #ifdef CONFIG_ARCH_ADDRENV
       /* Make sure that the address environment for the previously
        * running task is closed down gracefully (data caches dump,
@@ -101,6 +108,7 @@ void *riscv_dispatch_irq(uintptr_t vector, uintptr_t *regs)
       group_addrenv(NULL);
 #endif
     }
+#endif /* CONFIG_ARCH_FPU || CONFIG_ARCH_ADDRENV */
 
 #endif /* CONFIG_SUPPRESS_INTERRUPTS */
 

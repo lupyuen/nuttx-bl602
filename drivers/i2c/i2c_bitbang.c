@@ -74,10 +74,7 @@ static void i2c_bitbang_send(FAR struct i2c_bitbang_dev_s *dev,
 
 static const struct i2c_ops_s g_i2c_ops =
 {
-  i2c_bitbang_transfer  /* transfer */
-#ifdef CONFIG_I2C_RESET
-  , NULL                /* reset */
-#endif
+  .transfer = i2c_bitbang_transfer
 };
 
 /****************************************************************************

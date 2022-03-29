@@ -151,15 +151,15 @@
 struct spi_flash_dev_s
 {
   struct spi_dev_s  spidev;     /* Externally visible part of the SPI interface */
-  FAR const char *  name;       /* Name of the flash type (m25p, w25, etc.) */
-  uint8_t           manuf;
-  uint8_t           type;
-  uint8_t           capacity;
-  uint8_t           last_cmd;
   uint32_t          selected;   /* SPIn base address */
-  uint32_t          read_data;
+  FAR char *        name;       /* Name of the flash type (m25p, w25, etc.) */
   int               wren;
   int               state;
+  uint32_t          read_data;
+  uint8_t           last_cmd;
+  uint8_t           capacity;
+  uint8_t           manuf;
+  uint8_t           type;
   unsigned long     address;
   unsigned char     data[CONFIG_SPI_FLASH_SIZE];
 };
@@ -203,87 +203,85 @@ static uint32_t spi_flash_readword(FAR struct spi_flash_dev_s *priv);
 
 static const struct spi_ops_s g_spiops =
 {
-  spi_flash_lock,               /* lock */
-  spi_flash_select,             /* select */
-  spi_flash_setfrequency,       /* setfrequency */
-#ifdef CONFIG_SPI_DELAY_CONTROL
-  NULL,                         /* setdelay */
-#endif
-  spi_flash_setmode,            /* setmode */
-  spi_flash_setbits,            /* setbits */
+  .lock              = spi_flash_lock,
+  .select            = spi_flash_select,
+  .setfrequency      = spi_flash_setfrequency,
+  .setmode           = spi_flash_setmode,
+  .setbits           = spi_flash_setbits,
 #ifdef CONFIG_SPI_HWFEATURES
-  NULL,                         /* hwfeatures */
+  .hwfeatures        = 0,                   /* Not supported */
 #endif
-  spi_flash_status,             /* status */
+  .status            = spi_flash_status,
 #ifdef CONFIG_SPI_CMDDATA
-  spi_flash_cmddata,            /* cmddata */
+  .cmddata           = spi_flash_cmddata,
 #endif
-  spi_flash_send,               /* send */
+  .send              = spi_flash_send,
 #ifdef CONFIG_SPI_EXCHANGE
-  spi_flash_exchange,           /* exchange */
+  .exchange          = spi_flash_exchange,
 #else
-  spi_flash_sndblock,           /* sndblock */
-  spi_flash_recvblock,          /* recvblock */
+  .sndblock          = spi_flash_sndblock,
+  .recvblock         = spi_flash_recvblock,
 #endif
-#ifdef CONFIG_SPI_TRIGGER
-  NULL,                         /* trigger */
-#endif
-  NULL                          /* registercallback */
+  .registercallback  = 0,
 };
 
 #ifdef CONFIG_SPI_FLASH_M25P
 struct spi_flash_dev_s g_spidev_m25p =
 {
+  .spidev   =
   {
-    &g_spiops                           /* spidev */
+    &g_spiops
   },
-  "m25p",                               /* name */
-  0x20,                                 /* manuf */
-  0x20,                                 /* type */
-  CONFIG_SPI_FLASH_CAPACITY             /* capacity */
+  .name     = "m25p",
+  .manuf    = 0x20,
+  .type     = 0x20,
+  .capacity = CONFIG_SPI_FLASH_CAPACITY
 };
 #endif
 
 #ifdef CONFIG_SPI_FLASH_SST26
 struct spi_flash_dev_s g_spidev_sst26 =
 {
+  .spidev   =
   {
-    &g_spiops                           /* spidev */
+    &g_spiops
   },
-  "sst26",                              /* name */
-  0xbf,                                 /* manuf */
+  .name     = "sst26",
+  .manuf    = 0xbf,
 #ifdef CONFIG_SST26_MEMORY_TYPE
-  CONFIG_SST26_MEMORY_TYPE,             /* type */
+  .type     = CONFIG_SST26_MEMORY_TYPE,
 #else
-  0x25,                                 /* type */
+  .type     = 0x25,
 #endif
-  CONFIG_SPI_FLASH_CAPACITY_SST26       /* capacity */
+  .capacity = CONFIG_SPI_FLASH_CAPACITY_SST26
 };
 #endif
 
 #ifdef CONFIG_SPI_FLASH_W25
 struct spi_flash_dev_s g_spidev_w25 =
 {
+  .spidev   =
   {
-    &g_spiops                           /* spidev */
+    &g_spiops
   },
-  "w25",                                /* name */
-  0xef,                                 /* manuf */
-  0x30,                                 /* type */
-  CONFIG_SPI_FLASH_CAPACITY             /* capacity */
+  .name     = "w25",
+  .manuf    = 0xef,
+  .type     = 0x30,
+  .capacity = CONFIG_SPI_FLASH_CAPACITY
 };
 #endif
 
 #ifdef CONFIG_SPI_FLASH_CUSTOM
 struct spi_flash_dev_s g_spidev_custom =
 {
+  .spidev   =
   {
-    &g_spiops                           /* spidev */
+    &g_spiops
   },
-  "custom",                             /* name */
-  CONFIG_SPI_FLASH_MANUFACTURER,        /* manuf */
-  CONFIG_SPI_FLASH_MEMORY_TYPE,         /* type */
-  CONFIG_SPI_FLASH_CAPACITY             /* capacity */
+  .name     = "custom",
+  .manuf    = CONFIG_SPI_FLASH_MANUFACTURER,
+  .type     = CONFIG_SPI_FLASH_MEMORY_TYPE,
+  .capacity = CONFIG_SPI_FLASH_CAPACITY
 };
 #endif
 
