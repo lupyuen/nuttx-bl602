@@ -691,7 +691,7 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   configuration
  *
  *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
- *   MISO to high (data) or low (command). bl602_spi_select() will revert 
+ *   MISO to high (data) or low (command). bl602_spi_select() will revert
  *   MISO back from GPIO Pin to SPI Pin.  We must revert because the SPI Bus
  *   may be used by other drivers.
  *
@@ -722,7 +722,7 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
       /* reconfigure MISO from SPI Pin to GPIO Pin */
 
       gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
-            | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
+             | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
       ret = bl602_configgpio(gpio);
       if (ret < 0)
         {
