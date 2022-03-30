@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/risc-v/src/c906/c906_head.S
+ * arch/risc-v/src/litex/litex_cache.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,84 +18,65 @@
  *
  ****************************************************************************/
 
+  .file "litex_cache.S"
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <arch/csr.h>
-#include <arch/irq.h>
-
-#include "chip.h"
-#include "c906_memorymap.h"
-#include "riscv_internal.h"
 
 /****************************************************************************
- * Public Symbols
+ * Cache Operations
  ****************************************************************************/
 
-  /* Imported symbols */
+  .text
 
-  .extern __trap_vec
+/****************************************************************************
+ * Name: up_invalidate_dcache_all
+ *
+ * Description:
+ *   Invalidate the entire contents of D cache.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
 
-  .section .text
-  .global __start
+#ifdef CONFIG_ARCH_DCACHE
+  .globl  up_invalidate_dcache_all
+  .type   up_invalidate_dcache_all, function
 
-__start:
-
-.option push
-.option norelax
-    la      gp, __global_pointer$
-.option pop
-
-  /* invalid all MMU TLB Entry */
-
-  sfence.vma x0,x0
-
-  /* enable thead ISA extension:
-   * BIT22: enable the THEAD ISA extensions.
-   * BIT21: enable extended attributes in PTE.
-   * BIT15: enable misaligned address access.
-   * mxstatus is a CSR which locates at 0x7C0.
-   */
-
-#ifdef __riscv_xthead
-  li t0, (1 << 22) | (1 << 21) | (1 << 15)
-  csrr t1, mxstatus
-  or  t0, t1, t0
-  csrw mxstatus, t0
+up_invalidate_dcache_all:
+  .word 0x500F
 #endif
 
-  /* Load mhartid (cpuid) */
+/****************************************************************************
+ * Name: up_invalidate_icache_all
+ *
+ * Description:
+ *   Invalidate the entire contents of I cache.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
 
-  csrr a0, mhartid
+#ifdef CONFIG_ARCH_ICACHE
+  .globl  up_invalidate_icache_all
+  .type   up_invalidate_icache_all, function
 
-  /* Set stack pointer to the idle thread stack */
-
-  la   sp, C906_IDLESTACK_TOP
-
-  /* Disable all interrupts (i.e. timer, external) in mie */
-
-  csrw mie, zero
-  csrw mip, zero
-
-  /* Initialize the Machine Trap Vector */
-
-  la   t0, __trap_vec
-  csrw mtvec, t0
-
-  /* Jump to __c906_start with mhartid */
-
-  j    __c906_start
-
-  /* We shouldn't return from __c906_start */
-
-  .global _init
-  .global _fini
-
-_init:
-_fini:
-
-  /* These don't have to do anything since we use init_array/fini_array. */
-
-  ret
+up_invalidate_dcaup_invalidate_icache_allhe_all:
+  .word 0x100F
+  nop
+  nop
+  nop
+  nop
+  nop
+#endif
