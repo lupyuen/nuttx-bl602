@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/risc-v/src/common/riscv_copyfullstate.c
+ * arch/risc-v/src/litex/litex_cache.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,45 +18,65 @@
  *
  ****************************************************************************/
 
+  .file "litex_cache.S"
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <arch/irq.h>
-
-#include "riscv_internal.h"
-
 /****************************************************************************
- * Public Functions
+ * Cache Operations
  ****************************************************************************/
 
+  .text
+
 /****************************************************************************
- * Name: riscv_copyfullstate
+ * Name: up_invalidate_dcache_all
  *
  * Description:
- *    Copy the entire register save area (including the floating point
- *    registers if applicable).  This is a little faster than most memcpy's
- *    since it does 32-bit transfers.
+ *   Invalidate the entire contents of D cache.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
  *
  ****************************************************************************/
 
-void riscv_copyfullstate(uintptr_t *dest, uintptr_t *src)
-{
-  int i;
+#ifdef CONFIG_ARCH_DCACHE
+  .globl  up_invalidate_dcache_all
+  .type   up_invalidate_dcache_all, function
 
-  /* In the RV32 targets, the state is copied from the stack to the TCB,
-   * but only a reference is passed to get the state from the TCB.  So the
-   * following check avoids copying the TCB save area onto itself:
-   */
+up_invalidate_dcache_all:
+  .word 0x500F
+#endif
 
-  if (src != dest)
-    {
-      for (i = 0; i < XCPTCONTEXT_REGS; i++)
-        {
-          *dest++ = *src++;
-        }
-    }
-}
+/****************************************************************************
+ * Name: up_invalidate_icache_all
+ *
+ * Description:
+ *   Invalidate the entire contents of I cache.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_ARCH_ICACHE
+  .globl  up_invalidate_icache_all
+  .type   up_invalidate_icache_all, function
+
+up_invalidate_dcaup_invalidate_icache_allhe_all:
+  .word 0x100F
+  nop
+  nop
+  nop
+  nop
+  nop
+#endif

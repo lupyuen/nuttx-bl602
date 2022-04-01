@@ -134,6 +134,7 @@ jobs:
         kconfig-tweak --enable CONFIG_SPI
         kconfig-tweak --enable CONFIG_SPI_EXCHANGE
         kconfig-tweak --enable CONFIG_SPI_DRIVER
+        kconfig-tweak --enable CONFIG_SPI_CMDDATA
         kconfig-tweak --enable CONFIG_DRIVERS_RF
         kconfig-tweak --enable CONFIG_RF_SPI_TEST_DRIVER
 
@@ -307,4 +308,3 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ steps.create_release.outputs.id }}
-        

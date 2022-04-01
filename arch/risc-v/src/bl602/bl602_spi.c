@@ -441,6 +441,15 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   /* we used hardware CS */
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
+
+#ifdef CONFIG_SPI_CMDDATA
+  /* revert MISO from GPIO Pin to SPI Pin */
+
+  if (!selected)
+    {
+      bl602_configgpio(BOARD_SPI_MISO);
+    }
+#endif
 }
 
 /****************************************************************************
@@ -681,6 +690,11 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
  *   configuration
  *
+ *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
+ *   MISO to high (data) or low (command). bl602_spi_select() will revert
+ *   MISO back from GPIO Pin to SPI Pin.  We must revert because the SPI Bus
+ *   may be used by other drivers.
+ *
  * Input Parameters:
  *   dev - Device-specific state data
  *   cmd - TRUE: The following word is a command; FALSE: the following words
@@ -695,10 +709,38 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
 static int bl602_spi_cmddata(struct spi_dev_s *dev,
                               uint32_t devid, bool cmd)
 {
+  spiinfo("devid: %" PRIu32 " CMD: %s\n", devid, cmd ? "command" :
+          "data");
+
+  if (devid == SPIDEV_DISPLAY(0))
+    {
+      gpio_pinset_t gpio;
+      int ret;
+
+      /* reconfigure MISO from SPI Pin to GPIO Pin */
+
+      gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
+             | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
+      ret = bl602_configgpio(gpio);
+      if (ret < 0)
+        {
+          spierr("Failed to configure MISO as GPIO\n");
+          DEBUGPANIC();
+
+          return ret;
+        }
+
+      /* set MISO to high (data) or low (command) */
+
+      bl602_gpiowrite(gpio, !cmd);
+
+      return OK;
+    }
+
   spierr("SPI cmddata not supported\n");
   DEBUGPANIC();
 
-  return -1;
+  return -ENODEV;
 }
 #endif
 
@@ -781,6 +823,15 @@ static uint32_t bl602_spi_poll_send(struct bl602_spi_priv_s *priv,
 {
   uint32_t val;
   uint32_t tmp_val = 0;
+
+  /* spi enable master */
+
+  modifyreg32(BL602_SPI_CFG, SPI_CFG_CR_S_EN, SPI_CFG_CR_M_EN);
+
+  /* spi fifo clear  */
+
+  modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
+              | SPI_FIFO_CFG_0_TX_CLR, 0);
 
   /* write data to tx fifo */
 
@@ -889,15 +940,6 @@ static void bl602_spi_poll_exchange(struct bl602_spi_priv_s *priv,
   int i;
   uint32_t w_wd = 0xffff;
   uint32_t r_wd;
-
-  /* spi enable master */
-
-  modifyreg32(BL602_SPI_CFG, SPI_CFG_CR_S_EN, SPI_CFG_CR_M_EN);
-
-  /* spi fifo clear  */
-
-  modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
-              | SPI_FIFO_CFG_0_TX_CLR, 0);
 
   for (i = 0; i < nwords; i++)
     {

@@ -56,7 +56,7 @@ jobs:
         
         ## Configure the build
         ./tools/configure.sh bl602evb:nsh
-        
+
         ## Enable errors, warnings, info messages and assertions
         kconfig-tweak --enable CONFIG_DEBUG_ERROR
         kconfig-tweak --enable CONFIG_DEBUG_WARN
@@ -101,10 +101,31 @@ jobs:
         kconfig-tweak --enable CONFIG_SPI
         kconfig-tweak --enable CONFIG_SPI_EXCHANGE
         kconfig-tweak --enable CONFIG_SPI_DRIVER
+        kconfig-tweak --enable CONFIG_SPI_CMDDATA
 
-        ## Enable UART1
-        kconfig-tweak --enable CONFIG_BL602_HAVE_UART1
-        kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
+        ## Previously: Enable UART1
+        ## kconfig-tweak --enable  CONFIG_BL602_HAVE_UART1
+        ## kconfig-tweak --set-val CONFIG_UART1_BAUD 9600
+
+        ## Enable I2C0 and Sensor Test App
+        kconfig-tweak --enable  CONFIG_BL602_I2C0
+        kconfig-tweak --enable  CONFIG_I2C
+        kconfig-tweak --enable  CONFIG_I2C_DRIVER
+        kconfig-tweak --enable  CONFIG_MM_CIRCBUF
+        kconfig-tweak --enable  CONFIG_SENSORS
+        kconfig-tweak --set-val CONFIG_SENSORS_NPOLLWAITERS 2
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_ERROR
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_WARN
+        kconfig-tweak --enable  CONFIG_DEBUG_I2C_INFO
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_ERROR
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_WARN
+        kconfig-tweak --enable  CONFIG_DEBUG_SENSORS_INFO
+        kconfig-tweak --enable  CONFIG_TESTING_SENSORTEST
+        kconfig-tweak --set-str CONFIG_TESTING_SENSORTEST_PROGNAME  "sensortest"
+        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_PRIORITY  100
+        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_STACKSIZE 2048
 
         ## Preserve the build config
         cp .config nuttx.config
