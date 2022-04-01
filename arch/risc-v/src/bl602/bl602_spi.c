@@ -442,12 +442,27 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
+  ////TODO
+  #warning Testing ST7789 Chip Select
+  bl602_configgpio(BOARD_SX1262_CS);
+  bl602_gpiowrite( BOARD_SX1262_CS, true);
+  bl602_configgpio(BOARD_FLASH_CS);
+  bl602_gpiowrite( BOARD_FLASH_CS, true);
+  bl602_configgpio(BOARD_LCD_CS);
+  bl602_gpiowrite( BOARD_LCD_CS, !selected);
+  #warning Testing ST7789 Backlight
+  bl602_configgpio(BOARD_LCD_BL);
+  bl602_gpiowrite( BOARD_LCD_BL, false);
+  ////
+
 #ifdef CONFIG_SPI_CMDDATA
   /* revert MISO from GPIO Pin to SPI Pin */
 
   if (!selected)
     {
-      bl602_configgpio(BOARD_SPI_MISO);
+      #warning Testing ST7789 DC
+      ////Previously: bl602_configgpio(BOARD_SPI_MISO);
+      bl602_configgpio(BOARD_LCD_DC); ////TODO
     }
 #endif
 }
@@ -714,6 +729,7 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
 
   if (devid == SPIDEV_DISPLAY(0))
     {
+#ifdef NOTUSED
       gpio_pinset_t gpio;
       int ret;
 
@@ -733,6 +749,21 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
       /* set MISO to high (data) or low (command) */
 
       bl602_gpiowrite(gpio, !cmd);
+#else
+      #warning Testing ST7789 DC  ////TODO
+      int ret = bl602_configgpio(BOARD_LCD_DC);
+      if (ret < 0)
+        {
+          spierr("Failed to configure DC as GPIO\n");
+          DEBUGPANIC();
+
+          return ret;
+        }
+
+      /* set DC to high (data) or low (command) */
+
+      bl602_gpiowrite(BOARD_LCD_DC, !cmd);
+#endif  //  NOTUSED
 
       return OK;
     }
@@ -1179,7 +1210,8 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   /* swap MOSI with MISO to be consistent with BL602 Reference Manual */
 
-  bl602_swap_spi_0_mosi_with_miso(1);
+  #warning Testing MISO / MOSI no-swap
+  ////Previously: bl602_swap_spi_0_mosi_with_miso(1);
 
   /* spi cfg  reg:
    * cr_spi_deg_en 1
