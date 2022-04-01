@@ -48,8 +48,10 @@
 /* Verify that all configuration requirements have been met */
 
 #ifdef CONFIG_BL602_SPI0
-#  warning Using SPI Mode 3 for ST7789 on BL602
-#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE3 /* SPI Mode 3: Workaround for BL602 */
+////#  warning Using SPI Mode 3 for ST7789 on BL602
+////#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE3 /* SPI Mode 3: Workaround for BL602 */
+#  warning Testing SPI Mode 1
+#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE1 ////TODO
 #else
 #  ifndef CONFIG_LCD_ST7789_SPIMODE
 #    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE0
