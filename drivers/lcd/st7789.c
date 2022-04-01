@@ -47,9 +47,14 @@
 
 /* Verify that all configuration requirements have been met */
 
-#ifndef CONFIG_LCD_ST7789_SPIMODE
-#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE0
-#endif
+#ifdef CONFIG_BL602_SPI0
+#  warning Using SPI Mode 3 for ST7789 on BL602
+#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE3 /* SPI Mode 3: Workaround for BL602 */
+#else
+#  ifndef CONFIG_LCD_ST7789_SPIMODE
+#    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE0
+#  endif /* CONFIG_LCD_ST7789_SPIMODE */
+#endif  /* CONFIG_BL602_SPI0 */
 
 /* SPI frequency */
 
@@ -300,11 +305,13 @@ static void st7789_deselect(FAR struct spi_dev_s *spi)
 
 static inline void st7789_sendcmd(FAR struct st7789_dev_s *dev, uint8_t cmd)
 {
+  ginfo("cmd: 0x%02x\n", cmd); ////
   st7789_select(dev->spi, 8);
   SPI_CMDDATA(dev->spi, SPIDEV_DISPLAY(0), true);
   SPI_SEND(dev->spi, cmd);
   SPI_CMDDATA(dev->spi, SPIDEV_DISPLAY(0), false);
   st7789_deselect(dev->spi);
+  ginfo("OK\n"); ////
 }
 
 /****************************************************************************
@@ -317,6 +324,7 @@ static inline void st7789_sendcmd(FAR struct st7789_dev_s *dev, uint8_t cmd)
 
 static void st7789_sleep(FAR struct st7789_dev_s *dev, bool sleep)
 {
+  ginfo("sleep: %d\n", sleep); ////
   st7789_sendcmd(dev, sleep ? ST7789_SLPIN : ST7789_SLPOUT);
   up_mdelay(120);
 }
@@ -331,6 +339,7 @@ static void st7789_sleep(FAR struct st7789_dev_s *dev, bool sleep)
 
 static void st7789_display(FAR struct st7789_dev_s *dev, bool on)
 {
+  ginfo("on: %d\n", on); ////
   st7789_sendcmd(dev, on ? ST7789_DISPON : ST7789_DISPOFF);
   st7789_sendcmd(dev, ST7789_INVON);
 }
@@ -345,6 +354,7 @@ static void st7789_display(FAR struct st7789_dev_s *dev, bool on)
 
 static void st7789_setorientation(FAR struct st7789_dev_s *dev)
 {
+  ginfo("\n"); ////
   /* No need to change the orientation in PORTRAIT mode */
 
 #if !defined(CONFIG_LCD_PORTRAIT)
@@ -414,6 +424,7 @@ static void st7789_setarea(FAR struct st7789_dev_s *dev,
 
 static void st7789_bpp(FAR struct st7789_dev_s *dev, int bpp)
 {
+  ginfo("bpp: %d\n", bpp); ////
   uint8_t depth;
 
   /* Don't send any command if the depth hasn't changed. */
@@ -482,6 +493,7 @@ static void st7789_rdram(FAR struct st7789_dev_s *dev,
 
 static void st7789_fill(FAR struct st7789_dev_s *dev, uint16_t color)
 {
+  ginfo("color: 0x%04x\n", color); ////
   int i;
 
   st7789_setarea(dev, 0, 0, ST7789_XRES - 1, ST7789_YRES - 1);
@@ -757,7 +769,9 @@ FAR struct lcd_dev_s *st7789_lcdinitialize(FAR struct spi_dev_s *spi)
   st7789_bpp(priv, ST7789_BPP);
   st7789_setorientation(priv);
   st7789_display(priv, true);
-  st7789_fill(priv, 0xffff);
+  #warning Revert Fill
+  //// TODO: st7789_fill(priv, 0xffff);
+  st7789_fill(priv, 0xaaaa);  //// TODO
 
   return &priv->dev;
 }
