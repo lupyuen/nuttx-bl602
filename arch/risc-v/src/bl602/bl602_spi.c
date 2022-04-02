@@ -53,6 +53,13 @@
 
 #define SPI_FREQ_DEFAULT 400000
 
+/* Columns in the SPI Device Table */
+
+#define DEVID_COL 0
+#define SWAP_COL  1
+#define CS_COL    2
+#define NUM_COLS  3
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -233,7 +240,7 @@ static struct bl602_spi_priv_s bl602_spi_priv =
 
 /* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
 
-static int32_t device_table[] =
+static const int32_t bl602_device_table[] =
 {
 #ifdef BOARD_LCD_DEVID  /* ST7789 Display */
   BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
@@ -247,7 +254,9 @@ static int32_t device_table[] =
   BOARD_FLASH_DEVID, BOARD_FLASH_SWAP, BOARD_FLASH_CS,
 #endif  /* BOARD_FLASH_DEVID */
 
-  -1, 1, BOARD_SPI_CS,  /* Default: Swap MISO/MOSI */
+  /* Must end with Default SPI Device */
+
+  -1, 1, BOARD_SPI_CS,  /* Swap MISO/MOSI */
 };
 
 #endif  /* CONFIG_BL602_SPI0 */
@@ -255,6 +264,75 @@ static int32_t device_table[] =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: bl602_validate_devices
+ *
+ * Description:
+ *   Validate the SPI Device Table
+ *
+ ****************************************************************************/
+
+static void bl602_validate_devices(void)
+{
+  int len;
+  int i;
+
+  /* All columns must be populated */
+
+  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  DEBUGASSERT(len % NUM_COLS == 0);
+
+  /* Validate every row */
+
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t devid;
+      int32_t swap;
+      
+      devid = bl602_device_table[i + DEVID_COL];
+      swap = bl602_device_table[i + SWAP_COL];
+
+      /* Validate Device ID and Swap */
+
+      DEBUGASSERT(devid >= -1);
+      DEBUGASSERT(swap == 0 || swap == 1);
+    }
+
+  /* TODO: Verify that all Device IDs are unique */
+
+}
+
+/****************************************************************************
+ * Name: bl602_get_device
+ *
+ * Description:
+ *   Return the device from the SPI Device Table
+ *
+ ****************************************************************************/
+
+static const int32_t *bl602_get_device(uint32_t devid)
+{
+  int len;
+  int i;
+
+  /* Find the device in the SPI Device Table, or return default device */
+
+  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t id;
+      
+      id = bl602_device_table[i + DEVID_COL];
+      if (id == -1 || id == devid)
+        {
+          return &bl602_device_table[i];
+        }
+    }
+
+  DEBUGPANIC();  /* Never comes here */
+  return NULL;
+}
 
 /****************************************************************************
  * Name: bl602_check_with_new_prescale
@@ -458,18 +536,25 @@ static int bl602_spi_lock(struct spi_dev_s *dev, bool lock)
 static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
                              bool selected)
 {
-  /* we used hardware CS */
+  const int32_t *spidev;
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
-  ////TODO
-  #warning Testing Swap
-  bl602_swap_spi_0_mosi_with_miso(BOARD_LCD_SWAP);
+  /* get device from SPI Device Table */
 
-  #warning Testing ST7789 Chip Select
-  bl602_configgpio(BOARD_LCD_CS);
-  bl602_gpiowrite( BOARD_LCD_CS, !selected);
-  ////
+  spidev = bl602_get_device(devid);
+  DEBUGASSERT(spidev != NULL);
+
+  /* swap MISO and MOSI if needed */
+
+  if (selected)
+    {
+      bl602_swap_spi_0_mosi_with_miso(spidev[SWAP_COL]);
+    }
+
+  /* set Chip Select */
+
+  bl602_gpiowrite(spidev[CS_COL], !selected);
 
 #ifdef CONFIG_SPI_CMDDATA
   /* revert MISO and MOSI from GPIO Pins to SPI Pins */
@@ -1240,6 +1325,10 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
               | SPI_FIFO_CFG_0_TX_CLR, 0);
+
+  /* validate spi devices */
+
+  bl602_validate_devices();
 
   ////TODO
   #warning Testing ST7789 Chip Select
