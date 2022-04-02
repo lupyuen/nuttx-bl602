@@ -476,13 +476,12 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   ////
 
 #ifdef CONFIG_SPI_CMDDATA
-  /* revert MISO from GPIO Pin to SPI Pin */
+  /* revert MISO and MOSI from GPIO Pins to SPI Pins */
 
   if (!selected)
     {
-      #warning Testing ST7789 DC
-      ////Previously: bl602_configgpio(BOARD_SPI_MISO);
-      bl602_configgpio(BOARD_LCD_DC); ////TODO
+      bl602_configgpio(BOARD_SPI_MISO);
+      bl602_configgpio(BOARD_SPI_MOSI);
     }
 #endif
 }
