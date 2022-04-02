@@ -112,7 +112,7 @@
 #ifdef CONFIG_BL602_SPI0
 /* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
 
-static const int32_t bl602_device_table[] =
+static const int32_t bl602_spi_device_table[] =
 {
 #ifdef BOARD_LCD_DEVID  /* ST7789 Display */
   BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
@@ -152,7 +152,7 @@ static void bl602_spi_validate_devices(void)
 
   /* All columns must be populated */
 
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
   DEBUGASSERT(len % NUM_COLS == 0);
 
   /* Validate every row */
@@ -162,8 +162,8 @@ static void bl602_spi_validate_devices(void)
       int32_t devid;
       int32_t swap;
       
-      devid = bl602_device_table[i + DEVID_COL];
-      swap = bl602_device_table[i + SWAP_COL];
+      devid = bl602_spi_device_table[i + DEVID_COL];
+      swap = bl602_spi_device_table[i + SWAP_COL];
 
       /* Validate Device ID and Swap */
 
@@ -194,14 +194,14 @@ void bl602_spi_deselect_devices(void)
 
   /* Get all devices in the SPI Device Table, including default device */
 
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
   for (i = 0; i < len; i += NUM_COLS)
     {
       int32_t cs;
 
       /* Configure Chip Select as GPIO and set to High */
 
-      cs = bl602_device_table[i + CS_COL];
+      cs = bl602_spi_device_table[i + CS_COL];
       bl602_configgpio(cs);
       bl602_gpiowrite(cs, true);
     }
@@ -222,15 +222,15 @@ const int32_t *bl602_spi_get_device(uint32_t devid)
 
   /* Find the device in the SPI Device Table, or return default device */
 
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
   for (i = 0; i < len; i += NUM_COLS)
     {
       int32_t id;
       
-      id = bl602_device_table[i + DEVID_COL];
+      id = bl602_spi_device_table[i + DEVID_COL];
       if (id == -1 || id == devid)
         {
-          return &bl602_device_table[i];
+          return &bl602_spi_device_table[i];
         }
     }
 
