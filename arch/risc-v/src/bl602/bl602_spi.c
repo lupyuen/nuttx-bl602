@@ -178,6 +178,7 @@ static int bl602_spi_trigger(struct spi_dev_s *dev);
 #endif
 static void bl602_spi_init(struct spi_dev_s *dev);
 static void bl602_spi_deinit(struct spi_dev_s *dev);
+static void bl602_swap_spi_0_mosi_with_miso(uint8_t swap);
 
 /****************************************************************************
  * Private Data
@@ -462,13 +463,13 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
   ////TODO
+  #warning Testing Swap
+  bl602_swap_spi_0_mosi_with_miso(BOARD_LCD_SWAP);
+
   #warning Testing ST7789 Chip Select
-  bl602_configgpio(BOARD_SX1262_CS);
-  bl602_gpiowrite( BOARD_SX1262_CS, true);
-  bl602_configgpio(BOARD_FLASH_CS);
-  bl602_gpiowrite( BOARD_FLASH_CS, true);
   bl602_configgpio(BOARD_LCD_CS);
   bl602_gpiowrite( BOARD_LCD_CS, !selected);
+
   #warning Testing ST7789 Backlight
   bl602_configgpio(BOARD_LCD_BL);
   bl602_gpiowrite( BOARD_LCD_BL, false);
@@ -1229,8 +1230,7 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   /* swap MOSI with MISO to be consistent with BL602 Reference Manual */
 
-  #warning Testing MISO / MOSI no-swap ////TODO
-  ////Previously: bl602_swap_spi_0_mosi_with_miso(1);
+  bl602_swap_spi_0_mosi_with_miso(1);
 
   /* spi cfg  reg:
    * cr_spi_deg_en 1
@@ -1255,6 +1255,16 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
               | SPI_FIFO_CFG_0_TX_CLR, 0);
+
+  ////TODO
+  #warning Testing ST7789 Chip Select
+  bl602_configgpio(BOARD_SX1262_CS);
+  bl602_gpiowrite( BOARD_SX1262_CS, true);
+  bl602_configgpio(BOARD_FLASH_CS);
+  bl602_gpiowrite( BOARD_FLASH_CS, true);
+  bl602_configgpio(BOARD_LCD_CS);
+  bl602_gpiowrite( BOARD_LCD_CS, true);
+  ////
 }
 
 /****************************************************************************
