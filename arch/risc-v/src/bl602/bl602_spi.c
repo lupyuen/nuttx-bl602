@@ -53,13 +53,6 @@
 
 #define SPI_FREQ_DEFAULT 400000
 
-/* Columns in the SPI Device Table */
-
-#define DEVID_COL 0
-#define SWAP_COL  1
-#define CS_COL    2
-#define NUM_COLS  3
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -238,129 +231,11 @@ static struct bl602_spi_priv_s bl602_spi_priv =
   .config = &bl602_spi_config
 };
 
-/* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
-
-static const int32_t bl602_device_table[] =
-{
-#ifdef BOARD_LCD_DEVID  /* ST7789 Display */
-  BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
-#endif  /* BOARD_LCD_DEVID */
-
-#ifdef BOARD_SX1262_DEVID  /* LoRa SX1262 */
-  BOARD_SX1262_DEVID, BOARD_SX1262_SWAP, BOARD_SX1262_CS,
-#endif  /* BOARD_SX1262_DEVID */
-
-#ifdef BOARD_FLASH_DEVID  /* SPI Flash */
-  BOARD_FLASH_DEVID, BOARD_FLASH_SWAP, BOARD_FLASH_CS,
-#endif  /* BOARD_FLASH_DEVID */
-
-  /* Must end with Default SPI Device */
-
-  -1, 1, BOARD_SPI_CS,  /* Swap MISO/MOSI */
-};
-
 #endif  /* CONFIG_BL602_SPI0 */
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: bl602_validate_devices
- *
- * Description:
- *   Validate the SPI Device Table
- *
- ****************************************************************************/
-
-static void bl602_validate_devices(void)
-{
-  int len;
-  int i;
-
-  /* All columns must be populated */
-
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
-  DEBUGASSERT(len % NUM_COLS == 0);
-
-  /* Validate every row */
-
-  for (i = 0; i < len; i += NUM_COLS)
-    {
-      int32_t devid;
-      int32_t swap;
-      
-      devid = bl602_device_table[i + DEVID_COL];
-      swap = bl602_device_table[i + SWAP_COL];
-
-      /* Validate Device ID and Swap */
-
-      DEBUGASSERT(devid >= -1);
-      DEBUGASSERT(swap == 0 || swap == 1);
-    }
-
-  /* TODO: Verify that all Device IDs are unique */
-
-}
-
-/****************************************************************************
- * Name: bl602_get_device
- *
- * Description:
- *   Return the device from the SPI Device Table
- *
- ****************************************************************************/
-
-static const int32_t *bl602_get_device(uint32_t devid)
-{
-  int len;
-  int i;
-
-  /* Find the device in the SPI Device Table, or return default device */
-
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
-  for (i = 0; i < len; i += NUM_COLS)
-    {
-      int32_t id;
-      
-      id = bl602_device_table[i + DEVID_COL];
-      if (id == -1 || id == devid)
-        {
-          return &bl602_device_table[i];
-        }
-    }
-
-  DEBUGPANIC();  /* Never comes here */
-  return NULL;
-}
-
-/****************************************************************************
- * Name: bl602_deselect_devices
- *
- * Description:
- *   Set Chip Select to High for all devices in the SPI Device Table
- *
- ****************************************************************************/
-
-static void bl602_deselect_devices(void)
-{
-  int len;
-  int i;
-
-  /* Get all devices in the SPI Device Table, including default device */
-
-  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
-  for (i = 0; i < len; i += NUM_COLS)
-    {
-      int32_t cs;
-
-      /* Configure Chip Select as GPIO and set to High */
-
-      cs = bl602_device_table[i + CS_COL];
-      bl602_configgpio(cs);
-      bl602_gpiowrite(cs, true);
-    }
-}
 
 /****************************************************************************
  * Name: bl602_check_with_new_prescale
@@ -570,7 +445,7 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
 
   /* get device from SPI Device Table */
 
-  spidev = bl602_get_device(devid);
+  spidev = bl602_spi_get_device(devid);
   DEBUGASSERT(spidev != NULL);
 
   /* swap MISO and MOSI if needed */
@@ -864,7 +739,7 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
 
       /* get device from SPI Device Table */
 
-      spidev = bl602_get_device(devid);
+      spidev = bl602_spi_get_device(devid);
       DEBUGASSERT(spidev != NULL);
 
       /* if MISO/MOSI are swapped, DC is MISO, else MOSI */
@@ -1359,13 +1234,9 @@ static void bl602_spi_init(struct spi_dev_s *dev)
   modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
               | SPI_FIFO_CFG_0_TX_CLR, 0);
 
-  /* validate spi devices */
-
-  bl602_validate_devices();
-
   /* deselect all spi devices */
 
-  bl602_deselect_devices();
+  bl602_spi_deselect_devices();
 }
 
 /****************************************************************************

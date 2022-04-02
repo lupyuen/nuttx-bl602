@@ -33,6 +33,13 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Columns in the SPI Device Table */
+
+#define DEVID_COL 0  /* SPI Device ID */
+#define SWAP_COL  1  /* 1 if MISO/MOSI should be swapped, else 0 */
+#define CS_COL    2  /* SPI Chip Select Pin */
+#define NUM_COLS  3  /* Number of columns in SPI Device Table */
+
 /* GPIO Configuration */
 
 #define BOARD_NGPIOIN     1 /* Amount of GPIO Input pins */
@@ -147,6 +154,11 @@ extern "C"
  ****************************************************************************/
 
 void bl602_boardinitialize(void);
+
+#ifdef CONFIG_BL602_SPI0
+void bl602_spi_deselect_devices(void);
+const int32_t *bl602_spi_get_device(uint32_t devid);
+#endif  /* CONFIG_BL602_SPI0 */
 
 #undef EXTERN
 #if defined(__cplusplus)
