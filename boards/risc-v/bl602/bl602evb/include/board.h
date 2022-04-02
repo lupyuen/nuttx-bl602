@@ -99,10 +99,9 @@
 #ifdef CONFIG_LCD_ST7789
 /* ST7789 for PineDio Stack: Chip Select, Reset and Backlight */
 
-#define BOARD_LCD_DEVID     0  /* SPI Device ID */
-#define BOARD_LCD_SWAP      0  /* Don't swap MISO/MOSI */
-#define BOARD_LCD_BL_INVERT    /* Backlight is active when Low */
-#define BOARD_LCD_DC  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN13) ////TODO
+#define BOARD_LCD_DEVID 0    /* SPI Device ID */
+#define BOARD_LCD_SWAP  0    /* Don't swap MISO/MOSI */
+#define BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
 #define BOARD_LCD_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN20)
 #define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN3)
 #define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
