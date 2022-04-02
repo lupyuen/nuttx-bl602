@@ -232,7 +232,7 @@ static struct bl602_spi_priv_s bl602_spi_priv =
 
 /* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
 
-static int32[] device_table =
+static int32_t device_table[] =
 {
 #ifdef BOARD_LCD_DEVID  /* ST7789 Display */
   BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
