@@ -39,6 +39,10 @@
 
 #include "st7789.h"
 
+#ifdef CONFIG_BL602_SPI0
+#include "../boards/risc-v/bl602/bl602evb/include/board.h"
+#endif  /* CONFIG_BL602_SPI0 */
+
 #ifdef CONFIG_LCD_ST7789
 
 /****************************************************************************
@@ -48,15 +52,18 @@
 /* Verify that all configuration requirements have been met */
 
 #ifdef CONFIG_BL602_SPI0
-////#  warning Using SPI Mode 3 for ST7789 on BL602
-////#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE3 /* SPI Mode 3: Workaround for BL602 */
-#  warning Testing SPI Mode 1
-#  define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE1 ////TODO
+#  if defined(BOARD_LCD_SWAP) && BOARD_LCD_SWAP == 0  /* If MISO/MOSI not swapped... */
+#    warning Using SPI Mode 1 for ST7789 on BL602 (MISO/MOSI not swapped)
+#    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE1  /* SPI Mode 1: Workaround for BL602 */
+#  else
+#    warning Using SPI Mode 3 for ST7789 on BL602 (MISO/MOSI swapped)
+#    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE3  /* SPI Mode 3: Workaround for BL602 */
+#  endif /* BOARD_LCD_SWAP */
 #else
 #  ifndef CONFIG_LCD_ST7789_SPIMODE
 #    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE0
 #  endif /* CONFIG_LCD_ST7789_SPIMODE */
-#endif  /* CONFIG_BL602_SPI0 */
+#endif   /* CONFIG_BL602_SPI0 */
 
 /* SPI frequency */
 
