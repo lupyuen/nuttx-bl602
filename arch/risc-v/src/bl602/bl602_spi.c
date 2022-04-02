@@ -720,10 +720,10 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
  *   configuration
  *
- *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
- *   MISO to high (data) or low (command). bl602_spi_select() will revert
- *   MISO back from GPIO Pin to SPI Pin.  We must revert because the SPI Bus
- *   may be used by other drivers.
+ *   This function reconfigures MISO/MOSI from SPI Pin to GPIO Pin, and sets
+ *   MISO/MOSI to high (data) or low (command). bl602_spi_select() will
+ *   revert MISO/MOSI back from GPIO Pin to SPI Pin.  We must revert because
+ *   the SPI Bus may be used by other drivers.
  *
  * Input Parameters:
  *   dev - Device-specific state data
@@ -744,13 +744,18 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
 
   if (devid == SPIDEV_DISPLAY(0))
     {
-#ifdef NOTUSED
+      #warning Testing ST7789 DC  ////TODO
+      gpio_pinset_t dc;
       gpio_pinset_t gpio;
       int ret;
 
-      /* reconfigure MISO from SPI Pin to GPIO Pin */
+      /* if MISO/MOSI are swapped, DC is MISO, else MOSI */
 
-      gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
+      dc = BOARD_LCD_SWAP ? BOARD_SPI_MISO : BOARD_SPI_MOSI;
+
+      /* reconfigure DC from SPI Pin to GPIO Pin */
+
+      gpio = (dc & GPIO_PIN_MASK)
              | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
       ret = bl602_configgpio(gpio);
       if (ret < 0)
@@ -761,24 +766,9 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
           return ret;
         }
 
-      /* set MISO to high (data) or low (command) */
-
-      bl602_gpiowrite(gpio, !cmd);
-#else
-      #warning Testing ST7789 DC  ////TODO
-      int ret = bl602_configgpio(BOARD_LCD_DC);
-      if (ret < 0)
-        {
-          spierr("Failed to configure DC as GPIO\n");
-          DEBUGPANIC();
-
-          return ret;
-        }
-
       /* set DC to high (data) or low (command) */
 
-      bl602_gpiowrite(BOARD_LCD_DC, !cmd);
-#endif  //  NOTUSED
+      bl602_gpiowrite(gpio, !cmd);
 
       return OK;
     }
