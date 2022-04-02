@@ -230,6 +230,25 @@ static struct bl602_spi_priv_s bl602_spi_priv =
   .config = &bl602_spi_config
 };
 
+/* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
+
+static int32[] device_table =
+{
+#ifdef BOARD_LCD_DEVID  /* ST7789 Display */
+  BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
+#endif  /* BOARD_LCD_DEVID */
+
+#ifdef BOARD_SX1262_DEVID  /* LoRa SX1262 */
+  BOARD_SX1262_DEVID, BOARD_SX1262_SWAP, BOARD_SX1262_CS,
+#endif  /* BOARD_SX1262_DEVID */
+
+#ifdef BOARD_FLASH_DEVID  /* SPI Flash */
+  BOARD_FLASH_DEVID, BOARD_FLASH_SWAP, BOARD_FLASH_CS,
+#endif  /* BOARD_FLASH_DEVID */
+
+  -1, 1, BOARD_SPI_CS,  /* Default: Swap MISO/MOSI */
+};
+
 #endif  /* CONFIG_BL602_SPI0 */
 
 /****************************************************************************
@@ -1210,7 +1229,7 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   /* swap MOSI with MISO to be consistent with BL602 Reference Manual */
 
-  #warning Testing MISO / MOSI no-swap
+  #warning Testing MISO / MOSI no-swap ////TODO
   ////Previously: bl602_swap_spi_0_mosi_with_miso(1);
 
   /* spi cfg  reg:

@@ -89,17 +89,18 @@
 #define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN3)
 #endif  /* TODO */
 
-/* SPI Configuration: For PineDio Stack BL604. Chip Select is unused because we control via GPIO instead */
+/* SPI for PineDio Stack: Chip Select (unused), MOSI, MISO, SCK */
 
-#warning Testing MISO / MOSI no-swap
 #define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN8)  /* Unused */
 #define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN13)
 #define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)
 #define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN11)
 
 #ifdef CONFIG_LCD_ST7789
-/* ST7789 Configuration for PineDio Stack: Chip Select, Reset and Backlight Pins */
+/* ST7789 for PineDio Stack: Chip Select, Reset and Backlight */
 
+#define BOARD_LCD_DEVID 0  /* SPI Device ID */
+#define BOARD_LCD_SWAP  0  /* Don't swap MISO/MOSI */
 #define BOARD_LCD_DC  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN13) ////TODO
 #define BOARD_LCD_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN20)
 ////Previously: #define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN3)
@@ -107,10 +108,17 @@
 #define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
 #endif  /* CONFIG_LCD_ST7789 */
 
-/* Chip Select for PineDio Stack */
+/* SX1262 for PineDio Stack: Chip Select */
 
-#define BOARD_SX1262_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
-#define BOARD_FLASH_CS   (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
+#define BOARD_SX1262_DEVID 1  /* SPI Device ID */
+#define BOARD_SX1262_SWAP  1  /* Swap MISO/MOSI */
+#define BOARD_SX1262_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+
+/* SPI Flash for PineDio Stack: Chip Select */
+
+#define BOARD_FLASH_DEVID 2  /* SPI Device ID */
+#define BOARD_FLASH_SWAP  1  /* Swap MISO/MOSI */
+#define BOARD_FLASH_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
 
 /****************************************************************************
  * Public Types
