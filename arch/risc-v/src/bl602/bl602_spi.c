@@ -829,14 +829,19 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
 
   if (devid == SPIDEV_DISPLAY(0))
     {
-      #warning Testing ST7789 DC  ////TODO
+      const int32_t *spidev;
       gpio_pinset_t dc;
       gpio_pinset_t gpio;
       int ret;
 
+      /* get device from SPI Device Table */
+
+      spidev = bl602_get_device(devid);
+      DEBUGASSERT(spidev != NULL);
+
       /* if MISO/MOSI are swapped, DC is MISO, else MOSI */
 
-      dc = BOARD_LCD_SWAP ? BOARD_SPI_MISO : BOARD_SPI_MOSI;
+      dc = spidev[SWAP_COL] ? BOARD_SPI_MISO : BOARD_SPI_MOSI;
 
       /* reconfigure DC from SPI Pin to GPIO Pin */
 
