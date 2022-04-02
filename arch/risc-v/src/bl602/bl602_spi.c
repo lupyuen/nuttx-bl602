@@ -469,10 +469,6 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
   #warning Testing ST7789 Chip Select
   bl602_configgpio(BOARD_LCD_CS);
   bl602_gpiowrite( BOARD_LCD_CS, !selected);
-
-  #warning Testing ST7789 Backlight
-  bl602_configgpio(BOARD_LCD_BL);
-  bl602_gpiowrite( BOARD_LCD_BL, false);
   ////
 
 #ifdef CONFIG_SPI_CMDDATA

@@ -736,7 +736,11 @@ int board_lcd_initialize(void)
   /* Set full brightness */
 
   bl602_configgpio(BOARD_LCD_BL);
+#ifdef BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
+  bl602_gpiowrite(BOARD_LCD_BL, false);
+#else   /* Backlight is active when High */
   bl602_gpiowrite(BOARD_LCD_BL, true);
+#endif  /* BOARD_LCD_BL_INVERT */
 
   return OK;
 }
