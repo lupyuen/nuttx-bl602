@@ -335,6 +335,34 @@ static const int32_t *bl602_get_device(uint32_t devid)
 }
 
 /****************************************************************************
+ * Name: bl602_deselect_devices
+ *
+ * Description:
+ *   Set Chip Select to High for all devices in the SPI Device Table
+ *
+ ****************************************************************************/
+
+static void bl602_deselect_devices(void)
+{
+  int len;
+  int i;
+
+  /* Get all devices in the SPI Device Table, including default device */
+
+  len = sizeof(bl602_device_table) / sizeof(bl602_device_table[0]);
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t cs;
+
+      /* Configure Chip Select as GPIO and set to High */
+
+      cs = bl602_device_table[i + CS_COL];
+      bl602_configgpio(cs);
+      bl602_gpiowrite(cs, true);
+    }
+}
+
+/****************************************************************************
  * Name: bl602_check_with_new_prescale
  *
  * Description:
@@ -1335,15 +1363,9 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   bl602_validate_devices();
 
-  ////TODO
-  #warning Testing ST7789 Chip Select
-  bl602_configgpio(BOARD_SX1262_CS);
-  bl602_gpiowrite( BOARD_SX1262_CS, true);
-  bl602_configgpio(BOARD_FLASH_CS);
-  bl602_gpiowrite( BOARD_FLASH_CS, true);
-  bl602_configgpio(BOARD_LCD_CS);
-  bl602_gpiowrite( BOARD_LCD_CS, true);
-  ////
+  /* deselect all spi devices */
+
+  bl602_deselect_devices();
 }
 
 /****************************************************************************
