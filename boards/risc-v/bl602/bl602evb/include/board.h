@@ -89,12 +89,10 @@
                             GPIO_FUNC_PWM | GPIO_PIN4)
 #endif  /* TODO */
 
-#ifdef TODO  /* Remember to check for duplicate pins! */
 /* I2C Configuration */
 
-#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN4)
-#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN3)
-#endif  /* TODO */
+#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN2)
+#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN1)
 
 /* SPI for PineDio Stack: Chip Select (unused), MOSI, MISO, SCK */
 
