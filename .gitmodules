@@ -20,3 +20,6 @@
 [submodule "drivers/sensors/bme280"]
 	path = drivers/sensors/bme280
 	url = https://github.com/lupyuen/bme280-nuttx
+[submodule "drivers/ioexpander/bl602_expander"]
+	path = drivers/ioexpander/bl602_expander
+	url = https://github.com/lupyuen/bl602_expander
