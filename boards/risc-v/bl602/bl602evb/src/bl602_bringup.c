@@ -100,6 +100,7 @@
 #endif /* CONFIG_LCD_ST7789 */
 
 #ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
+#include <nuttx/ioexpander/gpio.h>
 #include <nuttx/ioexpander/bl602_expander.h>
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
@@ -631,7 +632,7 @@ int bl602_bringup(void)
     }
 #endif
 
-#ifdef CONFIG_DEV_GPIO
+#if defined(CONFIG_DEV_GPIO) && !defined(CONFIG_GPIO_LOWER_HALF)
   ret = bl602_gpio_initialize();
   if (ret < 0)
     {
