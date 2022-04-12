@@ -836,7 +836,7 @@ int bl602_bringup(void)
 
   /* Register four pin drivers */
 
-  /* Pin 3: an non-inverted, input pin */
+  /* GPIO 3: an non-inverted, input pin */
 
   IOEXP_SETDIRECTION(ioe, 3, IOEXPANDER_DIRECTION_IN);
   IOEXP_SETOPTION(ioe, 3, IOEXPANDER_OPTION_INVERT,
@@ -845,7 +845,7 @@ int bl602_bringup(void)
                   (FAR void *)IOEXPANDER_VAL_DISABLE);
   gpio_lower_half(ioe, 3, GPIO_INPUT_PIN, 3);
 
-  /* Pin 4: an non-inverted, output pin */
+  /* GPIO 4: an non-inverted, output pin */
 
   IOEXP_SETDIRECTION(ioe, 4, IOEXPANDER_DIRECTION_OUT);
   IOEXP_SETOPTION(ioe, 4, IOEXPANDER_OPTION_INVERT,
@@ -854,7 +854,7 @@ int bl602_bringup(void)
                   (FAR void *)IOEXPANDER_VAL_DISABLE);
   gpio_lower_half(ioe, 4, GPIO_OUTPUT_PIN, 4);
 
-  /* Pin 5: an non-inverted, edge interrupting pin */
+  /* GPIO 5: an non-inverted, edge interrupting pin */
 
   IOEXP_SETDIRECTION(ioe, 5, IOEXPANDER_DIRECTION_IN);
   IOEXP_SETOPTION(ioe, 5, IOEXPANDER_OPTION_INVERT,
@@ -863,7 +863,7 @@ int bl602_bringup(void)
                   (FAR void *)IOEXPANDER_VAL_BOTH);
   gpio_lower_half(ioe, 5, GPIO_INTERRUPT_PIN, 5);
 
-  /* Pin 6: a non-inverted, level interrupting pin */
+  /* GPIO 6: a non-inverted, level interrupting pin */
 
   IOEXP_SETDIRECTION(ioe, 6, IOEXPANDER_DIRECTION_IN);
   IOEXP_SETOPTION(ioe, 6, IOEXPANDER_OPTION_INVERT,
