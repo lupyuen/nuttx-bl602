@@ -289,6 +289,13 @@ config PCF8574_INT_POLLDELAY
 
 endif # IOEXPANDER_PCF8574
 
+config IOEXPANDER_BL602_EXPANDER
+	bool "BL602 GPIO Expander"
+	default n
+	select IOEXPANDER_INT_ENABLE
+	---help---
+		GPIO Expander for BL602
+
 config IOEXPANDER_INT_ENABLE
 	bool
 	default n
