@@ -100,8 +100,10 @@
 #endif /* CONFIG_LCD_ST7789 */
 
 #ifdef CONFIG_INPUT_CST816S
-#include <nuttx/input/cst816s.h>
+/* I2C Address of CST816S Touch Controller */
+
 #define CST816S_DEVICE_ADDRESS 0x15
+#include <nuttx/input/cst816s.h>
 #endif /* CONFIG_INPUT_CST816S */
 
 #include "chip.h"
