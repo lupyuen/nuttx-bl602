@@ -99,6 +99,10 @@
 #include "riscv_internal.h"
 #endif /* CONFIG_LCD_ST7789 */
 
+#ifdef CONFIG_INPUT_CST816S
+#include <nuttx/input/cst816s.h>
+#endif /* CONFIG_INPUT_CST816S */
+
 #include "chip.h"
 
 /****************************************************************************
@@ -818,6 +822,25 @@ int bl602_bringup(void)
       _err("ERROR: lcddev_register() failed: %d\n", ret);
     }
 #endif /* CONFIG_LCD_DEV */
+
+#ifdef CONFIG_INPUT_CST816S
+
+  /* Init I2C bus for CST816S */
+
+  struct i2c_master_s *cst816s_i2c_bus = bl602_i2cbus_initialize(0);
+  if (!cst816s_i2c_bus)
+    {
+      _err("ERROR: Failed to get I2C%d interface\n", 0);
+    }
+
+  /* Register the CST816S driver */
+
+  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, 0x15);
+  if (ret < 0)
+    {
+      _err("ERROR: Failed to register CST816S\n");
+    }
+#endif /* CONFIG_INPUT_CST816S */
 
   return ret;
 }
