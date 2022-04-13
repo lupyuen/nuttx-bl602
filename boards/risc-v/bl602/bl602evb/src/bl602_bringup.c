@@ -101,6 +101,7 @@
 
 #ifdef CONFIG_INPUT_CST816S
 #include <nuttx/input/cst816s.h>
+#define CST816S_DEVICE_ADDRESS 0x15
 #endif /* CONFIG_INPUT_CST816S */
 
 #include "chip.h"
@@ -835,7 +836,7 @@ int bl602_bringup(void)
 
   /* Register the CST816S driver */
 
-  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, 0x15);
+  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, CST816S_DEVICE_ADDRESS);
   if (ret < 0)
     {
       _err("ERROR: Failed to register CST816S\n");
