@@ -124,6 +124,12 @@
 #define BOARD_FLASH_SWAP  1  /* Swap MISO/MOSI */
 #define BOARD_FLASH_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
 
+#ifdef CONFIG_INPUT_CST816S
+/* CST816S Touch Controller for PineDio Stack: GPIO Interrupt */
+
+#define BOARD_TOUCH_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN9)
+#endif  /* CONFIG_INPUT_CST816S */
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
