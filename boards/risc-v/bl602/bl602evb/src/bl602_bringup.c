@@ -35,6 +35,7 @@
 #include <assert.h>
 
 #include <nuttx/board.h>
+#include <nuttx/input/buttons.h>
 #include <nuttx/fs/fs.h>
 #include <nuttx/wdog.h>
 #include <nuttx/wqueue.h>
@@ -818,6 +819,17 @@ int bl602_bringup(void)
       _err("ERROR: lcddev_register() failed: %d\n", ret);
     }
 #endif /* CONFIG_LCD_DEV */
+
+#ifdef CONFIG_INPUT_BUTTONS
+  /* Register the BUTTON driver */
+
+  ret = btn_lower_initialize("/dev/buttons");
+  if (ret < 0)
+    {
+      serr("ERROR: btn_lower_initialize() failed: %d\n", ret);
+    }
+#endif
+
 
   return ret;
 }
