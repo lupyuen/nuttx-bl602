@@ -72,6 +72,10 @@ ifeq ($(CONFIG_INPUT_CYPRESS_MBR3108),y)
   CSRCS += cypress_mbr3108.c
 endif
 
+ifeq ($(CONFIG_INPUT_CST816S),y)
+  CSRCS += cst816s.c
+endif
+
 ifeq ($(CONFIG_INPUT_BUTTONS),y)
   CSRCS += button_upper.c
 ifeq ($(CONFIG_INPUT_BUTTONS_LOWER),y)
