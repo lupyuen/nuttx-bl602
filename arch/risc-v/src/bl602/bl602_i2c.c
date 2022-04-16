@@ -754,7 +754,7 @@ static int bl602_i2c_transfer(struct i2c_master_s *dev,
         {
           i2cinfo("i2c transfer success\n");
 #ifdef CONFIG_INPUT_CST816S
-          /* Workaround for CST816S. See https://github.com/lupyuen/cst816s-nuttx#i2c-logging */
+#warning I2C Workaround for CST816S: https://github.com/lupyuen/cst816s-nuttx#i2c-logging
 
           i2cwarn("i2c transfer success\n");
 #endif /* CONFIG_INPUT_CST816S */
