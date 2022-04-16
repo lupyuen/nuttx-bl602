@@ -37,4 +37,8 @@ ifeq ($(CONFIG_ARCH_FPU),y)
 CSRCS += bl602_ostest.c
 endif
 
+ifeq ($(CONFIG_ARCH_BUTTONS),y)
+CSRCS += bl602_buttons.c
+endif
+
 include $(TOPDIR)/boards/Board.mk
