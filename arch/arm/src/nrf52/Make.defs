@@ -19,9 +19,9 @@
 ############################################################################
 
 CMN_ASRCS  = arm_saveusercontext.S arm_fullcontextrestore.S
-CMN_ASRCS += arm_testset.S vfork.S
+CMN_ASRCS += arm_testset.S vfork.S arm_exception.S
 
-CMN_CSRCS  = arm_assert.c arm_blocktask.c
+CMN_CSRCS  = arm_assert.c arm_blocktask.c arm_vectors.c
 CMN_CSRCS += arm_createstack.c arm_doirq.c arm_exit.c arm_hardfault.c
 CMN_CSRCS += arm_initialize.c arm_initialstate.c arm_interruptcontext.c
 CMN_CSRCS += arm_memfault.c arm_modifyreg8.c arm_modifyreg16.c
@@ -39,13 +39,6 @@ CMN_CSRCS += nrf52_tickless_rtc.c arm_mdelay.c
 endif
 endif
 
-ifeq ($(CONFIG_ARMV7M_LAZYFPU),y)
-CMN_ASRCS += arm_lazyexception.S
-else
-CMN_ASRCS += arm_exception.S
-endif
-CMN_CSRCS += arm_vectors.c
-
 ifeq ($(CONFIG_ARCH_RAMVECTORS),y)
 CMN_CSRCS += arm_ramvec_initialize.c arm_ramvec_attach.c
 endif
@@ -54,6 +47,10 @@ ifeq ($(CONFIG_BUILD_PROTECTED),y)
 CMN_CSRCS += arm_mpu.c arm_task_start.c arm_pthread_start.c
 CMN_CSRCS += arm_signal_dispatch.c
 CMN_UASRCS += arm_signal_handler.S
+endif
+
+ifeq ($(CONFIG_SCHED_BACKTRACE),y)
+CMN_CSRCS += arm_backtrace_thumb.c
 endif
 
 ifeq ($(CONFIG_STACK_COLORATION),y)
@@ -65,7 +62,8 @@ CMN_CSRCS += arm_stackcheck.c
 endif
 
 ifeq ($(CONFIG_ARCH_FPU),y)
-CMN_ASRCS += arm_fpu.S
+CMN_CSRCS += arm_fpuconfig.c
+CMN_CSRCS += arm_fpucmp.c
 endif
 
 CHIP_CSRCS  = nrf52_start.c nrf52_clockconfig.c nrf52_irq.c nrf52_utils.c
