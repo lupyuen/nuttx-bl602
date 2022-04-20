@@ -44,6 +44,10 @@ CMN_CSRCS += xtensa_switchcontext.c
 
 # Configuration-dependent common XTENSA files
 
+ifeq ($(CONFIG_DEBUG_TCBINFO),y)
+  CMN_CSRCS += xtensa_tcbinfo.c
+endif
+
 ifeq ($(CONFIG_DEBUG_ALERT),y)
   CMN_CSRCS += xtensa_dumpstate.c
 endif
@@ -105,4 +109,9 @@ CHIP_CSRCS += esp32s2_oneshot.c
 ifeq ($(CONFIG_ONESHOT),y)
 CHIP_CSRCS += esp32s2_oneshot_lowerhalf.c
 endif
+endif
+
+ifeq ($(CONFIG_ESP32S2_SPIRAM),y)
+CHIP_CSRCS += esp32s2_spiram.c
+CHIP_CSRCS += esp32s2_psram.c
 endif

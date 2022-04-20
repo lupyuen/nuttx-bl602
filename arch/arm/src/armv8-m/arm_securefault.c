@@ -58,7 +58,7 @@
  *
  ****************************************************************************/
 
-int arm_securefault(int irq, FAR void *context, FAR void *arg)
+int arm_securefault(int irq, void *context, void *arg)
 {
   uint32_t sfsr = getreg32(SAU_SFSR);
 
