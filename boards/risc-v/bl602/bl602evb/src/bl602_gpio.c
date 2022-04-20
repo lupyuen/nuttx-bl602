@@ -62,14 +62,14 @@ struct bl602_gpint_dev_s
  * Private Function Prototypes
  ****************************************************************************/
 
-static int gpin_read(FAR struct gpio_dev_s *dev, FAR bool *value);
-static int gpout_read(FAR struct gpio_dev_s *dev, FAR bool *value);
-static int gpout_write(FAR struct gpio_dev_s *dev, bool value);
-static int gpint_read(FAR struct gpio_dev_s *dev, FAR bool *value);
-static int gpint_attach(FAR struct gpio_dev_s *dev,
+static int gpin_read(struct gpio_dev_s *dev, bool *value);
+static int gpout_read(struct gpio_dev_s *dev, bool *value);
+static int gpout_write(struct gpio_dev_s *dev, bool value);
+static int gpint_read(struct gpio_dev_s *dev, bool *value);
+static int gpint_attach(struct gpio_dev_s *dev,
                         pin_interrupt_t callback);
-static int gpint_enable(FAR struct gpio_dev_s *dev, bool enable);
-static int gpio_setpintype(FAR struct gpio_dev_s *dev,
+static int gpint_enable(struct gpio_dev_s *dev, bool enable);
+static int gpio_setpintype(struct gpio_dev_s *dev,
                            enum gpio_pintype_e    gp_pintype);
 
 /****************************************************************************
@@ -263,8 +263,8 @@ static void bl602_gpio_intclear(uint8_t gpio_pin, uint8_t int_clear)
 
 static int bl602_gpio_interrupt(int irq, void *context, void *arg)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)arg;
+  struct bl602_gpint_dev_s *bl602xgpint =
+    (struct bl602_gpint_dev_s *)arg;
 
   uint32_t time_out = 0;
   uint8_t gpio_pin;
@@ -311,11 +311,11 @@ static int bl602_gpio_interrupt(int irq, void *context, void *arg)
  *
  ****************************************************************************/
 
-static int gpio_setpintype(FAR struct gpio_dev_s *dev,
+static int gpio_setpintype(struct gpio_dev_s *dev,
                            enum gpio_pintype_e    gp_pintype)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)dev;
+  struct bl602_gpint_dev_s *bl602xgpint =
+    (struct bl602_gpint_dev_s *)dev;
   uint8_t gpio_pin;
   uint8_t pintype = bl602xgpint->bl602gpio.gpio.gp_pintype;
 
@@ -393,10 +393,10 @@ static int gpio_setpintype(FAR struct gpio_dev_s *dev,
  *
  ****************************************************************************/
 
-static int gpin_read(FAR struct gpio_dev_s *dev, FAR bool *value)
+static int gpin_read(struct gpio_dev_s *dev, bool *value)
 {
-  FAR struct bl602_gpio_dev_s *bl602xgpio =
-    (FAR struct bl602_gpio_dev_s *)dev;
+  struct bl602_gpio_dev_s *bl602xgpio =
+    (struct bl602_gpio_dev_s *)dev;
 
   DEBUGASSERT(bl602xgpio != NULL && value != NULL);
   gpioinfo("Reading...\n");
@@ -413,10 +413,10 @@ static int gpin_read(FAR struct gpio_dev_s *dev, FAR bool *value)
  *
  ****************************************************************************/
 
-static int gpout_read(FAR struct gpio_dev_s *dev, FAR bool *value)
+static int gpout_read(struct gpio_dev_s *dev, bool *value)
 {
-  FAR struct bl602_gpio_dev_s *bl602xgpio =
-    (FAR struct bl602_gpio_dev_s *)dev;
+  struct bl602_gpio_dev_s *bl602xgpio =
+    (struct bl602_gpio_dev_s *)dev;
 
   DEBUGASSERT(bl602xgpio != NULL && value != NULL);
   DEBUGASSERT(bl602xgpio->id < BOARD_NGPIOOUT);
@@ -438,10 +438,10 @@ static int gpout_read(FAR struct gpio_dev_s *dev, FAR bool *value)
  *
  ****************************************************************************/
 
-static int gpout_write(FAR struct gpio_dev_s *dev, bool value)
+static int gpout_write(struct gpio_dev_s *dev, bool value)
 {
-  FAR struct bl602_gpio_dev_s *bl602xgpio =
-    (FAR struct bl602_gpio_dev_s *)dev;
+  struct bl602_gpio_dev_s *bl602xgpio =
+    (struct bl602_gpio_dev_s *)dev;
 
   DEBUGASSERT(bl602xgpio != NULL);
   DEBUGASSERT(bl602xgpio->id < BOARD_NGPIOOUT);
@@ -460,10 +460,10 @@ static int gpout_write(FAR struct gpio_dev_s *dev, bool value)
  *
  ****************************************************************************/
 
-static int gpint_read(FAR struct gpio_dev_s *dev, FAR bool *value)
+static int gpint_read(struct gpio_dev_s *dev, bool *value)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)dev;
+  struct bl602_gpint_dev_s *bl602xgpint =
+    (struct bl602_gpint_dev_s *)dev;
 
   DEBUGASSERT(bl602xgpint != NULL && value != NULL);
   DEBUGASSERT(bl602xgpint->bl602gpio.id < BOARD_NGPIOINT);
@@ -482,10 +482,10 @@ static int gpint_read(FAR struct gpio_dev_s *dev, FAR bool *value)
  *
  ****************************************************************************/
 
-static int gpint_attach(FAR struct gpio_dev_s *dev, pin_interrupt_t callback)
+static int gpint_attach(struct gpio_dev_s *dev, pin_interrupt_t callback)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)dev;
+  struct bl602_gpint_dev_s *bl602xgpint =
+    (struct bl602_gpint_dev_s *)dev;
 
   uint8_t gpio_pin =
     (g_gpiointinputs[bl602xgpint->bl602gpio.id] & GPIO_PIN_MASK) >>
@@ -512,10 +512,10 @@ static int gpint_attach(FAR struct gpio_dev_s *dev, pin_interrupt_t callback)
  *
  ****************************************************************************/
 
-static int gpint_enable(FAR struct gpio_dev_s *dev, bool enable)
+static int gpint_enable(struct gpio_dev_s *dev, bool enable)
 {
-  FAR struct bl602_gpint_dev_s *bl602xgpint =
-    (FAR struct bl602_gpint_dev_s *)dev;
+  struct bl602_gpint_dev_s *bl602xgpint =
+    (struct bl602_gpint_dev_s *)dev;
 
   if (enable)
     {

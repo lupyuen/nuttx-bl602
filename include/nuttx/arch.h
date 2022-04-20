@@ -2563,6 +2563,30 @@ uint32_t up_perf_gettime(void);
 uint32_t up_perf_getfreq(void);
 void up_perf_convert(uint32_t elapsed, FAR struct timespec *ts);
 
+/****************************************************************************
+ * Name: up_saveusercontext
+ *
+ * Description:
+ *   Save the current thread context
+ *
+ ****************************************************************************/
+
+int up_saveusercontext(FAR void *saveregs);
+
+/****************************************************************************
+ * Name: up_fpucmp
+ *
+ * Description:
+ *   compare FPU areas from thread context
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_ARCH_FPU
+bool up_fpucmp(FAR const void *saveregs1, FAR const void *saveregs2);
+#else
+#define up_fpucmp(r1, r2) (true)
+#endif
+
 #undef EXTERN
 #if defined(__cplusplus)
 }
