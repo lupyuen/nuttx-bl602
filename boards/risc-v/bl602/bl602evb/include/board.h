@@ -33,6 +33,13 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Columns in the SPI Device Table */
+
+#define DEVID_COL 0  /* SPI Device ID */
+#define SWAP_COL  1  /* 1 if MISO/MOSI should be swapped, else 0 */
+#define CS_COL    2  /* SPI Chip Select Pin */
+#define NUM_COLS  3  /* Number of columns in SPI Device Table */
+
 /* GPIO Configuration */
 
 #define BOARD_NGPIOIN     1 /* Amount of GPIO Input pins */
@@ -82,26 +89,46 @@
                             GPIO_FUNC_PWM | GPIO_PIN4)
 #endif  /* TODO */
 
-#ifdef TODO  /* Remember to check for duplicate pins! */
 /* I2C Configuration */
 
-#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN4)
-#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN3)
-#endif  /* TODO */
+#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN2)
+#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN1)
 
-/* SPI Configuration: For PineCone BL602 */
+/* SPI for PineDio Stack: Chip Select (unused), MOSI, MISO, SCK */
 
-#define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN2)
-#define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN1)
+#define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN8)  /* Unused */
+#define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN13)
 #define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)
-#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN3)
+#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN11)
 
 #ifdef CONFIG_LCD_ST7789
-/* ST7789 Configuration: Reset and Backlight Pins */
+/* ST7789 for PineDio Stack: Chip Select, Reset and Backlight */
 
-#define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN4)
-#define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN5)
+#define BOARD_LCD_DEVID SPIDEV_DISPLAY(0)  /* SPI Device ID: 0x40000 */
+#define BOARD_LCD_SWAP  0    /* Don't swap MISO/MOSI */
+#define BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
+#define BOARD_LCD_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN20)
+#define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN3)
+#define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
 #endif  /* CONFIG_LCD_ST7789 */
+
+/* SX1262 for PineDio Stack: Chip Select */
+
+#define BOARD_SX1262_DEVID 1  /* SPI Device ID */
+#define BOARD_SX1262_SWAP  1  /* Swap MISO/MOSI */
+#define BOARD_SX1262_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+
+/* SPI Flash for PineDio Stack: Chip Select */
+
+#define BOARD_FLASH_DEVID 2  /* SPI Device ID */
+#define BOARD_FLASH_SWAP  1  /* Swap MISO/MOSI */
+#define BOARD_FLASH_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
+
+#ifdef CONFIG_INPUT_CST816S
+/* CST816S Touch Controller for PineDio Stack: GPIO Interrupt */
+
+#define BOARD_TOUCH_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN9)
+#endif  /* CONFIG_INPUT_CST816S */
 
 /****************************************************************************
  * Public Types
@@ -131,6 +158,11 @@ extern "C"
  ****************************************************************************/
 
 void bl602_boardinitialize(void);
+
+#ifdef CONFIG_BL602_SPI0
+void bl602_spi_deselect_devices(void);
+const int32_t *bl602_spi_get_device(uint32_t devid);
+#endif  /* CONFIG_BL602_SPI0 */
 
 #undef EXTERN
 #if defined(__cplusplus)

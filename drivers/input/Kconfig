@@ -501,6 +501,13 @@ config INPUT_CYPRESS_MBR3108_NPOLLWAITERS
 
 endif # INPUT_CYPRESS_MBR3108
 
+config INPUT_CST816S
+	bool "Hynitron CST816S Driver"
+	default n
+	select INPUT_TOUCHSCREEN
+	---help---
+		Enable support for Hynitron CST816S Touch Controller.
+
 config INPUT_BUTTONS
 	bool "Button Inputs"
 	default n
