@@ -20,3 +20,6 @@
 [submodule "drivers/sensors/bme280"]
 	path = drivers/sensors/bme280
 	url = https://github.com/lupyuen/bme280-nuttx
+[submodule "drivers/input/cst816s"]
+	path = drivers/input/cst816s
+	url = https://github.com/lupyuen/cst816s-nuttx

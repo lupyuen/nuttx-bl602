@@ -32,6 +32,7 @@
 #include <syslog.h>
 #include <debug.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <nuttx/board.h>
 #include <nuttx/fs/fs.h>
@@ -98,7 +99,15 @@
 #include "riscv_internal.h"
 #endif /* CONFIG_LCD_ST7789 */
 
+#ifdef CONFIG_INPUT_CST816S
+/* I2C Address of CST816S Touch Controller */
+
+#define CST816S_DEVICE_ADDRESS 0x15
+#include <nuttx/input/cst816s.h>
+#endif /* CONFIG_INPUT_CST816S */
+
 #include "chip.h"
+#include "../include/board.h"
 
 /****************************************************************************
  * Private Function Prototypes
@@ -108,9 +117,135 @@
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_BL602_SPI0
+/* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
+
+static const int32_t bl602_spi_device_table[] =
+{
+#ifdef BOARD_LCD_DEVID  /* ST7789 Display */
+  BOARD_LCD_DEVID, BOARD_LCD_SWAP, BOARD_LCD_CS,
+#endif  /* BOARD_LCD_DEVID */
+
+#ifdef BOARD_SX1262_DEVID  /* LoRa SX1262 */
+  BOARD_SX1262_DEVID, BOARD_SX1262_SWAP, BOARD_SX1262_CS,
+#endif  /* BOARD_SX1262_DEVID */
+
+#ifdef BOARD_FLASH_DEVID  /* SPI Flash */
+  BOARD_FLASH_DEVID, BOARD_FLASH_SWAP, BOARD_FLASH_CS,
+#endif  /* BOARD_FLASH_DEVID */
+
+  /* Must end with Default SPI Device */
+
+  -1, 1, BOARD_SPI_CS,  /* Swap MISO/MOSI */
+};
+#endif  /* CONFIG_BL602_SPI0 */
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+#ifdef CONFIG_BL602_SPI0
+/****************************************************************************
+ * Name: bl602_spi_validate_devices
+ *
+ * Description:
+ *   Validate the SPI Device Table
+ *
+ ****************************************************************************/
+
+static void bl602_spi_validate_devices(void)
+{
+  int len;
+  int i;
+
+  /* All columns must be populated */
+
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
+  DEBUGASSERT(len % NUM_COLS == 0);
+
+  /* Validate every row */
+
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t devid;
+      int32_t swap;
+      
+      devid = bl602_spi_device_table[i + DEVID_COL];
+      swap = bl602_spi_device_table[i + SWAP_COL];
+
+      /* Validate Device ID and Swap */
+
+      DEBUGASSERT(devid >= -1);
+      DEBUGASSERT(swap == 0 || swap == 1);
+    }
+
+  /* TODO: Verify that all Device IDs are unique */
+
+}
+
+/****************************************************************************
+ * Name: bl602_spi_deselect_devices
+ *
+ * Description:
+ *   Set Chip Select to High for all devices in the SPI Device Table
+ *
+ ****************************************************************************/
+
+void bl602_spi_deselect_devices(void)
+{
+  int len;
+  int i;
+
+  /* Validate the SPI Device Table */
+
+  bl602_spi_validate_devices();
+
+  /* Get all devices in the SPI Device Table, including default device */
+
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t cs;
+
+      /* Configure Chip Select as GPIO and set to High */
+
+      cs = bl602_spi_device_table[i + CS_COL];
+      bl602_configgpio(cs);
+      bl602_gpiowrite(cs, true);
+    }
+}
+
+/****************************************************************************
+ * Name: bl602_spi_get_device
+ *
+ * Description:
+ *   Return the device from the SPI Device Table
+ *
+ ****************************************************************************/
+
+const int32_t *bl602_spi_get_device(uint32_t devid)
+{
+  int len;
+  int i;
+
+  /* Find the device in the SPI Device Table, or return default device */
+
+  len = sizeof(bl602_spi_device_table) / sizeof(bl602_spi_device_table[0]);
+  for (i = 0; i < len; i += NUM_COLS)
+    {
+      int32_t id;
+      
+      id = bl602_spi_device_table[i + DEVID_COL];
+      if (id == -1 || id == devid)
+        {
+          return &bl602_spi_device_table[i];
+        }
+    }
+
+  DEBUGPANIC();  /* Never comes here */
+  return NULL;
+}
+#endif  /* CONFIG_BL602_SPI0 */
 
 #if defined(CONFIG_BL602_WIRELESS)
 extern int bl602_net_initialize(void);
@@ -692,6 +827,25 @@ int bl602_bringup(void)
     }
 #endif /* CONFIG_LCD_DEV */
 
+#ifdef CONFIG_INPUT_CST816S
+
+  /* Init I2C bus for CST816S */
+
+  struct i2c_master_s *cst816s_i2c_bus = bl602_i2cbus_initialize(0);
+  if (!cst816s_i2c_bus)
+    {
+      _err("ERROR: Failed to get I2C%d interface\n", 0);
+    }
+
+  /* Register the CST816S driver */
+
+  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, CST816S_DEVICE_ADDRESS);
+  if (ret < 0)
+    {
+      _err("ERROR: Failed to register CST816S\n");
+    }
+#endif /* CONFIG_INPUT_CST816S */
+
   return ret;
 }
 
@@ -736,7 +890,11 @@ int board_lcd_initialize(void)
   /* Set full brightness */
 
   bl602_configgpio(BOARD_LCD_BL);
+#ifdef BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
+  bl602_gpiowrite(BOARD_LCD_BL, false);
+#else   /* Backlight is active when High */
   bl602_gpiowrite(BOARD_LCD_BL, true);
+#endif  /* BOARD_LCD_BL_INVERT */
 
   return OK;
 }
