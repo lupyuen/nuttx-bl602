@@ -107,6 +107,7 @@
 #endif /* CONFIG_INPUT_CST816S */
 
 #include "chip.h"
+#include "../include/board.h"
 
 /****************************************************************************
  * Private Function Prototypes
