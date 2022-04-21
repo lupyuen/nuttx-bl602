@@ -46,7 +46,11 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#if defined(CONFIG_SCHED_CRITMONITOR_MAXTIME_WQUEUE) && CONFIG_SCHED_CRITMONITOR_MAXTIME_WQUEUE > 0
+#ifndef CONFIG_SCHED_CRITMONITOR_MAXTIME_WQUEUE
+#  define CONFIG_SCHED_CRITMONITOR_MAXTIME_WQUEUE 0
+#endif
+
+#if CONFIG_SCHED_CRITMONITOR_MAXTIME_WQUEUE > 0
 #  define CALL_WORKER(worker, arg) \
      do \
        { \
@@ -76,7 +80,7 @@
 struct hp_wqueue_s g_hpwork =
 {
   {},
-  NXSEM_INITIALIZER(0, SEM_PRIO_NONE),
+  NXSEM_INITIALIZER(0, PRIOINHERIT_FLAGS_DISABLE),
 };
 
 #endif /* CONFIG_SCHED_HPWORK */
@@ -87,7 +91,7 @@ struct hp_wqueue_s g_hpwork =
 struct lp_wqueue_s g_lpwork =
 {
   {},
-  NXSEM_INITIALIZER(0, SEM_PRIO_NONE),
+  NXSEM_INITIALIZER(0, PRIOINHERIT_FLAGS_DISABLE),
 };
 
 #endif /* CONFIG_SCHED_LPWORK */

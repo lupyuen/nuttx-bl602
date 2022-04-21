@@ -38,7 +38,7 @@ jobs:
 
     - name: Install Toolchain
       run:  |
-        wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
+        wget --no-check-certificate https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz
         tar -xf riscv64-unknown-elf-gcc*.tar.gz
 
     - name: Checkout Source Files
@@ -56,7 +56,7 @@ jobs:
         
         ## Configure the build
         ./tools/configure.sh bl602evb:nsh
-        
+
         ## Enable errors, warnings, info messages and assertions
         kconfig-tweak --enable CONFIG_DEBUG_ERROR
         kconfig-tweak --enable CONFIG_DEBUG_WARN
@@ -101,6 +101,7 @@ jobs:
         kconfig-tweak --enable CONFIG_SPI
         kconfig-tweak --enable CONFIG_SPI_EXCHANGE
         kconfig-tweak --enable CONFIG_SPI_DRIVER
+        kconfig-tweak --enable CONFIG_SPI_CMDDATA
 
         ## Previously: Enable UART1
         ## kconfig-tweak --enable  CONFIG_BL602_HAVE_UART1
