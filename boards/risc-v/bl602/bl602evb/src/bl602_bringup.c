@@ -650,7 +650,7 @@ int bl602_bringup(void)
 #endif
 
 #ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
-  /* Get an instance of the BL602 GPIO Expander */
+  /* Must load BL602 GPIO Expander before other drivers */
 
   FAR struct ioexpander_dev_s *ioe = bl602_expander_initialize();
   if (ioe == NULL)
