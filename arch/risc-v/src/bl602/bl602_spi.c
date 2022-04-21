@@ -178,7 +178,6 @@ static int bl602_spi_trigger(struct spi_dev_s *dev);
 #endif
 static void bl602_spi_init(struct spi_dev_s *dev);
 static void bl602_spi_deinit(struct spi_dev_s *dev);
-static void bl602_swap_spi_0_mosi_with_miso(uint8_t swap);
 
 /****************************************************************************
  * Private Data
@@ -439,33 +438,16 @@ static int bl602_spi_lock(struct spi_dev_s *dev, bool lock)
 static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
                              bool selected)
 {
-  const int32_t *spidev;
+  /* we used hardware CS */
 
   spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
 
-  /* get device from SPI Device Table */
-
-  spidev = bl602_spi_get_device(devid);
-  DEBUGASSERT(spidev != NULL);
-
-  /* swap MISO and MOSI if needed */
-
-  if (selected)
-    {
-      bl602_swap_spi_0_mosi_with_miso(spidev[SWAP_COL]);
-    }
-
-  /* set Chip Select */
-
-  bl602_gpiowrite(spidev[CS_COL], !selected);
-
 #ifdef CONFIG_SPI_CMDDATA
-  /* revert MISO and MOSI from GPIO Pins to SPI Pins */
+  /* revert MISO from GPIO Pin to SPI Pin */
 
   if (!selected)
     {
       bl602_configgpio(BOARD_SPI_MISO);
-      bl602_configgpio(BOARD_SPI_MOSI);
     }
 #endif
 }
@@ -708,10 +690,10 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
  *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
  *   configuration
  *
- *   This function reconfigures MISO/MOSI from SPI Pin to GPIO Pin, and sets
- *   MISO/MOSI to high (data) or low (command). bl602_spi_select() will
- *   revert MISO/MOSI back from GPIO Pin to SPI Pin.  We must revert because
- *   the SPI Bus may be used by other drivers.
+ *   This function reconfigures MISO from SPI Pin to GPIO Pin, and sets
+ *   MISO to high (data) or low (command). bl602_spi_select() will revert
+ *   MISO back from GPIO Pin to SPI Pin.  We must revert because the SPI Bus
+ *   may be used by other drivers.
  *
  * Input Parameters:
  *   dev - Device-specific state data
@@ -732,23 +714,12 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
 
   if (devid == SPIDEV_DISPLAY(0))
     {
-      const int32_t *spidev;
-      gpio_pinset_t dc;
       gpio_pinset_t gpio;
       int ret;
 
-      /* get device from SPI Device Table */
+      /* reconfigure MISO from SPI Pin to GPIO Pin */
 
-      spidev = bl602_spi_get_device(devid);
-      DEBUGASSERT(spidev != NULL);
-
-      /* if MISO/MOSI are swapped, DC is MISO, else MOSI */
-
-      dc = spidev[SWAP_COL] ? BOARD_SPI_MISO : BOARD_SPI_MOSI;
-
-      /* reconfigure DC from SPI Pin to GPIO Pin */
-
-      gpio = (dc & GPIO_PIN_MASK)
+      gpio = (BOARD_SPI_MISO & GPIO_PIN_MASK)
              | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
       ret = bl602_configgpio(gpio);
       if (ret < 0)
@@ -759,7 +730,7 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
           return ret;
         }
 
-      /* set DC to high (data) or low (command) */
+      /* set MISO to high (data) or low (command) */
 
       bl602_gpiowrite(gpio, !cmd);
 
@@ -1233,10 +1204,6 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
               | SPI_FIFO_CFG_0_TX_CLR, 0);
-
-  /* deselect all spi devices */
-
-  bl602_spi_deselect_devices();
 }
 
 /****************************************************************************
