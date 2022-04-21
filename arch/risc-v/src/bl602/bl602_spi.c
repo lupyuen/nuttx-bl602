@@ -1321,3 +1321,6 @@ int bl602_spibus_uninitialize(struct spi_dev_s *dev)
   return OK;
 }
 
+#if defined(CONFIG_LCD_ST7789) && defined(CONFIG_INPUT_CST816S)
+#error PineDio Stack BL604 must use SPI Device Table: https://github.com/lupyuen/incubator-nuttx/blob/pinedio/arch/risc-v/src/bl602/bl602_spi.c
+#endif /* CONFIG_LCD_ST7789 && CONFIG_INPUT_CST816S */
