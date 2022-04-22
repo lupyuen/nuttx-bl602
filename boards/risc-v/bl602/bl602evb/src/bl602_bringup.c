@@ -110,6 +110,8 @@
 #include <nuttx/ioexpander/gpio.h>
 #include <nuttx/ioexpander/bl602_expander.h>
 FAR struct ioexpander_dev_s *bl602_expander = NULL;
+static int button_isr_handler(FAR struct ioexpander_dev_s *dev,
+                              ioe_pinset_t pinset, FAR void *arg); //// TODO
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #include "chip.h"
@@ -673,9 +675,36 @@ int bl602_bringup(void)
 
     #warning TODO: Move gpio_lower_half to GPIO Expander
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
+
+    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
+                    (FAR void *)IOEXPANDER_VAL_FALLING);
   }
 
-  /* GPIO 3: a non-inverted, input pin */
+  /* Push Button GPIO 12: a non-inverted, falling-edge interrupting pin */
+  {
+    #define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
+    gpio_pinset_t pinset = BOARD_BUTTON_INT;
+    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+
+    #warning TODO: Move bl602_configgpio to GPIO Expander
+    ret = bl602_configgpio(pinset);
+    DEBUGASSERT(ret == OK);
+
+    #warning TODO: Move gpio_lower_half to GPIO Expander
+    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
+
+    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
+                    (FAR void *)IOEXPANDER_VAL_FALLING);
+
+    #warning TODO: Move IOEP_ATTACH to Button Handler
+    void *handle = IOEP_ATTACH(bl602_expander,
+                               gpio_pin,
+                               button_isr_handler,
+                               NULL);  ////  TODO
+    DEBUGASSERT(handle != NULL);
+  }
+
+  /* Testing GPIO 3: a non-inverted, input pin */
   {
     uint8_t gpio_pin = 3;
 
@@ -687,7 +716,7 @@ int bl602_bringup(void)
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INPUT_PIN, gpio_pin);
   }
 
-  /* GPIO 4: a non-inverted, output pin */
+  /* Testing GPIO 4: a non-inverted, output pin */
   {
     uint8_t gpio_pin = 4;
 
@@ -699,7 +728,7 @@ int bl602_bringup(void)
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_OUTPUT_PIN, gpio_pin);
   }
 
-  /* GPIO 5: a non-inverted, edge interrupting pin */
+  /* Testing GPIO 5: a non-inverted, edge interrupting pin */
   {
     uint8_t gpio_pin = 5;
 
@@ -711,7 +740,7 @@ int bl602_bringup(void)
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
   }
 
-  /* GPIO 6: a non-inverted, level interrupting pin */
+  /* Testing GPIO 6: a non-inverted, level interrupting pin */
   {
     uint8_t gpio_pin = 6;
 
@@ -1005,3 +1034,11 @@ FAR struct lcd_dev_s *board_lcd_getdev(int devno)
   return NULL;
 }
 #endif  //  CONFIG_LCD_ST7789
+
+static int button_isr_handler(FAR struct ioexpander_dev_s *dev,
+                              ioe_pinset_t pinset, FAR void *arg)
+{
+  #warning TODO: Move button_isr_handler to Button Handler
+  gpioinfo("Button Pressed\n");
+  return 0;
+}
