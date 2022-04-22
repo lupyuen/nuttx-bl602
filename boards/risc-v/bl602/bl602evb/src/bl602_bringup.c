@@ -697,11 +697,11 @@ int bl602_bringup(void)
                     (FAR void *)IOEXPANDER_VAL_FALLING);
 
     #warning TODO: Move IOEP_ATTACH to Button Handler
-    void *handle = IOEP_ATTACH(bl602_expander,
-                               gpio_pin,
-                               button_isr_handler,
-                               NULL);  ////  TODO
-    DEBUGASSERT(handle != NULL);
+    // void *handle = IOEP_ATTACH(bl602_expander,
+    //                            (ioe_pinset_t)1 << gpio_pin,
+    //                            button_isr_handler,
+    //                            NULL);  ////  TODO
+    // DEBUGASSERT(handle != NULL);
   }
 
   /* Testing GPIO 3: a non-inverted, input pin */
