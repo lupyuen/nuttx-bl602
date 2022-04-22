@@ -704,6 +704,7 @@ int bl602_bringup(void)
     // DEBUGASSERT(handle != NULL);
   }
 
+#ifdef NOTUSED
   /* Testing GPIO 3: a non-inverted, input pin */
   {
     uint8_t gpio_pin = 3;
@@ -751,6 +752,7 @@ int bl602_bringup(void)
                     (FAR void *)IOEXPANDER_VAL_HIGH);
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
   }
+#endif /* NOTUSED */
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_I2C
