@@ -667,11 +667,11 @@ int bl602_bringup(void)
     gpio_pinset_t pinset = BOARD_TOUCH_INT;
     uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
-    IOEXP_SETDIRECTION(bl602_expander, gpio_pin, IOEXPANDER_DIRECTION_IN);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INVERT,
-                    (FAR void *)IOEXPANDER_VAL_NORMAL);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_FALLING);
+    #warning Move bl602_configgpio to GPIO Expander
+    ret = bl602_configgpio(pinset);
+    DEBUGASSERT(ret == OK);
+
+    #warning Move gpio_lower_half to GPIO Expander
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
   }
 
