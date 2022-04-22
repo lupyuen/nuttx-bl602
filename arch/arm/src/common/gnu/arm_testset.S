@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/src/armv7-r/arm_fullcontextrestore.S
+ * arch/arm/src/common/gnu/arm_testset.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -23,8 +23,10 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <arch/irq.h>
-#include <arch/syscall.h>
+#include <arch/spinlock.h>
+
+	.syntax	unified
+	.file	"arm_testset.S"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -34,41 +36,72 @@
  * Public Symbols
  ****************************************************************************/
 
-	.file	"arm_fullcontextrestore.S"
+	.globl	up_testset
 
 /****************************************************************************
- * Macros
+ * Assembly Macros
  ****************************************************************************/
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+	.text
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: arm_fullcontextrestore
+ * Name: up_testset
  *
  * Description:
- *   Restore the current thread context.  Full prototype is:
+ *   Perform an atomic test and set operation on the provided spinlock.
  *
- *   void arm_fullcontextrestore(uint32_t *restoreregs) noreturn_function;
+ *   This function must be provided via the architecture-specific logic.
+ *
+ * Input Parameters:
+ *   lock  - A reference to the spinlock object.
  *
  * Returned Value:
- *   None
+ *   The spinlock is always locked upon return.  The previous value of the
+ *   spinlock variable is returned, either SP_LOCKED if the spinlock was
+ *   previously locked (meaning that the test-and-set operation failed to
+ *   obtain the lock) or SP_UNLOCKED if the spinlock was previously unlocked
+ *   (meaning that we successfully obtained the lock).
  *
  ****************************************************************************/
 
-	.globl	arm_fullcontextrestore
-	.type	arm_fullcontextrestore, function
-arm_fullcontextrestore:
+	.globl	up_testset
+	.type	up_testset, %function
 
-	/* Perform the System call with R0=1 and R1=regs */
+up_testset:
 
-	mov		r1, r0				/* R1: regs */
-	mov		r0, #SYS_restore_context	/* R0: restore context */
-	svc		#SYS_syscall			/* Force synchronous SVCall (or Hard Fault) */
+	mov		r1, #SP_LOCKED
 
-	/* This call should not return */
+	/* Test if the spinlock is locked or not */
 
-	bx		lr				/* Unnecessary ... will not return */
-	.size	arm_fullcontextrestore, .-arm_fullcontextrestore
+1:
+	ldrexb		r2, [r0]			/* Test if spinlock is locked or not */
+	cmp		r2, r1				/* Already locked? */
+	beq		2f				/* If already locked, return SP_LOCKED */
+
+	/* Not locked ... attempt to lock it */
+
+	strexb		r2, r1, [r0]			/* Attempt to set the locked state */
+	cmp		r2, r1				/* r2 will be 1 is strexb failed */
+	beq		1b				/* Failed to lock... try again */
+
+	/* Lock acquired -- return SP_UNLOCKED */
+
+	dmb						/* Required before accessing protected resource */
+	mov		r0, #SP_UNLOCKED
+	bx		lr
+
+	/* Lock not acquired -- return SP_LOCKED */
+
+2:
+	mov		r0, #SP_LOCKED
+	bx		lr
+	.size	up_testset, . - up_testset
 	.end
