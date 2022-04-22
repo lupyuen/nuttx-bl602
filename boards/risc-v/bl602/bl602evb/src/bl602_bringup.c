@@ -662,16 +662,16 @@ int bl602_bringup(void)
 
   /* Register pin drivers */
 
-  /* GPIO 9: a non-inverted, falling-edge interrupting pin */
+  /* Touch Panel GPIO 9: a non-inverted, falling-edge interrupting pin */
   {
     gpio_pinset_t pinset = BOARD_TOUCH_INT;
     uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
-    #warning Move bl602_configgpio to GPIO Expander
+    #warning TODO: Move bl602_configgpio to GPIO Expander
     ret = bl602_configgpio(pinset);
     DEBUGASSERT(ret == OK);
 
-    #warning Move gpio_lower_half to GPIO Expander
+    #warning TODO: Move gpio_lower_half to GPIO Expander
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
   }
 
