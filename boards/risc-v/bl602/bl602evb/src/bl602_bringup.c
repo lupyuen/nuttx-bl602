@@ -110,8 +110,6 @@
 #include <nuttx/ioexpander/gpio.h>
 #include <nuttx/ioexpander/bl602_expander.h>
 FAR struct ioexpander_dev_s *bl602_expander = NULL;
-static int button_isr_handler(FAR struct ioexpander_dev_s *dev,
-                              ioe_pinset_t pinset, FAR void *arg); //// TODO
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #include "chip.h"
@@ -163,7 +161,6 @@ static const gpio_pinset_t bl602_gpio_interrupts[] =
 static const gpio_pinset_t bl602_other_pins[] =
 {
 };
-
 #endif  /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_BL602_SPI0
@@ -993,11 +990,3 @@ FAR struct lcd_dev_s *board_lcd_getdev(int devno)
   return NULL;
 }
 #endif  //  CONFIG_LCD_ST7789
-
-static int button_isr_handler(FAR struct ioexpander_dev_s *dev,
-                              ioe_pinset_t pinset, FAR void *arg)
-{
-  #warning TODO: Move button_isr_handler to Button Handler
-  gpioinfo("Button Pressed\n");
-  return 0;
-}
