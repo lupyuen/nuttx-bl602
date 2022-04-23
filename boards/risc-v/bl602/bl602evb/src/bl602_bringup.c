@@ -125,6 +125,47 @@ static int button_isr_handler(FAR struct ioexpander_dev_s *dev,
  * Private Data
  ****************************************************************************/
 
+#warning TODO: Move to board.h
+#define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
+#define BOARD_SX1262_BUSY (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN10)
+#define BOARD_SX1262_DIO1 (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN19)
+
+#ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
+/* GPIO Pins for BL602 GPIO Expander: Input, Output, Interrupt and Others */
+
+static const gpio_pinset_t bl602_gpio_inputs[] =
+{
+#ifdef BOARD_SX1262_BUSY
+  BOARD_SX1262_BUSY,
+#endif  /* BOARD_SX1262_BUSY */
+};
+
+static const gpio_pinset_t bl602_gpio_outputs[] =
+{
+#ifdef BOARD_SX1262_CS
+  BOARD_SX1262_CS,
+#endif  /* BOARD_SX1262_CS */
+};
+
+static const gpio_pinset_t bl602_gpio_interrupts[] =
+{
+#ifdef BOARD_TOUCH_INT
+  BOARD_TOUCH_INT,
+#endif  /* BOARD_TOUCH_INT */
+#ifdef BOARD_BUTTON_INT
+  BOARD_BUTTON_INT,
+#endif  /* BOARD_BUTTON_INT */
+#ifdef BOARD_SX1262_DIO1
+  BOARD_SX1262_DIO1,
+#endif  /* BOARD_SX1262_DIO1 */
+};
+
+static const gpio_pinset_t bl602_other_pins[] =
+{
+};
+
+#endif  /* CONFIG_IOEXPANDER_BL602_EXPANDER */
+
 #ifdef CONFIG_BL602_SPI0
 /* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
 
@@ -655,95 +696,20 @@ int bl602_bringup(void)
 #ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
   /* Must load BL602 GPIO Expander before other drivers */
 
-  bl602_expander = bl602_expander_initialize();
+  bl602_expander = bl602_expander_initialize(
+    bl602_gpio_inputs,
+    sizeof(bl602_gpio_inputs) / sizeof(bl602_gpio_inputs[0]),
+    bl602_gpio_outputs,
+    sizeof(bl602_gpio_outputs) / sizeof(bl602_gpio_outputs[0]),
+    bl602_gpio_interrupts,
+    sizeof(bl602_gpio_interrupts) / sizeof(bl602_gpio_interrupts[0]),
+    bl602_other_pins,
+    sizeof(bl602_other_pins) / sizeof(bl602_other_pins[0]));
   if (bl602_expander == NULL)
     {
-      syslog(LOG_ERR, "Failed to initialize GPIO Expander: %d\n", ret);
+      syslog(LOG_ERR, "Failed to initialize GPIO Expander\n");
       return -ENOMEM;
     }
-
-  /* Register pin drivers */
-
-  /* Touch Panel (GPIO 9): a non-inverted, falling-edge interrupting pin */
-  {
-    gpio_pinset_t pinset = BOARD_TOUCH_INT;
-    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-    #warning TODO: Move bl602_configgpio to GPIO Expander
-    ret = bl602_configgpio(pinset);
-    DEBUGASSERT(ret == OK);
-
-    #warning TODO: Move gpio_lower_half to GPIO Expander
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-  }
-
-  /* Push Button (GPIO 12): a non-inverted, falling-edge interrupting pin */
-  {
-    #define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
-    gpio_pinset_t pinset = BOARD_BUTTON_INT;
-    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-    #warning TODO: Move bl602_configgpio to GPIO Expander
-    ret = bl602_configgpio(pinset);
-    DEBUGASSERT(ret == OK);
-
-    #warning TODO: Move gpio_lower_half to GPIO Expander
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-
-    #warning TODO: Move IOEXP_SETOPTION to Button Handler
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_FALLING);
-
-    #warning TODO: Move IOEP_ATTACH to Button Handler
-    // void *handle = IOEP_ATTACH(bl602_expander,
-    //                            (ioe_pinset_t)1 << gpio_pin,
-    //                            button_isr_handler,
-    //                            NULL);  ////  TODO
-    // DEBUGASSERT(handle != NULL);
-  }
-
-  /* SX1262 Busy (GPIO 10): a non-inverted, input pin */
-  {
-    #define BOARD_SX1262_BUSY (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN10)
-    gpio_pinset_t pinset = BOARD_SX1262_BUSY;
-    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-    #warning TODO: Move bl602_configgpio to GPIO Expander
-    ret = bl602_configgpio(pinset);
-    DEBUGASSERT(ret == OK);
-
-    #warning TODO: Move gpio_lower_half to GPIO Expander
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INPUT_PIN, gpio_pin);
-  }
-
-  /* SX1262 Chip Select (GPIO 15): a non-inverted, output pin */
-  {
-    gpio_pinset_t pinset = BOARD_SX1262_CS;
-    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-    #warning TODO: Move bl602_configgpio to GPIO Expander
-    ret = bl602_configgpio(pinset);
-    DEBUGASSERT(ret == OK);
-
-    #warning TODO: Move gpio_lower_half to GPIO Expander
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_OUTPUT_PIN, gpio_pin);
-  }
-
-  /* SX1262 Interupt (GPIO 19): a non-inverted, falling-edge interrupt */
-  {
-    gpio_pinset_t pinset = BOARD_GPIO_INT1;
-    uint8_t gpio_pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-
-    #warning TODO: Move bl602_configgpio to GPIO Expander
-    ret = bl602_configgpio(pinset);
-    DEBUGASSERT(ret == OK);
-
-    #warning TODO: Move gpio_lower_half to GPIO Expander
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_FALLING);
-  }
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_I2C
