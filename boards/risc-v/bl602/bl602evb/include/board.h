@@ -40,6 +40,8 @@
 #define CS_COL    2  /* SPI Chip Select Pin */
 #define NUM_COLS  3  /* Number of columns in SPI Device Table */
 
+/* Pin Definitions: Must sync with bl602_gpio_inputs / outputs / interrupts / other_pins in bl602_bringup.c */
+
 #ifndef CONFIG_IOEXPANDER_BL602_EXPANDER
   /* GPIO Configuration (Not used for BL602 GPIO Expander) */
 

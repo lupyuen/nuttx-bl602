@@ -124,7 +124,7 @@ FAR struct ioexpander_dev_s *bl602_expander = NULL;
  ****************************************************************************/
 
 #ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
-/* GPIO Pins for BL602 GPIO Expander: Input, Output, Interrupt and Others */
+/* GPIO Input Pins for BL602 GPIO Expander */
 
 static const gpio_pinset_t bl602_gpio_inputs[] =
 {
@@ -133,12 +133,28 @@ static const gpio_pinset_t bl602_gpio_inputs[] =
 #endif  /* BOARD_SX1262_BUSY */
 };
 
+/* GPIO Output Pins for BL602 GPIO Expander */
+
 static const gpio_pinset_t bl602_gpio_outputs[] =
 {
+#ifdef BOARD_LCD_CS
+  BOARD_LCD_CS,
+#endif  /* BOARD_LCD_CS */
+#ifdef BOARD_LCD_RST
+  BOARD_LCD_RST,
+#endif  /* BOARD_LCD_RST */
+#ifdef BOARD_LCD_BL
+  BOARD_LCD_BL,
+#endif  /* BOARD_LCD_BL */
 #ifdef BOARD_SX1262_CS
   BOARD_SX1262_CS,
 #endif  /* BOARD_SX1262_CS */
+#ifdef BOARD_FLASH_CS
+  BOARD_FLASH_CS,
+#endif  /* BOARD_FLASH_CS */
 };
+
+/* GPIO Interrupt Pins for BL602 GPIO Expander */
 
 static const gpio_pinset_t bl602_gpio_interrupts[] =
 {
@@ -153,9 +169,55 @@ static const gpio_pinset_t bl602_gpio_interrupts[] =
 #endif  /* BOARD_SX1262_DIO1 */
 };
 
-#warning TODO: Add other pins for BL602 GPIO Expander
+/* Other Pins for BL602 GPIO Expander (For Validation Only) */
+
 static const gpio_pinset_t bl602_other_pins[] =
 {
+#ifdef BOARD_UART_0_RX_PIN
+  BOARD_UART_0_RX_PIN,
+#endif  /* BOARD_UART_0_RX_PIN */
+#ifdef BOARD_UART_0_TX_PIN
+  BOARD_UART_0_TX_PIN,
+#endif  /* BOARD_UART_0_TX_PIN */
+#ifdef BOARD_UART_1_RX_PIN
+  BOARD_UART_1_RX_PIN,
+#endif  /* BOARD_UART_1_RX_PIN */
+#ifdef BOARD_UART_1_TX_PIN
+  BOARD_UART_1_TX_PIN,
+#endif  /* BOARD_UART_1_TX_PIN */
+#ifdef BOARD_PWM_CH0_PIN
+  BOARD_PWM_CH0_PIN,
+#endif  /* BOARD_PWM_CH0_PIN */
+#ifdef BOARD_PWM_CH1_PIN
+  BOARD_PWM_CH1_PIN,
+#endif  /* BOARD_PWM_CH1_PIN */
+#ifdef BOARD_PWM_CH2_PIN
+  BOARD_PWM_CH2_PIN,
+#endif  /* BOARD_PWM_CH2_PIN */
+#ifdef BOARD_PWM_CH3_PIN
+  BOARD_PWM_CH3_PIN,
+#endif  /* BOARD_PWM_CH3_PIN */
+#ifdef BOARD_PWM_CH4_PIN
+  BOARD_PWM_CH4_PIN,
+#endif  /* BOARD_PWM_CH4_PIN */
+#ifdef BOARD_I2C_SCL
+  BOARD_I2C_SCL,
+#endif  /* BOARD_I2C_SCL */
+#ifdef BOARD_I2C_SDA
+  BOARD_I2C_SDA,
+#endif  /* BOARD_I2C_SDA */
+#ifdef BOARD_SPI_CS
+  BOARD_SPI_CS,
+#endif  /* BOARD_SPI_CS */
+#ifdef BOARD_SPI_MOSI
+  BOARD_SPI_MOSI,
+#endif  /* BOARD_SPI_MOSI */
+#ifdef BOARD_SPI_MISO
+  BOARD_SPI_MISO,
+#endif  /* BOARD_SPI_MISO */
+#ifdef BOARD_SPI_CLK
+  BOARD_SPI_CLK,
+#endif  /* BOARD_SPI_CLK */
 };
 #endif  /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
