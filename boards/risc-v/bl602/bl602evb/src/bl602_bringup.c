@@ -746,56 +746,6 @@ int bl602_bringup(void)
     IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
                     (FAR void *)IOEXPANDER_VAL_FALLING);
   }
-
-#ifdef NOTUSED
-  /* Testing GPIO 3: a non-inverted, input pin */
-  {
-    uint8_t gpio_pin = 3;
-
-    IOEXP_SETDIRECTION(bl602_expander, gpio_pin, IOEXPANDER_DIRECTION_IN);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INVERT,
-                    (FAR void *)IOEXPANDER_VAL_NORMAL);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_DISABLE);
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INPUT_PIN, gpio_pin);
-  }
-
-  /* Testing GPIO 4: a non-inverted, output pin */
-  {
-    uint8_t gpio_pin = 4;
-
-    IOEXP_SETDIRECTION(bl602_expander, gpio_pin, IOEXPANDER_DIRECTION_OUT);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INVERT,
-                    (FAR void *)IOEXPANDER_VAL_NORMAL);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_DISABLE);
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_OUTPUT_PIN, gpio_pin);
-  }
-
-  /* Testing GPIO 5: a non-inverted, edge interrupting pin */
-  {
-    uint8_t gpio_pin = 5;
-
-    IOEXP_SETDIRECTION(bl602_expander, gpio_pin, IOEXPANDER_DIRECTION_IN);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INVERT,
-                    (FAR void *)IOEXPANDER_VAL_NORMAL);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_BOTH);
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-  }
-
-  /* Testing GPIO 6: a non-inverted, level interrupting pin */
-  {
-    uint8_t gpio_pin = 6;
-
-    IOEXP_SETDIRECTION(bl602_expander, gpio_pin, IOEXPANDER_DIRECTION_IN);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INVERT,
-                    (FAR void *)IOEXPANDER_VAL_NORMAL);
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_HIGH);
-    gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-  }
-#endif /* NOTUSED */
 #endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_I2C
