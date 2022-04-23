@@ -40,94 +40,107 @@
 #define CS_COL    2  /* SPI Chip Select Pin */
 #define NUM_COLS  3  /* Number of columns in SPI Device Table */
 
-/* GPIO Configuration */
+#ifndef CONFIG_IOEXPANDER_BL602_EXPANDER
+  /* GPIO Configuration (Not used for BL602 GPIO Expander) */
 
-#define BOARD_NGPIOIN     1 /* Amount of GPIO Input pins */
-#define BOARD_NGPIOOUT    1 /* Amount of GPIO Output pins */
-#define BOARD_NGPIOINT    1 /* Amount of GPIO Input w/ Interruption pins */
+  #define BOARD_NGPIOIN     1 /* Amount of GPIO Input pins */
+  #define BOARD_NGPIOOUT    1 /* Amount of GPIO Output pins */
+  #define BOARD_NGPIOINT    1 /* Amount of GPIO Input w/ Interruption pins */
 
-/* Busy Pin for PineDio SX1262 */
+  /* Busy Pin for PineDio SX1262 */
 
-#define BOARD_GPIO_IN1    (GPIO_INPUT | GPIO_FLOAT | \
-                            GPIO_FUNC_SWGPIO | GPIO_PIN10)
+  #define BOARD_GPIO_IN1    (GPIO_INPUT | GPIO_FLOAT | \
+                              GPIO_FUNC_SWGPIO | GPIO_PIN10)
 
-/* SPI Chip Select for PineDio SX1262 */
+  /* SPI Chip Select for PineDio SX1262 */
 
-#define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_PULLUP | \
-                            GPIO_FUNC_SWGPIO | GPIO_PIN15)
+  #define BOARD_GPIO_OUT1   (GPIO_OUTPUT | GPIO_PULLUP | \
+                              GPIO_FUNC_SWGPIO | GPIO_PIN15)
 
-/* GPIO Interrupt (DIO1) for PineDio SX1262 */
+  /* GPIO Interrupt (DIO1) for PineDio SX1262 */
 
-#define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_FLOAT | \
-                            GPIO_FUNC_SWGPIO | GPIO_PIN19)
+  #define BOARD_GPIO_INT1   (GPIO_INPUT | GPIO_FLOAT | \
+                              GPIO_FUNC_SWGPIO | GPIO_PIN19)
+#endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
-/* UART Configuration */
+#ifdef CONFIG_BL602_UART0
+  /* UART Configuration */
 
-#define BOARD_UART_0_RX_PIN (GPIO_INPUT | GPIO_PULLUP | \
-                              GPIO_FUNC_UART | GPIO_PIN7)
-#define BOARD_UART_0_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
-                              GPIO_FUNC_UART | GPIO_PIN16)
+  #define BOARD_UART_0_RX_PIN (GPIO_INPUT | GPIO_PULLUP | \
+                                GPIO_FUNC_UART | GPIO_PIN7)
+  #define BOARD_UART_0_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
+                                GPIO_FUNC_UART | GPIO_PIN16)
+#endif  /* CONFIG_BL602_UART0 */
+
 #ifdef TODO  /* Remember to check for duplicate pins! */
-#define BOARD_UART_1_RX_PIN (GPIO_INPUT | GPIO_PULLUP | \
-                              GPIO_FUNC_UART | GPIO_PIN3)
-#define BOARD_UART_1_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
-                              GPIO_FUNC_UART | GPIO_PIN4)
+  #define BOARD_UART_1_RX_PIN (GPIO_INPUT | GPIO_PULLUP | \
+                                GPIO_FUNC_UART | GPIO_PIN3)
+  #define BOARD_UART_1_TX_PIN (GPIO_INPUT | GPIO_PULLUP | \
+                                GPIO_FUNC_UART | GPIO_PIN4)
 #endif  /* TODO */
 
 #ifdef TODO  /* Remember to check for duplicate pins! */
-/* PWM Configuration */
+  /* PWM Configuration */
 
-#define BOARD_PWM_CH0_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_PWM | GPIO_PIN0)
-#define BOARD_PWM_CH1_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_PWM | GPIO_PIN1)
-#define BOARD_PWM_CH2_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_PWM | GPIO_PIN2)
-#define BOARD_PWM_CH3_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_PWM | GPIO_PIN3)
-#define BOARD_PWM_CH4_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
-                            GPIO_FUNC_PWM | GPIO_PIN4)
+  #define BOARD_PWM_CH0_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
+                              GPIO_FUNC_PWM | GPIO_PIN0)
+  #define BOARD_PWM_CH1_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
+                              GPIO_FUNC_PWM | GPIO_PIN1)
+  #define BOARD_PWM_CH2_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
+                              GPIO_FUNC_PWM | GPIO_PIN2)
+  #define BOARD_PWM_CH3_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
+                              GPIO_FUNC_PWM | GPIO_PIN3)
+  #define BOARD_PWM_CH4_PIN (GPIO_OUTPUT | GPIO_PULLDOWN | \
+                              GPIO_FUNC_PWM | GPIO_PIN4)
 #endif  /* TODO */
 
-/* I2C Configuration */
+#ifdef CONFIG_BL602_I2C0
+  /* I2C Configuration */
 
-#define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN2)
-#define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN1)
+  #define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN2)
+  #define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN1)
+#endif  /* CONFIG_BL602_I2C0 */
 
-/* SPI for PineDio Stack: Chip Select (unused), MOSI, MISO, SCK */
+#ifdef CONFIG_BL602_SPI0
+  /* SPI for PineDio Stack: Chip Select (unused), MOSI, MISO, SCK */
 
-#define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN8)  /* Unused */
-#define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN13)
-#define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)
-#define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN11)
+  #define BOARD_SPI_CS   (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN8)  /* Unused */
+  #define BOARD_SPI_MOSI (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN13)
+  #define BOARD_SPI_MISO (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN0)
+  #define BOARD_SPI_CLK  (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_SPI | GPIO_PIN11)
+#endif  /* CONFIG_BL602_SPI0 */
 
 #ifdef CONFIG_LCD_ST7789
-/* ST7789 for PineDio Stack: Chip Select, Reset and Backlight */
+  /* ST7789 for PineDio Stack: Chip Select, Reset and Backlight */
 
-#define BOARD_LCD_DEVID SPIDEV_DISPLAY(0)  /* SPI Device ID: 0x40000 */
-#define BOARD_LCD_SWAP  0    /* Don't swap MISO/MOSI */
-#define BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
-#define BOARD_LCD_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN20)
-#define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN3)
-#define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
+  #define BOARD_LCD_DEVID SPIDEV_DISPLAY(0)  /* SPI Device ID: 0x40000 */
+  #define BOARD_LCD_SWAP  0    /* Don't swap MISO/MOSI */
+  #define BOARD_LCD_BL_INVERT  /* Backlight is active when Low */
+  #define BOARD_LCD_CS  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN20)
+  #define BOARD_LCD_RST (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN3)
+  #define BOARD_LCD_BL  (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN21)
 #endif  /* CONFIG_LCD_ST7789 */
 
-/* SX1262 for PineDio Stack: Chip Select */
+#ifdef CONFIG_BL602_SPI0
+  /* SX1262 for PineDio Stack: Chip Select */
 
-#define BOARD_SX1262_DEVID 1  /* SPI Device ID */
-#define BOARD_SX1262_SWAP  1  /* Swap MISO/MOSI */
-#define BOARD_SX1262_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+  #define BOARD_SX1262_DEVID 1  /* SPI Device ID */
+  #define BOARD_SX1262_SWAP  1  /* Swap MISO/MOSI */
+  #define BOARD_SX1262_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+#endif  /* CONFIG_BL602_SPI0 */
 
-/* SPI Flash for PineDio Stack: Chip Select */
+#ifdef CONFIG_BL602_SPI0
+  /* SPI Flash for PineDio Stack: Chip Select */
 
-#define BOARD_FLASH_DEVID 2  /* SPI Device ID */
-#define BOARD_FLASH_SWAP  1  /* Swap MISO/MOSI */
-#define BOARD_FLASH_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
+  #define BOARD_FLASH_DEVID 2  /* SPI Device ID */
+  #define BOARD_FLASH_SWAP  1  /* Swap MISO/MOSI */
+  #define BOARD_FLASH_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN14)
+#endif  /* CONFIG_BL602_SPI0 */
 
 #ifdef CONFIG_INPUT_CST816S
-/* CST816S Touch Controller for PineDio Stack: GPIO Interrupt */
+  /* CST816S Touch Controller for PineDio Stack: GPIO Interrupt */
 
-#define BOARD_TOUCH_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN9)
+  #define BOARD_TOUCH_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN9)
 #endif  /* CONFIG_INPUT_CST816S */
 
 /****************************************************************************
