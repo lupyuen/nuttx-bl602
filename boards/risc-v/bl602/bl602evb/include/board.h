@@ -122,11 +122,13 @@
 #endif  /* CONFIG_LCD_ST7789 */
 
 #ifdef CONFIG_BL602_SPI0
-  /* SX1262 for PineDio Stack: Chip Select */
+  /* SX1262 for PineDio Stack: Chip Select, Busy, DIO1 */
 
   #define BOARD_SX1262_DEVID 1  /* SPI Device ID */
   #define BOARD_SX1262_SWAP  1  /* Swap MISO/MOSI */
-  #define BOARD_SX1262_CS (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+  #define BOARD_SX1262_CS   (GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO | GPIO_PIN15)
+  #define BOARD_SX1262_BUSY (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN10)
+  #define BOARD_SX1262_DIO1 (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN19)
 #endif  /* CONFIG_BL602_SPI0 */
 
 #ifdef CONFIG_BL602_SPI0
@@ -142,6 +144,10 @@
 
   #define BOARD_TOUCH_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN9)
 #endif  /* CONFIG_INPUT_CST816S */
+
+/* Push Button for PineDio Stack */
+
+#define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
 
 /****************************************************************************
  * Public Types

@@ -123,11 +123,6 @@ FAR struct ioexpander_dev_s *bl602_expander = NULL;
  * Private Data
  ****************************************************************************/
 
-#warning TODO: Move to board.h
-#define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
-#define BOARD_SX1262_BUSY (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN10)
-#define BOARD_SX1262_DIO1 (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN19)
-
 #ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
 /* GPIO Pins for BL602 GPIO Expander: Input, Output, Interrupt and Others */
 
