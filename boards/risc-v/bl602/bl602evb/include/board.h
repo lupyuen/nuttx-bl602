@@ -97,7 +97,7 @@
 #endif  /* TODO */
 
 #ifdef CONFIG_BL602_I2C0
-  /* I2C Configuration */
+  /* I2C for PineDio Stack: SCL, SDA */
 
   #define BOARD_I2C_SCL (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN2)
   #define BOARD_I2C_SDA (GPIO_INPUT | GPIO_PULLUP | GPIO_FUNC_I2C | GPIO_PIN1)
