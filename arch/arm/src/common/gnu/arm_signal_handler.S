@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/srcm/armv6-m/arm_signal_handler.S
+ * arch/arm/src/common/gnu/arm_signal_handler.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +32,7 @@
  * File info
  ****************************************************************************/
 
+	.syntax		unified
 	.file		"arm_signal_handler.S"
 
 /****************************************************************************
@@ -66,8 +67,6 @@
  ****************************************************************************/
 
 	.text
-	.align	2
-	.code	16
 	.thumb_func
 	.globl	up_signal_handler
 	.type	up_signal_handler, function
@@ -75,21 +74,20 @@ up_signal_handler:
 
 	/* Save some register */
 
-	push		{r4, r5}		/* Save R4 and R5 on the stack */
-	mov		r5, lr			/* Save LR in R5 */
+	push		{lr}			/* Save LR on the stack */
 
 	/* Call the signal handler */
 
-	mov		r4, r0			/* R4=sighand */
+	mov		ip, r0			/* IP=sighand */
 	mov		r0, r1			/* R0=signo */
 	mov		r1, r2			/* R1=info */
 	mov		r2, r3			/* R2=ucontext */
-	blx		r4			/* Call the signal handler */
+	blx		ip			/* Call the signal handler */
 
 	/* Restore the registers */
 
-	mov		lr, r5			/* Restore LR */
-	pop		{r4, r5}		/* Restore R4 and R5 */
+	pop		{r2}			/* Recover LR in R2 */
+	mov		lr, r2			/* Restore LR */
 
 	/* Execute the SYS_signal_handler_return SVCall (will not return) */
 

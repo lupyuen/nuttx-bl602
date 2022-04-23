@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/xtensa/src/common/xtensa_switchcontext.c
+ * boards/risc-v/esp32c3/esp32c3-devkit/src/etc/init.d/rc.sysinit
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,30 +18,19 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-
 #include <nuttx/config.h>
 
-#include "syscall.h"
+#define CONCAT_(x, y) x##y
+#define CONCAT(x, y)  CONCAT_(x, y)
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+#ifdef CONFIG_NSH_ROMFSETC
+#ifdef CONFIG_FS_FAT
 
-/****************************************************************************
- * Name: xtensa_switchcontext
- *
- * Description:
- *   Save the current thread context and restore the specified context.
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
+/* Create a RAMDISK and mount it at /tmp */
 
-void xtensa_switchcontext(uint32_t *saveregs, uint32_t *restoreregs)
-{
-  sys_call2(SYS_switch_context, (uintptr_t)saveregs, (uintptr_t)restoreregs);
-}
+mkrd -m CONFIG_NSH_FATDEVNO -s CONFIG_NSH_FATSECTSIZE CONFIG_NSH_FATNSECTORS
+mkfatfs CONCAT(/dev/ram, CONFIG_NSH_FATDEVNO)
+mount -t vfat CONCAT(/dev/ram, CONFIG_NSH_FATDEVNO) CONFIG_NSH_FATMOUNTPT
+
+#endif /* CONFIG_FS_FAT */
+#endif /* CONFIG_NSH_ROMFSETC */
