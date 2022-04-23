@@ -675,9 +675,6 @@ int bl602_bringup(void)
 
     #warning TODO: Move gpio_lower_half to GPIO Expander
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
-
-    IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
-                    (FAR void *)IOEXPANDER_VAL_FALLING);
   }
 
   /* Push Button (GPIO 12): a non-inverted, falling-edge interrupting pin */
@@ -693,6 +690,7 @@ int bl602_bringup(void)
     #warning TODO: Move gpio_lower_half to GPIO Expander
     gpio_lower_half(bl602_expander, gpio_pin, GPIO_INTERRUPT_PIN, gpio_pin);
 
+    #warning TODO: Move IOEXP_SETOPTION to Button Handler
     IOEXP_SETOPTION(bl602_expander, gpio_pin, IOEXPANDER_OPTION_INTCFG,
                     (FAR void *)IOEXPANDER_VAL_FALLING);
 
