@@ -153,6 +153,7 @@ static const gpio_pinset_t bl602_gpio_interrupts[] =
 #endif  /* BOARD_SX1262_DIO1 */
 };
 
+#warning TODO: Add other pins for BL602 GPIO Expander
 static const gpio_pinset_t bl602_other_pins[] =
 {
 };
