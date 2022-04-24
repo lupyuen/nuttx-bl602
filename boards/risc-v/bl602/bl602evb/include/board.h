@@ -144,6 +144,12 @@
 
 #define BOARD_BUTTON_INT (GPIO_INPUT | GPIO_FLOAT | GPIO_FUNC_SWGPIO | GPIO_PIN12)
 
+/* Identify as PineDio Stack if both ST7789 and CST816S are present */
+
+#if defined(CONFIG_LCD_ST7789) && defined(CONFIG_INPUT_CST816S)
+#define PINEDIO_STACK_BL604
+#endif /* CONFIG_LCD_ST7789 && CONFIG_INPUT_CST816S */
+
 /* Columns in the SPI Device Table */
 
 #define DEVID_COL 0  /* SPI Device ID */
