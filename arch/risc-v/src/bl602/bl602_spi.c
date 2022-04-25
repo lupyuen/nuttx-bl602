@@ -178,6 +178,7 @@ static int bl602_spi_trigger(struct spi_dev_s *dev);
 #endif
 static void bl602_spi_init(struct spi_dev_s *dev);
 static void bl602_spi_deinit(struct spi_dev_s *dev);
+static void bl602_swap_spi_0_mosi_with_miso(uint8_t swap);
 
 /****************************************************************************
  * Private Data
@@ -412,6 +413,7 @@ static int bl602_spi_lock(struct spi_dev_s *dev, bool lock)
   return ret;
 }
 
+#ifndef PINEDIO_STACK_BL604 /* BL602 (Without SPI Device Table) */
 /****************************************************************************
  * Name: bl602_spi_select
  *
@@ -451,6 +453,7 @@ static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
     }
 #endif
 }
+#endif /* !PINEDIO_STACK_BL604 */
 
 /****************************************************************************
  * Name: bl602_spi_setfrequency
@@ -676,6 +679,7 @@ static uint8_t bl602_spi_status(struct spi_dev_s *dev, uint32_t devid)
   return status;
 }
 
+#ifndef PINEDIO_STACK_BL604 /* BL602 (Without SPI Device Table) */
 /****************************************************************************
  * Name: bl602_spi_cmddata
  *
@@ -743,6 +747,7 @@ static int bl602_spi_cmddata(struct spi_dev_s *dev,
   return -ENODEV;
 }
 #endif
+#endif /* !PINEDIO_STACK_BL604 */
 
 /****************************************************************************
  * Name: bl602_spi_hwfeatures
@@ -1204,6 +1209,12 @@ static void bl602_spi_init(struct spi_dev_s *dev)
 
   modifyreg32(BL602_SPI_FIFO_CFG_0, SPI_FIFO_CFG_0_RX_CLR
               | SPI_FIFO_CFG_0_TX_CLR, 0);
+
+#ifdef PINEDIO_STACK_BL604 /* BL604 (With SPI Device Table) */
+  /* deselect all spi devices */
+
+  bl602_spi_deselect_devices();
+#endif /* PINEDIO_STACK_BL604 */
 }
 
 /****************************************************************************
@@ -1321,6 +1332,142 @@ int bl602_spibus_uninitialize(struct spi_dev_s *dev)
   return OK;
 }
 
-#if defined(CONFIG_LCD_ST7789) && defined(CONFIG_INPUT_CST816S)
-#error PineDio Stack BL604 must use SPI Device Table: https://github.com/lupyuen/incubator-nuttx/blob/pinedio/arch/risc-v/src/bl602/bl602_spi.c
-#endif /* CONFIG_LCD_ST7789 && CONFIG_INPUT_CST816S */
+#ifdef PINEDIO_STACK_BL604 /* BL604 (With SPI Device Table) */
+/****************************************************************************
+ * Name: bl602_spi_select
+ *
+ * Description:
+ *   Enable/disable the SPI chip select.  The implementation of this method
+ *   must include handshaking:  If a device is selected, it must hold off
+ *   all other attempts to select the device until the device is deselected.
+ *
+ *   If disable bl602_SPI_SWCS, driver will use hardware CS so that when
+ *   once transmission is started, hardware select the device and when this
+ *   transmission is done, hardware deselect the device automatically. And
+ *   the function will do nothing.
+ *
+ * Input Parameters:
+ *   priv     - Private SPI device structure
+ *   devid    - Identifies the device to select
+ *   selected - true: slave selected, false: slave de-selected
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void bl602_spi_select(struct spi_dev_s *dev, uint32_t devid,
+                             bool selected)
+{
+  const int32_t *spidev;
+
+  spiinfo("devid: %lu, CS: %s\n", devid, selected ? "select" : "free");
+
+  /* get device from SPI Device Table */
+
+  spidev = bl602_spi_get_device(devid);
+  DEBUGASSERT(spidev != NULL);
+
+  /* swap MISO and MOSI if needed */
+
+  if (selected)
+    {
+      bl602_swap_spi_0_mosi_with_miso(spidev[SWAP_COL]);
+    }
+
+  /* set Chip Select */
+
+  bl602_gpiowrite(spidev[CS_COL], !selected);
+
+#ifdef CONFIG_SPI_CMDDATA
+  /* revert MISO and MOSI from GPIO Pins to SPI Pins */
+
+  if (!selected)
+    {
+      bl602_configgpio(BOARD_SPI_MISO);
+      bl602_configgpio(BOARD_SPI_MOSI);
+    }
+#endif
+}
+#endif /* PINEDIO_STACK_BL604 */
+
+#ifdef PINEDIO_STACK_BL604 /* BL604 (With SPI Device Table) */
+/****************************************************************************
+ * Name: bl602_spi_cmddata
+ *
+ * Description:
+ *   Some devices require an additional out-of-band bit to specify if the
+ *   next word sent to the device is a command or data. This is typical, for
+ *   example, in "9-bit" displays where the 9th bit is the CMD/DATA bit.
+ *   This function provides selection of command or data.
+ *
+ *   This "latches" the CMD/DATA state.  It does not have to be called before
+ *   every word is transferred; only when the CMD/DATA state changes.  This
+ *   method is required if CONFIG_SPI_CMDDATA is selected in the NuttX
+ *   configuration
+ *
+ *   This function reconfigures MISO/MOSI from SPI Pin to GPIO Pin, and sets
+ *   MISO/MOSI to high (data) or low (command). bl602_spi_select() will
+ *   revert MISO/MOSI back from GPIO Pin to SPI Pin.  We must revert because
+ *   the SPI Bus may be used by other drivers.
+ *
+ * Input Parameters:
+ *   dev - Device-specific state data
+ *   cmd - TRUE: The following word is a command; FALSE: the following words
+ *         are data.
+ *
+ * Returned Value:
+ *   OK unless an error occurs.  Then a negated errno value is returned
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SPI_CMDDATA
+static int bl602_spi_cmddata(struct spi_dev_s *dev,
+                              uint32_t devid, bool cmd)
+{
+  spiinfo("devid: %" PRIu32 " CMD: %s\n", devid, cmd ? "command" :
+          "data");
+
+  if (devid == SPIDEV_DISPLAY(0))
+    {
+      const int32_t *spidev;
+      gpio_pinset_t dc;
+      gpio_pinset_t gpio;
+      int ret;
+
+      /* get device from SPI Device Table */
+
+      spidev = bl602_spi_get_device(devid);
+      DEBUGASSERT(spidev != NULL);
+
+      /* if MISO/MOSI are swapped, DC is MISO, else MOSI */
+
+      dc = spidev[SWAP_COL] ? BOARD_SPI_MISO : BOARD_SPI_MOSI;
+
+      /* reconfigure DC from SPI Pin to GPIO Pin */
+
+      gpio = (dc & GPIO_PIN_MASK)
+             | GPIO_OUTPUT | GPIO_PULLUP | GPIO_FUNC_SWGPIO;
+      ret = bl602_configgpio(gpio);
+      if (ret < 0)
+        {
+          spierr("Failed to configure MISO as GPIO\n");
+          DEBUGPANIC();
+
+          return ret;
+        }
+
+      /* set DC to high (data) or low (command) */
+
+      bl602_gpiowrite(gpio, !cmd);
+
+      return OK;
+    }
+
+  spierr("SPI cmddata not supported\n");
+  DEBUGPANIC();
+
+  return -ENODEV;
+}
+#endif
+#endif /* PINEDIO_STACK_BL604 */
