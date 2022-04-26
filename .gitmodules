@@ -23,3 +23,6 @@
 [submodule "drivers/input/cst816s"]
 	path = drivers/input/cst816s
 	url = https://github.com/lupyuen/cst816s-nuttx
+[submodule "drivers/ioexpander/bl602_expander"]
+	path = drivers/ioexpander/bl602_expander
+	url = https://github.com/lupyuen/bl602_expander
