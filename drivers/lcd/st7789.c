@@ -52,6 +52,7 @@
 /* Verify that all configuration requirements have been met */
 
 #ifdef CONFIG_BL602_SPI0
+#  undef CONFIG_LCD_ST7789_SPIMODE
 #  if defined(BOARD_LCD_SWAP) && BOARD_LCD_SWAP == 0  /* If MISO/MOSI not swapped... */
 #    warning Using SPI Mode 1 for ST7789 on BL602 (MISO/MOSI not swapped)
 #    define CONFIG_LCD_ST7789_SPIMODE SPIDEV_MODE1  /* SPI Mode 1: Workaround for BL602 */
@@ -778,9 +779,7 @@ FAR struct lcd_dev_s *st7789_lcdinitialize(FAR struct spi_dev_s *spi)
   st7789_bpp(priv, ST7789_BPP);
   st7789_setorientation(priv);
   st7789_display(priv, true);
-  #warning Revert Fill
-  //// TODO: st7789_fill(priv, 0xffff);
-  st7789_fill(priv, 0xaaaa);  //// TODO
+  st7789_fill(priv, 0xaaaa); /* Pink Screen at startup */
 
   return &priv->dev;
 }
