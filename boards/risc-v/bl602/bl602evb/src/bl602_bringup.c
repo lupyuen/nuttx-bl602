@@ -106,6 +106,12 @@
 #include <nuttx/input/cst816s.h>
 #endif /* CONFIG_INPUT_CST816S */
 
+#ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
+#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/ioexpander/bl602_expander.h>
+FAR struct ioexpander_dev_s *bl602_expander = NULL;
+#endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
+
 #include "chip.h"
 #include "../include/board.h"
 
@@ -116,6 +122,104 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+#ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
+/* GPIO Input Pins for BL602 GPIO Expander */
+
+static const gpio_pinset_t bl602_gpio_inputs[] =
+{
+#ifdef BOARD_SX1262_BUSY
+  BOARD_SX1262_BUSY,
+#endif  /* BOARD_SX1262_BUSY */
+};
+
+/* GPIO Output Pins for BL602 GPIO Expander */
+
+static const gpio_pinset_t bl602_gpio_outputs[] =
+{
+#ifdef BOARD_LCD_CS
+  BOARD_LCD_CS,
+#endif  /* BOARD_LCD_CS */
+#ifdef BOARD_LCD_RST
+  BOARD_LCD_RST,
+#endif  /* BOARD_LCD_RST */
+#ifdef BOARD_LCD_BL
+  BOARD_LCD_BL,
+#endif  /* BOARD_LCD_BL */
+#ifdef BOARD_SX1262_CS
+  BOARD_SX1262_CS,
+#endif  /* BOARD_SX1262_CS */
+#ifdef BOARD_FLASH_CS
+  BOARD_FLASH_CS,
+#endif  /* BOARD_FLASH_CS */
+};
+
+/* GPIO Interrupt Pins for BL602 GPIO Expander */
+
+static const gpio_pinset_t bl602_gpio_interrupts[] =
+{
+#ifdef BOARD_TOUCH_INT
+  BOARD_TOUCH_INT,
+#endif  /* BOARD_TOUCH_INT */
+#ifdef BOARD_BUTTON_INT
+  BOARD_BUTTON_INT,
+#endif  /* BOARD_BUTTON_INT */
+#ifdef BOARD_SX1262_DIO1
+  BOARD_SX1262_DIO1,
+#endif  /* BOARD_SX1262_DIO1 */
+};
+
+/* Other Pins for BL602 GPIO Expander (For Validation Only) */
+
+static const gpio_pinset_t bl602_other_pins[] =
+{
+#ifdef BOARD_UART_0_RX_PIN
+  BOARD_UART_0_RX_PIN,
+#endif  /* BOARD_UART_0_RX_PIN */
+#ifdef BOARD_UART_0_TX_PIN
+  BOARD_UART_0_TX_PIN,
+#endif  /* BOARD_UART_0_TX_PIN */
+#ifdef BOARD_UART_1_RX_PIN
+  BOARD_UART_1_RX_PIN,
+#endif  /* BOARD_UART_1_RX_PIN */
+#ifdef BOARD_UART_1_TX_PIN
+  BOARD_UART_1_TX_PIN,
+#endif  /* BOARD_UART_1_TX_PIN */
+#ifdef BOARD_PWM_CH0_PIN
+  BOARD_PWM_CH0_PIN,
+#endif  /* BOARD_PWM_CH0_PIN */
+#ifdef BOARD_PWM_CH1_PIN
+  BOARD_PWM_CH1_PIN,
+#endif  /* BOARD_PWM_CH1_PIN */
+#ifdef BOARD_PWM_CH2_PIN
+  BOARD_PWM_CH2_PIN,
+#endif  /* BOARD_PWM_CH2_PIN */
+#ifdef BOARD_PWM_CH3_PIN
+  BOARD_PWM_CH3_PIN,
+#endif  /* BOARD_PWM_CH3_PIN */
+#ifdef BOARD_PWM_CH4_PIN
+  BOARD_PWM_CH4_PIN,
+#endif  /* BOARD_PWM_CH4_PIN */
+#ifdef BOARD_I2C_SCL
+  BOARD_I2C_SCL,
+#endif  /* BOARD_I2C_SCL */
+#ifdef BOARD_I2C_SDA
+  BOARD_I2C_SDA,
+#endif  /* BOARD_I2C_SDA */
+#ifdef BOARD_SPI_CS
+  BOARD_SPI_CS,
+#endif  /* BOARD_SPI_CS */
+#ifdef BOARD_SPI_MOSI
+  BOARD_SPI_MOSI,
+#endif  /* BOARD_SPI_MOSI */
+#ifdef BOARD_SPI_MISO
+  BOARD_SPI_MISO,
+#endif  /* BOARD_SPI_MISO */
+#ifdef BOARD_SPI_CLK
+  BOARD_SPI_CLK,
+#endif  /* BOARD_SPI_CLK */
+};
+#endif  /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_BL602_SPI0
 /* SPI Device Table: SPI Device ID, Swap MISO/MOSI, Chip Select */
@@ -635,7 +739,7 @@ int bl602_bringup(void)
     }
 #endif
 
-#ifdef CONFIG_DEV_GPIO
+#if defined(CONFIG_DEV_GPIO) && !defined(CONFIG_GPIO_LOWER_HALF)
   ret = bl602_gpio_initialize();
   if (ret < 0)
     {
@@ -643,6 +747,25 @@ int bl602_bringup(void)
       return ret;
     }
 #endif
+
+#ifdef CONFIG_IOEXPANDER_BL602_EXPANDER
+  /* Must load BL602 GPIO Expander before other drivers */
+
+  bl602_expander = bl602_expander_initialize(
+    bl602_gpio_inputs,
+    sizeof(bl602_gpio_inputs) / sizeof(bl602_gpio_inputs[0]),
+    bl602_gpio_outputs,
+    sizeof(bl602_gpio_outputs) / sizeof(bl602_gpio_outputs[0]),
+    bl602_gpio_interrupts,
+    sizeof(bl602_gpio_interrupts) / sizeof(bl602_gpio_interrupts[0]),
+    bl602_other_pins,
+    sizeof(bl602_other_pins) / sizeof(bl602_other_pins[0]));
+  if (bl602_expander == NULL)
+    {
+      syslog(LOG_ERR, "Failed to initialize GPIO Expander\n");
+      return -ENOMEM;
+    }
+#endif /* CONFIG_IOEXPANDER_BL602_EXPANDER */
 
 #ifdef CONFIG_I2C
   i2c_bus = bl602_i2cbus_initialize(0);
