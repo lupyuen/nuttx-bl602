@@ -114,7 +114,7 @@ static int recv_buffer_len = 0;  /* Length of SPI response */
 
 static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 {
-  _info("\n");
+  spiinfo("\n");
   DEBUGASSERT(spi != NULL);
 
   /* Set SPI Mode (Polarity and Phase) and Transfer Size (8 bits) */
@@ -138,7 +138,7 @@ static inline void spi_test_driver_configspi(FAR struct spi_dev_s *spi)
 
 static int spi_test_driver_open(FAR struct file *filep)
 {
-  _info("\n");
+  spiinfo("\n");
   DEBUGASSERT(filep != NULL);
   return OK;
 }
@@ -153,7 +153,7 @@ static int spi_test_driver_open(FAR struct file *filep)
 
 static int spi_test_driver_close(FAR struct file *filep)
 {
-  _info("\n");
+  spiinfo("\n");
   DEBUGASSERT(filep != NULL);
   return OK;
 }
@@ -169,7 +169,7 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
                                FAR const char *buffer,
                                size_t buflen)
 {
-  _info("buflen=%u\n", buflen);
+  spiinfo("buflen=%u\n", buflen);
   DEBUGASSERT(buflen <= sizeof(recv_buffer));  /* TODO: Range eheck */
   DEBUGASSERT(buffer != NULL);
   DEBUGASSERT(filep  != NULL);
@@ -217,7 +217,7 @@ static ssize_t spi_test_driver_write(FAR struct file *filep,
 static ssize_t spi_test_driver_read(FAR struct file *filep, FAR char *buffer,
                               size_t buflen)
 {
-  _info("buflen=%u\n", buflen);
+  spiinfo("buflen=%u\n", buflen);
   DEBUGASSERT(filep  != NULL);
   DEBUGASSERT(buffer != NULL);
 
@@ -243,7 +243,7 @@ static int spi_test_driver_ioctl(FAR struct file *filep,
                            int cmd,
                            unsigned long arg)
 {
-  _info("cmd=0x%x, arg=0x%lx\n", cmd, arg);
+  spiinfo("cmd=0x%x, arg=0x%lx\n", cmd, arg);
   DEBUGASSERT(filep != NULL);
 
   int ret = OK;
@@ -277,7 +277,7 @@ int spi_test_driver_register(FAR const char *devpath,
                        FAR struct spi_dev_s *spi,
                        int spidev)
 {
-  _info("devpath=%s, spidev=%d\n", devpath, spidev);
+  spiinfo("devpath=%s, spidev=%d\n", devpath, spidev);
   FAR struct spi_test_driver_dev_s *priv;
   int ret;
 
