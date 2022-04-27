@@ -91,10 +91,7 @@ riscv_dispatch_syscall:
   addi       s0, sp, XCPTCONTEXT_SIZE
   REGSTORE   s0, REG_SP(sp)            /* original SP */
 
-#ifdef CONFIG_ARCH_FPU
-  mv         a0, sp
-  jal        x1, riscv_savefpu         /* FP registers */
-#endif
+  riscv_savefpu sp
 
   mv         a0, sp                    /* a0 = context */
 
@@ -112,9 +109,7 @@ riscv_dispatch_syscall:
 
   mv         sp, a0                    /* use sp, as a0 gets wiped */
 
-#ifdef CONFIG_ARCH_FPU
-  jal        x1, riscv_restorefpu      /* FP registers */
-#endif
+  riscv_loadfpu sp
 
   REGLOAD    s0, REG_EPC(sp)           /* restore epc */
   csrw       CSR_EPC, s0

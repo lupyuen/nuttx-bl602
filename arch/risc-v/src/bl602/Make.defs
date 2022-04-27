@@ -51,6 +51,7 @@ CMN_CSRCS += riscv_fpucmp.c
 endif
 
 ifeq ($(CONFIG_ARCH_HAVE_VFORK),y)
+CMN_ASRCS += vfork.S
 CMN_CSRCS += riscv_vfork.c
 endif
 
@@ -118,11 +119,6 @@ CHIP_CSRCS += bl602_netdev.c
 
 EXTRA_LIBPATHS += -L $(ARCH_SRCDIR)$(DELIM)chip$(DELIM)$(WIRELESS_DRV_UNPACK)$(DELIM)libs$(DELIM)BL602$(DELIM)nuttx
 EXTRA_LIBS += -lbl602_wifi -lbl602_wifi_manage -lblecontroller
-
-# Due to some Wi-Fi related libraries, the option is need to avoid linking too much
-# unused functions.
-
-LDFLAGS += --gc-sections
 
 ifeq ($(CONFIG_BL602_WIRELESS_DEBUG),y)
 LDFLAGS += -defsym _wifi_log_flag=1
