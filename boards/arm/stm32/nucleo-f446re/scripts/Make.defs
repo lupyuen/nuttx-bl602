@@ -26,17 +26,10 @@ LDSCRIPT = f446re.ld
 
 ARCHSCRIPT += $(BOARD_DIR)$(DELIM)scripts$(DELIM)$(LDSCRIPT)
 
-ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
-  ARCHOPTIMIZATION = -g
-  LDFLAGS += -g
-endif
-
 ifneq ($(CONFIG_DEBUG_NOOPT),y)
   ARCHOPTIMIZATION += $(MAXOPTIMIZATION) -fno-strict-aliasing
 endif
 
-ARCHCFLAGS += -fno-common
-ARCHCXXFLAGS += -fno-common
 
 ifeq ($(CONFIG_ARMV7M_TOOLCHAIN_CLANG),y)
   ARCHCFLAGS += -nostdlib -ffreestanding

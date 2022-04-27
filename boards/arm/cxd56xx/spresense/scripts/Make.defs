@@ -36,16 +36,12 @@ ARCHSCRIPT += $(BOARD_DIR)$(DELIM)scripts$(DELIM)$(LDSCRIPT)
 MKNXFLAT = mknxflat
 LDNXFLAT = ldnxflat
 
-ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
-  ARCHOPTIMIZATION = -g
-endif
-
 ifneq ($(CONFIG_DEBUG_NOOPT),y)
   ARCHOPTIMIZATION += $(MAXOPTIMIZATION) -fno-strict-aliasing
 endif
 
-ARCHCFLAGS += -fno-common -mabi=aapcs
-ARCHCXXFLAGS += -fno-common -std=c++11
+ARCHCFLAGS += -mabi=aapcs
+ARCHCXXFLAGS += -std=c++11
 ARCHWARNINGS = -Wall -Wstrict-prototypes -Wshadow -Wundef
 ARCHWARNINGSXX = -Wall -Wshadow -Wundef
 ARCHPICFLAGS = -fpic -msingle-pic-base -mpic-register=r10
@@ -74,13 +70,7 @@ CELFFLAGS = $(CFLAGS)
 CXXELFFLAGS = $(CXXFLAGS)
 
 LDELFFLAGS = -r -e main
-LDELFFLAGS += -T $(call CONVERT_PATH,$(BOARD_DIR)$(DELIM)scripts$(DELIM)gnu-elf.ld)
-
-ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
-  CFLAGS += -gdwarf-3
-  CXXFLAGS += -gdwarf-3
-  LDFLAGS += -g
-endif
+LDELFFLAGS += -T $(call CONVERT_PATH,$(TOPDIR)/binfmt/libelf/gnu-elf.ld)
 
 # Output map file with cross reference table
 

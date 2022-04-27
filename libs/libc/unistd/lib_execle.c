@@ -1,5 +1,5 @@
 /****************************************************************************
- * sched/task/task_execv.c
+ * libs/libc/unistd/lib_execle.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,18 +24,27 @@
 
 #include <nuttx/config.h>
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <debug.h>
 
-#include <nuttx/binfmt/binfmt.h>
-#include <nuttx/binfmt/symtab.h>
+#include "libc.h"
 
 #ifdef CONFIG_LIBC_EXECFUNCS
 
 /****************************************************************************
  * Pre-processor Definitions
+ ****************************************************************************/
+
+/* This is an artificial limit to detect error conditions where an argv[]
+ * list is not properly terminated.
+ */
+
+#define MAX_EXECL_ARGS 256
+
+/****************************************************************************
+ * Public Data
  ****************************************************************************/
 
 /****************************************************************************
@@ -47,7 +56,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: execv
+ * Name: execle
  *
  * Description:
  *   The standard 'exec' family of functions will replace the current process
@@ -75,15 +84,12 @@
  *   The non-standard binfmt function 'exec()' needs to have (1) a symbol
  *   table that provides the list of symbols exported by the base code, and
  *   (2) the number of symbols in that table.  This information is currently
- *   provided to 'exec()' from 'exec[l|v]()' via NuttX configuration
- *   settings:
+ *   provided to 'exec()' from 'exec[l|v]()' via NuttX configuration setting:
  *
- *     CONFIG_LIBC_EXECFUNCS          : Enable exec[l|v] support
- *     CONFIG_EXECFUNCS_HAVE_SYMTAB   : Defined if there is a pre-defined
- *                                      symbol table
- *     CONFIG_EXECFUNCS_SYMTAB_ARRAY  : Symbol table name used by exec[l|v]
- *     CONFIG_EXECFUNCS_NSYMBOLS_VAR  : Variable holding number of symbols
- *                                      in the table
+ *     CONFIG_LIBC_EXECFUNCS         : Enable exec[l|v] support
+ *     CONFIG_EXECFUNCS_SYMTAB_ARRAY : Symbol table name used by exec[l|v]
+ *     CONFIG_EXECFUNCS_NSYMBOLS_VAR : Variable holding number of symbols in
+ *                                     the table
  *
  *   As a result of the above, the current implementations of 'execl()' and
  *   'execv()' suffer from some incompatibilities that may or may not be
@@ -98,8 +104,8 @@
  *     is defined in the configuration, then this may be a relative path
  *     from the current working directory.  Otherwise, path must be the
  *     absolute path to the program.
- *   argv - A pointer to an array of string arguments.  The end of the
- *     array is indicated with a NULL entry.
+ *   ... - A list of the string arguments to be recevied by the
+ *     program.  Zero indicates the end of the list.
  *
  * Returned Value:
  *   This function does not return on success.  On failure, it will return
@@ -107,35 +113,71 @@
  *
  ****************************************************************************/
 
-int execv(FAR const char *path, FAR char * const argv[])
+int execle(FAR const char *path, FAR const char *arg0, ...)
 {
-  FAR const struct symtab_s *symtab;
-  int nsymbols;
+  FAR char *arg = (FAR char *)arg0;
+  FAR char **argv;
+  FAR char **envp;
+  size_t nargs;
+  va_list ap;
+  int argc;
   int ret;
 
-  /* Get the current symbol table selection */
+  /* Count the number of arguments */
 
-  exec_getsymtab(&symtab, &nsymbols);
+  va_start(ap, arg0);
+  nargs = 0;
 
-  /* Start the task */
-
-  ret = exec(path, (FAR char * const *)argv, symtab, nsymbols);
-  if (ret < 0)
+  while (arg != NULL)
     {
-      serr("ERROR: exec failed: %d\n", get_errno());
+      /* Yes.. increment the number of arguments.  Here is a sanity
+       * check to prevent running away with an unterminated argv[] list.
+       * MAX_EXECL_ARGS should be sufficiently large that this never
+       * happens in normal usage.
+       */
+
+      if (++nargs > MAX_EXECL_ARGS)
+        {
+          set_errno(E2BIG);
+          va_end(ap);
+          return ERROR;
+        }
+
+      arg = va_arg(ap, FAR char *);
+    }
+
+  envp = va_arg(ap, FAR char **);
+  va_end(ap);
+
+  /* Allocate a temporary argv[] array */
+
+  argv = (FAR char **)lib_malloc((nargs + 1) * sizeof(FAR char *));
+  if (argv == NULL)
+    {
+      set_errno(ENOMEM);
       return ERROR;
     }
 
-  /* Then exit */
+  argv[0] = (FAR char *)arg0;
 
-  exit(0);
+  /* Collect the arguments into the argv[] array */
 
-  /* We should not get here, but might be needed by some compilers.  Other,
-   * smarter compilers might complain that this code is unreachable.  You
-   * just can't win.
-   */
+  va_start(ap, arg0);
+  for (argc = 1; argc <= nargs; argc++)
+    {
+      argv[argc] = va_arg(ap, FAR char *);
+    }
 
-  return ERROR;
+  va_end(ap);
+
+  /* Then let execve() do the real work */
+
+  ret = execve(path, argv, envp);
+
+  /* Free the allocated argv[] list */
+
+  lib_free(argv);
+  return ret;
 }
 
 #endif /* CONFIG_LIBC_EXECFUNCS */
