@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/xtensa/src/common/xtensa_copystate.c
+ * arch/risc-v/src/common/riscv_semihost.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,40 +19,22 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Included Files
+ * Name: smh_call
+ *
+ * Description:
+ *   Semihosting call with call number and one parameter
+ *
  ****************************************************************************/
 
-#include <nuttx/config.h>
+  .option norvc
+  .text
+  .balign 16
+  .global smh_call
+  .type smh_call @function
 
-#include <stdint.h>
-#include <arch/irq.h>
+smh_call:
 
-#include "xtensa.h"
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: xtensa_copystate
- ****************************************************************************/
-
-/* A little faster than most memcpy's */
-
-void xtensa_copystate(uint32_t *dest, uint32_t *src)
-{
-  int i;
-
-  /* In the XTENSA model, the state is copied from the stack to the TCB,
-   * but only a reference is passed to get the state from the TCB.  So the
-   * following check avoids copying the TCB save area onto itself:
-   */
-
-  if (src != dest)
-    {
-      for (i = 0; i < XCPTCONTEXT_REGS; i++)
-        {
-          *dest++ = *src++;
-        }
-    }
-}
+  slli zero, zero, 0x1f
+  ebreak
+  srai zero, zero, 0x7
+  ret

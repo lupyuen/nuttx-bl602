@@ -22,6 +22,10 @@
 
 CMN_ASRCS += mpfs_head.S riscv_vectors.S riscv_exception_common.S riscv_testset.S
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+STARTUP_OBJS = crt0$(OBJEXT)
+endif
+
 # Specify C code within the common directory to be included
 CMN_CSRCS += riscv_initialize.c riscv_swint.c
 CMN_CSRCS += riscv_createstack.c riscv_exit.c riscv_exception.c
@@ -73,6 +77,10 @@ CHIP_CSRCS += mpfs_userspace.c
 CMN_UASRCS += riscv_signal_handler.S
 endif
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+CHIP_CSRCS += mpfs_mm_init.c
+endif
+
 ifneq ($(CONFIG_BUILD_FLAT),y)
 CMN_CSRCS += riscv_task_start.c
 CMN_CSRCS += riscv_pthread_start.c
@@ -89,6 +97,14 @@ endif
 
 ifeq ($(CONFIG_ARCH_KERNEL_STACK),y)
 CMN_CSRCS += riscv_addrenv_kstack.c
+endif
+
+ifeq ($(CONFIG_ARCH_ADDRENV),y)
+CMN_CSRCS += riscv_addrenv.c riscv_pgalloc.c riscv_addrenv_perms.c
+endif
+
+ifeq ($(CONFIG_MM_PGALLOC),y)
+CHIP_CSRCS += mpfs_pgalloc.c
 endif
 
 ifeq ($(CONFIG_SPI),y)
