@@ -48,6 +48,17 @@ jobs:
         git clone https://github.com/apache/incubator-nuttx nuttx
         git clone https://github.com/apache/incubator-nuttx-apps apps
           
+    - name: Update BL602 Pins
+      run: |
+        ## BL602 Pin Definitions and Bringup
+        board=nuttx/nuttx/boards/risc-v/bl602/bl602evb/include/board.h
+        bringup=nuttx/nuttx/boards/risc-v/bl602/bl602evb/src/bl602_bringup.c
+
+        ## Preserve the Pin Definitions and Bringup
+        cp $board nuttx/nuttx/nuttx.board
+        cp $bringup nuttx/nuttx/nuttx.bringup
+        cat $board
+
     - name: Build
       run: |
         ## Add toolchain to PATH
