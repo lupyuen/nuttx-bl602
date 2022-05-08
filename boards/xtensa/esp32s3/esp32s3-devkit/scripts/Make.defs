@@ -29,10 +29,9 @@ ARCHSCRIPT += $(BOARD_DIR)$(DELIM)scripts$(DELIM)esp32s3_rom.ld
 ARCHSCRIPT += $(BOARD_DIR)$(DELIM)scripts$(DELIM)esp32s3_peripherals.ld
 
 ifneq ($(CONFIG_DEBUG_NOOPT),y)
-  ARCHOPTIMIZATION += $(MAXOPTIMIZATION) -fno-strict-aliasing -fno-strength-reduce
+  ARCHOPTIMIZATION += -fno-strength-reduce
 endif
 
-ARCHCXXFLAGS += -std=c++17
 ARCHWARNINGS = -Wall -Wstrict-prototypes -Wshadow -Wundef
 ARCHWARNINGSXX = -Wall -Wshadow -Wundef
 ARCHPICFLAGS = -fpic
