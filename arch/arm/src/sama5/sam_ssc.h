@@ -76,7 +76,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct i2s_dev_s *sam_ssc_initialize(int port);
+FAR struct i2s_dev_s *sam_ssc_initialize(int port);
 
 #undef EXTERN
 #if defined(__cplusplus)

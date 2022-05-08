@@ -56,7 +56,7 @@
 
 int lpc31_mmcsd_initialize(int slot, int minor)
 {
-  struct sdio_dev_s *sdio;
+  FAR struct sdio_dev_s *sdio;
   int ret;
 
   /* First, get an instance of the SDIO interface */

@@ -88,7 +88,7 @@ static const uint32_t g_pinlist1[2]  =
 int stm32_adc_setup(void)
 {
   static bool initialized = false;
-  struct adc_dev_s *adc;
+  FAR struct adc_dev_s *adc;
   int ret;
   int i;
 

@@ -57,7 +57,7 @@ extern "C"
 
 #if defined(CONFIG_CAN) && (defined(CONFIG_LPC43_CAN0) || defined(CONFIG_LPC43_CAN1))
 struct can_dev_s;
-struct can_dev_s *lpc43_caninitialize(int port);
+FAR struct can_dev_s *lpc43_caninitialize(int port);
 #endif
 
 #ifdef __cplusplus

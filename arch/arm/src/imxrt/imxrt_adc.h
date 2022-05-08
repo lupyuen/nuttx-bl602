@@ -67,9 +67,9 @@ extern "C"
  ****************************************************************************/
 
 #ifdef CONFIG_IMXRT_ADC
-struct adc_dev_s *imxrt_adcinitialize(int intf,
-                                      const uint8_t *chanlist,
-                                      int nchannels);
+FAR struct adc_dev_s *imxrt_adcinitialize(int intf,
+                                          FAR const uint8_t *chanlist,
+                                          int nchannels);
 #endif
 
 #undef EXTERN

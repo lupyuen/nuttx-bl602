@@ -62,15 +62,15 @@ struct stm32_foc_adc_s
 
   /* The list of ADC channels (regular first, then injected) */
 
-  uint8_t *chan;
+  FAR uint8_t *chan;
 
   /* The list of ADC pins */
 
-  uint32_t *pins;
+  FAR uint32_t *pins;
 
   /* The list of ADC channels sample time configuration */
 
-  adc_channel_t *stime;
+  FAR adc_channel_t *stime;
 };
 
 /* Board-specific operations.
@@ -83,37 +83,37 @@ struct stm32_foc_board_ops_s
 {
   /* Board-specific setup */
 
-  int (*setup)(struct foc_dev_s *dev);
+  CODE int (*setup)(FAR struct foc_dev_s *dev);
 
   /* Board-specific shutdown */
 
-  int (*shutdown)(struct foc_dev_s *dev);
+  CODE int (*shutdown)(FAR struct foc_dev_s *dev);
 
   /* Board-specific calibration setup */
 
-  int (*calibration)(struct foc_dev_s *dev, bool state);
+  CODE int (*calibration)(FAR struct foc_dev_s *dev, bool state);
 
   /* Board-specific fault clear */
 
-  int (*fault_clear)(struct foc_dev_s *dev);
+  CODE int (*fault_clear)(FAR struct foc_dev_s *dev);
 
   /* Board-specific PWM start */
 
-  int (*pwm_start)(struct foc_dev_s *dev, bool state);
+  CODE int (*pwm_start)(FAR struct foc_dev_s *dev, bool state);
 
   /* Get phase currents */
 
-  int (*current_get)(struct foc_dev_s *dev, int16_t *curr_raw,
-                     foc_current_t *curr);
+  CODE int (*current_get)(FAR struct foc_dev_s *dev, FAR int16_t *curr_raw,
+                          FAR foc_current_t *curr);
 
 #ifdef CONFIG_MOTOR_FOC_TRACE
   /* FOC trace interface setup */
 
-  int (*trace_init)(struct foc_dev_s *dev);
+  CODE int (*trace_init)(FAR struct foc_dev_s *dev);
 
   /* FOC trace */
 
-  void (*trace)(struct foc_dev_s *dev, int type, bool state);
+  CODE void (*trace)(FAR struct foc_dev_s *dev, int type, bool state);
 #endif
 };
 
@@ -123,7 +123,7 @@ struct stm32_foc_board_data_s
 {
   /* ADC configuration */
 
-  struct stm32_foc_adc_s *adc_cfg;
+  FAR struct stm32_foc_adc_s *adc_cfg;
 
   /* PWM deadtime register value */
 
@@ -144,11 +144,11 @@ struct stm32_foc_board_s
 {
   /* Board-specific FOC operations */
 
-  struct stm32_foc_board_ops_s *ops;
+  FAR struct stm32_foc_board_ops_s *ops;
 
   /* Board-specific FOC data */
 
-  struct stm32_foc_board_data_s *data;
+  FAR struct stm32_foc_board_data_s *data;
 };
 
 /****************************************************************************
@@ -170,14 +170,14 @@ extern "C"
  * Name: stm32_foc_initialize
  ****************************************************************************/
 
-struct foc_dev_s *
-stm32_foc_initialize(int inst, struct stm32_foc_board_s *board);
+FAR struct foc_dev_s *
+stm32_foc_initialize(int inst, FAR struct stm32_foc_board_s *board);
 
 /****************************************************************************
  * Name: stm32_foc_adcget
  ****************************************************************************/
 
-struct adc_dev_s *stm32_foc_adcget(struct foc_dev_s *dev);
+FAR struct adc_dev_s *stm32_foc_adcget(FAR struct foc_dev_s *dev);
 
 #undef EXTERN
 #if defined(__cplusplus)

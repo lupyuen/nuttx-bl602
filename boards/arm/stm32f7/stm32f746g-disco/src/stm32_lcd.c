@@ -91,7 +91,7 @@ int up_fbinitialize(int display)
  *
  ****************************************************************************/
 
-struct fb_vtable_s *up_fbgetvplane(int display, int vplane)
+FAR struct fb_vtable_s *up_fbgetvplane(int display, int vplane)
 {
   return stm32_ltdcgetvplane(vplane);
 }

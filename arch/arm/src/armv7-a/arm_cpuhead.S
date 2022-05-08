@@ -94,7 +94,8 @@
 __cpu1_start:
 	/* Make sure that we are in SYS mode with IRQs and FIQs disabled */
 
-	cpsid		if, #PSR_MODE_SYS
+	mov		r0, #(PSR_MODE_SYS | PSR_I_BIT | PSR_F_BIT)
+	msr		cpsr_c, r0
 
 	/* Set up the stack pointer and the CPU index */
 
@@ -117,7 +118,8 @@ __cpu1_start:
 __cpu2_start:
 	/* Make sure that we are in SYS mode with IRQs and FIQs disabled */
 
-	cpsid		if, #PSR_MODE_SYS
+	mov		r0, #(PSR_MODE_SYS | PSR_I_BIT | PSR_F_BIT)
+	msr		cpsr_c, r0
 
 	/* Set up the stack pointer and the CPU index */
 
@@ -140,7 +142,8 @@ __cpu2_start:
 __cpu3_start:
 	/* Make sure that we are in SYS mode with IRQs and FIQs disabled */
 
-	cpsid		if, #PSR_MODE_SYS
+	mov		r0, #(PSR_MODE_SYS | PSR_I_BIT | PSR_F_BIT)
+	msr		cpsr_c, r0
 
 	/* Set up the stack pointer and the CPU index */
 
@@ -441,7 +444,7 @@ __cpu3_start:
 #ifdef CONFIG_STACK_COLORATION
 	.type	.Lstkinit, %object
 .Lstkinit:
-	.long	SMP_STACK_WORDS - (XCPTCONTEXT_SIZE / 4)
+	.long	SMP_STACK_WORDS
 	.long	STACK_COLOR				/* Stack coloration word */
 	.size	.Lstkinit, . -.Lstkinit
 #endif

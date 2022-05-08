@@ -153,7 +153,7 @@ int stm32l4_adc_measure_voltages(uint32_t *vrefint, uint32_t *vbat,
                                  uint32_t *vext)
 {
   struct adc_msg_s sample[ADC1_NCHANNELS];
-  struct file filestruct;
+  FAR struct file filestruct;
   ssize_t nbytes;
   int nsamples;
   int ret;

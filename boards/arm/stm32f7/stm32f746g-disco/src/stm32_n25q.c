@@ -75,8 +75,8 @@
 
 int stm32_n25qxxx_setup(void)
 {
-  struct qspi_dev_s *qspi_dev;
-  struct mtd_dev_s *mtd_dev;
+  FAR struct qspi_dev_s *qspi_dev ;
+  FAR struct mtd_dev_s *mtd_dev;
   int ret = -1;
 
   qspi_dev = stm32f7_qspi_initialize(0);

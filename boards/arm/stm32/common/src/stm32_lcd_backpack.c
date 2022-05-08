@@ -58,9 +58,9 @@
 
 int board_lcd_backpack_init(int devno, int busno, int rows, int cols)
 {
-  struct pcf8574_lcd_backpack_config_s cfg =
+  FAR struct pcf8574_lcd_backpack_config_s cfg =
              LCD_I2C_BACKPACK_CFG_SAINSMART;
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   char devpath[12];
   int ret;
 

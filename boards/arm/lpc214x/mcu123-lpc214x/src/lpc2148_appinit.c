@@ -113,7 +113,7 @@
 int board_app_initialize(uintptr_t arg)
 {
 #ifdef HAVE_MMCSD
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   int ret;
 
   /* Get the SPI port */

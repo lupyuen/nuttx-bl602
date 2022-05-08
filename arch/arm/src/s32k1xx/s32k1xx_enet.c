@@ -239,7 +239,7 @@
 
 /* This is a helper pointer for accessing the contents of Ethernet header */
 
-#define BUF ((struct eth_hdr_s *)priv->dev.d_buf)
+#define BUF ((FAR struct eth_hdr_s *)priv->dev.d_buf)
 
 #define S32K1XX_BUF_SIZE  ENET_ALIGN_UP(CONFIG_NET_ETH_PKTSIZE)
 
@@ -313,26 +313,26 @@ static inline uint16_t s32k1xx_swap16(uint16_t value);
 
 /* Common TX logic */
 
-static bool s32k1xx_txringfull(struct s32k1xx_driver_s *priv);
-static int  s32k1xx_transmit(struct s32k1xx_driver_s *priv);
+static bool s32k1xx_txringfull(FAR struct s32k1xx_driver_s *priv);
+static int  s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv);
 static int  s32k1xx_txpoll(struct net_driver_s *dev);
 
 /* Interrupt handling */
 
-static void s32k1xx_dispatch(struct s32k1xx_driver_s *priv);
-static void s32k1xx_receive(struct s32k1xx_driver_s *priv);
-static void s32k1xx_txdone(struct s32k1xx_driver_s *priv);
+static void s32k1xx_dispatch(FAR struct s32k1xx_driver_s *priv);
+static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv);
+static void s32k1xx_txdone(FAR struct s32k1xx_driver_s *priv);
 
-static void s32k1xx_enet_interrupt_work(void *arg);
-static int  s32k1xx_enet_interrupt(int irq, void *context,
-                                   void *arg);
+static void s32k1xx_enet_interrupt_work(FAR void *arg);
+static int  s32k1xx_enet_interrupt(int irq, FAR void *context,
+                                   FAR void *arg);
 
 /* Watchdog timer expirations */
 
-static void s32k1xx_txtimeout_work(void *arg);
+static void s32k1xx_txtimeout_work(FAR void *arg);
 static void s32k1xx_txtimeout_expiry(wdparm_t arg);
 
-static void s32k1xx_poll_work(void *arg);
+static void s32k1xx_poll_work(FAR void *arg);
 static void s32k1xx_polltimer_expiry(wdparm_t arg);
 
 /* NuttX callback functions */
@@ -340,7 +340,7 @@ static void s32k1xx_polltimer_expiry(wdparm_t arg);
 static int  s32k1xx_ifup(struct net_driver_s *dev);
 static int  s32k1xx_ifdown(struct net_driver_s *dev);
 
-static void s32k1xx_txavail_work(void *arg);
+static void s32k1xx_txavail_work(FAR void *arg);
 static int  s32k1xx_txavail(struct net_driver_s *dev);
 
 /* Internal ifup function that allows phy reset to be optional */
@@ -348,8 +348,9 @@ static int  s32k1xx_txavail(struct net_driver_s *dev);
 static int s32k1xx_ifup_action(struct net_driver_s *dev, bool resetphy);
 
 #ifdef CONFIG_NET_MCASTGROUP
-static int  s32k1xx_addmac(struct net_driver_s *dev, const uint8_t *mac);
-static int  s32k1xx_rmmac(struct net_driver_s *dev, const uint8_t *mac);
+static int  s32k1xx_addmac(struct net_driver_s *dev,
+              FAR const uint8_t *mac);
+static int  s32k1xx_rmmac(struct net_driver_s *dev, FAR const uint8_t *mac);
 #endif
 
 #ifdef CONFIG_NETDEV_IOCTL
@@ -439,7 +440,7 @@ static inline uint16_t s32k1xx_swap16(uint16_t value)
  *
  ****************************************************************************/
 
-static bool s32k1xx_txringfull(struct s32k1xx_driver_s *priv)
+static bool s32k1xx_txringfull(FAR struct s32k1xx_driver_s *priv)
 {
   uint8_t txnext;
 
@@ -477,7 +478,7 @@ static bool s32k1xx_txringfull(struct s32k1xx_driver_s *priv)
  *
  ****************************************************************************/
 
-static int s32k1xx_transmit(struct s32k1xx_driver_s *priv)
+static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
 {
   struct enet_desc_s *txdesc;
   irqstate_t flags;
@@ -596,8 +597,8 @@ static int s32k1xx_transmit(struct s32k1xx_driver_s *priv)
 
 static int s32k1xx_txpoll(struct net_driver_s *dev)
 {
-  struct s32k1xx_driver_s *priv =
-    (struct s32k1xx_driver_s *)dev->d_private;
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
 
   /* If the polling resulted in data that should be sent out on the network,
    * the field d_len is set to a value > 0.
@@ -671,7 +672,7 @@ static int s32k1xx_txpoll(struct net_driver_s *dev)
  *
  ****************************************************************************/
 
-static inline void s32k1xx_dispatch(struct s32k1xx_driver_s *priv)
+static inline void s32k1xx_dispatch(FAR struct s32k1xx_driver_s *priv)
 {
   /* Update statistics */
 
@@ -808,7 +809,7 @@ static inline void s32k1xx_dispatch(struct s32k1xx_driver_s *priv)
  *
  ****************************************************************************/
 
-static void s32k1xx_receive(struct s32k1xx_driver_s *priv)
+static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv)
 {
   struct enet_desc_s *rxdesc;
   bool received;
@@ -897,7 +898,7 @@ static void s32k1xx_receive(struct s32k1xx_driver_s *priv)
  *
  ****************************************************************************/
 
-static void s32k1xx_txdone(struct s32k1xx_driver_s *priv)
+static void s32k1xx_txdone(FAR struct s32k1xx_driver_s *priv)
 {
   struct enet_desc_s *txdesc;
   uint32_t regval;
@@ -980,9 +981,9 @@ static void s32k1xx_txdone(struct s32k1xx_driver_s *priv)
  *
  ****************************************************************************/
 
-static void s32k1xx_enet_interrupt_work(void *arg)
+static void s32k1xx_enet_interrupt_work(FAR void *arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
   uint32_t pending;
 #ifdef CONFIG_NET_MCASTGROUP
   uint32_t gaurstore;
@@ -1101,9 +1102,9 @@ static void s32k1xx_enet_interrupt_work(void *arg)
  *
  ****************************************************************************/
 
-static int s32k1xx_enet_interrupt(int irq, void *context, void *arg)
+static int s32k1xx_enet_interrupt(int irq, FAR void *context, FAR void *arg)
 {
-  register struct s32k1xx_driver_s *priv = &g_enet[0];
+  register FAR struct s32k1xx_driver_s *priv = &g_enet[0];
 
   /* Disable further Ethernet interrupts.  Because Ethernet interrupts are
    * also disabled if the TX timeout event occurs, there can be no race
@@ -1135,9 +1136,9 @@ static int s32k1xx_enet_interrupt(int irq, void *context, void *arg)
  *
  ****************************************************************************/
 
-static void s32k1xx_txtimeout_work(void *arg)
+static void s32k1xx_txtimeout_work(FAR void *arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
 
   /* Increment statistics and dump debug info */
 
@@ -1179,7 +1180,7 @@ static void s32k1xx_txtimeout_work(void *arg)
 
 static void s32k1xx_txtimeout_expiry(wdparm_t arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
 
   /* Disable further Ethernet interrupts.  This will prevent some race
    * conditions with interrupt work.  There is still a potential race
@@ -1213,9 +1214,9 @@ static void s32k1xx_txtimeout_expiry(wdparm_t arg)
  *
  ****************************************************************************/
 
-static void s32k1xx_poll_work(void *arg)
+static void s32k1xx_poll_work(FAR void *arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
 
   /* Check if there is there is a transmission in progress.  We cannot
    * perform the TX poll if he are unable to accept another packet for
@@ -1259,7 +1260,7 @@ static void s32k1xx_poll_work(void *arg)
 
 static void s32k1xx_polltimer_expiry(wdparm_t arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
 
   /* Schedule to perform the poll processing on the worker thread. */
 
@@ -1289,8 +1290,8 @@ static void s32k1xx_polltimer_expiry(wdparm_t arg)
 
 static int s32k1xx_ifup_action(struct net_driver_s *dev, bool resetphy)
 {
-  struct s32k1xx_driver_s *priv =
-    (struct s32k1xx_driver_s *)dev->d_private;
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
   uint8_t *mac = dev->d_mac.ether.ether_addr_octet;
   uint32_t regval;
   int ret;
@@ -1436,8 +1437,8 @@ static int s32k1xx_ifup(struct net_driver_s *dev)
 
 static int s32k1xx_ifdown(struct net_driver_s *dev)
 {
-  struct s32k1xx_driver_s *priv =
-    (struct s32k1xx_driver_s *)dev->d_private;
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
   irqstate_t flags;
 
   ninfo("Taking down: %d.%d.%d.%d\n",
@@ -1488,9 +1489,9 @@ static int s32k1xx_ifdown(struct net_driver_s *dev)
  *
  ****************************************************************************/
 
-static void s32k1xx_txavail_work(void *arg)
+static void s32k1xx_txavail_work(FAR void *arg)
 {
-  struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
+  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
 
   /* Ignore the notification if the interface is not yet up */
 
@@ -1535,8 +1536,8 @@ static void s32k1xx_txavail_work(void *arg)
 
 static int s32k1xx_txavail(struct net_driver_s *dev)
 {
-  struct s32k1xx_driver_s *priv =
-    (struct s32k1xx_driver_s *)dev->d_private;
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
 
   /* Is our single work structure available?  It may not be if there are
    * pending interrupt actions and we will have to ignore the Tx
@@ -1654,7 +1655,7 @@ static uint32_t s32k1xx_enet_hash_index(const uint8_t *mac)
  ****************************************************************************/
 
 #ifdef CONFIG_NET_MCASTGROUP
-static int s32k1xx_addmac(struct net_driver_s *dev, const uint8_t *mac)
+static int s32k1xx_addmac(struct net_driver_s *dev, FAR const uint8_t *mac)
 {
   uint32_t crc;
   uint32_t hashindex;
@@ -1702,7 +1703,7 @@ static int s32k1xx_addmac(struct net_driver_s *dev, const uint8_t *mac)
  ****************************************************************************/
 
 #ifdef CONFIG_NET_MCASTGROUP
-static int s32k1xx_rmmac(struct net_driver_s *dev, const uint8_t *mac)
+static int s32k1xx_rmmac(struct net_driver_s *dev, FAR const uint8_t *mac)
 {
   uint32_t crc;
   uint32_t hashindex;
@@ -1754,8 +1755,8 @@ static int s32k1xx_ioctl(struct net_driver_s *dev, int cmd,
                          unsigned long arg)
 {
 #ifdef CONFIG_NETDEV_PHY_IOCTL
-  struct s32k1xx_driver_s *priv =
-    (struct s32k1xx_driver_s *)dev->d_private;
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
 #endif
   int ret;
 

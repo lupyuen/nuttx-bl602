@@ -45,7 +45,7 @@
     defined(CONFIG_AM335X_I2C1) || defined(CONFIG_AM335X_I2C2))
 static void am335x_i2c_register(int bus)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   int ret;
 
   i2c = am335x_i2cbus_initialize(bus);
@@ -68,7 +68,7 @@ static void am335x_i2c_register(int bus)
 #if defined(CONFIG_CAN) && (defined(CONFIG_AM335X_CAN0) || defined(CONFIG_AM335X_CAN1))
 static void am335x_can_register(void)
 {
-  struct can_dev_s *can;
+  FAR struct can_dev_s *can;
   int ret;
 
 #ifdef CONFIG_AM335X_CAN0

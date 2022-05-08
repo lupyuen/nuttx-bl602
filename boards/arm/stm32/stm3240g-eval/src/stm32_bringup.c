@@ -148,7 +148,7 @@
 #ifdef HAVE_I2CTOOL
 static void stm32_i2c_register(int bus)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   int ret;
 
   i2c = stm32_i2cbus_initialize(bus);
@@ -214,14 +214,14 @@ static void stm32_i2ctool(void)
 int stm32_bringup(void)
 {
 #ifdef HAVE_RTC_DRIVER
-  struct rtc_lowerhalf_s *lower;
+  FAR struct rtc_lowerhalf_s *lower;
 #endif
 #ifdef CONFIG_STM32_SPI1
-  struct spi_dev_s *spi;
-  struct mtd_dev_s *mtd;
+  FAR struct spi_dev_s *spi;
+  FAR struct mtd_dev_s *mtd;
 #endif
 #ifdef HAVE_MMCSD
-  struct sdio_dev_s *sdio;
+  FAR struct sdio_dev_s *sdio;
 #endif
   int ret;
 

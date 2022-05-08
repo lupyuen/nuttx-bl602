@@ -62,7 +62,7 @@ extern "C"
  ****************************************************************************/
 
 #ifdef CONFIG_LPC17_40_DAC
-struct dac_dev_s *lpc17_40_dacinitialize(void);
+FAR struct dac_dev_s *lpc17_40_dacinitialize(void);
 #endif
 
 #ifdef __cplusplus

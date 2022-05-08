@@ -159,16 +159,16 @@ typedef enum
 
 struct stm32_cap_ops_s
 {
-  int  (*setclock)(struct stm32_cap_dev_s *dev, stm32_cap_clk_t clk,
+  int  (*setclock)(FAR struct stm32_cap_dev_s *dev, stm32_cap_clk_t clk,
                    uint32_t prescaler, uint32_t max);
-  int  (*setchannel)(struct stm32_cap_dev_s *dev, uint8_t channel,
+  int  (*setchannel)(FAR struct stm32_cap_dev_s *dev, uint8_t channel,
                      stm32_cap_ch_cfg_t cfg);
-  uint32_t (*getcapture)(struct stm32_cap_dev_s *dev, uint8_t channel);
-  int  (*setisr)(struct stm32_cap_dev_s *dev, xcpt_t handler, void *arg);
-  void (*enableint)(struct stm32_cap_dev_s *dev, stm32_cap_flags_t src,
+  uint32_t (*getcapture)(FAR struct stm32_cap_dev_s *dev, uint8_t channel);
+  int  (*setisr)(FAR struct stm32_cap_dev_s *dev, xcpt_t handler, void *arg);
+  void (*enableint)(FAR struct stm32_cap_dev_s *dev, stm32_cap_flags_t src,
                     bool on);
-  void (*ackflags)(struct stm32_cap_dev_s *dev, int flags);
-  stm32_cap_flags_t (*getflags)(struct stm32_cap_dev_s *dev);
+  void (*ackflags)(FAR struct stm32_cap_dev_s *dev, int flags);
+  stm32_cap_flags_t (*getflags)(FAR struct stm32_cap_dev_s *dev);
 };
 
 /****************************************************************************
@@ -177,11 +177,11 @@ struct stm32_cap_ops_s
 
 /* Power-up timer and get its structure */
 
-struct stm32_cap_dev_s *stm32_cap_init(int timer);
+FAR struct stm32_cap_dev_s *stm32_cap_init(int timer);
 
 /* Power-down timer, mark it as unused */
 
-int stm32_cap_deinit(struct stm32_cap_dev_s *dev);
+int stm32_cap_deinit(FAR struct stm32_cap_dev_s *dev);
 
 #undef EXTERN
 #if defined(__cplusplus)

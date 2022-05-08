@@ -184,7 +184,7 @@ int board_nandflash_config(int cs)
 
 int sam_nand_automount(int minor)
 {
-  struct mtd_dev_s *mtd;
+  FAR struct mtd_dev_s *mtd;
   static bool initialized = false;
 
   /* Have we already initialized? */

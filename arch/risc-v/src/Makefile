@@ -90,15 +90,8 @@ BIN  = libarch$(LIBEXT)
 
 LDFLAGS += $(addprefix -T,$(call CONVERT_PATH,$(ARCHSCRIPT))) $(EXTRALINKCMDS)
 
-ifeq ($(LD),$(CC))
-  LDSTARTGROUP ?= -Wl,--start-group
-  LDENDGROUP   ?= -Wl,--end-group
-  LDFLAGS      := $(addprefix -Xlinker ,$(LDFLAGS))
-  LDFLAGS      += $(CFLAGS)
-else
-  LDSTARTGROUP ?= --start-group
-  LDENDGROUP   ?= --end-group
-endif
+LDSTARTGROUP ?= --start-group
+LDENDGROUP ?= --end-group
 
 BOARDMAKE = $(if $(wildcard board$(DELIM)Makefile),y,)
 
@@ -128,9 +121,6 @@ $(AOBJS) $(UAOBJS) $(HEAD_OBJ): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
 $(COBJS) $(UCOBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-crt0$(OBJEXT): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 ifeq ($(CONFIG_BUILD_FLAT),y)
@@ -222,5 +212,10 @@ ifeq ($(BOARDMAKE),y)
 endif
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+
+info:
+	@echo $(HEAD_OBJ)
+	@echo $(ASRCS)
+	@echo $(CONFIG_ARCH_CHIP)
 
 -include Make.dep

@@ -82,7 +82,7 @@
 
 int board_nunchuck_initialize(int devno, int busno)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   char devpath[15];
   int ret;
 

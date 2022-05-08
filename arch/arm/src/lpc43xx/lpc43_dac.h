@@ -69,7 +69,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct dac_dev_s *lpc43_dacinitialize(void);
+FAR struct dac_dev_s *lpc43_dacinitialize(void);
 
 #undef EXTERN
 #if defined(__cplusplus)

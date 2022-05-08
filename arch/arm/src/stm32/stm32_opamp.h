@@ -205,7 +205,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct opamp_dev_s *stm32_opampinitialize(int intf);
+FAR struct opamp_dev_s *stm32_opampinitialize(int intf);
 
 #undef EXTERN
 #ifdef __cplusplus

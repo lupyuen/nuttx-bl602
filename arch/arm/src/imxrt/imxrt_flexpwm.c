@@ -87,7 +87,7 @@ struct imxrt_flexpwm_module_s
 struct imxrt_flexpwm_s
 {
   const struct pwm_ops_s *ops;    /* PWM operations */
-  struct imxrt_flexpwm_module_s *modules;
+  FAR struct imxrt_flexpwm_module_s *modules;
   uint8_t modules_num;            /* Number of modules */
   uint32_t frequency;             /* PWM frequency */
   uint32_t base;                  /* Base address of peripheral register */
@@ -95,21 +95,20 @@ struct imxrt_flexpwm_s
 
 /* PWM driver methods */
 
-static int pwm_setup(struct pwm_lowerhalf_s *dev);
-static int pwm_shutdown(struct pwm_lowerhalf_s *dev);
-static int pwm_start(struct pwm_lowerhalf_s *dev,
-                     const struct pwm_info_s *info);
-static int pwm_stop(struct pwm_lowerhalf_s *dev);
-static int pwm_ioctl(struct pwm_lowerhalf_s *dev,
+static int pwm_setup(FAR struct pwm_lowerhalf_s *dev);
+static int pwm_shutdown(FAR struct pwm_lowerhalf_s *dev);
+static int pwm_start(FAR struct pwm_lowerhalf_s *dev,
+                     FAR const struct pwm_info_s *info);
+static int pwm_stop(FAR struct pwm_lowerhalf_s *dev);
+static int pwm_ioctl(FAR struct pwm_lowerhalf_s *dev,
                      int cmd, unsigned long arg);
 
 /* Helper functions */
 
-static int pwm_set_output(struct pwm_lowerhalf_s *dev, uint8_t channel,
-                          ub16_t duty);
-static int pwm_change_freq(struct pwm_lowerhalf_s *dev,
-                           const struct pwm_info_s *info,
-                           uint8_t channel);
+static int pwm_set_output(FAR struct pwm_lowerhalf_s *dev, uint8_t channel,
+                           ub16_t duty);
+static int pwm_change_freq(FAR struct pwm_lowerhalf_s *dev,
+                     FAR const struct pwm_info_s *info, uint8_t channel);
 
 /****************************************************************************
   * Private Data
@@ -556,11 +555,10 @@ static struct imxrt_flexpwm_s g_pwm4 =
  *
  ****************************************************************************/
 
-static int pwm_change_freq(struct pwm_lowerhalf_s *dev,
-                           const struct pwm_info_s *info,
-                           uint8_t channel)
+static int pwm_change_freq(FAR struct pwm_lowerhalf_s *dev,
+                     FAR const struct pwm_info_s *info, uint8_t channel)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
 #ifdef CONFIG_PWM_MULTICHAN
   uint8_t shift = info->channels[channel].channel - 1;
 #else
@@ -637,10 +635,10 @@ static int pwm_change_freq(struct pwm_lowerhalf_s *dev,
  *
  ****************************************************************************/
 
-static int pwm_set_output(struct pwm_lowerhalf_s *dev, uint8_t channel,
-                          ub16_t duty)
+static int pwm_set_output(FAR struct pwm_lowerhalf_s *dev, uint8_t channel,
+                           ub16_t duty)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
   uint16_t period;
   uint16_t width;
   uint16_t regval;
@@ -700,9 +698,9 @@ static int pwm_set_output(struct pwm_lowerhalf_s *dev, uint8_t channel,
  *
  ****************************************************************************/
 
-static int pwm_setup(struct pwm_lowerhalf_s *dev)
+static int pwm_setup(FAR struct pwm_lowerhalf_s *dev)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
   uint32_t pin = 0;
   uint16_t regval;
   uint8_t shift;
@@ -822,9 +820,9 @@ static int pwm_setup(struct pwm_lowerhalf_s *dev)
  *
  ****************************************************************************/
 
-static int pwm_shutdown(struct pwm_lowerhalf_s *dev)
+static int pwm_shutdown(FAR struct pwm_lowerhalf_s *dev)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
 
   for (int i = 0; i < priv->modules_num; i++)
     {
@@ -876,10 +874,10 @@ static int pwm_shutdown(struct pwm_lowerhalf_s *dev)
  *
  ****************************************************************************/
 
-static int pwm_start(struct pwm_lowerhalf_s *dev,
-                     const struct pwm_info_s *info)
+static int pwm_start(FAR struct pwm_lowerhalf_s *dev,
+                     FAR const struct pwm_info_s *info)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
   int ret = OK;
   uint8_t ldok_map = 0;
 
@@ -976,9 +974,9 @@ static int pwm_start(struct pwm_lowerhalf_s *dev,
  *
  ****************************************************************************/
 
-static int pwm_stop(struct pwm_lowerhalf_s *dev)
+static int pwm_stop(FAR struct pwm_lowerhalf_s *dev)
 {
-  struct imxrt_flexpwm_s *priv = (struct imxrt_flexpwm_s *)dev;
+  FAR struct imxrt_flexpwm_s *priv = (FAR struct imxrt_flexpwm_s *)dev;
   uint8_t shift;
   uint16_t regval;
 
@@ -1030,7 +1028,7 @@ static int pwm_stop(struct pwm_lowerhalf_s *dev)
  *
  ****************************************************************************/
 
-static int pwm_ioctl(struct pwm_lowerhalf_s *dev, int cmd,
+static int pwm_ioctl(FAR struct pwm_lowerhalf_s *dev, int cmd,
                      unsigned long arg)
 {
   return -ENOTTY;
@@ -1055,9 +1053,9 @@ static int pwm_ioctl(struct pwm_lowerhalf_s *dev, int cmd,
  *
  ****************************************************************************/
 
-struct pwm_lowerhalf_s *imxrt_pwminitialize(int pwm)
+FAR struct pwm_lowerhalf_s *imxrt_pwminitialize(int pwm)
 {
-  struct imxrt_flexpwm_s *priv;
+  FAR struct imxrt_flexpwm_s *priv;
 
   pwminfo("Initializing pwm %d\n", pwm);
 
@@ -1092,6 +1090,6 @@ struct pwm_lowerhalf_s *imxrt_pwminitialize(int pwm)
       return NULL;
   }
 
-  return (struct pwm_lowerhalf_s *)priv;
+  return (FAR struct pwm_lowerhalf_s *)priv;
 }
 #endif /* CONFIG_IMXRT_FLEXPWM */

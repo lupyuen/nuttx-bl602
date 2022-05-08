@@ -47,8 +47,8 @@
 
 struct timer_sethandler_s
 {
-  void   *arg;            /* An argument */
-  tccb_t handler;         /* The timer interrupt handler */
+  FAR void    *arg;            /* An argument */
+  CODE tccb_t handler;         /* The timer interrupt handler */
 };
 
 #endif /* __ARCH_ARM_INCLUDE_CXD56XX_TIMER_H */

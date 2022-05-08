@@ -126,7 +126,7 @@ extern "C"
  ****************************************************************************/
 
 struct dac_dev_s;
-struct dac_dev_s *stm32_dacinitialize(int intf);
+FAR struct dac_dev_s *stm32_dacinitialize(int intf);
 
 #undef EXTERN
 #ifdef __cplusplus

@@ -455,7 +455,7 @@ extern volatile int g_update_flag;
 #ifdef CONFIG_CHARGER
 static void chg_disable(void)
 {
-  struct i2c_dev_s *i2c;
+  FAR struct i2c_dev_s *i2c;
   int ret;
   uint32_t freq;
 

@@ -73,7 +73,7 @@
  *
  ****************************************************************************/
 
-static int kinetis_timerisr(int irq, uint32_t *regs, void *arg)
+static int kinetis_timerisr(int irq, uint32_t *regs, FAR void *arg)
 {
   /* Process timer interrupt */
 

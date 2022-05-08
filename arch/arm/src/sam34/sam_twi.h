@@ -50,7 +50,7 @@
  *
  ****************************************************************************/
 
-struct i2c_master_s *sam_i2cbus_initialize(int port);
+FAR struct i2c_master_s *sam_i2cbus_initialize(int port);
 
 /****************************************************************************
  * Name: sam_i2cbus_uninitialize
@@ -67,6 +67,6 @@ struct i2c_master_s *sam_i2cbus_initialize(int port);
  *
  ****************************************************************************/
 
-int sam_i2cbus_uninitialize(struct i2c_master_s *dev);
+int sam_i2cbus_uninitialize(FAR struct i2c_master_s *dev);
 
 #endif /* __ARCH_ARM_SRC_SAM34_SAM_TWI_H */

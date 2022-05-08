@@ -466,8 +466,8 @@ static struct cxd56_lower_s g_cxd56_lower[2];
 
 int board_audio_initialize_driver(int minor)
 {
-  struct audio_lowerhalf_s *cxd56;
-  struct audio_lowerhalf_s *pcm;
+  FAR struct audio_lowerhalf_s *cxd56;
+  FAR struct audio_lowerhalf_s *pcm;
   char devname[12];
   int ret;
 

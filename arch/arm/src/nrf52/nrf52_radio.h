@@ -172,60 +172,62 @@ struct nrf52_radio_ops_s
 {
   /* Turn-on/turn-off radio power */
 
-  int (*power)(struct nrf52_radio_dev_s *dev, bool state);
+  CODE int (*power)(FAR struct nrf52_radio_dev_s *dev, bool state);
 
   /* Set radio mode */
 
-  int (*mode_set)(struct nrf52_radio_dev_s *dev, uint8_t mode);
+  CODE int (*mode_set)(FAR struct nrf52_radio_dev_s *dev, uint8_t mode);
 
   /* Set radio frequency (in MHz) */
 
-  int (*freq_set)(struct nrf52_radio_dev_s *dev, uint32_t freq);
+  CODE int (*freq_set)(FAR struct nrf52_radio_dev_s *dev, uint32_t freq);
 
   /* Get RSSI sample */
 
-  int (*rssi_get)(struct nrf52_radio_dev_s *dev, int *rssi);
+  CODE int (*rssi_get)(FAR struct nrf52_radio_dev_s *dev, FAR int *rssi);
 
   /* Set TX power */
 
-  int (*txpower_set)(struct nrf52_radio_dev_s *dev, uint8_t txpower);
+  CODE int (*txpower_set)(FAR struct nrf52_radio_dev_s *dev,
+                          uint8_t txpower);
 
   /* Set hardware interframe spacing time */
 
-  int (*tifs_set)(struct nrf52_radio_dev_s *dev, uint16_t us);
+  CODE int (*tifs_set)(FAR struct nrf52_radio_dev_s *dev, uint16_t us);
 
   /* Configure radio packet */
 
-  int (*pkt_cfg)(struct nrf52_radio_dev_s *dev,
-                 struct nrf52_radio_pktcfg_s *cfg);
+  CODE int (*pkt_cfg)(FAR struct nrf52_radio_dev_s *dev,
+                      FAR struct nrf52_radio_pktcfg_s *cfg);
 
   /* Configure packet CRC */
 
-  int (*crc_cfg)(struct nrf52_radio_dev_s *dev,
-                 struct nrf52_radio_crc_s *cfg);
+  CODE int (*crc_cfg)(FAR struct nrf52_radio_dev_s *dev,
+                      FAR struct nrf52_radio_crc_s *cfg);
 
   /* Configure data whitening */
 
-  int (*white_set)(struct nrf52_radio_dev_s *dev, uint8_t init);
+  CODE int (*white_set)(FAR struct nrf52_radio_dev_s *dev,
+                        uint8_t init);
 
   /* Configure logical address */
 
-  int (*addr_set)(struct nrf52_radio_dev_s *dev, uint8_t i,
-                  struct nrf52_radio_addr_s *addr);
+  CODE int (*addr_set)(FAR struct nrf52_radio_dev_s *dev, uint8_t i,
+                       FAR struct nrf52_radio_addr_s *addr);
 
   /* Read packet */
 
-  int (*read)(struct nrf52_radio_dev_s *dev,
-              uint8_t *buf, int len);
+  CODE int (*read)(FAR struct nrf52_radio_dev_s *dev,
+                   FAR uint8_t *buf, int len);
 
   /* Write packet */
 
-  int (*write)(struct nrf52_radio_dev_s *dev,
-               uint8_t *buf, int len);
+  CODE int (*write)(FAR struct nrf52_radio_dev_s *dev,
+                    FAR uint8_t *buf, int len);
 
   /* Dump radio registers */
 
-  void (*dumpregs)(struct nrf52_radio_dev_s *dev);
+  CODE void (*dumpregs)(FAR struct nrf52_radio_dev_s *dev);
 };
 
 /* NRF52 radio board specific data */
@@ -241,24 +243,24 @@ struct nrf52_radio_board_s
 
 struct nrf52_radio_dev_s
 {
-  struct nrf52_radio_ops_s   *ops;       /* Radio operations */
-  struct nrf52_radio_board_s *board;     /* Radio board-specific */
-  uint32_t                    base;      /* Radio base */
-  uint32_t                    irq;       /* Radio IRQ number */
-  uint8_t                     mode;      /* Radio mode */
-  uint8_t                     state;     /* Radio state */
-  struct nrf52_radio_pktcfg_s pktcfg;    /* Current packet */
-  uint16_t                    rxbuf_len; /* RX buffer length */
-  uint16_t                    txbuf_len; /* TX buffer length */
-  uint8_t                     *rxbuf;    /* RX buffer */
-  uint8_t                     *txbuf;    /* TX buffer */
-  sem_t                       sem_excl;  /* Mutual exclusion semaphore */
-  sem_t                       sem_isr;   /* Interrupt wait semaphore */
-  uint16_t                    tifs;      /* Interframe spacing time */
-  uint8_t                     txpower;   /* TX power */
-  uint8_t                     txaddr;    /* TX address */
-  uint8_t                     rxaddr;    /* RX addresses */
-  struct nrf52_radio_addr_s   addr[NRF52_RADIO_LOGICAL_ADDRESS_MAX];
+  FAR struct nrf52_radio_ops_s   *ops;       /* Radio operations */
+  FAR struct nrf52_radio_board_s *board;     /* Radio board-specific */
+  uint32_t                        base;      /* Radio base */
+  uint32_t                        irq;       /* Radio IRQ number */
+  uint8_t                         mode;      /* Radio mode */
+  uint8_t                         state;     /* Radio state */
+  struct nrf52_radio_pktcfg_s     pktcfg;    /* Current packet */
+  uint16_t                        rxbuf_len; /* RX buffer length */
+  uint16_t                        txbuf_len; /* TX buffer length */
+  FAR uint8_t                     *rxbuf;    /* RX buffer */
+  FAR uint8_t                     *txbuf;    /* TX buffer */
+  sem_t                           sem_excl;  /* Mutual exclusion semaphore */
+  sem_t                           sem_isr;   /* Interrupt wait semaphore */
+  uint16_t                        tifs;      /* Interframe spacing time */
+  uint8_t                         txpower;   /* TX power */
+  uint8_t                         txaddr;    /* TX address */
+  uint8_t                         rxaddr;    /* RX addresses */
+  struct nrf52_radio_addr_s       addr[NRF52_RADIO_LOGICAL_ADDRESS_MAX];
 };
 
 /****************************************************************************
@@ -273,7 +275,7 @@ struct nrf52_radio_dev_s
  *
  ****************************************************************************/
 
-struct nrf52_radio_dev_s *
-nrf52_radio_initialize(int intf, struct nrf52_radio_board_s *board);
+FAR struct nrf52_radio_dev_s *
+nrf52_radio_initialize(int intf, FAR struct nrf52_radio_board_s *board);
 
 #endif /* __ARCH_ARM_SRC_NRF52_NRF52_RADIO_H */

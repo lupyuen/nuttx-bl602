@@ -61,9 +61,9 @@
  *
  ****************************************************************************/
 
-int stm32_max7219init(const char *devpath)
+int stm32_max7219init(FAR const char *devpath)
 {
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   int ret;
 
   spi = stm32_spibus_initialize(MAX7219_SPI_PORTNO);

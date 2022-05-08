@@ -575,7 +575,7 @@ extern "C"
  *
  ****************************************************************************/
 
-uart_dev_t *stm32_serial_get_uart(int uart_num);
+FAR uart_dev_t *stm32_serial_get_uart(int uart_num);
 
 /****************************************************************************
  * Name: stm32_serial_dma_poll

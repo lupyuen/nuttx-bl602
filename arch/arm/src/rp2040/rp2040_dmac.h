@@ -103,7 +103,7 @@ extern "C"
  * DMA channel.
  */
 
-typedef void *DMA_HANDLE;
+typedef FAR void *DMA_HANDLE;
 
 /* Description:
  *   This is the type of the callback that is used to inform the user of the

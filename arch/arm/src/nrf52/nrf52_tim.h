@@ -137,36 +137,40 @@ struct nrf52_tim_ops_s
 {
   /* Timer tasks */
 
-  int (*start)(struct nrf52_tim_dev_s *dev);
-  int (*stop)(struct nrf52_tim_dev_s *dev);
-  int (*clear)(struct nrf52_tim_dev_s *dev);
+  CODE int (*start)(FAR struct nrf52_tim_dev_s *dev);
+  CODE int (*stop)(FAR struct nrf52_tim_dev_s *dev);
+  CODE int (*clear)(FAR struct nrf52_tim_dev_s *dev);
 
   /* Timer configuration */
 
-  int (*configure)(struct nrf52_tim_dev_s *dev, uint8_t mode, uint8_t width);
-  int (*shorts)(struct nrf52_tim_dev_s *dev, uint8_t s, uint8_t i, bool en);
+  CODE int (*configure)(FAR struct nrf52_tim_dev_s *dev, uint8_t mode,
+                        uint8_t width);
+  CODE int (*shorts)(FAR struct nrf52_tim_dev_s *dev, uint8_t s,
+                     uint8_t i, bool en);
 
   /* Timer operations */
 
-  int (*count)(struct nrf52_tim_dev_s *dev);
-  int (*setcc)(struct nrf52_tim_dev_s *dev, uint8_t i, uint32_t cc);
-  int (*getcc)(struct nrf52_tim_dev_s *dev, uint8_t i, uint32_t *cc);
-  int (*setpre)(struct nrf52_tim_dev_s *dev, uint8_t pre);
+  CODE int (*count)(FAR struct nrf52_tim_dev_s *dev);
+  CODE int (*setcc)(FAR struct nrf52_tim_dev_s *dev, uint8_t i, uint32_t cc);
+  CODE int (*getcc)(FAR struct nrf52_tim_dev_s *dev, uint8_t i,
+                    FAR uint32_t *cc);
+  CODE int (*setpre)(FAR struct nrf52_tim_dev_s *dev, uint8_t pre);
 
   /* Timer interrupts */
 
-  int (*setisr)(struct nrf52_tim_dev_s *dev, xcpt_t handler, void *arg);
-  int (*enableint)(struct nrf52_tim_dev_s *dev, uint8_t source);
-  int (*disableint)(struct nrf52_tim_dev_s *dev, uint8_t source);
-  int (*checkint)(struct nrf52_tim_dev_s *dev, uint8_t source);
-  int (*ackint)(struct nrf52_tim_dev_s *dev, uint8_t source);
+  CODE int (*setisr)(FAR struct nrf52_tim_dev_s *dev, xcpt_t handler,
+                     FAR void * arg);
+  CODE int (*enableint)(FAR struct nrf52_tim_dev_s *dev, uint8_t source);
+  CODE int (*disableint)(FAR struct nrf52_tim_dev_s *dev, uint8_t source);
+  CODE int (*checkint)(FAR struct nrf52_tim_dev_s *dev, uint8_t source);
+  CODE int (*ackint)(FAR struct nrf52_tim_dev_s *dev, uint8_t source);
 };
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-struct nrf52_tim_dev_s *nrf52_tim_init(int timer);
-int nrf52_tim_deinit(struct nrf52_tim_dev_s *dev);
+FAR struct nrf52_tim_dev_s *nrf52_tim_init(int timer);
+int nrf52_tim_deinit(FAR struct nrf52_tim_dev_s *dev);
 
 #endif /* __ARCH_ARM_SRC_NRF52_NRF52_TIM_H */
