@@ -33,6 +33,8 @@
 #  include <sys/types.h>
 #  include <stdint.h>
 #  include <syscall.h>
+#else
+#  include <arch/arch.h>
 #endif
 
 /****************************************************************************
@@ -46,11 +48,6 @@
 #define STACK_COLOR    0xdeadbeef
 #define INTSTACK_COLOR 0xdeadbeef
 #define HEAP_COLOR     'h'
-
-/* RISC-V requires a 16-byte stack alignment. */
-
-#define STACK_ALIGNMENT     16
-#define STACK_FRAME_SIZE    __XSTR(STACK_ALIGNMENT)
 
 /* Stack alignment macros */
 
@@ -323,6 +320,7 @@ uintptr_t riscv_mhartid(void);
 /* If kernel runs in Supervisor mode, a system call trampoline is needed */
 
 #ifdef CONFIG_ARCH_USE_S_MODE
+void riscv_dispatch_syscall(void) noreturn_function;
 void *riscv_perform_syscall(uintptr_t *regs);
 #endif
 

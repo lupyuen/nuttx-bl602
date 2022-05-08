@@ -73,7 +73,7 @@
 
 int board_usbmsc_initialize(int port)
 {
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   int ret;
 
   /* Enable power to the SD/MMC via a GPIO. LOW enables SD/MMC. */

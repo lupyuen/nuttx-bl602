@@ -45,7 +45,7 @@
 int board_i2cdev_initialize(int port)
 {
   int ret;
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
 
   i2cinfo("Initializing /dev/i2c%d..\n", port);
 

@@ -82,7 +82,7 @@ int board_usbmsc_initialize(int port)
    * In this case, there is nothing further to be done here.
    */
 
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   int ret;
 
   /* First, get an instance of the SPI interface */

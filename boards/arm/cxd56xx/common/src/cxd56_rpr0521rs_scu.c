@@ -43,7 +43,7 @@
 int board_rpr0521rs_initialize(int bus)
 {
   int ret;
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
 
   sninfo("Initializing RPR0521RS...\n");
 

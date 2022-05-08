@@ -52,31 +52,27 @@ ifeq ($(CONFIG_ARCH_CHIP_BM3803),y)
   ARCHCPUFLAGS += -mcpu=leon
 else ifeq ($(CONFIG_ARCH_CHIP_BM3823),y)
   ARCHCPUFLAGS += -mcpu=leon -mflat
+else
+  $(error "No valid CONFIG_ARCH_CHIP_ set in the configuration")
 endif
 
 ifeq ($(CONFIG_DEBUG_CUSTOMOPT),y)
-  ARCHOPTIMIZATION += $(CONFIG_DEBUG_OPTLEVEL)
-else ifeq ($(CONFIG_DEBUG_FULLOPT),y)
-  ARCHOPTIMIZATION += -O2
-endif
-
-ifneq ($(CONFIG_DEBUG_NOOPT),y)
-  ARCHOPTIMIZATION += -fno-strict-aliasing
+  MAXOPTIMIZATION := $(CONFIG_DEBUG_OPTLEVEL)
 endif
 
 ifeq ($(CONFIG_FRAME_POINTER),y)
-  ARCHOPTIMIZATION += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+  MAXOPTIMIZATION += -fno-omit-frame-pointer -fno-optimize-sibling-calls
 else
-  ARCHOPTIMIZATION += -fomit-frame-pointer
+  MAXOPTIMIZATION += -fomit-frame-pointer
 endif
 
 ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
   LDFLAGS         += -g
-  ARCHOPTIMIZATION += -g
+  MAXOPTIMIZATION += -g
 endif
 
 ARCHCFLAGS += -fno-common
-ARCHCXXFLAGS += -fno-common -nostdinc++
+ARCHCXXFLAGS += -fno-common
 
 ifneq ($(CONFIG_CXX_EXCEPTION),y)
   ARCHCXXFLAGS += -fno-exceptions -fcheck-new
@@ -90,6 +86,7 @@ endif
 
 ifeq ($(CONFIG_SPARC_TOOLCHAIN),BUILDROOT)
   CROSSDEV ?= sparc-gaisler-elf-
+  MAXOPTIMIZATION ?= -O2
   LDFLAGS += -nostartfiles -nodefaultlibs
   LDSCRIPT = sparc-gaisler-elf-debug.ld
 endif
@@ -98,6 +95,7 @@ endif
 
 ifeq ($(CONFIG_SPARC_TOOLCHAIN),CODEREDW)
   CROSSDEV ?= sparc-elf-
+  MAXOPTIMIZATION ?= -O2
   LDFLAGS += -nostartfiles -nodefaultlibs
   LDSCRIPT = sparc-elf-debug.ld
 endif

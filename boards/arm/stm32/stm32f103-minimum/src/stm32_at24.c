@@ -57,8 +57,8 @@
 
 int stm32_at24_automount(int minor)
 {
-  struct i2c_master_s *i2c;
-  struct mtd_dev_s *mtd;
+  FAR struct i2c_master_s *i2c;
+  FAR struct mtd_dev_s *mtd;
   static bool initialized = false;
   int ret;
 

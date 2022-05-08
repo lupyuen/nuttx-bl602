@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/risc-v/src/common/supervisor/riscv_syscall.S
+ * arch/risc-v/src/common/supervisor/riscv_dispatch_syscall.S
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
-.file "riscv_syscall.S"
+.file "riscv_dispatch_syscall.S"
 
 /****************************************************************************
  * Included Files
@@ -39,22 +39,16 @@
  * Public Symbols
  ****************************************************************************/
 
-    .globl  sys_call0
-    .globl  sys_call1
-    .globl  sys_call2
-    .globl  sys_call3
-    .globl  sys_call4
-    .globl  sys_call5
-    .globl  sys_call6
+    .globl  riscv_dispatch_syscall
 
 /****************************************************************************
- * Name: sys_callx
+ * Name: riscv_dispatch_syscall
  *
  * Description:
  *   Dispatch syscall from kernel
  *
  * C Function Prototype:
- *   uintptr_t sys_callx(unsigned int nbr, ...);
+ *   void riscv_dispatch_syscall(void);
  *
  * Input Parameters:
  *   Assumes the context to return is already set up
@@ -67,21 +61,9 @@
  *
  ****************************************************************************/
 
-.type sys_call0, function
-.type sys_call1, function
-.type sys_call2, function
-.type sys_call3, function
-.type sys_call4, function
-.type sys_call5, function
-.type sys_call6, function
+.type riscv_dispatch_syscall, function
 
-sys_call0:
-sys_call1:
-sys_call2:
-sys_call3:
-sys_call4:
-sys_call5:
-sys_call6:
+riscv_dispatch_syscall:
 
   addi       sp, sp, -XCPTCONTEXT_SIZE /* make room */
   save_ctx   sp                        /* save current context */
@@ -153,13 +135,3 @@ sys_call6:
   /* return from exception, which updates the status register */
 
   ERET
-
-  .size sys_call0, .-sys_call0
-  .size sys_call1, .-sys_call1
-  .size sys_call2, .-sys_call2
-  .size sys_call3, .-sys_call3
-  .size sys_call4, .-sys_call4
-  .size sys_call5, .-sys_call5
-  .size sys_call6, .-sys_call6
-
-  .end

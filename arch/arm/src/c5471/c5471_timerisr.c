@@ -66,7 +66,7 @@
  *
  ****************************************************************************/
 
-static int c5471_timerisr(int irq, uint32_t *regs, void *arg)
+static int c5471_timerisr(int irq, uint32_t *regs, FAR void *arg)
 {
   /* Process timer interrupt */
 

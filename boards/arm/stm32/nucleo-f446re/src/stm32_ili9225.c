@@ -93,7 +93,7 @@ int board_lcd_initialize(void)
  *
  ****************************************************************************/
 
-struct lcd_dev_s *board_lcd_getdev(int devno)
+FAR struct lcd_dev_s *board_lcd_getdev(int devno)
 {
   g_lcd = ili9225_lcdinitialize(g_spidev);
   if (!g_lcd)

@@ -121,7 +121,7 @@ extern "C"
  ****************************************************************************/
 
 struct can_dev_s;
-struct can_dev_s *stm32_caninitialize(int port);
+FAR struct can_dev_s *stm32_caninitialize(int port);
 #endif
 
 #ifdef CONFIG_STM32_CAN_SOCKET

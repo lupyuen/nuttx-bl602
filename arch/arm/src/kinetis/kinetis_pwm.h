@@ -26,10 +26,8 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <arch/board/board.h>
 
 #include "chip.h"
-#include "hardware/kinetis_pinmux.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -61,6 +59,9 @@
 
 #if defined(CONFIG_KINETIS_FTM0_PWM)  || defined(CONFIG_KINETIS_FTM1_PWM)  || \
     defined(CONFIG_KINETIS_FTM2_PWM)  || defined(CONFIG_KINETIS_FTM3_PWM)
+
+#include <arch/board/board.h>
+#include "hardware/kinetis_pinmux.h"
 
 /* For each timer that is enabled for PWM usage, we need the following
  * additional configuration settings:
@@ -197,7 +198,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct pwm_lowerhalf_s *kinetis_pwminitialize(int timer);
+FAR struct pwm_lowerhalf_s *kinetis_pwminitialize(int timer);
 
 #undef EXTERN
 #if defined(__cplusplus)

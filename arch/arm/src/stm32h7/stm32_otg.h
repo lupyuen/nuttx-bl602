@@ -104,7 +104,7 @@ extern "C"
 
 #ifdef CONFIG_USBHOST
 struct usbhost_connection_s;
-struct usbhost_connection_s *stm32_otgfshost_initialize(int controller);
+FAR struct usbhost_connection_s *stm32_otgfshost_initialize(int controller);
 #endif
 
 /****************************************************************************
@@ -119,7 +119,7 @@ struct usbhost_connection_s *stm32_otgfshost_initialize(int controller);
  ****************************************************************************/
 
 struct usbdev_s;
-void stm32_usbsuspend(struct usbdev_s *dev, bool resume);
+void stm32_usbsuspend(FAR struct usbdev_s *dev, bool resume);
 
 #undef EXTERN
 #if defined(__cplusplus)

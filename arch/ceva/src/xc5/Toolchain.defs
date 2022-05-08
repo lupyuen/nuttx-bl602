@@ -33,7 +33,7 @@ DTCM_KB := $(shell expr $(CONFIG_ARCH_DTCM_SIZE) / 1024)
 #                   invoking ar and nm.
 #  ARCHCPUFLAGS     CPU-specific flags selecting the instruction set
 #                   FPU options, etc.
-#  ARCHOPTIMIZATION The optimization level that results in
+#  MAXOPTIMIZATION  The maximum optimization level that results in
 #                   reliable code generation.
 #
 
@@ -45,28 +45,18 @@ ifneq ($(CROSSDEV),)
 endif
 
 ifeq ($(CONFIG_DEBUG_CUSTOMOPT),y)
-  ARCHOPTIMIZATION += $(CONFIG_DEBUG_OPTLEVEL)
+  MAXOPTIMIZATION := $(CONFIG_DEBUG_OPTLEVEL)
 else ifeq ($(CONFIG_DEBUG_FULLOPT),y)
-  ARCHOPTIMIZATION += -O3 -Os3
-endif
-
-ifneq ($(CONFIG_DEBUG_NOOPT),y)
-  ARCHOPTIMIZATION += -fno-strict-aliasing
-endif
-
-ifeq ($(CONFIG_FRAME_POINTER),y)
-  ARCHOPTIMIZATION += -fno-omit-frame-pointer -fno-optimize-sibling-calls
-else
-  ARCHOPTIMIZATION += -fomit-frame-pointer
+  MAXOPTIMIZATION := -O3 -Os3
 endif
 
 ifeq ($(CONFIG_DEBUG_SYMBOLS),y)
-  LDFLAGS          += -g
-  ARCHOPTIMIZATION += -g
+  LDFLAGS         += -g
+  MAXOPTIMIZATION += -g
 endif
 
 ARCHCFLAGS += -fno-common
-ARCHCXXFLAGS += -fno-common -nostdinc++
+ARCHCXXFLAGS += -fno-common
 
 ARCHCPUFLAGS  = -mrtl-version-$(RTL_VERSION) -Wa,-rtl$(RTL_VERSION)
 ARCHCPUFLAGS += -Wa,-p -mmsg-full-path -TARG:arch=cevaxc5 -Wa,-vdiv4 -Wno-unused

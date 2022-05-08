@@ -243,7 +243,7 @@ extern "C"
 
 #ifdef CONFIG_SAMA5_OHCI
 struct usbhost_connection_s;
-struct usbhost_connection_s *sam_ohci_initialize(int controller);
+FAR struct usbhost_connection_s *sam_ohci_initialize(int controller);
 #endif
 
 /****************************************************************************
@@ -257,7 +257,7 @@ struct usbhost_connection_s *sam_ohci_initialize(int controller);
  ****************************************************************************/
 
 #ifdef CONFIG_SAMA5_OHCI
-int sam_ohci_tophalf(int irq, void *context, void *arg);
+int sam_ohci_tophalf(int irq, FAR void *context, FAR void *arg);
 #endif
 
 /****************************************************************************
@@ -287,7 +287,7 @@ int sam_ohci_tophalf(int irq, void *context, void *arg);
 
 #ifdef CONFIG_SAMA5_EHCI
 struct usbhost_connection_s;
-struct usbhost_connection_s *sam_ehci_initialize(int controller);
+FAR struct usbhost_connection_s *sam_ehci_initialize(int controller);
 #endif
 
 /****************************************************************************

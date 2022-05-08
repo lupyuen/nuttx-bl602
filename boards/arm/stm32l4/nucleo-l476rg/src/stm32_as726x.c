@@ -73,9 +73,9 @@
  *
  ****************************************************************************/
 
-int stm32_as726xinitialize(const char *devpath)
+int stm32_as726xinitialize(FAR const char *devpath)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   int ret;
 
   sninfo("Initializing AS726X!\n");

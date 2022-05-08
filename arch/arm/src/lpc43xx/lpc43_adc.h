@@ -69,7 +69,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct adc_dev_s *lpc43_adcinitialize(void);
+FAR struct adc_dev_s *lpc43_adcinitialize(void);
 
 #undef EXTERN
 #if defined(__cplusplus)

@@ -89,9 +89,9 @@ extern "C"
  * Public Function Prototypes
  ****************************************************************************/
 
-struct i2c_master_s *lc823450_i2cbus_initialize(int port);
-int lc823450_i2cbus_uninitialize(struct i2c_master_s *dev);
-void lc823450_i2cbus_changetimeout(struct i2c_master_s *dev,
+FAR struct i2c_master_s *lc823450_i2cbus_initialize(int port);
+int lc823450_i2cbus_uninitialize(FAR struct i2c_master_s *dev);
+void lc823450_i2cbus_changetimeout(FAR struct i2c_master_s *dev,
                                    uint32_t timeoms);
 
 #if defined(__cplusplus)

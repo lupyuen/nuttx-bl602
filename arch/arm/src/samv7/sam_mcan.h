@@ -83,7 +83,7 @@ extern "C"
  ****************************************************************************/
 
 struct can_dev_s;
-struct can_dev_s *sam_mcan_initialize(int port);
+FAR struct can_dev_s *sam_mcan_initialize(int port);
 
 #undef EXTERN
 #if defined(__cplusplus)

@@ -90,7 +90,7 @@
 int board_app_initialize(uintptr_t arg)
 {
 #ifdef HAVE_RTC_DRIVER
-  struct rtc_lowerhalf_s *rtclower;
+  FAR struct rtc_lowerhalf_s *rtclower;
 #endif
   int ret;
 

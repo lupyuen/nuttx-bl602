@@ -50,8 +50,6 @@
  *
  ****************************************************************************/
 
-#if defined(CONFIG_NET) && !defined(CONFIG_NETDEV_LATEINIT)
 void arm_netinitialize(void)
 {
 }
-#endif

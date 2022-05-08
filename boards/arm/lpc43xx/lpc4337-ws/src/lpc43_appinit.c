@@ -50,7 +50,7 @@
 #ifdef HAVE_I2CTOOL
 static void lpc43_i2c_register(int bus)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   int ret;
 
   i2c = lpc43_i2cbus_initialize(bus);

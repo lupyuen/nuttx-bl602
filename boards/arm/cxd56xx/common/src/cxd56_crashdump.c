@@ -52,7 +52,7 @@
  ****************************************************************************/
 
 #if defined(CONFIG_CXD56_RESET_ON_CRASH)
-static int nmi_handler(int irq, void *context, void *arg)
+static int nmi_handler(int irq, FAR void *context, FAR void *arg)
 {
   return 0;
 }
@@ -98,15 +98,15 @@ static void copy_reverse(stack_word_t *dest, stack_word_t *src, int size)
  * Name: board_crashdump
  ****************************************************************************/
 
-void board_crashdump(uintptr_t currentsp, void *tcb,
-                     const char *filename, int lineno)
+void board_crashdump(uintptr_t currentsp, FAR void *tcb,
+                     FAR const char *filename, int lineno)
 {
-  struct tcb_s *rtcb;
+  FAR struct tcb_s *rtcb;
   fullcontext_t *pdump;
 
   enter_critical_section();
 
-  rtcb = (struct tcb_s *)tcb;
+  rtcb = (FAR struct tcb_s *)tcb;
 #ifdef CONFIG_CXD56_BACKUPLOG
   pdump = up_backuplog_alloc("crash", sizeof(fullcontext_t));
 #else

@@ -82,7 +82,7 @@
 
 int board_ws2812_initialize(int devno, int spino, uint16_t nleds)
 {
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   char devpath[13];
   int ret;
 

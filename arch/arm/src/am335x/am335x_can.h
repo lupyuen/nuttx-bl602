@@ -49,7 +49,7 @@
  *
  ****************************************************************************/
 
-struct can_dev_s *am335x_can_initialize(int port);
+FAR struct can_dev_s *am335x_can_initialize(int port);
 
 /****************************************************************************
  * Name: am335x_can_uninitialize
@@ -66,6 +66,6 @@ struct can_dev_s *am335x_can_initialize(int port);
  *
  ****************************************************************************/
 
-void am335x_can_uninitialize(struct can_dev_s *dev);
+void am335x_can_uninitialize(FAR struct can_dev_s *dev);
 
 #endif /* __ARCH_ARM_SRC_AM335X_AM335X_CAN_H */

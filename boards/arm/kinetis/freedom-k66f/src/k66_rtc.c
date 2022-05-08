@@ -47,7 +47,7 @@
 int k66_rtc_initialize(void)
 {
   int ret = -EIO;
-  struct rtc_lowerhalf_s *lower;
+  FAR struct rtc_lowerhalf_s *lower;
 
   /* Instantiate the KINETIS lower-half RTC driver */
 

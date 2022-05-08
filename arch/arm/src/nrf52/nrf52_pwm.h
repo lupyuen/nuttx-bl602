@@ -126,6 +126,6 @@
  *
  ****************************************************************************/
 
-struct pwm_lowerhalf_s *nrf52_pwminitialize(int pwm);
+FAR struct pwm_lowerhalf_s *nrf52_pwminitialize(int pwm);
 
 #endif /* __ARCH_ARM_SRC_NRF52_NRF52_PWM_H */

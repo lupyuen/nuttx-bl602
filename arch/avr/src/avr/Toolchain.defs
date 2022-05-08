@@ -80,26 +80,18 @@ else ifeq ($(CONFIG_ARCH_CHIP_AT90USB1287),y)
 else ifeq ($(CONFIG_ARCH_CHIP_ATMEGA2560),y)
   ARCHCPUFLAGS += -mmcu=atmega2560
   LDFLAGS += -mavr6
+else
+  $(error "No valid CONFIG_ARCH_CHIP_ set in the configuration")
 endif
 
 ifeq ($(CONFIG_DEBUG_CUSTOMOPT),y)
-  ARCHOPTIMIZATION += $(CONFIG_DEBUG_OPTLEVEL)
-else ifeq ($(CONFIG_DEBUG_FULLOPT),y)
-  ARCHOPTIMIZATION += -O2
-endif
-
-ifneq ($(CONFIG_DEBUG_NOOPT),y)
-  ARCHOPTIMIZATION += -fno-strict-aliasing
-endif
-
-ifeq ($(CONFIG_FRAME_POINTER),y)
-  ARCHOPTIMIZATION += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+  MAXOPTIMIZATION := $(CONFIG_DEBUG_OPTLEVEL)
 else
-  ARCHOPTIMIZATION += -fomit-frame-pointer
+  MAXOPTIMIZATION ?= -O2
 endif
 
 ARCHCFLAGS += -fno-common
-ARCHCXXFLAGS += -fno-common -nostdinc++
+ARCHCXXFLAGS += -fno-common
 
 ifneq ($(CONFIG_CXX_EXCEPTION),y)
   ARCHCXXFLAGS += -fno-exceptions -fcheck-new

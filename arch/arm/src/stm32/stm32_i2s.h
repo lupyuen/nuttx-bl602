@@ -63,7 +63,7 @@ extern "C"
  *
  ****************************************************************************/
 
-struct i2s_dev_s *stm32_i2sbus_initialize(int port);
+FAR struct i2s_dev_s *stm32_i2sbus_initialize(int port);
 
 #undef EXTERN
 #if defined(__cplusplus)

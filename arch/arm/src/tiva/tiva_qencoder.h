@@ -56,6 +56,6 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-struct qe_lowerhalf_s *tiva_qei_initialize(int id);
+FAR struct qe_lowerhalf_s *tiva_qei_initialize(int id);
 
 #endif /* __ARCH_ARM_SRC_TIVA_TIVA_QENCODER_H */

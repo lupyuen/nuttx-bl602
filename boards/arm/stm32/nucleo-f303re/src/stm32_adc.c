@@ -304,7 +304,7 @@ static const uint32_t g_pinlist2[1] =
 
 int stm32_adc_setup(void)
 {
-  struct adc_dev_s *adc;
+  FAR struct adc_dev_s *adc;
   int ret;
   int i;
 

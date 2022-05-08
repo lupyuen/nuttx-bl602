@@ -80,10 +80,10 @@
 
 struct highpri_s
 {
-  struct nrf52_tim_dev_s *dev;
-  volatile uint64_t       basepri[16];
-  volatile uint64_t       handler;
-  volatile uint64_t       thread;
+  FAR struct nrf52_tim_dev_s *dev;
+  volatile uint64_t           basepri[16];
+  volatile uint64_t           handler;
+  volatile uint64_t           thread;
 };
 
 /****************************************************************************
@@ -154,7 +154,7 @@ void timer_handler(void)
 
 int highpri_main(int argc, char *argv[])
 {
-  struct nrf52_tim_dev_s *tim = NULL;
+  FAR struct nrf52_tim_dev_s *tim = NULL;
   uint64_t basepri[16];
   uint64_t handler;
   uint64_t thread;

@@ -50,6 +50,6 @@
  *
  ****************************************************************************/
 
-struct cordic_lowerhalf_s *stm32_cordicinitialize(void);
+FAR struct cordic_lowerhalf_s *stm32_cordicinitialize(void);
 
 #endif /* __ARCH_ARM_SRC_STM32_STM32_CORDIC_H */

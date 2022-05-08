@@ -136,7 +136,8 @@
 __start:
 	/* Make sure that we are in SYS mode with IRQs and FIQs disabled */
 
-	cpsid		if, #PSR_MODE_SYS
+	mov		r0, #(PSR_MODE_SYS | PSR_I_BIT | PSR_F_BIT)
+	msr		cpsr_c, r0
 
 	/* Set up the stack pointer and clear the frame pointer. */
 

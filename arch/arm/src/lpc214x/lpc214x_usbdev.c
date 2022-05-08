@@ -381,9 +381,10 @@ static uint32_t lpc214x_usbcmd(uint16_t cmd, uint8_t data);
 
 /* Request queue operations *************************************************/
 
-static struct lpc214x_req_s *lpc214x_rqdequeue(struct lpc214x_ep_s *privep);
-static void lpc214x_rqenqueue(struct lpc214x_ep_s *privep,
-              struct lpc214x_req_s *req);
+static FAR
+struct lpc214x_req_s *lpc214x_rqdequeue(FAR struct lpc214x_ep_s *privep);
+static void lpc214x_rqenqueue(FAR struct lpc214x_ep_s *privep,
+              FAR struct lpc214x_req_s *req);
 
 /* Low level data transfers and request operations **************************/
 
@@ -418,7 +419,7 @@ static inline
 void lpc214x_ep0dataoutinterrupt(struct lpc214x_usbdev_s *priv);
 static inline
 void lpc214x_ep0dataininterrupt(struct lpc214x_usbdev_s *priv);
-static int lpc214x_usbinterrupt(int irq, void *context, void *arg);
+static int lpc214x_usbinterrupt(int irq, FAR void *context, FAR void *arg);
 
 #ifdef CONFIG_LPC214X_USBDEV_DMA
 static int  lpc214x_dmasetup(struct lpc214x_usbdev_s *priv, uint8_t epphy,
@@ -430,29 +431,30 @@ static void lpc214x_dmadisable(uint8_t epphy);
 
 /* Endpoint operations ******************************************************/
 
-static int  lpc214x_epconfigure(struct usbdev_ep_s *ep,
+static int  lpc214x_epconfigure(FAR struct usbdev_ep_s *ep,
               const struct usb_epdesc_s *desc, bool last);
-static int  lpc214x_epdisable(struct usbdev_ep_s *ep);
-static struct usbdev_req_s *lpc214x_epallocreq(struct usbdev_ep_s *ep);
-static void lpc214x_epfreereq(struct usbdev_ep_s *ep,
-              struct usbdev_req_s *);
+static int  lpc214x_epdisable(FAR struct usbdev_ep_s *ep);
+static FAR
+struct usbdev_req_s *lpc214x_epallocreq(FAR struct usbdev_ep_s *ep);
+static void lpc214x_epfreereq(FAR struct usbdev_ep_s *ep,
+              FAR struct usbdev_req_s *);
 #ifdef CONFIG_USBDEV_DMA
-static void *lpc214x_epallocbuffer(struct usbdev_ep_s *ep,
+static FAR void *lpc214x_epallocbuffer(FAR struct usbdev_ep_s *ep,
               uint16_t nbytes);
-static void lpc214x_epfreebuffer(struct usbdev_ep_s *ep, void *buf);
+static void lpc214x_epfreebuffer(FAR struct usbdev_ep_s *ep, void *buf);
 #endif
-static int  lpc214x_epsubmit(struct usbdev_ep_s *ep,
+static int  lpc214x_epsubmit(FAR struct usbdev_ep_s *ep,
               struct usbdev_req_s *req);
-static int  lpc214x_epcancel(struct usbdev_ep_s *ep,
+static int  lpc214x_epcancel(FAR struct usbdev_ep_s *ep,
               struct usbdev_req_s *req);
-static int  lpc214x_epstall(struct usbdev_ep_s *ep, bool resume);
+static int  lpc214x_epstall(FAR struct usbdev_ep_s *ep, bool resume);
 
 /* USB device controller operations *****************************************/
 
-static struct usbdev_ep_s *lcp214x_allocep(struct usbdev_s *dev,
+static FAR struct usbdev_ep_s *lcp214x_allocep(FAR struct usbdev_s *dev,
               uint8_t epno, bool in, uint8_t eptype);
-static void lpc214x_freeep(struct usbdev_s *dev,
-                           struct usbdev_ep_s *ep);
+static void lpc214x_freeep(FAR struct usbdev_s *dev,
+                           FAR struct usbdev_ep_s *ep);
 static int  lpc214x_getframe(struct usbdev_s *dev);
 static int  lpc214x_wakeup(struct usbdev_s *dev);
 static int  lpc214x_selfpowered(struct usbdev_s *dev, bool selfpowered);
@@ -746,9 +748,10 @@ static uint32_t lpc214x_usbcmd(uint16_t cmd, uint8_t data)
  *
  ****************************************************************************/
 
-static struct lpc214x_req_s *lpc214x_rqdequeue(struct lpc214x_ep_s *privep)
+static FAR
+struct lpc214x_req_s *lpc214x_rqdequeue(FAR struct lpc214x_ep_s *privep)
 {
-  struct lpc214x_req_s *ret = privep->head;
+  FAR struct lpc214x_req_s *ret = privep->head;
 
   if (ret)
     {
@@ -772,8 +775,8 @@ static struct lpc214x_req_s *lpc214x_rqdequeue(struct lpc214x_ep_s *privep)
  *
  ****************************************************************************/
 
-static void lpc214x_rqenqueue(struct lpc214x_ep_s *privep,
-                              struct lpc214x_req_s *req)
+static void lpc214x_rqenqueue(FAR struct lpc214x_ep_s *privep,
+                              FAR struct lpc214x_req_s *req)
 {
   req->flink = NULL;
   if (!privep->head)
@@ -2076,7 +2079,7 @@ static inline void lpc214x_ep0dataininterrupt(struct lpc214x_usbdev_s *priv)
  ****************************************************************************/
 
 static int lpc214x_usbinterrupt(int irq,
-                                void *context, void *arg)
+                                FAR void *context, FAR void *arg)
 {
   struct lpc214x_usbdev_s *priv = &g_usbdev;
   struct lpc214x_ep_s *privep ;
@@ -2617,11 +2620,11 @@ static void lpc214x_dmadisable(uint8_t epphy)
  *
  ****************************************************************************/
 
-static int lpc214x_epconfigure(struct usbdev_ep_s *ep,
-                               const struct usb_epdesc_s *desc,
+static int lpc214x_epconfigure(FAR struct usbdev_ep_s *ep,
+                               FAR const struct usb_epdesc_s *desc,
                                bool last)
 {
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   uint32_t inten;
 
   usbtrace(TRACE_EPCONFIGURE, privep->epphy);
@@ -2668,9 +2671,9 @@ static int lpc214x_epconfigure(struct usbdev_ep_s *ep,
  *
  ****************************************************************************/
 
-static int lpc214x_epdisable(struct usbdev_ep_s *ep)
+static int lpc214x_epdisable(FAR struct usbdev_ep_s *ep)
 {
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   irqstate_t flags;
   uint32_t mask = (1 << privep->epphy);
   uint32_t reg;
@@ -2714,9 +2717,10 @@ static int lpc214x_epdisable(struct usbdev_ep_s *ep)
  *
  ****************************************************************************/
 
-static struct usbdev_req_s *lpc214x_epallocreq(struct usbdev_ep_s *ep)
+static FAR
+struct usbdev_req_s *lpc214x_epallocreq(FAR struct usbdev_ep_s *ep)
 {
-  struct lpc214x_req_s *privreq;
+  FAR struct lpc214x_req_s *privreq;
 
 #ifdef CONFIG_DEBUG_FEATURES
   if (!ep)
@@ -2726,9 +2730,9 @@ static struct usbdev_req_s *lpc214x_epallocreq(struct usbdev_ep_s *ep)
     }
 #endif
 
-  usbtrace(TRACE_EPALLOCREQ, ((struct lpc214x_ep_s *)ep)->epphy);
+  usbtrace(TRACE_EPALLOCREQ, ((FAR struct lpc214x_ep_s *)ep)->epphy);
 
-  privreq = (struct lpc214x_req_s *)
+  privreq = (FAR struct lpc214x_req_s *)
                  kmm_malloc(sizeof(struct lpc214x_req_s));
   if (!privreq)
     {
@@ -2748,10 +2752,10 @@ static struct usbdev_req_s *lpc214x_epallocreq(struct usbdev_ep_s *ep)
  *
  ****************************************************************************/
 
-static void lpc214x_epfreereq(struct usbdev_ep_s *ep,
-                              struct usbdev_req_s *req)
+static void lpc214x_epfreereq(FAR struct usbdev_ep_s *ep,
+                              FAR struct usbdev_req_s *req)
 {
-  struct lpc214x_req_s *privreq = (struct lpc214x_req_s *)req;
+  FAR struct lpc214x_req_s *privreq = (FAR struct lpc214x_req_s *)req;
 
 #ifdef CONFIG_DEBUG_FEATURES
   if (!ep || !req)
@@ -2761,7 +2765,7 @@ static void lpc214x_epfreereq(struct usbdev_ep_s *ep,
     }
 #endif
 
-  usbtrace(TRACE_EPFREEREQ, ((struct lpc214x_ep_s *)ep)->epphy);
+  usbtrace(TRACE_EPFREEREQ, ((FAR struct lpc214x_ep_s *)ep)->epphy);
 
   kmm_free(privreq);
 }
@@ -2775,12 +2779,12 @@ static void lpc214x_epfreereq(struct usbdev_ep_s *ep,
  ****************************************************************************/
 
 #ifdef CONFIG_LPC214X_USBDEV_DMA
-static void *lpc214x_epallocbuffer(struct usbdev_ep_s *ep,
-                                   uint16_t nbytes)
+static FAR void *lpc214x_epallocbuffer(FAR struct usbdev_ep_s *ep,
+                                       uint16_t nbytes)
 {
 #ifdef CONFIG_USBDEV_DMA
 
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   int descndx;
 
   usbtrace(TRACE_EPALLOCBUFFER, privep->epphy);
@@ -2818,10 +2822,10 @@ static void *lpc214x_epallocbuffer(struct usbdev_ep_s *ep,
 
 #ifdef CONFIG_USBDEV_DMA
 
-static void lpc214x_epfreebuffer(struct usbdev_ep_s *ep, void *buf)
+static void lpc214x_epfreebuffer(FAR struct usbdev_ep_s *ep, FAR void *buf)
 {
 #ifdef CONFIG_LPC214X_USBDEV_DMA
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
 
   usbtrace(TRACE_EPFREEBUFFER, privep->epphy);
 
@@ -2857,12 +2861,12 @@ static void lpc214x_epfreebuffer(struct usbdev_ep_s *ep, void *buf)
  *
  ****************************************************************************/
 
-static int lpc214x_epsubmit(struct usbdev_ep_s *ep,
-                            struct usbdev_req_s *req)
+static int lpc214x_epsubmit(FAR struct usbdev_ep_s *ep,
+                            FAR struct usbdev_req_s *req)
 {
-  struct lpc214x_req_s *privreq = (struct lpc214x_req_s *)req;
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
-  struct lpc214x_usbdev_s *priv;
+  FAR struct lpc214x_req_s *privreq = (FAR struct lpc214x_req_s *)req;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_usbdev_s *priv;
   irqstate_t flags;
   int ret = OK;
 
@@ -2948,10 +2952,10 @@ static int lpc214x_epsubmit(struct usbdev_ep_s *ep,
  *
  ****************************************************************************/
 
-static int lpc214x_epcancel(struct usbdev_ep_s *ep,
-                            struct usbdev_req_s *req)
+static int lpc214x_epcancel(FAR struct usbdev_ep_s *ep,
+                            FAR struct usbdev_req_s *req)
 {
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   irqstate_t flags;
 
 #ifdef CONFIG_DEBUG_FEATURES
@@ -2978,9 +2982,9 @@ static int lpc214x_epcancel(struct usbdev_ep_s *ep,
  *
  ****************************************************************************/
 
-static int lpc214x_epstall(struct usbdev_ep_s *ep, bool resume)
+static int lpc214x_epstall(FAR struct usbdev_ep_s *ep, bool resume)
 {
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   irqstate_t flags;
 
   /* STALL or RESUME the endpoint */
@@ -3022,11 +3026,11 @@ static int lpc214x_epstall(struct usbdev_ep_s *ep, bool resume)
  *
  ****************************************************************************/
 
-static struct usbdev_ep_s *lcp214x_allocep(struct usbdev_s *dev,
+static FAR struct usbdev_ep_s *lcp214x_allocep(FAR struct usbdev_s *dev,
                                                uint8_t eplog,
                                                bool in, uint8_t eptype)
 {
-  struct lpc214x_usbdev_s *priv = (struct lpc214x_usbdev_s *)dev;
+  FAR struct lpc214x_usbdev_s *priv = (FAR struct lpc214x_usbdev_s *)dev;
   uint32_t epset = LPC214X_EPALLSET & ~LPC214X_EPCTRLSET;
   irqstate_t flags;
   int epndx = 0;
@@ -3147,11 +3151,11 @@ static struct usbdev_ep_s *lcp214x_allocep(struct usbdev_s *dev,
  *
  ****************************************************************************/
 
-static void lpc214x_freeep(struct usbdev_s *dev,
-                           struct usbdev_ep_s *ep)
+static void lpc214x_freeep(FAR struct usbdev_s *dev,
+                           FAR struct usbdev_ep_s *ep)
 {
-  struct lpc214x_usbdev_s *priv = (struct lpc214x_usbdev_s *)dev;
-  struct lpc214x_ep_s *privep = (struct lpc214x_ep_s *)ep;
+  FAR struct lpc214x_usbdev_s *priv = (FAR struct lpc214x_usbdev_s *)dev;
+  FAR struct lpc214x_ep_s *privep = (FAR struct lpc214x_ep_s *)ep;
   irqstate_t flags;
 
   usbtrace(TRACE_DEVFREEEP, (uint16_t)privep->epphy);
@@ -3177,7 +3181,7 @@ static void lpc214x_freeep(struct usbdev_s *dev,
 static int lpc214x_getframe(struct usbdev_s *dev)
 {
 #ifdef CONFIG_LPC214X_USBDEV_FRAME_INTERRUPT
-  struct lpc214x_usbdev_s *priv = (struct lpc214x_usbdev_s *)dev;
+  FAR struct lpc214x_usbdev_s *priv = (FAR struct lpc214x_usbdev_s *)dev;
 
   /* Return last valid value of SOF read by the interrupt handler */
 
@@ -3227,7 +3231,7 @@ static int lpc214x_wakeup(struct usbdev_s *dev)
 
 static int lpc214x_selfpowered(struct usbdev_s *dev, bool selfpowered)
 {
-  struct lpc214x_usbdev_s *priv = (struct lpc214x_usbdev_s *)dev;
+  FAR struct lpc214x_usbdev_s *priv = (FAR struct lpc214x_usbdev_s *)dev;
 
   usbtrace(TRACE_DEVSELFPOWERED, (uint16_t)selfpowered);
 

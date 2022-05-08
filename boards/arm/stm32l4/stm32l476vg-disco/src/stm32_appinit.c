@@ -73,8 +73,8 @@
  ****************************************************************************/
 
 #ifdef HAVE_N25QXXX
-struct qspi_dev_s *g_qspi;
-struct mtd_dev_s *g_mtd_fs;
+FAR struct qspi_dev_s *g_qspi;
+FAR struct mtd_dev_s *g_mtd_fs;
 #endif
 
 /****************************************************************************
@@ -110,10 +110,10 @@ struct mtd_dev_s *g_mtd_fs;
 int board_app_initialize(uintptr_t arg)
 {
 #ifdef HAVE_RTC_DRIVER
-  struct rtc_lowerhalf_s *rtclower;
+  FAR struct rtc_lowerhalf_s *rtclower;
 #endif
 #if defined(HAVE_N25QXXX)
-  struct mtd_dev_s *mtd_temp;
+  FAR struct mtd_dev_s *mtd_temp;
 #endif
 #if defined(HAVE_N25QXXX_CHARDEV)
 #if defined(CONFIG_BCH)
@@ -187,7 +187,7 @@ int board_app_initialize(uintptr_t arg)
 
 #ifdef CONFIG_MTD_PARTITION
         {
-          struct mtd_geometry_s geo;
+          FAR struct mtd_geometry_s geo;
           off_t nblocks;
 
           /* Setup a partition of 256KiB for our file system. */

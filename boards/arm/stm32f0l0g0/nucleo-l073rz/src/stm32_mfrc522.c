@@ -60,9 +60,9 @@
  *
  ****************************************************************************/
 
-int stm32_mfrc522initialize(const char *devpath)
+int stm32_mfrc522initialize(FAR const char *devpath)
 {
-  struct spi_dev_s *spi;
+  FAR struct spi_dev_s *spi;
   int ret;
 
   /* Configure MFRC522 reset */

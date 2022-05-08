@@ -414,7 +414,7 @@ extern "C"
  ****************************************************************************/
 
 struct adc_dev_s *stm32_sdadcinitialize(int intf,
-                                        const uint8_t *chanlist,
+                                        FAR const uint8_t *chanlist,
                                         int nchannels);
 
 #undef EXTERN

@@ -64,15 +64,9 @@
 #include <arch/xtensa/xtensa_abi.h>
 #include <arch/xtensa/xtensa_specregs.h>
 
-#include "xtensa_macros.S"
-
 #include "chip.h"
 #include "xtensa.h"
 #include "xtensa_timer.h"
-
-/****************************************************************************
- * Public Symbols
- ****************************************************************************/
 
 #if !defined(CONFIG_SMP) && CONFIG_ARCH_INTERRUPTSTACK > 15
  .data
@@ -111,13 +105,34 @@ g_intstacktop:
 	.endm
 
 /****************************************************************************
- * Macro dispatch_c_isr level mask tmp
+ * Name: setintstack
+ *
+ * Description:
+ *   Set the current stack pointer to the "top" the interrupt stack.
+ *   Single CPU case.
+ *   Must be provided by MCU-specific logic in the SMP case.
+ *
+ ****************************************************************************/
+
+#if !defined(CONFIG_SMP) && CONFIG_ARCH_INTERRUPTSTACK > 15
+	.macro	setintstack tmp1 tmp2
+	movi		a1, g_intstacktop
+	.endm
+#endif
+
+/****************************************************************************
+ * Macro dispatch_c_isr level mask
  *
  * Description:
  *
- * This macro will dispatch the set of pending and enabled interrupts to
- * their handlers. It just does the necessary configuration and ends up
- * calling xtensa_int_decode.
+ * This will dispatch to user handlers (if any) that are registered in the
+ * XTOS dispatch table (_xtos_interrupt_table). These handlers would have
+ * been registered by calling _xtos_set_interrupt_handler(). There is one
+ * exception - the timer interrupt used by the OS will not be dispatched
+ * to a user handler - this must be handled by the caller of this macro.
+ *
+ * Level triggered and software interrupts are automatically deasserted by
+ * this code.
  *
  * Assumptions:
  *   - PS.INTLEVEL is set to "level" at entry
@@ -135,20 +150,7 @@ g_intstacktop:
  *
  ****************************************************************************/
 
-	.macro	dispatch_c_isr	level mask tmp
-
-	/* If the interrupt stack is disabled, reserve xcpcontext to ensure
-	 * that signal processing can have a separate xcpcontext to handle
-	 * signal context (ref: xtensa_schedulesigaction.c):
-	 */
-
-#if CONFIG_ARCH_INTERRUPTSTACK < 15
-	addi	sp, sp, -XCPTCONTEXT_SIZE
-#endif
-
-	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
-
-	ps_setup	\level \tmp
+	.macro	dispatch_c_isr	level mask
 
 #ifdef __XTENSA_CALL0_ABI__
 	/* Get mask of pending, enabled interrupts at this level into a2. */
@@ -226,13 +228,54 @@ g_intstacktop:
 	mov		a12, a6						/* Switch to the save area of the new thread */
 #endif
 
-#if CONFIG_ARCH_INTERRUPTSTACK < 15
-	addi	sp, sp, XCPTCONTEXT_SIZE
-#endif
-
 	/* Done */
 
 1:
+	.endm
+
+/****************************************************************************
+ * Macro: ps_setup
+ *
+ * Description:
+ *   Set up PS for C, enable interrupts above this level and clear EXCM.
+ *
+ * Entry Conditions:
+ *   level - interrupt level
+ *   tmp   - scratch register
+ *
+ * Side Effects:
+ *   PS and scratch register modified
+ *
+ * Assumptions:
+ *   - PS.EXCM = 1, C calling disabled
+ *
+ ****************************************************************************/
+
+	.macro	ps_setup	level tmp
+
+#if 0 /* Nested interrupts no yet supported */
+#  ifdef __XTENSA_CALL0_ABI__
+	/* Disable interrupts at level and below */
+
+	movi	\tmp, PS_INTLEVEL(\level) | PS_UM
+#  else
+	movi	\tmp, PS_INTLEVEL(\level) | PS_UM | PS_WOE
+#  endif
+#else
+#  ifdef __XTENSA_CALL0_ABI__
+	/* Disable all low- and medium-priority interrupts.  Nested are not yet
+	 * supported.
+	 */
+
+	movi	\tmp, PS_INTLEVEL(XCHAL_EXCM_LEVEL) | PS_UM
+#  else
+	movi	\tmp, PS_INTLEVEL(XCHAL_EXCM_LEVEL) | PS_UM | PS_WOE
+#  endif
+#endif
+
+	wsr		\tmp, PS
+	rsync
+
 	.endm
 
 /****************************************************************************
@@ -279,6 +322,10 @@ _xtensa_level1_handler:
   setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	1 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -286,7 +333,7 @@ _xtensa_level1_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	1 XCHAL_INTLEVEL1_MASK a0
+	dispatch_c_isr	1 XCHAL_INTLEVEL1_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 
@@ -373,6 +420,10 @@ _xtensa_level2_handler:
 	setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	2 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -380,7 +431,7 @@ _xtensa_level2_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	2 XCHAL_INTLEVEL2_MASK a0
+	dispatch_c_isr	2 XCHAL_INTLEVEL2_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 
@@ -442,6 +493,10 @@ _xtensa_level3_handler:
 	setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	3 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -449,7 +504,7 @@ _xtensa_level3_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	3 XCHAL_INTLEVEL3_MASK a0
+	dispatch_c_isr	3 XCHAL_INTLEVEL3_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 
@@ -511,6 +566,10 @@ _xtensa_level4_handler:
 	setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	4 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -518,7 +577,7 @@ _xtensa_level4_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	4 XCHAL_INTLEVEL4_MASK a0
+	dispatch_c_isr	4 XCHAL_INTLEVEL4_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 
@@ -580,6 +639,10 @@ _xtensa_level5_handler:
 	setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	5 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -587,7 +650,7 @@ _xtensa_level5_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	5 XCHAL_INTLEVEL5_MASK a0
+	dispatch_c_isr	5 XCHAL_INTLEVEL5_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 
@@ -649,6 +712,10 @@ _xtensa_level6_handler:
 	setintstack a13 a14
 #endif
 
+	/* Set up PS for C, enable interrupts above this level and clear EXCM. */
+
+	ps_setup	6 a0
+
 	/* Decode and dispatch the interrupt.  In the event of an interrupt
 	 * level context dispatch_c_isr() will (1) switch stacks to the new
 	 * thread's and (2) provide the address of the register state save
@@ -656,7 +723,7 @@ _xtensa_level6_handler:
 	 * in the new thread's stack.
 	 */
 
-	dispatch_c_isr	6 XCHAL_INTLEVEL6_MASK a0
+	dispatch_c_isr	6 XCHAL_INTLEVEL6_MASK
 
 	/* Restore registers in preparation to return from interrupt */
 

@@ -46,11 +46,11 @@
  ****************************************************************************/
 
 #ifdef CONFIG_SENSORS_BM1422GMV_SCU
-int board_bm1422gmv_initialize(const char *devpath, int bus)
+int board_bm1422gmv_initialize(FAR const char *devpath, int bus)
 {
   int id = 0;
   int ret;
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
 
   sninfo("Initializing BM1422GMV...\n");
 

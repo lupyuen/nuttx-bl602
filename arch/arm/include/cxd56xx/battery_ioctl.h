@@ -96,7 +96,7 @@ struct bat_monitor_rec_s
 
 struct bat_monitor_log_s
 {
-  struct bat_monitor_rec_s *rec;
+  FAR struct bat_monitor_rec_s *rec;
   int index;
   int size;
 };

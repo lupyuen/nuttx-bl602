@@ -116,7 +116,7 @@ int board_lcd_initialize(void)
  *
  ****************************************************************************/
 
-struct lcd_dev_s *board_lcd_getdev(int devno)
+FAR struct lcd_dev_s *board_lcd_getdev(int devno)
 {
   g_lcd = st7735_lcdinitialize(g_spidev);
   if (!g_lcd)

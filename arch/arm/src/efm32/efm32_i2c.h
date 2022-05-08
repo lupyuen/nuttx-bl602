@@ -49,7 +49,7 @@
  *
  ****************************************************************************/
 
-struct i2c_master_s *efm32_i2cbus_initialize(int port);
+FAR struct i2c_master_s *efm32_i2cbus_initialize(int port);
 
 /****************************************************************************
  * Name: efm32_i2cbus_uninitialize
@@ -66,6 +66,6 @@ struct i2c_master_s *efm32_i2cbus_initialize(int port);
  *
  ****************************************************************************/
 
-int efm32_i2cbus_uninitialize(struct i2c_master_s *dev);
+int efm32_i2cbus_uninitialize(FAR struct i2c_master_s *dev);
 
 #endif /* __ARCH_ARM_SRC_EFM32_EFM32_I2C_H */

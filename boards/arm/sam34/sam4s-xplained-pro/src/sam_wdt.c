@@ -80,7 +80,7 @@
 #if defined(CONFIG_WDT_THREAD)
 static int wdog_daemon(int argc, char *argv[])
 {
-  struct file filestruct;
+  FAR struct file filestruct;
   int ret;
 
   /* Open the watchdog device for reading */
@@ -137,7 +137,7 @@ errout:
 int sam_watchdog_initialize(void)
 {
 #if (defined(CONFIG_SAM34_WDT) && !defined(CONFIG_WDT_DISABLE_ON_RESET))
-  struct file filestruct;
+  FAR struct file filestruct;
   int ret;
 
   /* Initialize the watchdog timer device */
@@ -188,7 +188,7 @@ int sam_watchdog_initialize(void)
   int taskid = kthread_create(CONFIG_WDT_THREAD_NAME,
                               CONFIG_WDT_THREAD_PRIORITY,
                               CONFIG_WDT_THREAD_STACKSIZE,
-                              (main_t)wdog_daemon, (char * const *)NULL);
+                              (main_t)wdog_daemon, (FAR char * const *)NULL);
 
   DEBUGASSERT(taskid > 0);
   UNUSED(taskid);

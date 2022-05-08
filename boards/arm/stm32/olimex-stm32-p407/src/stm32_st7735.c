@@ -98,7 +98,7 @@ int board_lcd_initialize(void)
  *
  ****************************************************************************/
 
-struct lcd_dev_s *board_lcd_getdev(int devno)
+FAR struct lcd_dev_s *board_lcd_getdev(int devno)
 {
   return g_lcd;
 }

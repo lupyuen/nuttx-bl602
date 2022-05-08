@@ -92,8 +92,8 @@ int stm32l4_bringup(void)
     {
       /* Create an instance of the STM32L4 QSPI device driver */
 
-      struct qspi_dev_s *g_qspi;
-      struct mtd_dev_s *g_mtd_fs;
+      FAR struct qspi_dev_s *g_qspi;
+      FAR struct mtd_dev_s *g_mtd_fs;
 
       g_qspi = stm32l4_qspi_initialize(0);
       if (g_qspi == NULL)
@@ -122,9 +122,9 @@ int stm32l4_bringup(void)
           int partoffset;
           int partszbytes;
           int erasesize;
-          struct mtd_geometry_s geo;
+          FAR struct mtd_geometry_s geo;
           const char *ptr = CONFIG_B_L475E_IOT01A_MTD_PART_LIST;
-          struct mtd_dev_s *mtd_part;
+          FAR struct mtd_dev_s *mtd_part;
           char  partref[16];
 
           /* Now create a partition on the FLASH device */

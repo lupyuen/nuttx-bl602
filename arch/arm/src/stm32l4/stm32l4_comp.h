@@ -146,9 +146,9 @@ struct stm32l4_comp_config_s
 {
   struct
   {
-    const struct comp_callback_s *cb;
-    bool                          rising;
-    bool                          falling;
+    FAR const struct comp_callback_s *cb;
+    bool                              rising;
+    bool                              falling;
   } interrupt;
 
   uint8_t  inp;                 /* Plus input pin (see enum stm32l4_comp_inp_e) */
@@ -191,9 +191,9 @@ extern "C"
  *
  ****************************************************************************/
 
-struct
+FAR struct
 comp_dev_s *stm32l4_compinitialize(int intf,
-                                   const struct stm32l4_comp_config_s *cfg);
+                               FAR const struct stm32l4_comp_config_s *cfg);
 
 #undef EXTERN
 #ifdef __cplusplus

@@ -103,12 +103,15 @@
 #define IDLETHREAD_STACKSIZE  ((CONFIG_IDLETHREAD_STACKSIZE + 15) & ~15)
 #define IDLETHREAD_STACKWORDS (IDLETHREAD_STACKSIZE >> 2)
 
-/* In the Xtensa model, the state is saved in stack,
- * only a reference stored in TCB.
+/* In the XTENSA model, the state is copied from the stack to the TCB, but
+ * only a referenced is passed to get the state from the TCB.
+ *
+ * REVISIT: It would not be too difficult to save only a pointer to the
+ * state save area in the TCB and thus avoid the copy.
  */
 
-#define xtensa_savestate(regs)    ((regs) = (uint32_t *)CURRENT_REGS)
-#define xtensa_restorestate(regs) (CURRENT_REGS = (regs))
+#define xtensa_savestate(regs)    xtensa_copystate(regs, (uint32_t*)CURRENT_REGS)
+#define xtensa_restorestate(regs) do { CURRENT_REGS = regs; } while (0)
 
 /* Context switching via system calls ***************************************/
 

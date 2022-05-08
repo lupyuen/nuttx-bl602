@@ -54,9 +54,9 @@
  *
  ****************************************************************************/
 
-int stm32_bmp180initialize(const char *devpath)
+int stm32_bmp180initialize(FAR const char *devpath)
 {
-  struct i2c_master_s *i2c;
+  FAR struct i2c_master_s *i2c;
   int ret;
 
   sninfo("Initializing BMP180!\n");
