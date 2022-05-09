@@ -288,7 +288,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: TEMP-release-${{ steps.date.outputs.date }}
+        tag_name: release-${{ steps.date.outputs.date }}
         files: nuttx/nuttx/nuttx.zip
         draft: false
         prerelease: false
