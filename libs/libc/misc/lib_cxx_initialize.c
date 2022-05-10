@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/sched/cxx_initialize_sinit.c
+ * libs/libc/misc/lib_cxx_initialize.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -29,6 +29,8 @@
 #include <sched.h>
 #include <stdlib.h>
 
+#include "libc.h"
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -55,12 +57,16 @@ extern initializer_t _einit;
 extern uintptr_t _stext;
 extern uintptr_t _etext;
 
+#if defined(CONFIG_ARCH_SIM) && defined(CONFIG_HOST_MACOS)
+extern void macho_call_saved_init_funcs(void);
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cxx_initialize
+ * Name: lib_cxx_initialize
  *
  * Description:
  *   If C++ and C++ static constructors are supported, then this function
@@ -75,13 +81,16 @@ extern uintptr_t _etext;
  *
  ****************************************************************************/
 
-void cxx_initialize(void)
+void lib_cxx_initialize(void)
 {
 #ifdef CONFIG_HAVE_CXXINITIALIZE
   static int inited = 0;
 
   if (inited == 0)
     {
+#if defined(CONFIG_ARCH_SIM) && defined(CONFIG_HOST_MACOS)
+      macho_call_saved_init_funcs();
+#else
       initializer_t *initp;
 
       sinfo("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
@@ -106,6 +115,7 @@ void cxx_initialize(void)
               initializer();
             }
         }
+#endif
 
       inited = 1;
     }

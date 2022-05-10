@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/sched/cxx_initialize.h
+ * arch/arm/src/tlsr82/tlsr82_timer_lowerhalf.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,4 +18,23 @@
  *
  ****************************************************************************/
 
-void cxx_initialize(void);
+#ifndef __ARCH_ARM_SRC_TLSR82_TLSR82_TIMER_LOWERHALF_H
+#define __ARCH_ARM_SRC_TLSR82_TLSR82_TIMER_LOWERHALF_H
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: tlsr82_timer_initialize
+ ****************************************************************************/
+
+int tlsr82_timer_initialize(const char *devpath, int timer);
+
+#endif /* __ARCH_ARM_SRC_TLSR82_TLSR82_TIMER_LOWERHALF_H */

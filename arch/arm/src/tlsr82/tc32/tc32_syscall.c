@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/sched/cxx_initialize_macho.c
+ * arch/arm/src/tlsr82/tc32/tc32_syscall.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -24,38 +24,34 @@
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
+#include <debug.h>
+#include <assert.h>
+
+#include <arch/irq.h>
+
+#include "arm_internal.h"
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cxx_initialize
+ * Name: arm_syscall
  *
  * Description:
- *   If C++ and C++ static constructors are supported, then this function
- *   must be provided by board-specific logic in order to perform
- *   initialization of the static C++ class instances.
+ *   SWI interrupts will vector here with insn=the SWI instruction and
+ *   xcp=the interrupt context
  *
- *   This function should then be called in the application-specific
- *   user_start logic in order to perform the C++ initialization.  NOTE
- *   that no component of the core NuttX RTOS logic is involved; this
- *   function definition only provides the 'contract' between application
- *   specific C++ code and platform-specific toolchain support.
+ *   The handler may get the SWI number be de-referencing
+ *   the return address saved in the xcp and decoding
+ *   the SWI instruction
  *
  ****************************************************************************/
 
-void cxx_initialize(void)
+void arm_syscall(uint32_t *regs)
 {
-#ifdef CONFIG_HAVE_CXXINITIALIZE
-  static int inited = 0;
-
-  if (inited == 0)
-    {
-      extern void macho_call_saved_init_funcs(void);
-
-      macho_call_saved_init_funcs();
-
-      inited = 1;
-    }
-#endif
+  _alert("Syscall from 0x%" PRIx32 "\n", regs[REG_PC]);
+  CURRENT_REGS = regs;
+  PANIC();
 }
