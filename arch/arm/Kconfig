@@ -489,6 +489,15 @@ config ARCH_CHIP_PHY62XX
 	---help---
 		Phyplus PHY62XX architectures (ARM Cortex-M0).
 
+config ARCH_CHIP_TLSR82
+	bool "Telink TLSR82XX"
+	select ARCH_ARMV6M
+	select ARCH_HAVE_BACKTRACE
+	select ARCH_HAVE_RESET
+	select LIBC_ARCH_ATOMIC
+	---help---
+		Telink tlsr82xx architectures (Customed armv6m)
+
 config ARCH_CHIP_ARM_CUSTOM
 	bool "Custom ARM chip"
 	select ARCH_CHIP_CUSTOM
@@ -662,6 +671,7 @@ config ARCH_CORTEXA5
 	select ARCH_HAVE_MMU
 	select ARCH_USE_MMU
 	select ARCH_HAVE_TESTSET
+	select ARM_HAVE_MPCORE
 
 config ARCH_CORTEXA7
 	bool
@@ -672,6 +682,7 @@ config ARCH_CORTEXA7
 	select ARCH_HAVE_MMU
 	select ARCH_USE_MMU
 	select ARCH_HAVE_TESTSET
+	select ARM_HAVE_MPCORE
 
 config ARCH_CORTEXA8
 	bool
@@ -692,6 +703,7 @@ config ARCH_CORTEXA9
 	select ARCH_HAVE_MMU
 	select ARCH_USE_MMU
 	select ARCH_HAVE_TESTSET
+	select ARM_HAVE_MPCORE
 
 config ARCH_ARMV7R
 	bool
@@ -845,6 +857,7 @@ config ARCH_CHIP
 	default "xmc4"		if ARCH_CHIP_XMC4
 	default "cxd56xx"	if ARCH_CHIP_CXD56XX
 	default "phy62xx"	if ARCH_CHIP_PHY62XX
+	default "tlsr82"	if ARCH_CHIP_TLSR82
 
 config ARCH_HAVE_TRUSTZONE
 	bool
@@ -899,7 +912,7 @@ config ARM_FPU_ABI_SOFT
 	default n
 	depends on ARCH_HAVE_FPU
 	---help---
-		Pass float value via integer register (-mfloat-abi=softfp) 
+		Pass float value via integer register (-mfloat-abi=softfp)
 
 config ARM_DPFPU32
 	bool "FPU with 32 double-precision register"
@@ -917,6 +930,12 @@ config ARM_HAVE_MPU_UNIFIED
 	---help---
 		Automatically selected to indicate that the CPU supports a
 		unified MPU for both instruction and data addresses.
+
+config ARM_HAVE_MPCORE
+	bool
+	default n
+	---help---
+		Decide whether support MPCore extension
 
 config ARM_MPU
 	bool "MPU support"
@@ -1226,5 +1245,7 @@ endif
 if ARCH_CHIP_CXD56XX
 source "arch/arm/src/cxd56xx/Kconfig"
 endif
-
+if ARCH_CHIP_TLSR82
+source "arch/arm/src/tlsr82/Kconfig"
+endif
 endif # ARCH_ARM
