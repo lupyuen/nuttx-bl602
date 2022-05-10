@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/src/common/arm_etherstub.c
+ * arch/arm/src/tlsr82/tlsr82_flash.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,40 +18,58 @@
  *
  ****************************************************************************/
 
+#ifndef __ARCH_ARM_SRC_TLSR82_TLSR82_FLASH_H
+#define __ARCH_ARM_SRC_TLSR82_TLSR82_FLASH_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include "arm_internal.h"
+#include <stdint.h>
+
+#include "chip.h"
+
+#include "hardware/tlsr82_mspi.h"
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: arm_netinitialize (stub)
- *
- * Description:
- *   This is a stub version os arm_netinitialize. Normally, arm_netinitialize
- *   is defined in board/xyz_network.c for board-specific Ethernet
- *   implementations, or chip/xyx_ethernet.c for chip-specific Ethernet
- *   implementations.  The stub version here is used in the corner case where
- *   the network is enable yet there is no Ethernet driver to be initialized.
- *   In this case, up_initialize will still try to call arm_netinitialize()
- *   when one does not exist.  This corner case would occur if, for example,
- *   only a USB network interface is being used or perhaps if a SLIP is
- *   being used).
- *
- *   Use of this stub is deprecated.  The preferred mechanism is to use
- *   CONFIG_NETDEV_LATEINIT=y to suppress the call to arm_netinitialize() in
- *   up_initialize().  Then this stub would not be needed.
- *
+ * Public Types
  ****************************************************************************/
 
-#if defined(CONFIG_NET) && !defined(CONFIG_NETDEV_LATEINIT)
-void arm_netinitialize(void)
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifndef __ASSEMBLY__
+
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
 {
+#else
+#define EXTERN extern
+#endif
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+void tlsr82_flash_erase_sector(uint32_t addr);
+void tlsr82_flash_read_data(uint32_t addr, uint8_t *buf, uint32_t len);
+void tlsr82_flash_write_data(uint32_t addr, const uint8_t *buf,
+                             uint32_t len);
+int tlsr82_flash_miduid_check(uint32_t *pmid, uint8_t *puid);
+
+#undef EXTERN
+#if defined(__cplusplus)
 }
 #endif
+
+#endif /* __ASSEMBLY__ */
+#endif /* __ARCH_ARM_SRC_TLSR82_TLSR82_FLASH_H */
