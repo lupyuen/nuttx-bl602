@@ -70,6 +70,9 @@ endif
 ARCHCFLAGS += -fno-common
 ARCHCXXFLAGS += -fno-common -nostdinc++
 
+ARCHCFLAGS += -Wall -Wstrict-prototypes -Wshadow -Wundef
+ARCHCXXFLAGS += -Wall -Wshadow -Wundef
+
 ifneq ($(CONFIG_CXX_EXCEPTION),y)
   ARCHCXXFLAGS += -fno-exceptions -fcheck-new
 endif
@@ -78,12 +81,20 @@ ifneq ($(CONFIG_CXX_RTTI),y)
   ARCHCXXFLAGS += -fno-rtti
 endif
 
+ifeq ($(CONFIG_ARCH_RV32),y)
+LDFLAGS += -melf32lriscv
+else
+LDFLAGS += -melf64lriscv
+endif
+
 # Optimization of unused sections
 
 ifeq ($(CONFIG_DEBUG_OPT_UNUSED_SECTIONS),y)
   LDFLAGS          += --gc-sections
   ARCHOPTIMIZATION += -ffunction-sections -fdata-sections
 endif
+
+LDFLAGS += -nostdlib
 
 # Debug link map
 
@@ -153,7 +164,7 @@ ifeq ($(CONFIG_RISCV_TOOLCHAIN),GNU_RVG)
 endif
 
 ifeq ($(CONFIG_MM_KASAN),y)
-  ARCHCPUFLAGS += -fsanitize=kernel-address
+  ARCHOPTIMIZATION += -fsanitize=kernel-address
 endif
 
 # Default toolchain
@@ -178,7 +189,6 @@ ifeq ($(CONFIG_LTO_FULL),y)
     NM := $(CROSSDEV)gcc-nm
     ARCHOPTIMIZATION += -fuse-linker-plugin
     ARCHOPTIMIZATION += -fno-builtin
-    ARCHOPTIMIZATION += -nodefaultlibs
   endif
 endif
 

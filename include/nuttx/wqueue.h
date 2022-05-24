@@ -422,6 +422,29 @@ void work_foreach(int qid, work_foreach_t handler, FAR void *arg);
 #define work_available(work) ((work)->worker == NULL)
 
 /****************************************************************************
+ * Name: work_timeleft
+ *
+ * Description:
+ *   This function returns the time remaining before the specified work
+ *   start.
+ *
+ * Input Parameters:
+ *   work - The work queue structure to check.
+ *
+ * Returned Value:
+ *   The time in system ticks remaining until the work start.
+ *   Zero means either that work is not valid or that work has already
+ *   started.
+ *
+ ****************************************************************************/
+
+#ifdef __KERNEL__
+#  define work_timeleft(work) wd_gettime(&((work)->u.timer))
+#else
+#  define work_timeleft(work) ((sclock_t)((work)->u.s.qtime - clock()))
+#endif
+
+/****************************************************************************
  * Name: lpwork_boostpriority
  *
  * Description:
@@ -500,13 +523,12 @@ int work_notifier_setup(FAR struct work_notifier_s *info);
  *         work_notifier_setup().
  *
  * Returned Value:
- *   Zero (OK) is returned on success; a negated errno value is returned on
- *   any failure.
+ *   None.
  *
  ****************************************************************************/
 
 #ifdef CONFIG_WQUEUE_NOTIFIER
-int work_notifier_teardown(int key);
+void work_notifier_teardown(int key);
 #endif
 
 /****************************************************************************

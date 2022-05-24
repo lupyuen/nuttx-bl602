@@ -34,9 +34,6 @@
 #ifndef __ASSEMBLY__
 #  include <stdint.h>
 #endif
-#ifdef CONFIG_LIB_SYSCALL
-#  include <syscall.h>
-#endif
 
 #include <arch/xtensa/core.h>
 #include <arch/xtensa/xtensa_corebits.h>
@@ -91,9 +88,9 @@
  */
 
 #ifndef CONFIG_BUILD_FLAT
-#  define CONFIG_SYS_RESERVED 8
+#  define CONFIG_SYS_RESERVED 9
 #else
-#  define CONFIG_SYS_RESERVED 4
+#  define CONFIG_SYS_RESERVED 5
 #endif
 
 /* Xtensa system calls ******************************************************/
@@ -107,7 +104,7 @@
 
 /* SYS call 1:
  *
- * void xtensa_context_restore(uint32_t **restoreregs) noreturn_function;
+ * void xtensa_context_restore(uint32_t *restoreregs) noreturn_function;
  */
 
 #define SYS_restore_context       (1)
@@ -119,6 +116,13 @@
 
 #define SYS_switch_context        (2)
 
+/* SYS call 3:
+ *
+ * void xtensa_flushcontext(void);
+ */
+
+#define SYS_flush_context         (3)
+
 #ifdef CONFIG_LIB_SYSCALL
 
 /* SYS call 3:
@@ -126,7 +130,7 @@
  * void xtensa_syscall_return(void);
  */
 
-#define SYS_syscall_return        (3)
+#define SYS_syscall_return        (4)
 #endif /* CONFIG_LIB_SYSCALL */
 
 #ifndef CONFIG_BUILD_FLAT
@@ -136,7 +140,7 @@
  *        noreturn_function;
  */
 
-#define SYS_task_start            (4)
+#define SYS_task_start            (5)
 
 /* SYS call 5:
  *
@@ -145,7 +149,7 @@
  *        noreturn_function
  */
 
-#define SYS_pthread_start         (5)
+#define SYS_pthread_start         (6)
 
 /* SYS call 6:
  *
@@ -153,14 +157,14 @@
  *                     siginfo_t *info, void *ucontext);
  */
 
-#define SYS_signal_handler        (6)
+#define SYS_signal_handler        (7)
 
 /* SYS call 7:
  *
  * void signal_handler_return(void);
  */
 
-#define SYS_signal_handler_return (7)
+#define SYS_signal_handler_return (8)
 #endif /* !CONFIG_BUILD_FLAT */
 
 /****************************************************************************
@@ -343,7 +347,7 @@ static inline uintptr_t sys_call5(unsigned int nbr, uintptr_t parm1,
                                   uintptr_t parm4, uintptr_t parm5)
 {
   register long reg0 __asm__("a2") = (long)(nbr);
-  register long reg5 __asm__("a7") = (long)(parm4);
+  register long reg5 __asm__("a7") = (long)(parm5);
   register long reg4 __asm__("a6") = (long)(parm4);
   register long reg3 __asm__("a5") = (long)(parm3);
   register long reg2 __asm__("a4") = (long)(parm2);
@@ -377,8 +381,8 @@ static inline uintptr_t sys_call6(unsigned int nbr, uintptr_t parm1,
                                   uintptr_t parm6)
 {
   register long reg0 __asm__("a2") = (long)(nbr);
-  register long reg6 __asm__("a8") = (long)(parm4);
-  register long reg5 __asm__("a7") = (long)(parm4);
+  register long reg6 __asm__("a8") = (long)(parm6);
+  register long reg5 __asm__("a7") = (long)(parm5);
   register long reg4 __asm__("a6") = (long)(parm4);
   register long reg3 __asm__("a5") = (long)(parm3);
   register long reg2 __asm__("a4") = (long)(parm2);
@@ -391,7 +395,7 @@ static inline uintptr_t sys_call6(unsigned int nbr, uintptr_t parm1,
     "rsync\n"
     : "=r"(reg0)
     : "i"(XCHAL_SWINT_CALL), "r"(reg0), "r"(reg1), "r"(reg2),
-      "r"(reg3), "r"(reg4), "r"(reg5)
+      "r"(reg3), "r"(reg4), "r"(reg5), "r"(reg6)
     : "a9", "memory"
   );
 

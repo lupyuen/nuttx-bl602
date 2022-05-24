@@ -68,10 +68,6 @@ static inline void mpfs_mm_init(void)
 
   mpfs_kernel_mappings();
 
-  /* Allow satp writes from S-mode */
-
-  CLEAR_CSR(mstatus, MSTATUS_TVM);
-
   /* Enable MMU (note: system is still in M-mode) */
 
   mmu_enable(g_kernel_pgt_pbase, 0);
