@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/stdlib/lib_Exit.c
+ * arch/arm/src/tlsr82/hardware/tlsr82_aes.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,18 +18,28 @@
  *
  ****************************************************************************/
 
+#ifndef __ARCH_ARM_SRC_TLSR82_HARDWARE_TLSR82_AES_H
+#define __ARCH_ARM_SRC_TLSR82_HARDWARE_TLSR82_AES_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdlib.h>
-#include <unistd.h>
+#include <nuttx/config.h>
+#include <arch/tlsr82/chip.h>
+
+#include "hardware/tlsr82_register.h"
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-void _Exit(int status)
-{
-  _exit(status);
-}
+#define AES_CTRL_REG                 REG_ADDR8(0x540)
+#define AES_DATA_REG                 REG_ADDR32(0x548)
+#define AES_KEY_REG(n)               REG_ADDR8(0x550 + (n))
+
+#define AES_CTRL_CODEC_TRIG          BIT(0)
+#define AES_CTRL_DATA_FEED           BIT(1)
+#define AES_CTRL_CODEC_FINISHED      BIT(2)
+
+#endif /* __ARCH_ARM_SRC_TLSR82_HARDWARE_TLSR82_AES_H */
