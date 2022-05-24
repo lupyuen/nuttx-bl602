@@ -802,6 +802,18 @@ void up_textheap_free(FAR void *p);
 #endif
 
 /****************************************************************************
+ * Name: up_textheap_heapmember
+ *
+ * Description:
+ *   Test if memory is from text heap.
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_ARCH_USE_TEXT_HEAP)
+bool up_textheap_heapmember(FAR void *p);
+#endif
+
+/****************************************************************************
  * Name: up_setpicbase and up_getpicbase
  *
  * Description:
@@ -1186,14 +1198,16 @@ int up_addrenv_detach(FAR struct task_group_s *group, FAR struct tcb_s *tcb);
 #endif
 
 /****************************************************************************
- * Name: up_addrenv_text_enable_write
+ * Name: up_addrenv_mprot
  *
  * Description:
- *   Temporarily enable write access to the .text section. This must be
- *   called prior to loading the process code into memory.
+ *   Modify access rights to an address range.
  *
  * Input Parameters:
  *   addrenv - The address environment to be modified.
+ *   addr - Base address of the region.
+ *   len - Size of the region.
+ *   prot - Access right flags.
  *
  * Returned Value:
  *   Zero (OK) on success; a negated errno value on failure.
@@ -1201,26 +1215,8 @@ int up_addrenv_detach(FAR struct task_group_s *group, FAR struct tcb_s *tcb);
  ****************************************************************************/
 
 #ifdef CONFIG_ARCH_ADDRENV
-int up_addrenv_text_enable_write(FAR group_addrenv_t *addrenv);
-#endif
-
-/****************************************************************************
- * Name: up_addrenv_text_disable_write
- *
- * Description:
- *   Disable write access to the .text section. This must be called after the
- *   process code is loaded into memory.
- *
- * Input Parameters:
- *   addrenv - The address environment to be modified.
- *
- * Returned Value:
- *   Zero (OK) on success; a negated errno value on failure.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_ARCH_ADDRENV
-int up_addrenv_text_disable_write(FAR group_addrenv_t *addrenv);
+int up_addrenv_mprot(FAR group_addrenv_t *addrenv, uintptr_t addr,
+                     size_t len, int prot);
 #endif
 
 /****************************************************************************
@@ -1863,7 +1859,7 @@ int up_timer_start(FAR const struct timespec *ts);
 #ifdef CONFIG_SCHED_THREAD_LOCAL
 int up_tls_size(void);
 #else
-#define up_tls_size() sizeof(struct tls_info_s) 
+#define up_tls_size() sizeof(struct tls_info_s)
 #endif
 
 /****************************************************************************
@@ -2301,6 +2297,31 @@ void nxsched_alarm_expiration(FAR const struct timespec *ts);
 
 #if defined(CONFIG_SCHED_CPULOAD) && defined(CONFIG_SCHED_CPULOAD_EXTCLK)
 void weak_function nxsched_process_cpuload(void);
+#endif
+
+/****************************************************************************
+ * Name: nxsched_process_cpuload_ticks
+ *
+ * Description:
+ *   Collect data that can be used for CPU load measurements.  When
+ *   CONFIG_SCHED_CPULOAD_EXTCLK is defined, this is an exported interface,
+ *   use the the external clock logic.  Otherwise, it is an OS internal
+ *   interface.
+ *
+ * Input Parameters:
+ *   ticks - The ticks that we increment in this cpuload
+ *
+ * Returned Value:
+ *   None
+ *
+ * Assumptions/Limitations:
+ *   This function is called from a timer interrupt handler with all
+ *   interrupts disabled.
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_SCHED_CPULOAD) && defined(CONFIG_SCHED_CPULOAD_EXTCLK)
+void weak_function nxsched_process_cpuload_ticks(uint32_t ticks);
 #endif
 
 /****************************************************************************

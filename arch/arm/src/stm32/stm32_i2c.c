@@ -272,7 +272,7 @@ static inline void stm32_i2c_modifyreg(struct stm32_i2c_priv_s *priv,
                                        uint16_t setbits);
 
 #ifdef CONFIG_STM32_I2C_DYNTIMEO
-static useconds_t stm32_i2c_tousecs(int msgc, struct i2c_msg_s *msgs);
+static uint32_t stm32_i2c_toticks(int msgc, struct i2c_msg_s *msgs);
 #endif /* CONFIG_STM32_I2C_DYNTIMEO */
 
 static inline int  stm32_i2c_sem_waitdone(struct stm32_i2c_priv_s *priv);
@@ -488,7 +488,7 @@ static inline void stm32_i2c_modifyreg(struct stm32_i2c_priv_s *priv,
 }
 
 /****************************************************************************
- * Name: stm32_i2c_tousecs
+ * Name: stm32_i2c_toticks
  *
  * Description:
  *   Return a micro-second delay based on the number of bytes left to be
@@ -497,7 +497,7 @@ static inline void stm32_i2c_modifyreg(struct stm32_i2c_priv_s *priv,
  ****************************************************************************/
 
 #ifdef CONFIG_STM32_I2C_DYNTIMEO
-static useconds_t stm32_i2c_tousecs(int msgc, struct i2c_msg_s *msgs)
+static uint32_t stm32_i2c_toticks(int msgc, struct i2c_msg_s *msgs)
 {
   size_t bytecount = 0;
   int i;
@@ -513,7 +513,7 @@ static useconds_t stm32_i2c_tousecs(int msgc, struct i2c_msg_s *msgs)
    * factor.
    */
 
-  return (useconds_t)(CONFIG_STM32_I2C_DYNTIMEO_USECPERBYTE * bytecount);
+  return USEC2TICK(CONFIG_STM32_I2C_DYNTIMEO_USECPERBYTE * bytecount);
 }
 #endif
 
@@ -528,7 +528,6 @@ static useconds_t stm32_i2c_tousecs(int msgc, struct i2c_msg_s *msgs)
 #ifndef CONFIG_I2C_POLLED
 static inline int stm32_i2c_sem_waitdone(struct stm32_i2c_priv_s *priv)
 {
-  struct timespec abstime;
   irqstate_t flags;
   uint32_t regval;
   int ret;
@@ -543,48 +542,26 @@ static inline int stm32_i2c_sem_waitdone(struct stm32_i2c_priv_s *priv)
 
   /* Signal the interrupt handler that we are waiting.  NOTE:  Interrupts
    * are currently disabled but will be temporarily re-enabled below when
-   * nxsem_timedwait() sleeps.
+   * nxsem_tickwait_uninterruptible() sleeps.
    */
 
   priv->intstate = INTSTATE_WAITING;
   do
     {
-      /* Get the current time */
-
-      clock_gettime(CLOCK_REALTIME, &abstime);
-
-      /* Calculate a time in the future */
-
-#if CONFIG_STM32_I2CTIMEOSEC > 0
-      abstime.tv_sec += CONFIG_STM32_I2CTIMEOSEC;
-#endif
-
-      /* Add a value proportional to the number of bytes in the transfer */
-
-#ifdef CONFIG_STM32_I2C_DYNTIMEO
-      abstime.tv_nsec += 1000 * stm32_i2c_tousecs(priv->msgc, priv->msgv);
-      if (abstime.tv_nsec >= 1000 * 1000 * 1000)
-        {
-          abstime.tv_sec++;
-          abstime.tv_nsec -= 1000 * 1000 * 1000;
-        }
-
-#elif CONFIG_STM32_I2CTIMEOMS > 0
-      abstime.tv_nsec += CONFIG_STM32_I2CTIMEOMS * 1000 * 1000;
-      if (abstime.tv_nsec >= 1000 * 1000 * 1000)
-        {
-          abstime.tv_sec++;
-          abstime.tv_nsec -= 1000 * 1000 * 1000;
-        }
-#endif
-
       /* Wait until either the transfer is complete or the timeout expires */
 
-      ret = nxsem_timedwait_uninterruptible(&priv->sem_isr, &abstime);
+#ifdef CONFIG_STM32_I2C_DYNTIMEO
+      ret = nxsem_tickwait_uninterruptible(&priv->sem_isr,
+                         stm32_i2c_toticks(priv->msgc, priv->msgv));
+#else
+      ret = nxsem_tickwait_uninterruptible(&priv->sem_isr,
+                                           CONFIG_STM32_I2CTIMEOTICKS);
+#endif
       if (ret < 0)
         {
           /* Break out of the loop on irrecoverable errors.  This would
-           * include timeouts and mystery errors reported by nxsem_timedwait.
+           * include timeouts and mystery errors reported by
+           * nxsem_tickwait_uninterruptible.
            */
 
           break;
@@ -619,14 +596,14 @@ static inline int stm32_i2c_sem_waitdone(struct stm32_i2c_priv_s *priv)
   /* Get the timeout value */
 
 #ifdef CONFIG_STM32_I2C_DYNTIMEO
-  timeout = USEC2TICK(stm32_i2c_tousecs(priv->msgc, priv->msgv));
+  timeout = stm32_i2c_toticks(priv->msgc, priv->msgv);
 #else
   timeout = CONFIG_STM32_I2CTIMEOTICKS;
 #endif
 
   /* Signal the interrupt handler that we are waiting.  NOTE:  Interrupts
    * are currently disabled but will be temporarily re-enabled below when
-   * nxsem_timedwait() sleeps.
+   * nxsem_tickwait_uninterruptible() sleeps.
    */
 
   priv->intstate = INTSTATE_WAITING;

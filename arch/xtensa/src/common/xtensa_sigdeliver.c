@@ -46,7 +46,7 @@
  *
  * Description:
  *   This is the a signal handling trampoline.  When a signal action was
- *   posted.  The task context was mucked with and forced to branch to this
+ *   posted, the task context was mucked with and forced to branch to this
  *   location with interrupts disabled.
  *
  ****************************************************************************/
@@ -178,5 +178,5 @@ void xtensa_sig_deliver(void)
    */
 
   board_autoled_off(LED_SIGNAL);
-  xtensa_context_restore(&regs);
+  xtensa_context_restore(regs);
 }
