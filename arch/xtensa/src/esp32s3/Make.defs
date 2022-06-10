@@ -29,11 +29,10 @@ HEAD_CSRC  = esp32s3_start.c
 # Common XTENSA files (arch/xtensa/src/common)
 
 CMN_ASRCS  = xtensa_context.S xtensa_coproc.S xtensa_cpuint.S xtensa_panic.S
-CMN_ASRCS += xtensa_sigtramp.S
 
 CMN_CSRCS  = xtensa_assert.c xtensa_blocktask.c
 CMN_CSRCS += xtensa_cpenable.c xtensa_createstack.c xtensa_exit.c
-CMN_CSRCS += xtensa_initialize.c xtensa_initialstate.c xtensa_interruptcontext.c
+CMN_CSRCS += xtensa_initialize.c xtensa_initialstate.c
 CMN_CSRCS += xtensa_irqdispatch.c xtensa_lowputs.c xtensa_mdelay.c
 CMN_CSRCS += xtensa_modifyreg8.c xtensa_modifyreg16.c xtensa_modifyreg32.c
 CMN_CSRCS += xtensa_puts.c xtensa_releasepending.c xtensa_releasestack.c
@@ -120,6 +119,10 @@ endif
 
 ifeq ($(CONFIG_ESP32S3_RT_TIMER),y)
 CHIP_CSRCS += esp32s3_rt_timer.c
+endif
+
+ifeq ($(CONFIG_ESP32S3_SPI),y)
+CHIP_CSRCS += esp32s3_spi.c
 endif
 
 ifeq ($(CONFIG_ESP32S3_SPIFLASH),y)
