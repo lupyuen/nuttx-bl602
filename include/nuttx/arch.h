@@ -85,7 +85,6 @@
 #include <nuttx/compiler.h>
 #include <nuttx/cache.h>
 #include <nuttx/sched.h>
-#include <nuttx/tls.h>
 
 /****************************************************************************
  * Pre-processor definitions
@@ -1450,17 +1449,6 @@ int up_shmdt(uintptr_t vaddr, unsigned int npages);
 void up_irqinitialize(void);
 
 /****************************************************************************
- * Name: up_interrupt_context
- *
- * Description:
- *   Return true is we are currently executing in
- *   the interrupt handler context.
- *
- ****************************************************************************/
-
-bool up_interrupt_context(void);
-
-/****************************************************************************
  * Name: up_enable_irq
  *
  * Description:
@@ -1837,14 +1825,6 @@ int up_timer_start(FAR const struct timespec *ts);
  * implementation provided here assume the arch has a "push down" stack.
  */
 
-#ifndef up_tls_info
-#  if defined(CONFIG_TLS_ALIGNED) && !defined(__KERNEL__)
-#    define up_tls_info() TLS_INFO((uintptr_t)up_getsp())
-#  else
-#    define up_tls_info() tls_get_info()
-#  endif
-#endif
-
 /****************************************************************************
  * Name: up_tls_size
  *
@@ -1858,8 +1838,6 @@ int up_timer_start(FAR const struct timespec *ts);
 
 #ifdef CONFIG_SCHED_THREAD_LOCAL
 int up_tls_size(void);
-#else
-#define up_tls_size() sizeof(struct tls_info_s)
 #endif
 
 /****************************************************************************
@@ -1949,28 +1927,6 @@ int8_t up_fetchadd8(FAR volatile int8_t *addr, int8_t value);
 int32_t up_fetchsub32(FAR volatile int32_t *addr, int32_t value);
 int16_t up_fetchsub16(FAR volatile int16_t *addr, int16_t value);
 int8_t up_fetchsub8(FAR volatile int8_t *addr, int8_t value);
-#endif
-
-/****************************************************************************
- * Name: up_cpu_index
- *
- * Description:
- *   Return an index in the range of 0 through (CONFIG_SMP_NCPUS-1) that
- *   corresponds to the currently executing CPU.
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   An integer index in the range of 0 through (CONFIG_SMP_NCPUS-1) that
- *   corresponds to the currently executing CPU.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_SMP
-int up_cpu_index(void);
-#else
-#  define up_cpu_index() (0)
 #endif
 
 /****************************************************************************
