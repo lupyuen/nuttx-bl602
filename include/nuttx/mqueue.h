@@ -29,6 +29,7 @@
 #include <nuttx/compiler.h>
 #include <nuttx/fs/fs.h>
 #include <nuttx/signal.h>
+#include <nuttx/list.h>
 
 #include <sys/types.h>
 #include <stdint.h>
@@ -87,7 +88,7 @@
 struct mqueue_inode_s
 {
   FAR struct inode *inode;    /* Containing inode */
-  sq_queue_t msglist;         /* Prioritized message list */
+  struct list_node msglist;   /* Prioritized message list */
   int16_t maxmsgs;            /* Maximum number of messages in the queue */
   int16_t nmsgs;              /* Number of message in the queue */
   int16_t nwaitnotfull;       /* Number tasks waiting for not full */
@@ -97,9 +98,11 @@ struct mqueue_inode_s
 #else
   uint16_t maxmsgsize;        /* Max size of message in message queue */
 #endif
+#ifndef CONFIG_DISABLE_MQUEUE_NOTIFICATION
   pid_t ntpid;                /* Notification: Receiving Task's PID */
   struct sigevent ntevent;    /* Notification description */
   struct sigwork_s ntwork;    /* Notification work */
+#endif
   FAR struct pollfd *fds[CONFIG_FS_MQUEUE_NPOLLWAITERS];
 };
 
@@ -417,7 +420,11 @@ int nxmq_alloc_msgq(FAR struct mq_attr *attr,
  *
  ****************************************************************************/
 
+#if CONFIG_FS_MQUEUE_NPOLLWAITERS > 0
 void nxmq_pollnotify(FAR struct mqueue_inode_s *msgq, pollevent_t eventset);
+#else
+# define nxmq_pollnotify(msgq, eventset)
+#endif
 
 /****************************************************************************
  * Name: file_mq_open

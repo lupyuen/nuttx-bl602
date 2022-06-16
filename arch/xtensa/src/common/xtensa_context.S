@@ -66,6 +66,7 @@
 #include <arch/xtensa/xtensa_abi.h>
 #include <arch/xtensa/xtensa_specregs.h>
 
+#include "chip.h"
 #include "syscall.h"
 #include "xtensa_asm_utils.h"
 #include "xtensa_coproc.S"
@@ -73,8 +74,6 @@
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-	.text
 
 /****************************************************************************
  * Name: _xtensa_context_save
@@ -92,13 +91,11 @@
  *
  * Entry Conditions:
  *   - A0  = Return address to caller.
- *   - A2  = Pointer to the processor state save area
  *   - Other processor state except PC, PS, A0, A1 (SP), A2 and A3 are as at
  *     the point of interruption.
  *
  * Exit conditions:
  *   - A0  = Return address in caller.
- *   - A2, A12-A15 as at entry (preserved).
  *
  * Assumptions:
  *   - Caller is expected to have saved PC, PS, A0, A1 (SP), and A2.
@@ -106,6 +103,7 @@
  *
  ****************************************************************************/
 
+	.section HANDLER_SECTION, "ax"
 	.global	_xtensa_context_save
 	.type	_xtensa_context_save, @function
 
@@ -235,6 +233,7 @@ _xtensa_context_save:
  *
  ****************************************************************************/
 
+	.section HANDLER_SECTION, "ax"
 	.global _xtensa_context_restore
 	.type	_xtensa_context_restore,@function
 

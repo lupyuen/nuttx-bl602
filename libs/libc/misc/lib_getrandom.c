@@ -26,6 +26,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <nuttx/fs/fs.h>
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -34,12 +36,10 @@
  * Name: getrandom
  *
  * Description:
- *   Fill a buffer of arbitrary length with randomness. This is the
- *   preferred interface for getting random numbers. The traditional
- *   /dev/random approach is susceptible for things like the attacker
- *   exhausting file descriptors on purpose.
- *
- *   Note that this function cannot fail, other than by asserting.
+ *   Fill a buffer of arbitrary length with randomness. This uses
+ *   either /dev/random (if GRND_RANDOM flag) or /dev/urandom device and
+ *   is therefore susceptible for things like the attacker exhausting file
+ *   descriptors on purpose.
  *
  * Input Parameters:
  *   bytes  - Buffer for returned random bytes
@@ -78,14 +78,23 @@ ssize_t getrandom(FAR void *bytes, size_t nbytes, unsigned int flags)
       dev = "/dev/urandom";
     }
 
-  fd = open(dev, oflags);
+  fd = _NX_OPEN(dev, oflags);
   if (fd < 0)
     {
+      _NX_SETERRNO(fd);
       return fd;
     }
 
-  nbytes = read(fd, bytes, nbytes);
-  close(fd);
+  nbytes = _NX_READ(fd, bytes, nbytes);
+  if (nbytes < 0)
+    {
+      /* An error occurred on the read. */
+
+      _NX_SETERRNO(nbytes);
+      nbytes = ERROR;
+    }
+
+  _NX_CLOSE(fd);
 
   return nbytes;
 }
