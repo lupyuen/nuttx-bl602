@@ -24,6 +24,8 @@
 
 #include <nuttx/config.h>
 
+#include "riscv_internal.h"
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -49,6 +51,10 @@
 
 void esp32c3_board_initialize(void)
 {
+#ifdef CONFIG_SCHED_CRITMONITOR
+  up_perf_init(NULL);
+#endif
+
   /* Configure on-board LEDs if LED support has been selected. */
 
 #ifdef CONFIG_ARCH_LEDS

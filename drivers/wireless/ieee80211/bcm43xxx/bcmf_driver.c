@@ -53,26 +53,19 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DOT11_BSSTYPE_ANY      2
-#define BCMF_SCAN_TIMEOUT_TICK (5*CLOCKS_PER_SEC)
-#define BCMF_AUTH_TIMEOUT_MS   20000  /* was 10000 */
-#define BCMF_SCAN_RESULT_SIZE  1024
+#define DOT11_BSSTYPE_ANY         2
+#define BCMF_SCAN_TIMEOUT_TICK    (5*CLOCKS_PER_SEC)
+#define BCMF_AUTH_TIMEOUT_MS      20000  /* was 10000 */
+#define BCMF_SCAN_RESULT_ENTRIES  CONFIG_IEEE80211_BROADCOM_SCAN_RESULT_ENTRIES
 
 /* CLM file is cut into pieces of MAX_CHUNK_LEN.
- * It is relatively small because dongles (FW) have a small maximum size
- * input payload restriction for ioctl's ... something like 1900'ish bytes.
- * So chunk len should not exceed 1400 bytes
  *
  * NOTE:  CONFIG_NET_ETH_PKTSIZE is the MTU plus the size of the Ethernet
  * header (14 bytes).
  */
 
-#ifdef CONFIG_IEEE80211_BROADCOM_FWFILES  /* REVISIT */
-#  define MAX_CHUNK_LEN (100)
-#else
-#  define MAX_CHUNK_LEN \
-     (CONFIG_NET_ETH_PKTSIZE > 1514 ? 1400 : CONFIG_NET_ETH_PKTSIZE - 114)
-#endif
+#define MAX_CHUNK_LEN \
+  (CONFIG_NET_ETH_PKTSIZE > 1514 ? 1400 : CONFIG_NET_ETH_PKTSIZE - 114)
 
 /* Helper to get iw_event size */
 
@@ -154,6 +147,32 @@ static int bcmf_wl_get_interface(FAR struct bcmf_dev_s *priv,
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static int bcmf_wl_channel_to_frequency(int chan)
+{
+  if (chan <= 0)
+    {
+      return 0;
+    }
+  else if (chan < 14)
+    {
+      return 2407 + chan * 5;
+    }
+  else if (chan == 14)
+    {
+      return 2484;
+    }
+  else if ((chan >= 36) && (chan <= 165))
+    {
+      return 5000 + chan * 5;
+    }
+  else if ((chan >= 182) && (chan <= 196))
+    {
+      return 4000 + chan * 5;
+    }
+
+  return 0; /* not supported */
+}
 
 FAR struct bcmf_dev_s *bcmf_allocate_device(void)
 {
@@ -407,13 +426,47 @@ int bcmf_driver_download_clm(FAR struct bcmf_dev_s *priv)
 #endif
 #endif /* CONFIG_IEEE80211_BROADCOM_HAVE_CLM */
 
-int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
+int bcmf_wl_set_pm(FAR struct bcmf_dev_s *priv, int mode)
 {
-  int ret;
+  int interface = CHIP_STA_INTERFACE;
   uint32_t out_len;
   uint32_t value;
-  uint8_t tmp_buf[64];
+  int ret;
+
+  /* Set default power save mode */
+
+#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
+  if (priv->lp_mode != mode)
+#endif
+    {
+      out_len = 4;
+      value   = mode;
+      ret = bcmf_cdc_ioctl(priv, interface, true, WLC_SET_PM,
+                           (uint8_t *)&value, &out_len);
+#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
+      if (ret == OK)
+        {
+          priv->lp_mode = mode;
+        }
+#endif
+    }
+
+  return ret;
+}
+
+int bcmf_wl_active(FAR struct bcmf_dev_s *priv, bool active)
+{
   int interface = CHIP_STA_INTERFACE;
+  uint8_t tmp_buf[64];
+  uint32_t out_len;
+  uint32_t value;
+  int ret;
+
+  ret = bcmf_bus_sdio_active(priv, active);
+  if (ret != OK || !active)
+    {
+      return ret;
+    }
 
 #ifdef CONFIG_IEEE80211_BROADCOM_HAVE_CLM
   /* Download CLM blob if needed */
@@ -421,7 +474,7 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
   ret = bcmf_driver_download_clm(priv);
   if (ret != OK)
     {
-      return -EIO;
+      goto errout_in_sdio_active;
     }
 #endif
 
@@ -434,18 +487,15 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
                                &out_len);
   if (ret != OK)
     {
-      return -EIO;
+      goto errout_in_sdio_active;
     }
 
-  /* FIXME disable power save mode */
+  /* Set default power save mode */
 
-  out_len = 4;
-  value   = 0;
-  ret     = bcmf_cdc_ioctl(priv, interface, true, WLC_SET_PM,
-                           (uint8_t *)&value, &out_len);
+  ret = bcmf_wl_set_pm(priv, PM_OFF);
   if (ret != OK)
     {
-      return ret;
+      goto errout_in_sdio_active;
     }
 
   /* Set the GMode to auto */
@@ -456,7 +506,7 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
                        (uint8_t *)&value, &out_len);
   if (ret != OK)
     {
-      return ret;
+      goto errout_in_sdio_active;
     }
 
   /* TODO configure roaming if needed. Disable for now */
@@ -467,6 +517,10 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
                                    IOVAR_STR_ROAM_OFF,
                                    (FAR uint8_t *)&value,
                                    &out_len);
+  if (ret != OK)
+    {
+      goto errout_in_sdio_active;
+    }
 
   /* TODO configure EAPOL version to default */
 
@@ -474,11 +528,12 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
   ((FAR uint32_t *)tmp_buf)[0] = interface;
   ((FAR uint32_t *)tmp_buf)[1] = (uint32_t)-1;
 
-  if (bcmf_cdc_iovar_request(priv, interface, true,
-                             "bsscfg:"IOVAR_STR_SUP_WPA2_EAPVER, tmp_buf,
-                             &out_len))
+  ret = bcmf_cdc_iovar_request(priv, interface, true,
+                               "bsscfg:"IOVAR_STR_SUP_WPA2_EAPVER,
+                               tmp_buf, &out_len);
+  if (ret != OK)
     {
-      return -EIO;
+      goto errout_in_sdio_active;
     }
 
   /* Query firmware version string */
@@ -489,7 +544,7 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
                                    &out_len);
   if (ret != OK)
     {
-      return -EIO;
+      goto errout_in_sdio_active;
     }
 
   tmp_buf[sizeof(tmp_buf)-1] = 0;
@@ -504,11 +559,26 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
 
   wlinfo("fw version <%s>\n", tmp_buf);
 
+  ret = bcmf_event_push_config(priv);
+
+errout_in_sdio_active:
+  if (ret != OK)
+    {
+      bcmf_bus_sdio_active(priv, false);
+    }
+
+  return ret;
+}
+
+int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
+{
+  int i;
+
   /* FIXME Configure event mask to enable all asynchronous events */
 
-  for (ret = 0; ret < BCMF_EVENT_COUNT; ret++)
+  for (i = 0; i < BCMF_EVENT_COUNT; i++)
     {
-      bcmf_event_register(priv, bcmf_wl_default_event_handler, ret);
+      bcmf_event_register(priv, bcmf_wl_default_event_handler, i);
     }
 
   /*  Register radio event */
@@ -542,11 +612,6 @@ int bcmf_driver_initialize(FAR struct bcmf_dev_s *priv)
   bcmf_event_register(priv, bcmf_wl_auth_event_handler,
                       WLC_E_DISASSOC_IND);
 
-  if (bcmf_event_push_config(priv))
-    {
-      return -EIO;
-    }
-
   /* Register network driver */
 
   return bcmf_netdev_register(priv);
@@ -577,7 +642,8 @@ void bcmf_wl_auth_event_handler(FAR struct bcmf_dev_s *priv,
   type = bcmf_getle32(&event->type);
   status = bcmf_getle32(&event->status);
 
-  wlinfo("Got auth event %" PRId32 " from <%s>\n", type, event->src_name);
+  wlinfo("Got auth event %" PRId32 " status %" PRId32 " from <%s>\n",
+         type, status, event->src_name);
 
   bcmf_hexdump((uint8_t *)event, len, (unsigned long)event);
 
@@ -585,9 +651,14 @@ void bcmf_wl_auth_event_handler(FAR struct bcmf_dev_s *priv,
     {
       /* Auth complete */
 
-      priv->auth_status = OK;
+      netdev_carrier_on(&priv->bc_dev);
 
+      priv->auth_status = OK;
       nxsem_post(&priv->auth_signal);
+    }
+  else if (type == WLC_E_DISASSOC)
+    {
+      netdev_carrier_off(&priv->bc_dev);
     }
 }
 
@@ -596,16 +667,19 @@ void bcmf_wl_auth_event_handler(FAR struct bcmf_dev_s *priv,
  */
 
 void bcmf_wl_scan_event_handler(FAR struct bcmf_dev_s *priv,
-                                struct bcmf_event_s *event,
+                                FAR struct bcmf_event_s *event,
                                 unsigned int len)
 {
-  uint32_t status;
-  uint32_t event_len;
-  struct wl_escan_result *result;
-  struct wl_bss_info *bss;
-  unsigned int bss_info_len;
+  FAR struct wl_escan_result *result;
   unsigned int escan_result_len;
-  unsigned int bss_count = 0;
+  FAR struct wl_bss_info *curr;
+  FAR struct wl_bss_info *bss;
+  uint32_t event_len;
+  int16_t worst_rssi;
+  int worst_entry;
+  uint32_t status;
+  int i;
+  int j;
 
   event_len = len;
 
@@ -639,7 +713,7 @@ void bcmf_wl_scan_event_handler(FAR struct bcmf_dev_s *priv,
 
   /* Process escan result payload */
 
-  result = (struct wl_escan_result *)&event[1];
+  result = (FAR struct wl_escan_result *)&event[1];
 
   if (len < result->buflen ||
       result->buflen < sizeof(struct wl_escan_result))
@@ -647,260 +721,78 @@ void bcmf_wl_scan_event_handler(FAR struct bcmf_dev_s *priv,
       goto exit_invalid_frame;
     }
 
-  /* wl_escan_result structure contains a wl_bss_info field */
-
-  len = result->buflen - sizeof(struct wl_escan_result)
-                       + sizeof(struct wl_bss_info);
-
   /* Process bss_infos */
 
   bss = result->bss_info;
 
-  while (len > 0 && bss_count < result->bss_count)
+  for (i = 0; i < result->bss_count; i++)
     {
-      struct iw_event *iwe;
-      unsigned int result_size;
-      size_t essid_len;
-      size_t essid_len_aligned;
-      uint8_t *ie_buffer;
-      unsigned int ie_offset;
-      unsigned int check_offset;
+      worst_entry = -1;
+      worst_rssi = 0;
 
-      result_size = BCMF_SCAN_RESULT_SIZE - priv->scan_result_size;
-      bss_info_len = bss->length;
+      wlinfo("Scan result: <%.32s> "
+             "%02x:%02x:%02x:%02x:%02x:%02x "
+             "signal %d %d %d\n",
+             bss->SSID,
+             bss->BSSID.ether_addr_octet[0],
+             bss->BSSID.ether_addr_octet[1],
+             bss->BSSID.ether_addr_octet[2],
+             bss->BSSID.ether_addr_octet[3],
+             bss->BSSID.ether_addr_octet[4],
+             bss->BSSID.ether_addr_octet[5],
+             bss->RSSI, bss->phy_noise, bss->SNR);
 
-      if (len < bss_info_len)
+      for (j = 0; j < priv->scan_result_entries; j++)
         {
-          wlerr("bss_len error %d %d\n", len, bss_info_len);
-          goto exit_invalid_frame;
+          curr = &priv->scan_result[j];
+
+          /* Check if current bss AP is not already detected */
+
+          if (memcmp(&curr->BSSID, &bss[i].BSSID,
+                     sizeof(curr->BSSID)) == 0)
+            {
+              /* Replace the duplicate entry if rssi is
+               * better than before
+               */
+
+              if (curr->RSSI < bss[i].RSSI)
+                {
+                  memcpy(curr, bss, sizeof(*curr));
+                }
+
+              goto process_next_bss;
+            }
+
+          /* Find worst rssi and mark the entry */
+
+          if (curr->RSSI < worst_rssi)
+            {
+              worst_entry = j;
+              worst_rssi = curr->RSSI;
+            }
         }
 
-      /* Append current bss_info to priv->scan_results
-       * FIXME protect this against race conditions
-       */
-
-      /* Check if current bss AP is not already detected */
-
-      check_offset = 0;
-
-      while (priv->scan_result_size - check_offset
-                                     >= offsetof(struct iw_event, u))
+      if (priv->scan_result_entries == BCMF_SCAN_RESULT_ENTRIES)
         {
-          iwe = (struct iw_event *)&priv->scan_result[check_offset];
+          /* Entries full and replace the worst entry */
 
-          if (iwe->cmd == SIOCGIWAP)
+          if (worst_entry >= 0)
             {
-              if (memcmp(&iwe->u.ap_addr.sa_data,
-                         bss->BSSID.ether_addr_octet,
-                         sizeof(bss->BSSID.ether_addr_octet)) == 0)
+              curr = &priv->scan_result[worst_entry];
+              if (curr->RSSI < bss->RSSI)
                 {
-                  goto process_next_bss;
+                  memcpy(curr, bss, sizeof(*curr));
                 }
             }
 
-          check_offset += iwe->len;
+process_next_bss:
+          continue;
         }
 
-      wlinfo("Scan result: <%.32s> %02x:%02x:%02x:%02x:%02x:%02x\n",
-               bss->SSID,
-               bss->BSSID.ether_addr_octet[0],
-               bss->BSSID.ether_addr_octet[1],
-               bss->BSSID.ether_addr_octet[2],
-               bss->BSSID.ether_addr_octet[3],
-               bss->BSSID.ether_addr_octet[4],
-               bss->BSSID.ether_addr_octet[5]);
+      curr = &priv->scan_result[priv->scan_result_entries];
+      memcpy(curr, bss, sizeof(*curr));
 
-      /* Copy BSSID */
-
-      if (result_size < BCMF_IW_EVENT_SIZE(ap_addr))
-        {
-          goto scan_result_full;
-        }
-
-      iwe = (struct iw_event *)&priv->scan_result[priv->scan_result_size];
-      iwe->len = BCMF_IW_EVENT_SIZE(ap_addr);
-      iwe->cmd = SIOCGIWAP;
-      memcpy(&iwe->u.ap_addr.sa_data, bss->BSSID.ether_addr_octet,
-             sizeof(bss->BSSID.ether_addr_octet));
-      iwe->u.ap_addr.sa_family = ARPHRD_ETHER;
-
-      priv->scan_result_size += BCMF_IW_EVENT_SIZE(ap_addr);
-      result_size -= BCMF_IW_EVENT_SIZE(ap_addr);
-
-      /* Copy ESSID */
-
-      essid_len = min(strlen((const char *)bss->SSID), 32);
-      essid_len_aligned = (essid_len + 3) & -4;
-
-      if (result_size < BCMF_IW_EVENT_SIZE(essid)+essid_len_aligned)
-        {
-          goto scan_result_full;
-        }
-
-      iwe = (struct iw_event *)&priv->scan_result[priv->scan_result_size];
-      iwe->len = BCMF_IW_EVENT_SIZE(essid)+essid_len_aligned;
-      iwe->cmd = SIOCGIWESSID;
-      iwe->u.essid.flags = 0;
-      iwe->u.essid.length = essid_len;
-
-      /* Special processing for iw_point, set offset in pointer field */
-
-      iwe->u.essid.pointer = (FAR void *)sizeof(iwe->u.essid);
-      memcpy(&iwe->u.essid + 1, bss->SSID, essid_len);
-
-      priv->scan_result_size += BCMF_IW_EVENT_SIZE(essid)+essid_len_aligned;
-      result_size -= BCMF_IW_EVENT_SIZE(essid)+essid_len_aligned;
-
-      /* Copy link quality info */
-
-      if (result_size < BCMF_IW_EVENT_SIZE(qual))
-        {
-          goto scan_result_full;
-        }
-
-      iwe = (struct iw_event *)&priv->scan_result[priv->scan_result_size];
-      iwe->len = BCMF_IW_EVENT_SIZE(qual);
-      iwe->cmd = IWEVQUAL;
-      iwe->u.qual.qual = bss->SNR;
-      wlinfo("signal %d %d %d\n", bss->RSSI, bss->phy_noise, bss->SNR);
-      iwe->u.qual.level = bss->RSSI;
-      iwe->u.qual.noise = bss->phy_noise;
-      iwe->u.qual.updated = IW_QUAL_DBM | IW_QUAL_ALL_UPDATED;
-
-      priv->scan_result_size += BCMF_IW_EVENT_SIZE(qual);
-      result_size -= BCMF_IW_EVENT_SIZE(qual);
-
-      /* Copy AP mode */
-
-      if (result_size < BCMF_IW_EVENT_SIZE(mode))
-        {
-          goto scan_result_full;
-        }
-
-      iwe = (struct iw_event *)&priv->scan_result[priv->scan_result_size];
-      iwe->len = BCMF_IW_EVENT_SIZE(mode);
-      iwe->cmd = SIOCGIWMODE;
-      if (bss->capability & DOT11_CAP_ESS)
-        {
-          iwe->u.mode = IW_MODE_INFRA;
-        }
-      else if (bss->capability & DOT11_CAP_IBSS)
-        {
-          iwe->u.mode = IW_MODE_ADHOC;
-        }
-      else
-        {
-          iwe->u.mode = IW_MODE_AUTO;
-        }
-
-      priv->scan_result_size += BCMF_IW_EVENT_SIZE(mode);
-      result_size -= BCMF_IW_EVENT_SIZE(mode);
-
-      /* Copy AP encryption mode */
-
-      if (result_size < BCMF_IW_EVENT_SIZE(data))
-        {
-          goto scan_result_full;
-        }
-
-      iwe = (struct iw_event *)&priv->scan_result[priv->scan_result_size];
-      iwe->len = BCMF_IW_EVENT_SIZE(data);
-      iwe->cmd = SIOCGIWENCODE;
-      iwe->u.data.flags = bss->capability & DOT11_CAP_PRIVACY ?
-                          IW_ENCODE_ENABLED | IW_ENCODE_NOKEY :
-                          IW_ENCODE_DISABLED;
-      iwe->u.data.length = 0;
-      iwe->u.essid.pointer = NULL;
-
-      priv->scan_result_size += BCMF_IW_EVENT_SIZE(data);
-      result_size -= BCMF_IW_EVENT_SIZE(data);
-
-      /* Copy relevant raw IE frame */
-
-      if (bss->ie_offset >= bss_info_len ||
-          bss->ie_length > bss_info_len - bss->ie_offset)
-        {
-          goto process_next_bss;
-        }
-
-      ie_offset = 0;
-      ie_buffer = (uint8_t *)bss + bss->ie_offset;
-
-      while (1)
-        {
-          size_t ie_frame_size;
-
-          if (bss->ie_length - ie_offset < 2)
-            {
-              /* Minimum Information element size is 2 bytes */
-
-              break;
-            }
-
-          ie_frame_size = ie_buffer[ie_offset + 1] + 2;
-
-          if (ie_frame_size > bss->ie_length - ie_offset)
-            {
-              /* Entry too big */
-
-              break;
-            }
-
-          switch (ie_buffer[ie_offset])
-            {
-              case IEEE80211_ELEMID_RSN:
-                {
-                  size_t ie_frame_size_aligned;
-                  ie_frame_size_aligned = (ie_frame_size + 3) & -4;
-
-                  wlinfo("found RSN\n");
-
-                  if (result_size < BCMF_IW_EVENT_SIZE(data) +
-                                    ie_frame_size_aligned)
-                    {
-                      break;
-                    }
-
-                  iwe = (struct iw_event *)
-                    &priv->scan_result[priv->scan_result_size];
-
-                  iwe->len = BCMF_IW_EVENT_SIZE(data)+ie_frame_size_aligned;
-                  iwe->cmd = IWEVGENIE;
-                  iwe->u.data.flags = 0;
-                  iwe->u.data.length = ie_frame_size;
-                  iwe->u.data.pointer = (FAR void *)sizeof(iwe->u.data);
-                  memcpy(&iwe->u.data + 1, &ie_buffer[ie_offset],
-                         ie_frame_size);
-
-                  priv->scan_result_size += BCMF_IW_EVENT_SIZE(essid) +
-                                            ie_frame_size_aligned;
-                  result_size -= BCMF_IW_EVENT_SIZE(essid) +
-                                 ie_frame_size_aligned;
-                  break;
-                }
-
-              default:
-                break;
-            }
-
-          ie_offset += ie_buffer[ie_offset + 1] + 2;
-        }
-
-      goto process_next_bss;
-
-    scan_result_full:
-
-      /* Continue instead of break to log dropped AP results */
-
-      wlerr("No more space in scan_result buffer\n");
-
-    process_next_bss:
-
-      /* Process next bss_info */
-
-      len -= bss_info_len;
-      bss = (struct wl_bss_info *)((uint8_t *)bss + bss_info_len);
-      bss_count += 1;
+      priv->scan_result_entries++;
     }
 
 wl_escan_result_processed:
@@ -932,7 +824,124 @@ wl_escan_result_processed:
 
 exit_invalid_frame:
   wlerr("Invalid scan result event\n");
-  bcmf_hexdump((uint8_t *)event, event_len, (unsigned long)event);
+  bcmf_hexdump((FAR uint8_t *)event, event_len, (unsigned long)event);
+}
+
+static int bcmf_wl_scan_format_results(FAR struct bcmf_dev_s *priv,
+                                       FAR struct iwreq *iwr)
+{
+  FAR wl_bss_info_t *scan_result[BCMF_SCAN_RESULT_ENTRIES];
+  FAR wl_bss_info_t *info;
+  FAR struct iw_event *iwe;
+  FAR char *pointer;
+  int len;
+  int i;
+  int j;
+
+  if (priv->scan_result_entries == 0)
+    {
+      iwr->u.data.length = 0;
+      return OK;
+    }
+
+  len = IW_EV_LEN(ap_addr) + IW_EV_LEN(qual) +
+        IW_EV_LEN(freq)    + IW_EV_LEN(data) +
+        IW_EV_LEN(essid);
+
+  len *= priv->scan_result_entries;
+
+  for (i = 0; i < priv->scan_result_entries; i++)
+    {
+      scan_result[i] = &priv->scan_result[i];
+      len += (min(strlen((FAR const char *)scan_result[i]->SSID),
+                         32) + 3) & ~3;
+    }
+
+  if (iwr->u.data.pointer == NULL || iwr->u.data.length < len)
+    {
+      iwr->u.data.length = len;
+      return -E2BIG;
+    }
+
+  /* Sort list by RSSI */
+
+  for (i = 0; i < priv->scan_result_entries; i++)
+    {
+      for (j = 0; j + 1 < priv->scan_result_entries - i; j++)
+        {
+          if (scan_result[j]->RSSI < scan_result[j + 1]->RSSI)
+            {
+              info = scan_result[j];
+              scan_result[j] = scan_result[j + 1];
+              scan_result[j + 1] = info;
+            }
+        }
+    }
+
+  pointer = iwr->u.data.pointer;
+
+  /* Copy scan result */
+
+  for (i = 0; i < priv->scan_result_entries; i++)
+    {
+      info = scan_result[i];
+
+      /* Copy BSSID */
+
+      iwe = (FAR struct iw_event *)pointer;
+      iwe->cmd = SIOCGIWAP;
+      iwe->u.ap_addr.sa_family = ARPHRD_ETHER;
+      memcpy(&iwe->u.ap_addr.sa_data,
+             info->BSSID.ether_addr_octet, IFHWADDRLEN);
+      iwe->len = IW_EV_LEN(ap_addr);
+      pointer += iwe->len;
+
+      /* Copy ESSID */
+
+      iwe = (FAR struct iw_event *)pointer;
+      iwe->cmd = SIOCGIWESSID;
+      iwe->u.essid.flags = 0;
+      iwe->u.essid.length = min(strlen((FAR const char *)info->SSID), 32);
+      iwe->u.essid.pointer = (FAR void *)sizeof(iwe->u.essid);
+      memcpy(&iwe->u.essid + 1, info->SSID, iwe->u.essid.length);
+      iwe->len = IW_EV_LEN(essid) + ((iwe->u.essid.length + 3) & ~3);
+      pointer += iwe->len;
+
+      /* Copy link quality info */
+
+      iwe = (FAR struct iw_event *)pointer;
+      iwe->cmd = IWEVQUAL;
+      iwe->u.qual.qual = info->SNR;
+      iwe->u.qual.level = info->RSSI;
+      iwe->u.qual.noise = info->phy_noise;
+      iwe->u.qual.updated = IW_QUAL_DBM | IW_QUAL_ALL_UPDATED;
+      iwe->len = IW_EV_LEN(qual);
+      pointer += iwe->len;
+
+      /* Copy AP control channel */
+
+      iwe = (FAR struct iw_event *)pointer;
+      iwe->cmd = SIOCGIWFREQ;
+      iwe->u.freq.e = 0;
+      iwe->u.freq.m = info->ctl_ch;
+      iwe->len = IW_EV_LEN(freq);
+      pointer += iwe->len;
+
+      /* Copy AP encryption mode */
+
+      iwe = (FAR struct iw_event *)pointer;
+      iwe->cmd = SIOCGIWENCODE;
+      iwe->u.data.flags = info->capability & DOT11_CAP_PRIVACY ?
+                          IW_ENCODE_ENABLED | IW_ENCODE_NOKEY :
+                          IW_ENCODE_DISABLED;
+      iwe->u.data.length = 0;
+      iwe->u.essid.pointer = NULL;
+      iwe->len = IW_EV_LEN(data);
+      pointer += iwe->len;
+    }
+
+  iwr->u.data.length = pointer - (FAR char *)iwr->u.data.pointer;
+  return OK;
 }
 
 void bcmf_wl_scan_timeout(wdparm_t arg)
@@ -1103,7 +1112,8 @@ int bcmf_wl_start_scan(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
 
   if (priv->scan_result == NULL)
     {
-      priv->scan_result = kmm_malloc(BCMF_SCAN_RESULT_SIZE);
+      priv->scan_result = kmm_malloc(sizeof(wl_bss_info_t) *
+                                     BCMF_SCAN_RESULT_ENTRIES);
       if (priv->scan_result == NULL)
         {
           wlerr("Cannot allocate result buffer\n");
@@ -1114,7 +1124,7 @@ int bcmf_wl_start_scan(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
 
   wlinfo("start scan\n");
 
-  priv->scan_result_size = 0;
+  priv->scan_result_entries = 0;
   priv->scan_status = BCMF_SCAN_RUN;
 
   out_len = sizeof(scan_params);
@@ -1175,40 +1185,15 @@ int bcmf_wl_get_scan_results(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
       goto exit_sem_post;
     }
 
-  if (iwr->u.data.pointer == NULL ||
-      iwr->u.data.length < priv->scan_result_size)
+  ret = bcmf_wl_scan_format_results(priv, iwr);
+  if (ret == OK)
     {
-      /* Stat request, return scan_result_size */
+      /* Free scan result buffer */
 
-      ret = -E2BIG;
-      iwr->u.data.pointer = NULL;
-      iwr->u.data.length = priv->scan_result_size;
-      goto exit_sem_post;
+      kmm_free(priv->scan_result);
+      priv->scan_result = NULL;
+      priv->scan_result_entries = 0;
     }
-
-  if (priv->scan_result_size <= 0)
-    {
-      ret = OK;
-      iwr->u.data.length = 0;
-      goto exit_free_buffer;
-    }
-
-  /* Copy result to user buffer */
-
-  if (iwr->u.data.length > priv->scan_result_size)
-    {
-      iwr->u.data.length = priv->scan_result_size;
-    }
-
-  memcpy(iwr->u.data.pointer, priv->scan_result, iwr->u.data.length);
-
-exit_free_buffer:
-
-  /* Free scan result buffer */
-
-  kmm_free(priv->scan_result);
-  priv->scan_result = NULL;
-  priv->scan_result_size = 0;
 
 exit_sem_post:
   nxsem_post(&priv->control_mutex);
@@ -1357,9 +1342,9 @@ int bcmf_wl_set_auth_param(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
 
 int bcmf_wl_set_mode(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
 {
-  int interface;
   uint32_t out_len;
   uint32_t value;
+  int interface;
 
   interface = bcmf_wl_get_interface(priv, iwr);
 
@@ -1368,15 +1353,264 @@ int bcmf_wl_set_mode(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
       return -EINVAL;
     }
 
-  out_len = 4;
+  out_len = sizeof(value);
   value = iwr->u.mode == IW_MODE_INFRA ? 1 : 0;
-  if (bcmf_cdc_ioctl(priv, interface, true,
-                     WLC_SET_INFRA, (uint8_t *)&value, &out_len))
+
+  return bcmf_cdc_ioctl(priv, interface, true,
+                        WLC_SET_INFRA, (uint8_t *)&value, &out_len);
+}
+
+int bcmf_wl_get_mode(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  uint32_t infra;
+  int interface;
+  uint32_t ap;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
     {
-      return -EIO;
+      return -EINVAL;
+    }
+
+  out_len = sizeof(infra);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_INFRA, (uint8_t *)&infra, &out_len);
+  if (ret == OK)
+    {
+      out_len = sizeof(ap);
+      ret = bcmf_cdc_ioctl(priv, interface, false,
+                           WLC_GET_AP, (uint8_t *)&ap, &out_len);
+    }
+
+  if (ret == OK)
+    {
+      if (infra == 0)
+        {
+          iwr->u.mode = IW_MODE_ADHOC;
+        }
+      else if (ap)
+        {
+          iwr->u.mode = IW_MODE_MASTER;
+        }
+      else
+        {
+          iwr->u.mode = IW_MODE_INFRA;
+        }
+    }
+
+  return ret;
+}
+
+int bcmf_wl_set_bssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  int interface;
+  int infra = 0;
+  int ap = 0;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  out_len = sizeof(ap);
+  ret = bcmf_cdc_ioctl(priv, interface, false, WLC_GET_AP,
+                       (uint8_t *)&ap, &out_len);
+  if (ret == OK)
+    {
+      out_len = sizeof(infra);
+      ret = bcmf_cdc_ioctl(priv, interface, false, WLC_GET_INFRA,
+                           (uint8_t *)&infra, &out_len);
+
+      if (ret == OK)
+        {
+          out_len = sizeof(struct ether_addr);
+          ret = bcmf_cdc_ioctl(priv, interface, true,
+                               ((ap || !infra) ? WLC_SET_BSSID :
+                                                 WLC_REASSOC),
+                               (uint8_t *)iwr->u.ap_addr.sa_data, &out_len);
+        }
+    }
+
+  return ret;
+}
+
+int bcmf_wl_get_bssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  int interface;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  iwr->u.ap_addr.sa_family = ARPHRD_ETHER;
+  out_len = sizeof(struct ether_addr);
+
+  return bcmf_cdc_ioctl(priv, interface, false, WLC_GET_BSSID,
+                        (uint8_t *)iwr->u.ap_addr.sa_data, &out_len);
+}
+
+int bcmf_wl_get_channel(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  channel_info_t ci;
+  uint32_t out_len;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  out_len = sizeof(ci);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_CHANNEL, (uint8_t *)&ci, &out_len);
+  if (ret == OK)
+    {
+      iwr->u.freq.m = bcmf_wl_channel_to_frequency(ci.target_channel);
+    }
+
+  return ret;
+}
+
+int bcmf_wl_get_rate(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  uint32_t rate;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  out_len = sizeof(rate);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_RATE, (uint8_t *)&rate, &out_len);
+  if (ret == OK)
+    {
+      iwr->u.bitrate.value = ((rate / 2) * 1000) + ((rate & 1) ? 500 : 0);
+      iwr->u.bitrate.fixed = 1;
+    }
+
+  return ret;
+}
+
+int bcmf_wl_get_txpower(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  int interface;
+  int radio;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  out_len = sizeof(radio);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_RADIO, (uint8_t *)&radio, &out_len);
+  if (ret == OK)
+    {
+      out_len = sizeof(iwr->u.txpower.value);
+      ret = bcmf_cdc_iovar_request(priv, interface, false,
+                                   IOVAR_STR_QTXPOWER,
+                                   (uint8_t *)&(iwr->u.txpower.value),
+                                   &out_len);
+      if (ret == OK)
+        {
+          iwr->u.txpower.value   &= ~WL_TXPWR_OVERRIDE;
+          iwr->u.txpower.value   /= 4;
+
+          iwr->u.txpower.fixed    = 0;
+          iwr->u.txpower.disabled = radio;
+          iwr->u.txpower.flags    = IW_TXPOW_DBM;
+        }
+    }
+
+  return ret;
+}
+
+int bcmf_wl_get_iwrange(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  struct iw_range *range;
+  channel_info_t ci;
+  uint32_t out_len;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  if (iwr->u.data.length < sizeof(struct iw_range))
+    {
+      return -EINVAL;
+    }
+
+  range = iwr->u.data.pointer;
+
+  memset(range, 0, sizeof(*range));
+
+  out_len = sizeof(ci);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_CHANNEL, (uint8_t *)&ci, &out_len);
+  if (ret == OK)
+    {
+      range->num_frequency = 1;
+      range->freq[0].m     = bcmf_wl_channel_to_frequency(ci.target_channel);
+      range->freq[0].i     = ci.target_channel;
     }
 
   return OK;
+}
+
+int bcmf_wl_get_rssi(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  wl_sta_rssi_t rssi;
+  uint32_t out_len;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  memset(&rssi.sta_addr, 0x0, sizeof(rssi.sta_addr));
+
+  out_len = sizeof(rssi);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_RSSI, (uint8_t *)&rssi, &out_len);
+  if (ret == OK)
+    {
+      iwr->u.sens.value = -rssi.rssi;
+    }
+
+  return ret;
 }
 
 int bcmf_wl_set_encode_ext(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
@@ -1424,6 +1658,7 @@ int bcmf_wl_set_ssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
   int interface;
   uint32_t out_len;
   wlc_ssid_t ssid;
+  scb_val_t scbval;
 
   interface = bcmf_wl_get_interface(priv, iwr);
 
@@ -1432,16 +1667,29 @@ int bcmf_wl_set_ssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
       return -EINVAL;
     }
 
-  ssid.ssid_len = iwr->u.essid.length;
-  memcpy(ssid.SSID, iwr->u.essid.pointer, iwr->u.essid.length);
-
-  /* Configure AP SSID and trig authentication request */
-
-  out_len = sizeof(ssid);
-  if (bcmf_cdc_ioctl(priv, interface, true,
-                     WLC_SET_SSID, (uint8_t *)&ssid, &out_len))
+  if (iwr->u.essid.flags)
     {
-      return -EIO;
+      ssid.ssid_len = iwr->u.essid.length;
+      memcpy(ssid.SSID, iwr->u.essid.pointer, iwr->u.essid.length);
+
+      /* Configure AP SSID and trig authentication request */
+
+      out_len = sizeof(ssid);
+      ret = bcmf_cdc_ioctl(priv, interface, true,
+                         WLC_SET_SSID, (uint8_t *)&ssid, &out_len);
+      if (ret < 0)
+        {
+          wlerr("Associate request failure\n");
+          return ret;
+        }
+    }
+  else
+    {
+      out_len = sizeof(scbval);
+      memset(&scbval, 0x0, out_len);
+
+      return bcmf_cdc_ioctl(priv, interface, true,
+                            WLC_DISASSOC, (uint8_t *)&scbval, &out_len);
     }
 
   ret = bcmf_sem_wait(&priv->auth_signal, BCMF_AUTH_TIMEOUT_MS);
@@ -1466,4 +1714,100 @@ int bcmf_wl_set_ssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
     }
 
   return OK;
+}
+
+int bcmf_wl_get_ssid(FAR struct bcmf_dev_s *priv, struct iwreq *iwr)
+{
+  uint32_t out_len;
+  wlc_ssid_t ssid;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  /* Configure AP SSID and trig authentication request */
+
+  out_len = sizeof(ssid);
+  ret = bcmf_cdc_ioctl(priv, interface, false,
+                       WLC_GET_SSID, (uint8_t *)&ssid, &out_len);
+  if (ret == OK)
+    {
+      iwr->u.essid.flags  = iwr->u.data.flags = 1;
+      iwr->u.essid.length = iwr->u.data.length = ssid.ssid_len + 1;
+      memcpy(iwr->u.essid.pointer, ssid.SSID, iwr->u.essid.length);
+    }
+
+  return ret;
+}
+
+int bcmf_wl_set_country_code(FAR struct bcmf_dev_s *priv,
+                             int interface, FAR void *code)
+{
+  uint8_t country[4] =
+    {
+      0
+    };
+
+  uint32_t out_len;
+
+  memcpy(country, code, 2);
+
+  /* Why out_len = 4 ? Padding bytes to ensure array is
+   * terminating with null byte
+   */
+
+  out_len = sizeof(country);
+
+  return bcmf_cdc_iovar_request(priv, interface, true,
+                                IOVAR_STR_COUNTRY, country,
+                                &out_len);
+}
+
+int bcmf_wl_set_country(FAR struct bcmf_dev_s *priv, FAR struct iwreq *iwr)
+{
+  int interface;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0)
+    {
+      return -EINVAL;
+    }
+
+  return bcmf_wl_set_country_code(priv, interface, iwr->u.data.pointer);
+}
+
+int bcmf_wl_get_country(FAR struct bcmf_dev_s *priv, FAR struct iwreq *iwr)
+{
+  uint8_t country[4] =
+    {
+      0
+    };
+
+  uint32_t out_len;
+  int interface;
+  int ret;
+
+  interface = bcmf_wl_get_interface(priv, iwr);
+
+  if (interface < 0 || iwr->u.data.pointer == NULL)
+    {
+      return -EINVAL;
+    }
+
+  out_len = sizeof(country);
+  ret = bcmf_cdc_iovar_request(priv, interface, false,
+                               IOVAR_STR_COUNTRY, country,
+                               &out_len);
+  if (ret == OK)
+    {
+      memcpy(iwr->u.data.pointer, country, 2);
+    }
+
+  return ret;
 }
