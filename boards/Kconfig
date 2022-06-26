@@ -267,6 +267,24 @@ config ARCH_BOARD_TTGO_LORA_ESP32
 		display. This port is for board version 1.0, more info:
 		https://github.com/Xinyuan-LilyGO/TTGO-LoRa-Series
 
+config ARCH_BOARD_TTGO_T5V2_ESP32
+	bool "TTGO e-ink T5v2.2"
+	depends on ARCH_CHIP_ESP32WROOM32 || ARCH_CHIP_ESP32WROOM32_8MB || ARCH_CHIP_ESP32WROOM32_16MB || ARCH_CHIP_ESP32WROVER || ARCH_CHIP_ESP32SOLO1
+	select ARCH_HAVE_BUTTONS
+	select DRIVERS_VIDEO
+	select VIDEO_FB
+	select FB_MODULEINFO
+	select LCD
+	select LCD_DEV
+	select LCD_FRAMEBUFFER
+	select LCD_PORTRAIT
+	select LCD_SSD1680
+	select LCD_SSD1680_2_9
+	---help---
+		TTGO T5v2 is an ESP32 board with e-ink 2.9 inch display.
+		Display resolution 128/296. More info:
+		https://github.com/Xinyuan-LilyGO/LilyGo-T5-Epaper-Series
+
 config ARCH_BOARD_ESP32C3_DEVKIT
 	bool "Espressif ESP32-C3 DevKit"
 	depends on ARCH_CHIP_ESP32C3MINI1 || ARCH_CHIP_ESP32C3WROOM02
@@ -297,6 +315,17 @@ config ARCH_BOARD_ESP32S3_DEVKIT
 		The ESP32-C3-DevKitM-1 version contains the ESP32-S3-MINI-1/1U module and the
 		ESP32-S3-DevKitC-1 version may be based either on ESP32-S3-WROOM-1/1U or
 		ESP32-S3-WROOM-2/2U.
+
+config ARCH_BOARD_ESP32S3_EYE
+	bool "Espressif ESP32-S3-EYE Board"
+	depends on ARCH_CHIP_ESP32S3WROOM1
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS if ESP32S3_GPIO_IRQ
+	---help---
+		The ESP32-S3-EYE is a small-sized AI development board produced by Espressif
+		featuring the ESP32-S3 CPU with a 2-Megapixel camera, an LCD display,
+		a microphone, an 8 MB Octal PSRAM and an 8 MB flash.
 
 config ARCH_BOARD_ET_STM32_STAMP
 	bool "Futurlec: ET-STM32 Stamp"
@@ -2443,11 +2472,13 @@ config ARCH_BOARD
 	default "emw3162"                  if ARCH_BOARD_EMW3162
 	default "quickfeather"             if ARCH_BOARD_QUICKFEATHER
 	default "esp32-devkitc"            if ARCH_BOARD_ESP32_DEVKITC
+	default "ttgo_eink5_v2"            if ARCH_BOARD_TTGO_T5V2_ESP32
 	default "esp32-ethernet-kit"       if ARCH_BOARD_ESP32_ETHERNETKIT
 	default "esp32-wrover-kit"         if ARCH_BOARD_ESP32_WROVERKIT
 	default "esp32c3-devkit"           if ARCH_BOARD_ESP32C3_DEVKIT
 	default "esp32s2-saola-1"          if ARCH_BOARD_ESP32S2_SAOLA_1
 	default "esp32s3-devkit"           if ARCH_BOARD_ESP32S3_DEVKIT
+	default "esp32s3-eye"              if ARCH_BOARD_ESP32S3_EYE
 	default "et-stm32-stamp"           if ARCH_BOARD_ET_STM32_STAMP
 	default "tlsr8278adk80d"           if ARCH_BOARD_TLSR8278ADK80D
 	default "ez80f910200kitg"          if ARCH_BOARD_EZ80F910200KITG
@@ -3338,6 +3369,9 @@ endif
 if ARCH_BOARD_ESP32S3_DEVKIT
 source "boards/xtensa/esp32s3/esp32s3-devkit/Kconfig"
 endif
+if ARCH_BOARD_ESP32S3_EYE
+source "boards/xtensa/esp32s3/esp32s3-eye/Kconfig"
+endif
 if ARCH_BOARD_SIM
 source "boards/sim/sim/sim/Kconfig"
 endif
@@ -3361,6 +3395,9 @@ source "boards/renesas/rx65n/rx65n-grrose/Kconfig"
 endif
 if ARCH_BOARD_ESP32_DEVKITC
 source "boards/xtensa/esp32/esp32-devkitc/Kconfig"
+endif
+if ARCH_BOARD_TTGO_T5V2_ESP32
+source "boards/xtensa/esp32/ttgo_eink5_v2/Kconfig"
 endif
 if ARCH_BOARD_ESP32_ETHERNETKIT
 source "boards/xtensa/esp32/esp32-ethernet-kit/Kconfig"

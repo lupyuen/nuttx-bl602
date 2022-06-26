@@ -86,10 +86,11 @@ struct bcmf_sdio_dev_s
 
   volatile bool ready;             /* Current device status */
   bool sleeping;                   /* Current sleep status */
+  bool kso_enable;                 /* Current Keep sdio on status */
+  bool support_sr;                 /* Firmware support save restore */
 
   pid_t thread_id;                 /* Processing thread id */
   sem_t thread_signal;             /* Semaphore for processing thread event */
-  struct wdog_s waitdog;           /* Processing thread waitdog */
 
   uint32_t backplane_current_addr; /* Current function 1 backplane base addr */
 
@@ -140,6 +141,8 @@ struct bcmf_sdio_frame
 
 int bcmf_bus_sdio_initialize(FAR struct bcmf_dev_s *priv,
           int minor, FAR struct sdio_dev_s *dev);
+
+int bcmf_bus_sdio_active(FAR struct bcmf_dev_s *priv, bool active);
 
 /* FIXME: Low level bus data transfer function
  * To avoid bus error, len will be aligned to:
