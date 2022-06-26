@@ -581,6 +581,7 @@ typedef struct
 {
   uint32_t val;
   struct ether_addr ea;
+  uint16_t pad;
 } scb_val_t;
 
 #define BCM_MAC_STATUS_INDICATION    (0x40010200L)
@@ -2711,6 +2712,13 @@ typedef struct wl_rssi_event
   uint8_t num_rssi_levels;
   int8_t rssi_levels[MAX_RSSI_LEVELS];
 } wl_rssi_event_t;
+
+typedef struct wl_sta_rssi
+{
+  uint32_t          rssi;
+  struct ether_addr sta_addr;
+  uint16_t          foo;
+} wl_sta_rssi_t;
 
 #define WLFEATURE_DISABLE_11N          0x00000001
 #define WLFEATURE_DISABLE_11N_STBC_TX  0x00000002

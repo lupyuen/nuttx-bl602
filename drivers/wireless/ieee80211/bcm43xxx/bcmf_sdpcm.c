@@ -391,25 +391,11 @@ int bcmf_sdpcm_sendframe(FAR struct bcmf_dev_s *priv)
                (unsigned long)sframe->header.base);
 #endif
 
-  /* Write the first 4 bytes of sdpcm header */
+  /* Write the frame data (the buffer is DMA aligned here) */
 
   ret = bcmf_transfer_bytes(sbus, true, 2, 0,
                             sframe->header.base,
-                            FIRST_WORD_SIZE);
-  if (ret != OK)
-    {
-      /* TODO handle retry count and remove frame from queue + abort TX */
-
-      wlinfo("fail send frame %d\n", ret);
-      ret = -EIO;
-      goto exit_abort;
-    }
-
-  /* Write the remaining frame data (the buffer is DMA aligned here) */
-
-  ret = bcmf_transfer_bytes(sbus, true, 2, 0,
-                            sframe->header.base + FIRST_WORD_SIZE,
-                            sframe->header.len - FIRST_WORD_SIZE);
+                            sframe->header.len);
   if (ret != OK)
     {
       /* TODO handle retry count and remove frame from queue + abort TX */
@@ -433,7 +419,7 @@ int bcmf_sdpcm_sendframe(FAR struct bcmf_dev_s *priv)
     {
       /* Notify upper layer at least one TX buffer is available */
 
-      bcmf_netdev_notify_tx_done(priv);
+      bcmf_netdev_notify_tx(priv);
     }
 
   return OK;
@@ -454,6 +440,7 @@ int bcmf_sdpcm_queue_frame(FAR struct bcmf_dev_s *priv,
   struct bcmf_sdio_frame *sframe = (struct bcmf_sdio_frame *)frame;
   struct bcmf_sdpcm_header *header =
     (struct bcmf_sdpcm_header *)sframe->data;
+  int semcount;
 
   /* Prepare sw header */
 
@@ -484,7 +471,11 @@ int bcmf_sdpcm_queue_frame(FAR struct bcmf_dev_s *priv,
 
   /* Notify bcmf thread tx frame is ready */
 
-  nxsem_post(&sbus->thread_signal);
+  nxsem_get_value(&sbus->thread_signal, &semcount);
+  if (semcount < 1)
+    {
+      nxsem_post(&sbus->thread_signal);
+    }
 
   return OK;
 }
