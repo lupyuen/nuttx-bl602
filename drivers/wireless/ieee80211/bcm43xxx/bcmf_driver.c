@@ -426,34 +426,6 @@ int bcmf_driver_download_clm(FAR struct bcmf_dev_s *priv)
 #endif
 #endif /* CONFIG_IEEE80211_BROADCOM_HAVE_CLM */
 
-int bcmf_wl_set_pm(FAR struct bcmf_dev_s *priv, int mode)
-{
-  int interface = CHIP_STA_INTERFACE;
-  uint32_t out_len;
-  uint32_t value;
-  int ret;
-
-  /* Set default power save mode */
-
-#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
-  if (priv->lp_mode != mode)
-#endif
-    {
-      out_len = 4;
-      value   = mode;
-      ret = bcmf_cdc_ioctl(priv, interface, true, WLC_SET_PM,
-                           (uint8_t *)&value, &out_len);
-#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
-      if (ret == OK)
-        {
-          priv->lp_mode = mode;
-        }
-#endif
-    }
-
-  return ret;
-}
-
 int bcmf_wl_active(FAR struct bcmf_dev_s *priv, bool active)
 {
   int interface = CHIP_STA_INTERFACE;
@@ -492,7 +464,10 @@ int bcmf_wl_active(FAR struct bcmf_dev_s *priv, bool active)
 
   /* Set default power save mode */
 
-  ret = bcmf_wl_set_pm(priv, PM_OFF);
+  out_len = 4;
+  value   = PM_OFF;
+  ret     = bcmf_cdc_ioctl(priv, interface, true, WLC_SET_PM,
+                           (FAR uint8_t *)&value, &out_len);
   if (ret != OK)
     {
       goto errout_in_sdio_active;
@@ -645,6 +620,11 @@ void bcmf_wl_auth_event_handler(FAR struct bcmf_dev_s *priv,
   wlinfo("Got auth event %" PRId32 " status %" PRId32 " from <%s>\n",
          type, status, event->src_name);
 
+  if (!priv->bc_bifup)
+    {
+      return;
+    }
+
   bcmf_hexdump((uint8_t *)event, len, (unsigned long)event);
 
   if (type == WLC_E_SET_SSID && status == WLC_E_STATUS_SUCCESS)
@@ -749,7 +729,9 @@ void bcmf_wl_scan_event_handler(FAR struct bcmf_dev_s *priv,
           /* Check if current bss AP is not already detected */
 
           if (memcmp(&curr->BSSID, &bss[i].BSSID,
-                     sizeof(curr->BSSID)) == 0)
+                     sizeof(curr->BSSID)) == 0 ||
+              memcmp(&curr->SSID, &bss[i].SSID,
+                     sizeof(curr->SSID)) == 0)
             {
               /* Replace the duplicate entry if rssi is
                * better than before
@@ -1807,7 +1789,42 @@ int bcmf_wl_get_country(FAR struct bcmf_dev_s *priv, FAR struct iwreq *iwr)
   if (ret == OK)
     {
       memcpy(iwr->u.data.pointer, country, 2);
+      ((uint8_t *)iwr->u.data.pointer)[2] = '\0';
     }
 
   return ret;
 }
+
+#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
+
+int bcmf_wl_set_dtim(FAR struct bcmf_dev_s *priv,
+                     uint32_t interval_ms)
+{
+  uint32_t value = interval_ms / 100;
+  uint32_t out_len;
+  int ret;
+
+  out_len = sizeof(interval_ms);
+
+  if (value == 0)
+    {
+      return -EINVAL;
+    }
+
+  if (priv->lp_dtim == interval_ms)
+    {
+      return OK;
+    }
+
+  ret = bcmf_cdc_iovar_request(priv, CHIP_STA_INTERFACE, true,
+                               IOVAR_STR_LISTEN_INTERVAL_DTIM,
+                               (FAR uint8_t *)&value, &out_len);
+  if (ret == OK)
+    {
+      priv->lp_dtim = interval_ms;
+    }
+
+  return ret;
+}
+
+#endif

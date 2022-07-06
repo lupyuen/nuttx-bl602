@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include <debug.h>
 #include <errno.h>
-#include <queue.h>
 #include <assert.h>
 
 #include <nuttx/kmalloc.h>
@@ -818,7 +817,6 @@ int bcmf_bus_sdio_initialize(FAR struct bcmf_dev_s *priv,
   sbus->minor              = minor;
   sbus->ready              = false;
   sbus->sleeping           = true;
-  sbus->flow_ctrl          = false;
 
   sbus->bus.txframe        = bcmf_sdpcm_queue_frame;
   sbus->bus.rxframe        = bcmf_sdpcm_get_rx_frame;
@@ -833,9 +831,9 @@ int bcmf_bus_sdio_initialize(FAR struct bcmf_dev_s *priv,
       goto exit_free_bus;
     }
 
-  dq_init(&sbus->tx_queue);
-  dq_init(&sbus->rx_queue);
-  dq_init(&sbus->free_queue);
+  list_initialize(&sbus->tx_queue);
+  list_initialize(&sbus->rx_queue);
+  list_initialize(&sbus->free_queue);
 
   /* Setup free buffer list */
 
@@ -843,7 +841,7 @@ int bcmf_bus_sdio_initialize(FAR struct bcmf_dev_s *priv,
 
   for (ret = 0; ret < CONFIG_IEEE80211_BROADCOM_FRAME_POOL_SIZE; ret++)
     {
-      bcmf_dqueue_push(&sbus->free_queue, &g_pktframes[ret].list_entry);
+      list_add_tail(&sbus->free_queue, &g_pktframes[ret].list_entry);
     }
 
   /* Init thread semaphore */
@@ -965,7 +963,7 @@ int bcmf_sdio_thread(int argc, char **argv)
       /* Check if RX/TX frames are available */
 
       if ((sbus->intstatus & I_HMB_FRAME_IND) == 0 &&
-          (sbus->tx_queue.tail == NULL) &&
+          list_is_empty(&sbus->tx_queue) &&
           !sbus->irq_pending)
         {
           /* Wait for event (device interrupt or user request) */
@@ -1056,7 +1054,6 @@ struct bcmf_sdio_frame *bcmf_sdio_allocate_frame(FAR struct bcmf_dev_s *priv,
 {
   FAR struct bcmf_sdio_dev_s *sbus = (FAR struct bcmf_sdio_dev_s *)priv->bus;
   struct bcmf_sdio_frame *sframe;
-  dq_entry_t *entry = NULL;
 
   while (1)
     {
@@ -1065,17 +1062,17 @@ struct bcmf_sdio_frame *bcmf_sdio_allocate_frame(FAR struct bcmf_dev_s *priv,
           DEBUGPANIC();
         }
 
-#if 0
       if (!tx ||
           sbus->tx_queue_count <
-            CONFIG_IEEE80211_BROADCOM_FRAME_POOL_SIZE - 1)
-#endif
+            CONFIG_IEEE80211_BROADCOM_FRAME_POOL_SIZE / 2)
         {
-          if ((entry = bcmf_dqueue_pop_tail(&sbus->free_queue)) != NULL)
+          if ((sframe = list_remove_head_type(&sbus->free_queue,
+                                         struct bcmf_sdio_frame,
+                                         list_entry)) != NULL)
             {
               if (tx)
                 {
-                  sbus->tx_queue_count += 1;
+                  sbus->tx_queue_count++;
                 }
 
               nxsem_post(&sbus->queue_mutex);
@@ -1085,20 +1082,14 @@ struct bcmf_sdio_frame *bcmf_sdio_allocate_frame(FAR struct bcmf_dev_s *priv,
 
       nxsem_post(&sbus->queue_mutex);
 
-      if (block)
+      if (!block)
         {
-          /* TODO use signaling semaphore */
-
-          wlinfo("alloc failed %d\n", tx);
-          nxsig_usleep(100 * 1000);
-          continue;
+          wlinfo("No avail buffer\n");
+          return NULL;
         }
 
-      wlinfo("No avail buffer\n");
-      return NULL;
+      nxsig_usleep(10 * 1000);
     }
-
-  sframe = container_of(entry, struct bcmf_sdio_frame, list_entry);
 
   sframe->header.len  = HEADER_SIZE + MAX_NETDEV_PKTSIZE +
                         CONFIG_NET_GUARDSIZE;
@@ -1118,11 +1109,11 @@ void bcmf_sdio_free_frame(FAR struct bcmf_dev_s *priv,
       DEBUGPANIC();
     }
 
-  bcmf_dqueue_push(&sbus->free_queue, &sframe->list_entry);
+  list_add_head(&sbus->free_queue, &sframe->list_entry);
 
   if (sframe->tx)
     {
-      sbus->tx_queue_count -= 1;
+      sbus->tx_queue_count--;
     }
 
   nxsem_post(&sbus->queue_mutex);

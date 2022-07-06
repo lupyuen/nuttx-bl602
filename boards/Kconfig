@@ -279,7 +279,7 @@ config ARCH_BOARD_TTGO_T5V2_ESP32
 	select LCD_FRAMEBUFFER
 	select LCD_PORTRAIT
 	select LCD_SSD1680
-	select LCD_SSD1680_2_9
+	select LCD_SSD1680_2_90
 	---help---
 		TTGO T5v2 is an ESP32 board with e-ink 2.9 inch display.
 		Display resolution 128/296. More info:
@@ -1426,6 +1426,15 @@ config ARCH_BOARD_NUCLEO_L552ZE
 	---help---
 		STMicro Nucleo STM32L552 board based on the STMicro STM32L552ZET6 MCU.
 
+config ARCH_BOARD_NUCLEO_WB55RG
+	bool "STM32WB55 Nucleo WB55RG"
+	depends on ARCH_CHIP_STM32WB55RG
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS
+	---help---
+		STMicro Nucleo WB55RG board based on the STMicro STM32WB55RGV6 MCU.
+
 config ARCH_BOARD_NUCLEO_WL55JC
 	bool "STM32WL55 Nucleo WL55JC"
 	depends on ARCH_CHIP_STM32WL55JC_CPU1 || ARCH_CHIP_STM32WL55JC_CPU2
@@ -1462,6 +1471,20 @@ config ARCH_BOARD_PIMORONI_TINY2040
 		This is a port to the Pimoroni Tiny2040 board.
 		Support is derived from Raspberry Pi Pico support.
 		STATUS:  Work has just began on this port.
+
+config ARCH_BOARD_ADAFRUIT_FEATHER_RP2040
+	bool "Adafruit Feather RP2040 board"
+	depends on ARCH_CHIP_RP2040
+	---help---
+		This is a port to the Adafruit Feather RP2040 board.
+		Support is derived from Raspberry Pi Pico support.
+
+config ARCH_BOARD_ADAFRUIT_KB2040
+	bool "Adafruit KB2040 board"
+	depends on ARCH_CHIP_RP2040
+	---help---
+		This is a port to the Adafruit KB2040 board.
+		Support is derived from Raspberry Pi Pico support.
 
 config ARCH_BOARD_RX65N
 	bool "RX65N renesas board"
@@ -2565,6 +2588,7 @@ config ARCH_BOARD
 	default "nucleo-l476rg"            if ARCH_BOARD_NUCLEO_L476RG
 	default "nucleo-l496zg"            if ARCH_BOARD_NUCLEO_L496ZG
 	default "nucleo-l552ze"            if ARCH_BOARD_NUCLEO_L552ZE
+	default "nucleo-wb55rg"            if ARCH_BOARD_NUCLEO_WB55RG
 	default "nucleo-wl55jc"            if ARCH_BOARD_NUCLEO_WL55JC
 	default "nutiny-nuc120"            if ARCH_BOARD_NUTINY_NUC120
 	default "olimex-efm32g880f128-stk" if ARCH_BOARD_OLIMEX_EFM32G880F128_STK
@@ -2592,6 +2616,8 @@ config ARCH_BOARD
 	default "intel64-qemu"             if ARCH_BOARD_INTEL64_QEMU
 	default "raspberrypi-pico"         if ARCH_BOARD_RASPBERRYPI_PICO
 	default "pimoroni-tiny2040"        if ARCH_BOARD_PIMORONI_TINY2040
+	default "adafruit-feather-rp2040"  if ARCH_BOARD_ADAFRUIT_FEATHER_RP2040
+	default "adafruit-kb2040"          if ARCH_BOARD_ADAFRUIT_KB2040
 	default "rx65n"                    if ARCH_BOARD_RX65N
 	default "rx65n-rsk1mb"             if ARCH_BOARD_RX65N_RSK1MB
 	default "rx65n-rsk2mb"             if ARCH_BOARD_RX65N_RSK2MB
@@ -2925,6 +2951,12 @@ endif
 if ARCH_BOARD_PIMORONI_TINY2040
 source "boards/arm/rp2040/pimoroni-tiny2040/Kconfig"
 endif
+if ARCH_BOARD_ADAFRUIT_FEATHER_RP2040
+source "boards/arm/rp2040/adafruit-feather-rp2040/Kconfig"
+endif
+if ARCH_BOARD_ADAFRUIT_KB2040
+source "boards/arm/rp2040/adafruit-kb2040/Kconfig"
+endif
 if ARCH_BOARD_ARDUINO_DUE
 source "boards/arm/sam34/arduino-due/Kconfig"
 endif
@@ -3086,6 +3118,9 @@ source "boards/arm/stm32l4/stm32l4r9ai-disco/Kconfig"
 endif
 if ARCH_BOARD_STM32L562E_DK
 source "boards/arm/stm32l5/stm32l562e-dk/Kconfig"
+endif
+if ARCH_BOARD_NUCLEO_WB55RG
+source "boards/arm/stm32wb/nucleo-wb55rg/Kconfig"
 endif
 if ARCH_BOARD_AXOLOTI
 source "boards/arm/stm32/axoloti/Kconfig"
