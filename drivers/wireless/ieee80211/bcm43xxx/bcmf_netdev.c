@@ -88,6 +88,12 @@
 # define CONFIG_IEEE80211_BROADCOM_NINTERFACES 1
 #endif
 
+#ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
+# define LP_IFDOWN_TIMEOUT CONFIG_IEEE80211_BROADCOM_LP_IFDOWN_TIMEOUT
+# define LP_DTIM_TIMEOUT   CONFIG_IEEE80211_BROADCOM_LP_DTIM_TIMEOUT
+# define LP_DTIM_INTERVAL  CONFIG_IEEE80211_BROADCOM_LP_DTIM_INTERVAL
+#endif
+
 /* This is a helper pointer for accessing the contents of Ethernet header */
 
 #define BUF ((FAR struct eth_hdr_s *)priv->bc_dev.d_buf)
@@ -147,7 +153,7 @@ int bcmf_netdev_alloc_tx_frame(FAR struct bcmf_dev_s *priv)
   /* Allocate frame for TX */
 
   priv->cur_tx_frame = bcmf_bdc_allocate_frame(priv,
-                                               MAX_NETDEV_PKTSIZE, true);
+                                               MAX_NETDEV_PKTSIZE, false);
   if (!priv->cur_tx_frame)
     {
       wlerr("ERROR: Cannot allocate TX frame\n");
@@ -518,13 +524,11 @@ static void bcmf_tx_poll_work(FAR void *arg)
 
           devif_poll(&priv->bc_dev, bcmf_txpoll);
 
-          /* Break out the continuous send if :
-           * 1. IP stack has no data to send.
-           * 2. RX worker ready.
+          /* Break out the continuous send if IP stack has
+           * no data to send.
            */
 
-          if (priv->cur_tx_frame != NULL ||
-              !work_available(&priv->bc_rxwork))
+          if (priv->cur_tx_frame != NULL)
             {
               break;
             }
@@ -645,6 +649,7 @@ void bcmf_netdev_notify_rx(FAR struct bcmf_dev_s *priv)
 static int bcmf_ifup(FAR struct net_driver_s *dev)
 {
   FAR struct bcmf_dev_s *priv = (FAR struct bcmf_dev_s *)dev->d_private;
+  struct ether_addr zmac;
   irqstate_t flags;
   uint32_t out_len;
   int ret = OK;
@@ -674,7 +679,9 @@ static int bcmf_ifup(FAR struct net_driver_s *dev)
 
   /* Set customized MAC address */
 
-  if (bcmf_board_etheraddr(&priv->bc_dev.d_mac.ether))
+  memset(&zmac, 0, sizeof(zmac));
+
+  if (memcmp(&priv->bc_dev.d_mac.ether, &zmac, sizeof(zmac)) != 0)
     {
       out_len = ETHER_ADDR_LEN;
       bcmf_cdc_iovar_request(priv, CHIP_STA_INTERFACE, true,
@@ -756,19 +763,24 @@ static int bcmf_ifdown(FAR struct net_driver_s *dev)
 
   if (priv->bc_bifup)
     {
+      /* Mark the device "down" */
+
+      priv->bc_bifup = false;
+
 #ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
-      if (!work_available(&priv->lp_work))
+      if (!work_available(&priv->lp_work_dtim))
         {
-          work_cancel(LPWORK, &priv->lp_work);
+          work_cancel(LPWORK, &priv->lp_work_dtim);
+        }
+
+      if (!work_available(&priv->lp_work_ifdown))
+        {
+          work_cancel(LPWORK, &priv->lp_work_ifdown);
         }
 #endif
 
       bcmf_wl_enable(priv, false);
       bcmf_wl_active(priv, false);
-
-      /* Mark the device "down" */
-
-      priv->bc_bifup = false;
     }
 
   leave_critical_section(flags);
@@ -788,32 +800,56 @@ static int bcmf_ifdown(FAR struct net_driver_s *dev)
  ****************************************************************************/
 
 #ifdef CONFIG_IEEE80211_BROADCOM_LOWPOWER
-static void bcmf_lowpower_work(FAR void *arg)
+static bool bcmf_lowpower_expiration(FAR struct bcmf_dev_s *priv,
+                                     FAR struct work_s *work,
+                                     worker_t worker, clock_t timeout)
 {
-  FAR struct bcmf_dev_s *priv = (FAR struct bcmf_dev_s *)arg;
-  irqstate_t flags;
   clock_t ticks;
-  clock_t timeout;
 
   if (priv->bc_bifup)
     {
       /* Disable the hardware interrupt */
 
-      flags = enter_critical_section();
-
       ticks = clock_systime_ticks() - priv->lp_ticks;
-      timeout = SEC2TICK(CONFIG_IEEE80211_BROADCOM_LOWPOWER_TIMEOUT);
 
       if (ticks >= timeout)
         {
-          leave_critical_section(flags);
-          bcmf_wl_set_pm(priv, PM_MAX);
+          return true;
         }
       else
         {
-          work_queue(LPWORK, &priv->lp_work, bcmf_lowpower_work,
-                     priv, timeout - ticks);
-          leave_critical_section(flags);
+          work_queue(LPWORK, work, worker, priv, timeout - ticks);
+        }
+    }
+
+  return false;
+}
+
+static void bcmf_lowpower_work(FAR void *arg)
+{
+  FAR struct bcmf_dev_s *priv = arg;
+
+  if (bcmf_lowpower_expiration(arg, &priv->lp_work_dtim, bcmf_lowpower_work,
+                               SEC2TICK(LP_DTIM_TIMEOUT)))
+    {
+      if (priv->bc_bifup)
+        {
+          bcmf_wl_set_dtim(priv, LP_DTIM_INTERVAL);
+        }
+    }
+}
+
+static void bcmf_lowpower_ifdown_work(FAR void *arg)
+{
+  FAR struct bcmf_dev_s *priv = arg;
+
+  if (bcmf_lowpower_expiration(arg, &priv->lp_work_ifdown,
+                               bcmf_lowpower_ifdown_work,
+                               SEC2TICK(LP_IFDOWN_TIMEOUT)))
+    {
+      if (priv->bc_bifup)
+        {
+          netdev_ifdown(&priv->bc_dev);
         }
     }
 }
@@ -831,24 +867,26 @@ static void bcmf_lowpower_work(FAR void *arg)
 
 static void bcmf_lowpower_poll(FAR struct bcmf_dev_s *priv)
 {
-  irqstate_t flags;
-
   if (priv->bc_bifup)
     {
-      bcmf_wl_set_pm(priv, PM_FAST);
+      bcmf_wl_set_dtim(priv, 100); /* Listen-iterval to 100 ms */
 
       /* Disable the hardware interrupt */
 
-      flags = enter_critical_section();
-
       priv->lp_ticks = clock_systime_ticks();
-      if (work_available(&priv->lp_work) && priv->lp_mode != PM_MAX)
+      if (work_available(&priv->lp_work_dtim) &&
+          priv->lp_dtim != LP_DTIM_INTERVAL)
         {
-          work_queue(LPWORK, &priv->lp_work, bcmf_lowpower_work, priv,
-                     SEC2TICK(CONFIG_IEEE80211_BROADCOM_LOWPOWER_TIMEOUT));
+          work_queue(LPWORK, &priv->lp_work_dtim, bcmf_lowpower_work, priv,
+                     SEC2TICK(LP_DTIM_TIMEOUT));
         }
 
-      leave_critical_section(flags);
+      if (work_available(&priv->lp_work_ifdown))
+        {
+          work_queue(LPWORK, &priv->lp_work_ifdown,
+                     bcmf_lowpower_ifdown_work, priv,
+                     SEC2TICK(LP_IFDOWN_TIMEOUT));
+        }
     }
 }
 
