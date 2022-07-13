@@ -652,15 +652,13 @@ FAR struct tcp_conn_s *tcp_alloc(uint8_t domain)
 
           /* Is this connection in a state we can sacrifice. */
 
-          /* REVISIT: maybe we could check for SO_LINGER but it's buried
-           * in the socket layer.
-           */
-
-          if (tmp->tcpstateflags == TCP_CLOSING    ||
+          if ((tmp->crefs == 0) &&
+              (tmp->tcpstateflags == TCP_CLOSED    ||
+              tmp->tcpstateflags == TCP_CLOSING    ||
               tmp->tcpstateflags == TCP_FIN_WAIT_1 ||
               tmp->tcpstateflags == TCP_FIN_WAIT_2 ||
               tmp->tcpstateflags == TCP_TIME_WAIT  ||
-              tmp->tcpstateflags == TCP_LAST_ACK)
+              tmp->tcpstateflags == TCP_LAST_ACK))
             {
               /* Yes.. Is it the oldest one we have seen so far? */
 
@@ -696,7 +694,6 @@ FAR struct tcp_conn_s *tcp_alloc(uint8_t domain)
            * waiting for it.
            */
 
-          conn->crefs = 0;
           tcp_free(conn);
 
           /* Now there is guaranteed to be one free connection.  Get it! */
@@ -768,8 +765,9 @@ void tcp_free(FAR struct tcp_conn_s *conn)
    * operation.
    */
 
-  DEBUGASSERT(conn->crefs == 0);
   net_lock();
+
+  DEBUGASSERT(conn->crefs == 0);
 
   tcp_stop_timer(conn);
 

@@ -25,6 +25,7 @@
 #include <nuttx/config.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -50,6 +51,7 @@
 #include <nuttx/kthread.h>
 #include <nuttx/video/fb.h>
 #include <nuttx/video/vnc.h>
+#include <nuttx/input/touchscreen.h>
 
 #include "vnc_server.h"
 
@@ -598,12 +600,17 @@ static inline int vnc_wait_start(int display)
 int up_fbinitialize(int display)
 {
   int ret;
+  FAR struct vnc_session_s *session;
+#if defined (CONFIG_VNCSERVER_TOUCH) || defined (CONFIG_VNCSERVER_KBD)
+  char devname[NAME_MAX];
+#endif
 
   DEBUGASSERT(display >= 0 && display < RFB_MAX_DISPLAYS);
 
   /* Start the VNC server kernel thread. */
 
   ret = vnc_start_server(display);
+
   if (ret < 0)
     {
       gerr("ERROR: vnc_start_server() failed: %d\n", ret);
@@ -617,7 +624,55 @@ int up_fbinitialize(int display)
   if (ret < 0)
     {
       gerr("ERROR: wait for vnc server start failed: %d\n", ret);
+      return ret;
     }
+
+  /* Save the input callout function information in the session structure. */
+
+  session           = g_vnc_sessions[display];
+  session->arg      = session;
+
+#ifdef CONFIG_VNCSERVER_TOUCH
+
+  ret = snprintf(devname, sizeof(devname),
+                 CONFIG_VNCSERVER_TOUCH_DEVNAME "%d", display);
+
+  if (ret < 0)
+    {
+      gerr("ERROR: Format vnc touch driver path failed.\n");
+      return ret;
+    }
+
+  ret = vnc_touch_register(devname, session);
+
+  if (ret < 0)
+    {
+      gerr("ERROR: Initial vnc touch driver failed.\n");
+      return ret;
+    }
+
+  session->mouseout = vnc_touch_event;
+#endif
+
+#ifdef CONFIG_VNCSERVER_KBD
+  ret = snprintf(devname, sizeof(devname),
+                 CONFIG_VNCSERVER_KBD_DEVNAME "%d", display);
+  if (ret < 0)
+    {
+      gerr("ERROR: Format vnc keyboard driver path failed.\n");
+      return ret;
+    }
+
+  ret = vnc_kbd_register(devname, session);
+
+  if (ret < 0)
+    {
+      gerr("ERROR: Initial vnc keyboard driver failed.\n");
+      return ret;
+    }
+
+  session->kbdout = vnc_kbd_event;
+#endif
 
   return ret;
 }
@@ -795,9 +850,11 @@ FAR struct fb_vtable_s *up_fbgetvplane(int display, int vplane)
 
 void up_fbuninitialize(int display)
 {
-#if 0 /* Do nothing */
   FAR struct vnc_session_s *session;
-  FAR struct vnc_fbinfo_s *fbinfo;
+#if defined(CONFIG_VNCSERVER_TOUCH) || defined (CONFIG_VNCSERVER_KBD)
+  int ret;
+  char devname[NAME_MAX];
+#endif
 
   DEBUGASSERT(display >= 0 && display < RFB_MAX_DISPLAYS);
   session = g_vnc_sessions[display];
@@ -806,10 +863,29 @@ void up_fbuninitialize(int display)
 
   if (session != NULL)
     {
-      fbinfo = &g_fbinfo[display];
-#warning Missing logic
-      UNUSED(session);
-      UNUSED(fbinfo);
-    }
+#ifdef CONFIG_VNCSERVER_TOUCH
+      ret = snprintf(devname, sizeof(devname),
+                     CONFIG_VNCSERVER_TOUCH_DEVNAME "%d", display);
+
+      if (ret < 0)
+        {
+          gerr("ERROR: Format vnc touch driver path failed.\n");
+          return;
+        }
+
+      vnc_touch_unregister(session, devname);
 #endif
+
+#ifdef CONFIG_VNCSERVER_KBD
+      ret = snprintf(devname, sizeof(devname),
+                     CONFIG_VNCSERVER_KBD_DEVNAME "%d", display);
+      if (ret < 0)
+        {
+          gerr("ERROR: Format vnc keyboard driver path failed.\n");
+          return;
+        }
+
+      vnc_kbd_unregister(session, devname);
+#endif
+    }
 }
