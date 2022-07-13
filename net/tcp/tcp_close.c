@@ -58,10 +58,6 @@ static void tcp_close_work(FAR void *param)
   /* Stop the network monitor for all sockets */
 
   tcp_stop_monitor(conn, TCP_CLOSE);
-
-  /* Discard our reference to the connection */
-
-  conn->crefs = 0;
   tcp_free(conn);
 
   net_unlock();
@@ -298,6 +294,10 @@ static inline int tcp_close_disconnect(FAR struct socket *psock)
     }
 #endif
 
+  /* Discard our reference to the connection */
+
+  conn->crefs = 0;
+
   /* TCP_ESTABLISHED
    *   We need to initiate an active close and wait for its completion.
    *
@@ -330,6 +330,8 @@ static inline int tcp_close_disconnect(FAR struct socket *psock)
 
       tcp_free(conn);
     }
+
+  psock->s_conn = NULL;
 
   net_unlock();
   return ret;

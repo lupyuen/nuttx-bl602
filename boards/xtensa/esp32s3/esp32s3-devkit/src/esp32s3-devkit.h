@@ -35,6 +35,11 @@
 
 /* ESP32-S3-DEVKIT GPIOs ****************************************************/
 
+/* LCD pins, i.e. used by ST7735 */
+
+#define GPIO_LCD_DC         14
+#define GPIO_LCD_RST        9
+
 /* BOOT Button */
 
 #define BUTTON_BOOT  0
