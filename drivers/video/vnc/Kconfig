@@ -139,6 +139,38 @@ config VNCSERVER_KBDENCODE
 		Use a special encoding of keyboard characters as defined in
 		include/nuttx/input/kbd_coded.h.
 
+config VNCSERVER_TOUCH
+	bool "Enable touch input"
+	default n
+	select INPUT
+	select INPUT_TOUCHSCREEN
+	---help---
+		Use touchscreen based input driver
+
+config VNCSERVER_TOUCH_DEVNAME
+	string "Touch input device name prefix"
+	default "/dev/input"
+	depends on VNCSERVER_TOUCH
+	---help---
+		Touch device name prefix, final devi name is /dev/inputX by default,
+		X is display number
+
+config VNCSERVER_KBD
+	bool "Enable keyboard input"
+	default n
+	select INPUT
+	select INPUT_KEYBOARD
+	---help---
+		Use keyboard based input driver
+
+config VNCSERVER_KBD_DEVNAME
+	string "Keyboard input device name prefix"
+	default "/dev/kbd"
+	depends on VNCSERVER_KBD
+	---help---
+		Keyboard device name prefix, final devi name is /dev/kbdX by default,
+		X is display number
+
 config VNCSERVER_INBUFFER_SIZE
 	int "Input buffer size"
 	default 80
