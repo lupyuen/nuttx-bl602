@@ -48,6 +48,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Define proc mountpoint in case procfs is used but nsh is not */
+
+#ifndef CONFIG_NSH_PROC_MOUNTPOINT
+#define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -116,7 +122,7 @@ int board_app_initialize(uintptr_t arg)
     }
 #endif
 
-#if defined(CONFIG_ARCH_BOARD_ENABLE_FLASH_MOUNT)
+#if defined(CONFIG_ARCH_BOARD_FLASH_MOUNT)
   /* Register partition table for on-board FLASH memory */
 
   ret = stm32wl5_flash_init();

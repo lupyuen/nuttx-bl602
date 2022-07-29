@@ -237,7 +237,7 @@ static void governor_activity(int domain, int count)
     {
       /* Add the activity count to the accumulated counts. */
 
-      flags = pm_lock();
+      flags = pm_lock(domain);
       accum = (uint32_t)pdomstate->accum + count;
 
       /* Make sure that we do not overflow the underlying representation */
@@ -277,7 +277,7 @@ static void governor_activity(int domain, int count)
           governor_update(domain, tmp);
         }
 
-      pm_unlock(flags);
+      pm_unlock(domain, flags);
     }
 }
 
@@ -478,7 +478,7 @@ static enum pm_state_e governor_checkstate(int domain)
    * logic in governor_activity().
    */
 
-  flags = pm_lock();
+  flags = pm_lock(domain);
 
   /* Check the elapsed time.  In periods of low activity, time slicing is
    * controlled by IDLE loop polling; in periods of higher activity, time
@@ -510,14 +510,14 @@ static enum pm_state_e governor_checkstate(int domain)
 
   for (index = 0; index < pdomstate->recommended; index++)
     {
-      if (pdom->stay[index] != 0)
+      if (!dq_empty(&pdom->wakelock[index]))
         {
           pdomstate->recommended = index;
           break;
         }
     }
 
-  pm_unlock(flags);
+  pm_unlock(domain, flags);
 
   return pdomstate->recommended;
 }
@@ -569,7 +569,7 @@ static void governor_timer(int domain)
   pdomstate = &g_pm_activity_governor.domain_states[domain];
   state     = pdom->state;
 
-  if (state < PM_SLEEP && !pdom->stay[pdom->state])
+  if (state < PM_SLEEP && dq_empty(&pdom->wakelock[state]))
     {
       sclock_t delay = pmtick[state] +
                        pdomstate->btime -

@@ -32,7 +32,6 @@
 #include <nuttx/mutex.h>
 #include <nuttx/clock.h>
 #include <nuttx/power/pm.h>
-#include <nuttx/wdog.h>
 #include <nuttx/wqueue.h>
 
 #ifdef CONFIG_PM
@@ -57,7 +56,14 @@ struct pm_domain_s
 
   /* The power state lock count */
 
-  uint16_t stay[PM_COUNT];
+  struct dq_queue_s wakelock[PM_COUNT];
+
+#ifdef CONFIG_PM_PROCFS
+  struct dq_queue_s wakelockall;
+  struct timespec start;
+  struct timespec wake[PM_COUNT];
+  struct timespec sleep[PM_COUNT];
+#endif
 
   /* Auto update or not */
 
@@ -72,6 +78,10 @@ struct pm_domain_s
   /* A pointer to the PM governor instance */
 
   FAR const struct pm_governor_s *governor;
+
+  /* Recursive lock for race condition */
+
+  rmutex_t lock;
 };
 
 /* This structure encapsulates all of the global data used by the PM system */
@@ -123,9 +133,12 @@ EXTERN struct pm_global_s g_pmglobals;
  * Description:
  *   Lock the power management operation.
  *
+ * Input Parameters:
+ *   domain - The PM domain to lock
+ *
  ****************************************************************************/
 
-irqstate_t pm_lock(void);
+irqstate_t pm_lock(int domain);
 
 /****************************************************************************
  * Name: pm_unlock
@@ -133,9 +146,28 @@ irqstate_t pm_lock(void);
  * Description:
  *   Unlock the power management operation.
  *
+ * Input Parameters:
+ *   domain - The PM domain to unlock
+ *
  ****************************************************************************/
 
-void pm_unlock(irqstate_t flags);
+void pm_unlock(int domain, irqstate_t flags);
+
+/****************************************************************************
+ * Name: pm_wakelock_global_init
+ *
+ * Description:
+ *   This function is called to setup global wakelock when system init
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void pm_wakelock_global_init(void);
 
 #undef EXTERN
 #if defined(__cplusplus)

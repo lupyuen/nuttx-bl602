@@ -23,9 +23,13 @@ include common/Make.defs
 
 # The start-up, "head", file.  May be either a .S or a .c file.
 
-HEAD_CSRC = esp32_start.c esp32_wdt.c
+HEAD_CSRC  = esp32_start.c esp32_wdt.c
 
-# Required ESP32 files (arch/xtensa/src/lx6)
+ifeq ($(CONFIG_XTENSA_HAVE_EXCEPTION_HOOKS),y)
+HEAD_ASRC += esp32_window_hooks.S
+endif
+
+# Required ESP32 files (arch/xtensa/src/esp32)
 
 CHIP_CSRCS  = esp32_allocateheap.c esp32_clockconfig.c esp32_gpio.c
 CHIP_CSRCS += esp32_systemreset.c esp32_resetcause.c
@@ -35,6 +39,10 @@ CHIP_CSRCS += esp32_dma.c
 
 ifneq ($(CONFIG_ARCH_IDLE_CUSTOM),y)
 CHIP_CSRCS += esp32_idle.c
+endif
+
+ifeq ($(CONFIG_BUILD_PROTECTED),y)
+CHIP_CSRCS += esp32_userspace.c
 endif
 
 ifeq ($(CONFIG_SCHED_TICKLESS),y)
@@ -49,8 +57,6 @@ CHIP_CSRCS += esp32_pminitialize.c
 endif
 CHIP_CSRCS += esp32_pm.c
 endif
-
-CHIP_CSRCS += esp32_rtc.c
 
 ifeq ($(CONFIG_XTENSA_IMEM_USE_SEPARATE_HEAP),y)
 CHIP_CSRCS += esp32_imm.c
@@ -169,8 +175,11 @@ ifeq ($(CONFIG_ESP32_AES_ACCELERATOR),y)
 CHIP_CSRCS += esp32_aes.c
 endif
 
+ifeq ($(CONFIG_ESP32_RTC),y)
+CHIP_CSRCS += esp32_rtc.c
 ifeq ($(CONFIG_RTC_DRIVER),y)
 CHIP_CSRCS += esp32_rtc_lowerhalf.c
+endif
 endif
 
 ifeq ($(CONFIG_ESP32_WIRELESS),y)
@@ -197,10 +206,19 @@ distclean::
 
 INCLUDES += $(shell $(INCDIR) "$(CC)" $(ARCH_SRCDIR)$(DELIM)chip$(DELIM)esp-wireless-drivers-3rdparty$(DELIM)include)
 INCLUDES += $(shell $(INCDIR) "$(CC)" $(ARCH_SRCDIR)$(DELIM)chip$(DELIM)esp-wireless-drivers-3rdparty$(DELIM)include$(DELIM)esp32)
-CHIP_CSRCS += esp32_wlan.c esp32_wifi_utils.c esp32_wifi_adapter.c
 
 EXTRA_LIBPATHS += -L $(ARCH_SRCDIR)$(DELIM)chip$(DELIM)esp-wireless-drivers-3rdparty$(DELIM)libs$(DELIM)esp32
-EXTRA_LIBS += -lcore -lrtc -lnet80211 -lpp -lsmartconfig -lespnow -lphy -lwpa_supplicant
+EXTRA_LIBS += -lphy -lrtc
+
+# Wireless interfaces.
+
+CHIP_CSRCS += esp32_wireless.c
+endif
+
+ifeq ($(CONFIG_ESP32_WIFI),y)
+CHIP_CSRCS += esp32_wlan.c esp32_wifi_utils.c esp32_wifi_adapter.c
+EXTRA_LIBS += -lcore -lnet80211 -lpp -lsmartconfig -lespnow -lwpa_supplicant
+endif
 
 ifeq ($(CONFIG_ESP32_BLE),y)
 CHIP_CSRCS += esp32_ble_adapter.c esp32_ble.c
@@ -208,9 +226,4 @@ EXTRA_LIBS += -lbtdm_app
   ifeq ($(CONFIG_ESP32_WIFI_BT_COEXIST),y)
     EXTRA_LIBS += -lcoexist
   endif
-endif
-
-# Wireless interfaces.
-
-CHIP_CSRCS += esp32_wireless.c
 endif

@@ -27,6 +27,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/irq.h>
 #include <nuttx/power/pm.h>
+#include <assert.h>
 #include <sched.h>
 #include "pm.h"
 
@@ -42,13 +43,16 @@
  * Description:
  *   Lock the power management operation.
  *
+ * Input Parameters:
+ *   domain - The PM domain to lock
+ *
  ****************************************************************************/
 
-irqstate_t pm_lock(void)
+irqstate_t pm_lock(int domain)
 {
   if (!up_interrupt_context() && !sched_idletask())
     {
-      nxsem_wait_uninterruptible(&g_pmglobals.regsem);
+      nxrmutex_lock(&g_pmglobals.domain[domain].lock);
     }
 
   return enter_critical_section();
@@ -60,15 +64,18 @@ irqstate_t pm_lock(void)
  * Description:
  *   Unlock the power management operation.
  *
+ * Input Parameters:
+ *   domain - The PM domain to unlock
+ *
  ****************************************************************************/
 
-void pm_unlock(irqstate_t flags)
+void pm_unlock(int domain, irqstate_t flags)
 {
   leave_critical_section(flags);
 
   if (!up_interrupt_context() && !sched_idletask())
     {
-      nxsem_post(&g_pmglobals.regsem);
+      nxrmutex_unlock(&g_pmglobals.domain[domain].lock);
     }
 }
 

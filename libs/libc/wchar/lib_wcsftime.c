@@ -22,14 +22,13 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
 #include <time.h>
+#include <wchar.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_LIBC_WCHAR
 size_t wcsftime(FAR wchar_t *s, size_t maxsize, FAR const wchar_t *format,
                 FAR const struct tm *tim_p)
 {
@@ -39,4 +38,3 @@ size_t wcsftime(FAR wchar_t *s, size_t maxsize, FAR const wchar_t *format,
 
   return strftime((FAR char *)s, maxsize, (FAR char *)format, tim_p);
 }
-#endif

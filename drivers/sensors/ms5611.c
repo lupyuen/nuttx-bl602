@@ -94,7 +94,7 @@ struct ms5611_dev_s
 
   uint32_t                  freq;      /* Bus Frequency I2C/SPI */
   struct ms5611_calib_s     calib;     /* Calib. params from ROM */
-  unsigned int              interval;  /* Polling interval */
+  unsigned long             interval;  /* Polling interval */
   bool                      enabled;   /* Enable/Disable MS5611 */
   sem_t                     run;       /* Locks measure cycle */
   sem_t                     exclsem;   /* Manages exclusive to device */
@@ -121,7 +121,7 @@ static unsigned long ms5611_curtime(void);
 /* Sensor methods */
 
 static int ms5611_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                               FAR unsigned int *period_us);
+                               FAR unsigned long *period_us);
 static int ms5611_activate(FAR struct sensor_lowerhalf_s *lower,
                            bool enable);
 
@@ -250,7 +250,7 @@ static int ms5611_read24(FAR struct ms5611_dev_s *priv, uint8_t *regval)
 }
 
 static inline void baro_measure_read(FAR struct ms5611_dev_s *priv,
-                                     FAR struct sensor_event_baro *baro)
+                                     FAR struct sensor_baro *baro)
 {
   uint32_t press;
   uint32_t temp;
@@ -370,7 +370,7 @@ static int ms5611_thread(int argc, char **argv)
   FAR struct ms5611_dev_s *priv = (FAR struct ms5611_dev_s *)
         ((uintptr_t)strtoul(argv[1], NULL, 0));
 
-  struct sensor_event_baro baro_data;
+  struct sensor_baro baro_data;
 
   while (true)
     {
@@ -390,7 +390,7 @@ static int ms5611_thread(int argc, char **argv)
        baro_measure_read(priv, &baro_data);
 
        priv->sensor_lower.push_event(priv->sensor_lower.priv, &baro_data,
-                                     sizeof(struct sensor_event_baro));
+                                     sizeof(struct sensor_baro));
 
       /* Sleeping thread before fetching the next sensor data */
 
@@ -540,7 +540,7 @@ static uint32_t ms5611_compensate_press(FAR struct ms5611_dev_s *priv,
  ****************************************************************************/
 
 static int ms5611_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                               FAR unsigned int *period_us)
+                               FAR unsigned long *period_us)
 {
   FAR struct ms5611_dev_s *priv = container_of(lower,
                                                FAR struct ms5611_dev_s,
@@ -596,7 +596,7 @@ static int ms5611_fetch(FAR struct sensor_lowerhalf_s *lower,
   FAR struct ms5611_dev_s *priv = container_of(lower,
                                                FAR struct ms5611_dev_s,
                                                sensor_lower);
-  struct sensor_event_baro baro_data;
+  struct sensor_baro baro_data;
 
   if (buflen != sizeof(baro_data))
     {

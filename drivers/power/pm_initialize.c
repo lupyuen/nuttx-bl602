@@ -25,6 +25,8 @@
 #include <nuttx/config.h>
 
 #include <nuttx/power/pm.h>
+#include <nuttx/semaphore.h>
+#include <nuttx/sched.h>
 
 #include "pm.h"
 
@@ -72,7 +74,12 @@ struct pm_global_s g_pmglobals =
 void pm_initialize(void)
 {
   FAR const struct pm_governor_s *gov;
+#if CONFIG_PM_GOVERNOR_EXPLICIT_RELAX
+  int state;
+#endif
   int i;
+
+  pm_wakelock_global_init();
 
   /* Select governor */
 
@@ -87,6 +94,19 @@ void pm_initialize(void)
       gov = &null;
 #endif
       pm_set_governor(i, gov);
+
+      nxrmutex_init(&g_pmglobals.domain[i].lock);
+
+#if CONFIG_PM_GOVERNOR_EXPLICIT_RELAX
+      for (state = 0; state < PM_COUNT; state++)
+        {
+#  if CONFIG_PM_GOVERNOR_EXPLICIT_RELAX < 0
+          pm_stay(i, state);
+#  else
+          pm_staytimeout(i, state, CONFIG_PM_GOVERNOR_EXPLICIT_RELAX);
+#  endif
+        }
+#endif
     }
 }
 

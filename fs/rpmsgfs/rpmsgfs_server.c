@@ -123,6 +123,9 @@ static int rpmsgfs_chstat_handler(FAR struct rpmsg_endpoint *ept,
                                   FAR void *data, size_t len,
                                   uint32_t src, FAR void *priv);
 
+static bool rpmsgfs_ns_match(FAR struct rpmsg_device *rdev,
+                             FAR void *priv_, FAR const char *name,
+                             uint32_t dest);
 static void rpmsgfs_ns_bind(FAR struct rpmsg_device *rdev,
                             FAR void *priv_, FAR const char *name,
                             uint32_t dest);
@@ -370,30 +373,44 @@ static int rpmsgfs_read_handler(FAR struct rpmsg_endpoint *ept,
   FAR struct rpmsgfs_read_s *rsp;
   FAR struct file *filep;
   int ret = -ENOENT;
+  size_t read = 0;
   uint32_t space;
 
-  rsp = rpmsg_get_tx_payload_buffer(ept, &space, true);
-  if (!rsp)
-    {
-      return -ENOMEM;
-    }
-
-  *rsp = *msg;
-
-  space -= sizeof(*msg);
-  if (space > msg->count)
-    {
-      space = msg->count;
-    }
-
   filep = rpmsgfs_get_file(priv, msg->fd);
-  if (filep != NULL)
+
+  while (read < msg->count)
     {
-      ret = file_read(filep, rsp->buf, space);
+      rsp = rpmsg_get_tx_payload_buffer(ept, &space, true);
+      if (rsp == NULL)
+        {
+          return -ENOMEM;
+        }
+
+      *rsp = *msg;
+
+      space -= sizeof(*msg);
+      if (space > msg->count - read)
+        {
+          space = msg->count - read;
+        }
+
+      if (filep != NULL)
+        {
+          ret = file_read(filep, rsp->buf, space);
+        }
+
+      rsp->header.result = ret;
+      rpmsg_send_nocopy(ept, rsp, (ret < 0 ? 0 : ret) + sizeof(*rsp));
+
+      if (ret <= 0)
+        {
+          break;
+        }
+
+      read += ret;
     }
 
-  rsp->header.result = ret;
-  return rpmsg_send_nocopy(ept, rsp, (ret < 0 ? 0 : ret) + sizeof(*rsp));
+  return 0;
 }
 
 static int rpmsgfs_write_handler(FAR struct rpmsg_endpoint *ept,
@@ -407,11 +424,27 @@ static int rpmsgfs_write_handler(FAR struct rpmsg_endpoint *ept,
   filep = rpmsgfs_get_file(priv, msg->fd);
   if (filep != NULL)
     {
-      ret = file_write(filep, msg->buf, msg->count);
+      size_t written = 0;
+
+      while (written < msg->count)
+        {
+          ret = file_write(filep, msg->buf + written, msg->count - written);
+          if (ret < 0)
+            {
+              break;
+            }
+
+          written += ret;
+        }
     }
 
-  msg->header.result = ret;
-  return rpmsg_send(ept, msg, sizeof(*msg));
+  if (msg->header.cookie != 0)
+    {
+      msg->header.result = ret;
+      rpmsg_send(ept, msg, sizeof(*msg));
+    }
+
+  return 0;
 }
 
 static int rpmsgfs_lseek_handler(FAR struct rpmsg_endpoint *ept,
@@ -796,17 +829,19 @@ out:
   return rpmsg_send(ept, msg, sizeof(*msg));
 }
 
+static bool rpmsgfs_ns_match(FAR struct rpmsg_device *rdev,
+                             FAR void *priv_, FAR const char *name,
+                             uint32_t dest)
+{
+  return !strncmp(name, RPMSGFS_NAME_PREFIX, strlen(RPMSGFS_NAME_PREFIX));
+}
+
 static void rpmsgfs_ns_bind(FAR struct rpmsg_device *rdev,
                             FAR void *priv_, FAR const char *name,
                             uint32_t dest)
 {
   FAR struct rpmsgfs_server_s *priv;
   int ret;
-
-  if (strncmp(name, RPMSGFS_NAME_PREFIX, strlen(RPMSGFS_NAME_PREFIX)))
-    {
-      return;
-    }
 
   priv = kmm_zalloc(sizeof(*priv));
   if (!priv)
@@ -882,5 +917,6 @@ int rpmsgfs_server_init(void)
   return rpmsg_register_callback(NULL,
                                  NULL,
                                  NULL,
+                                 rpmsgfs_ns_match,
                                  rpmsgfs_ns_bind);
 }

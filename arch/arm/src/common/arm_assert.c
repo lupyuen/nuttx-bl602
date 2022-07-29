@@ -352,10 +352,24 @@ static void arm_dump_stack(const char *tag, uint32_t sp,
   else
     {
       _alert("ERROR: %s Stack pointer is not within the stack\n", tag);
-
       if (force)
         {
-          arm_stackdump(base, top);
+#ifdef CONFIG_STACK_COLORATION
+          uint32_t remain;
+
+          remain = size - arm_stack_check((FAR void *)(uintptr_t)base, size);
+          base  += remain;
+          size  -= remain;
+#endif
+
+#if CONFIG_ARCH_STACKDUMP_MAX_LENGTH > 0
+          if (size > CONFIG_ARCH_STACKDUMP_MAX_LENGTH)
+            {
+              size = CONFIG_ARCH_STACKDUMP_MAX_LENGTH;
+            }
+#endif
+
+          arm_stackdump(base, base + size);
         }
     }
 }
@@ -453,21 +467,22 @@ static void arm_assert(void)
 
   if (CURRENT_REGS || (running_task())->flink == NULL)
     {
+#if CONFIG_BOARD_RESET_ON_ASSERT >= 1
+      board_reset(CONFIG_BOARD_ASSERT_RESET_VALUE);
+#endif
+
       /* Disable interrupts on this CPU */
 
       up_irq_save();
 
+#ifdef CONFIG_SMP
+      /* Try (again) to stop activity on other CPUs */
+
+      spin_trylock(&g_cpu_irqlock);
+#endif
+
       for (; ; )
         {
-#ifdef CONFIG_SMP
-          /* Try (again) to stop activity on other CPUs */
-
-          spin_trylock(&g_cpu_irqlock);
-#endif
-
-#if CONFIG_BOARD_RESET_ON_ASSERT >= 1
-          board_reset(CONFIG_BOARD_ASSERT_RESET_VALUE);
-#endif
 #ifdef CONFIG_ARCH_LEDS
           /* FLASH LEDs a 2Hz */
 
