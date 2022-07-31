@@ -160,10 +160,13 @@ static int bmp280_putreg8(FAR struct bmp280_dev_s *priv, uint8_t regaddr,
 /* Sensor methods */
 
 static int bmp280_set_interval(FAR struct sensor_lowerhalf_s *lower,
+                               FAR struct file *filep,
                                FAR unsigned long *period_us);
 static int bmp280_activate(FAR struct sensor_lowerhalf_s *lower,
+                           FAR struct file *filep,
                            bool enable);
 static int bmp280_fetch(FAR struct sensor_lowerhalf_s *lower,
+                        FAR struct file *filep,
                         FAR char *buffer, size_t buflen);
 
 /****************************************************************************
@@ -530,6 +533,7 @@ static uint32_t bmp280_compensate_press(FAR struct bmp280_dev_s *priv,
  ****************************************************************************/
 
 static int bmp280_set_interval(FAR struct sensor_lowerhalf_s *lower,
+                               FAR struct file *filep,
                                FAR unsigned long *period_us)
 {
   FAR struct bmp280_dev_s *priv = container_of(lower,
@@ -583,6 +587,7 @@ static int bmp280_set_interval(FAR struct sensor_lowerhalf_s *lower,
  ****************************************************************************/
 
 static int bmp280_activate(FAR struct sensor_lowerhalf_s *lower,
+                           FAR struct file *filep,
                            bool enable)
 {
   FAR struct bmp280_dev_s *priv = container_of(lower,
@@ -617,6 +622,7 @@ static int bmp280_activate(FAR struct sensor_lowerhalf_s *lower,
  ****************************************************************************/
 
 static int bmp280_fetch(FAR struct sensor_lowerhalf_s *lower,
+                        FAR struct file *filep,
                         FAR char *buffer, size_t buflen)
 {
   FAR struct bmp280_dev_s *priv = container_of(lower,

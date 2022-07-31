@@ -46,8 +46,7 @@
 /* Device naming ************************************************************/
 
 #define ROUNDUP(x, esize)  ((x + (esize - 1)) / (esize)) * (esize)
-#define DEVNAME_FMT        "/dev/sensor/%s%s%d"
-#define DEVNAME_MAX        64
+#define DEVNAME_FMT        "/dev/sensor/sensor_%s%s%d"
 #define DEVNAME_UNCAL      "_uncal"
 
 /****************************************************************************
@@ -197,7 +196,8 @@ static bool sensor_is_updated(unsigned long generation,
   return generation > ugeneration;
 }
 
-static int sensor_update_interval(FAR struct sensor_upperhalf_s *upper,
+static int sensor_update_interval(FAR struct file *filep,
+                                  FAR struct sensor_upperhalf_s *upper,
                                   FAR struct sensor_user_s *user,
                                   unsigned long interval)
 {
@@ -238,7 +238,7 @@ update:
 
   if (min_interval != ULONG_MAX && lower->ops->set_interval)
     {
-      ret = lower->ops->set_interval(lower, &min_interval);
+      ret = lower->ops->set_interval(lower, filep, &min_interval);
       if (ret < 0)
         {
           return ret;
@@ -251,7 +251,8 @@ update:
   return ret;
 }
 
-static int sensor_update_latency(FAR struct sensor_upperhalf_s *upper,
+static int sensor_update_latency(FAR struct file *filep,
+                                 FAR struct sensor_upperhalf_s *upper,
                                  FAR struct sensor_user_s *user,
                                  unsigned long latency)
 {
@@ -297,7 +298,7 @@ update:
 
   if (min_latency != ULONG_MAX && lower->ops->batch)
     {
-      ret = lower->ops->batch(lower, &min_latency);
+      ret = lower->ops->batch(lower, filep, &min_latency);
       if (ret < 0)
         {
           return ret;
@@ -369,14 +370,23 @@ static int sensor_open(FAR struct file *filep)
       goto errout_with_sem;
     }
 
+  if (lower->ops->open)
+    {
+      ret = lower->ops->open(lower, filep);
+      if (ret < 0)
+        {
+          goto errout_with_user;
+        }
+    }
+
   if (filep->f_oflags & O_RDOK)
     {
       if (upper->state.nsubscribers == 0 && lower->ops->activate)
         {
-          ret = lower->ops->activate(lower, true);
+          ret = lower->ops->activate(lower, filep, true);
           if (ret < 0)
             {
-              goto errout_with_user;
+              goto errout_with_open;
             }
         }
 
@@ -402,6 +412,12 @@ static int sensor_open(FAR struct file *filep)
   filep->f_priv = user;
   goto errout_with_sem;
 
+errout_with_open:
+  if (lower->ops->close)
+    {
+      lower->ops->close(lower, filep);
+    }
+
 errout_with_user:
   kmm_free(user);
 errout_with_sem:
@@ -423,12 +439,22 @@ static int sensor_close(FAR struct file *filep)
       return ret;
     }
 
+  if (lower->ops->close)
+    {
+      ret = lower->ops->close(lower, filep);
+      if (ret < 0)
+        {
+          nxsem_post(&upper->exclsem);
+          return ret;
+        }
+    }
+
   if (filep->f_oflags & O_RDOK)
     {
       upper->state.nsubscribers--;
       if (upper->state.nsubscribers == 0 && lower->ops->activate)
         {
-          lower->ops->activate(lower, false);
+          lower->ops->activate(lower, filep, false);
         }
     }
 
@@ -438,8 +464,8 @@ static int sensor_close(FAR struct file *filep)
     }
 
   list_delete(&user->node);
-  sensor_update_latency(upper, user, ULONG_MAX);
-  sensor_update_interval(upper, user, ULONG_MAX);
+  sensor_update_latency(filep, upper, user, ULONG_MAX);
+  sensor_update_interval(filep, upper, user, ULONG_MAX);
   nxsem_destroy(&user->buffersem);
 
   /* The user is closed, notify to other users */
@@ -495,7 +521,7 @@ static ssize_t sensor_read(FAR struct file *filep, FAR char *buffer,
           goto out;
         }
 
-        ret = lower->ops->fetch(lower, buffer, len);
+        ret = lower->ops->fetch(lower, filep, buffer, len);
     }
   else
     {
@@ -605,13 +631,13 @@ static int sensor_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
       case SNIOC_SET_INTERVAL:
         {
-          ret = sensor_update_interval(upper, user, arg);
+          ret = sensor_update_interval(filep, upper, user, arg);
         }
         break;
 
       case SNIOC_BATCH:
         {
-          ret = sensor_update_latency(upper, user, arg);
+          ret = sensor_update_latency(filep, upper, user, arg);
         }
         break;
 
@@ -623,7 +649,7 @@ static int sensor_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
               break;
             }
 
-          ret = lower->ops->selftest(lower, arg);
+          ret = lower->ops->selftest(lower, filep, arg);
         }
         break;
 
@@ -635,7 +661,7 @@ static int sensor_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
               break;
             }
 
-          ret = lower->ops->set_calibvalue(lower, arg);
+          ret = lower->ops->set_calibvalue(lower, filep, arg);
         }
         break;
 
@@ -647,7 +673,7 @@ static int sensor_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
               break;
             }
 
-          ret = lower->ops->calibrate(lower, arg);
+          ret = lower->ops->calibrate(lower, filep, arg);
         }
         break;
 
@@ -683,7 +709,7 @@ static int sensor_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
         if (lower->ops->control)
           {
-            ret = lower->ops->control(lower, cmd, arg);
+            ret = lower->ops->control(lower, filep, cmd, arg);
           }
         else
           {
@@ -880,11 +906,11 @@ static void sensor_notify_event(FAR void *priv)
 
 int sensor_register(FAR struct sensor_lowerhalf_s *lower, int devno)
 {
-  char path[DEVNAME_MAX];
+  char path[PATH_MAX];
 
   DEBUGASSERT(lower != NULL);
 
-  snprintf(path, DEVNAME_MAX, DEVNAME_FMT,
+  snprintf(path, PATH_MAX, DEVNAME_FMT,
            g_sensor_info[lower->type].name,
            lower->uncalibrated ? DEVNAME_UNCAL : "",
            devno);
@@ -1007,9 +1033,9 @@ drv_err:
 
 void sensor_unregister(FAR struct sensor_lowerhalf_s *lower, int devno)
 {
-  char path[DEVNAME_MAX];
+  char path[PATH_MAX];
 
-  snprintf(path, DEVNAME_MAX, DEVNAME_FMT,
+  snprintf(path, PATH_MAX, DEVNAME_FMT,
            g_sensor_info[lower->type].name,
            lower->uncalibrated ? DEVNAME_UNCAL : "",
            devno);
