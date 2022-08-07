@@ -326,4 +326,19 @@
 #define SNIOC_UNREGISTER           _SNIOC(0x0090)
 #endif
 
+/* Command:      SNIOC_UPDATED
+ * Description:  Check whether the topic has been updated since
+ *               it was last read.
+ * Argument:     Sets *(bool *)arg
+ */
+
+#define SNIOC_UPDATED              _SNIOC(0x0091)
+
+/* Command:      SNIOC_GET_USTATE
+ * Description:  Get state for user.
+ * Argument:     This is the state pointer(struct sensor_state_s)
+ */
+
+#define SNIOC_GET_USTATE           _SNIOC(0x0092)
+
 #endif /* __INCLUDE_NUTTX_SENSORS_IOCTL_H */

@@ -285,6 +285,17 @@ config ARCH_BOARD_TTGO_T5V2_ESP32
 		Display resolution 128/296. More info:
 		https://github.com/Xinyuan-LilyGO/LilyGo-T5-Epaper-Series
 
+config ARCH_BOARD_TTGO_T_DISPLAY_ESP32
+	bool "TTGO T-Display ESP32 v1.1"
+	depends on ARCH_CHIP_ESP32WROOM32 || ARCH_CHIP_ESP32WROOM32_8MB || ARCH_CHIP_ESP32WROOM32_16MB || ARCH_CHIP_ESP32WROVER || ARCH_CHIP_ESP32SOLO1
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS if ESP32_GPIO_IRQ
+	---help---
+		TTGO-T-DISPLAY-ESP32 is an ESP32 with a TFT Display.
+		This port is for board version 1.1, more info:
+		https://github.com/Xinyuan-LilyGO/TTGO-T-Display
+
 config ARCH_BOARD_ESP32C3_DEVKIT
 	bool "Espressif ESP32-C3 DevKit"
 	depends on ARCH_CHIP_ESP32C3MINI1 || ARCH_CHIP_ESP32C3WROOM02
@@ -479,6 +490,7 @@ config ARCH_BOARD_IMXRT1020_EVK
 	select ARCH_HAVE_LEDS
 	select ARCH_HAVE_BUTTONS
 	select ARCH_HAVE_IRQBUTTONS
+	select ARCH_PHY_INTERRUPT
 	---help---
 		This is the board configuration for the port of NuttX to the NXP i.MXRT
 		evaluation kit, MIMXRT1020-EVKB.  This board features the MIMXRT1021DAG5A MCU.
@@ -489,6 +501,7 @@ config ARCH_BOARD_IMXRT1050_EVK
 	select ARCH_HAVE_LEDS
 	select ARCH_HAVE_BUTTONS
 	select ARCH_HAVE_IRQBUTTONS
+	select ARCH_PHY_INTERRUPT
 	---help---
 		This is the board configuration for the port of NuttX to the NXP i.MXRT
 		evaluation kit, MIMXRT1050-EVKB.  This board features the MIMXRT1052DVL6A MCU.
@@ -499,6 +512,7 @@ config ARCH_BOARD_IMXRT1060_EVK
 	select ARCH_HAVE_LEDS
 	select ARCH_HAVE_BUTTONS
 	select ARCH_HAVE_IRQBUTTONS
+	select ARCH_PHY_INTERRUPT
 	---help---
 		This is the board configuration for the port of NuttX to the NXP i.MXRT
 		evaluation kit, MIMXRT1060-EVK.  This board features the MIMXRT1062DVL6A MCU.
@@ -509,6 +523,7 @@ config ARCH_BOARD_IMXRT1064_EVK
 	select ARCH_HAVE_LEDS
 	select ARCH_HAVE_BUTTONS
 	select ARCH_HAVE_IRQBUTTONS
+	select ARCH_PHY_INTERRUPT
 	---help---
 		This is the board configuration for the port of NuttX to the NXP i.MXRT
 		evaluation kit, MIMXRT1064-EVK.  This board features the MIMXRT1064DVL6A MCU.
@@ -1579,6 +1594,14 @@ config ARCH_BOARD_S32K144EVB
 	---help---
 		This options selects support for NuttX on the NXP S32K144EVB board
 		featuring the S32K144 Cortex-M4F.
+
+config ARCH_BOARD_RDDRONE_BMS772
+	bool "NXP RDDRONE-BMS772"
+	depends on ARCH_CHIP_S32K144
+	select ARCH_HAVE_LEDS
+	---help---
+		This options selects support for NuttX on the NXP RDDRONE-BMS772
+		board featuring the S32K144 Cortex-M4F.
 
 config ARCH_BOARD_S32K146EVB
 	bool "NXP S32K146EVB"
@@ -2693,6 +2716,7 @@ config ARCH_BOARD
 	default "rx65n-grrose"             if ARCH_BOARD_RX65N_GRROSE
 	default "s32k118evb"               if ARCH_BOARD_S32K118EVB
 	default "s32k144evb"               if ARCH_BOARD_S32K144EVB
+	default "rddrone-bms772"           if ARCH_BOARD_RDDRONE_BMS772
 	default "s32k146evb"               if ARCH_BOARD_S32K146EVB
 	default "ucans32k146"              if ARCH_BOARD_UCANS32K146
 	default "s32k148evb"               if ARCH_BOARD_S32K148EVB
@@ -2768,6 +2792,7 @@ config ARCH_BOARD
 	default "tm4c1294-launchpad"       if ARCH_BOARD_TM4C1294_LAUNCHPAD
 	default "tms570ls31x-usb-kit"      if ARCH_BOARD_TMS570LS31X_USB_KIT
 	default "ttgo_lora_esp32"          if ARCH_BOARD_TTGO_LORA_ESP32
+	default "ttgo_t_display_esp32"     if ARCH_BOARD_TTGO_T_DISPLAY_ESP32
 	default "twr-k60n512"              if ARCH_BOARD_TWR_K60N512
 	default "twr-k64f120m"             if ARCH_BOARD_TWR_K64F120M
 	default "u-blox-c027"              if ARCH_BOARD_U_BLOX_C027
@@ -2862,6 +2887,9 @@ source "boards/arm/s32k1xx/s32k118evb/Kconfig"
 endif
 if ARCH_BOARD_S32K144EVB
 source "boards/arm/s32k1xx/s32k144evb/Kconfig"
+endif
+if ARCH_BOARD_RDDRONE_BMS772
+source "boards/arm/s32k1xx/rddrone-bms772/Kconfig"
 endif
 if ARCH_BOARD_S32K146EVB
 source "boards/arm/s32k1xx/s32k146evb/Kconfig"
@@ -3537,6 +3565,9 @@ source "boards/xtensa/esp32/esp32-wrover-kit/Kconfig"
 endif
 if ARCH_BOARD_TTGO_LORA_ESP32
 source "boards/xtensa/esp32/ttgo_lora_esp32/Kconfig"
+endif
+if ARCH_BOARD_TTGO_T_DISPLAY_ESP32
+source "boards/xtensa/esp32/ttgo_t_display_esp32/Kconfig"
 endif
 if ARCH_BOARD_Z16F2800100ZCOG
 source "boards/z16/z16f/z16f2800100zcog/Kconfig"

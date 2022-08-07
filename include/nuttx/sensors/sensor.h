@@ -293,6 +293,11 @@
 
 #define SENSOR_TYPE_COUNT                           33
 
+/* The additional sensor open flags */
+
+#define SENSOR_REMOTE                               (1 << 31)
+#define SENSOR_PERSIST                              (1 << 30)
+
 /****************************************************************************
  * Inline Functions
  ****************************************************************************/
@@ -857,6 +862,11 @@ struct sensor_ops_s
  * Sensor driver.
  */
 
+typedef CODE ssize_t (*sensor_push_event_t)(FAR void *priv,
+                                            FAR const void *data,
+                                            size_t bytes);
+typedef CODE void (*sensor_notify_event_t)(FAR void *priv);
+
 struct sensor_lowerhalf_s
 {
   /* The type of sensor device */
@@ -908,8 +918,7 @@ struct sensor_lowerhalf_s
        *   A negated errno value is returned on any failure.
        **********************************************************************/
 
-      CODE ssize_t (*push_event)(FAR void *priv, FAR const void *data,
-                                 size_t bytes);
+      sensor_push_event_t push_event;
 
       /**********************************************************************
        * Name: notify_event
@@ -925,12 +934,31 @@ struct sensor_lowerhalf_s
        *   priv   - Upper half driver handle
        **********************************************************************/
 
-      CODE void (*notify_event)(FAR void *priv);
+      sensor_notify_event_t notify_event;
     };
+
+/****************************************************************************
+ * Name: sensor_lock/sensor_unlock
+ *
+ * Description:
+ *   Lower half driver can lock/unlock upper half driver by this interface.
+ *
+ * Input Parameters:
+ *   priv   - Upper half driver handle
+ ****************************************************************************/
+
+  CODE void (*sensor_lock)(FAR void * priv);
+  CODE void (*sensor_unlock)(FAR void * priv);
 
   /* The private opaque pointer to be passed to upper-layer during callback */
 
   FAR void *priv;
+
+  /* The flag is used to indicate that the validity of sensor data is
+   * persistent, such as battery status information, switch information, etc.
+   */
+
+  bool persist;
 };
 
 /* This structure describes the state for the sensor device */
@@ -947,6 +975,16 @@ struct sensor_state_s
   FAR void     *priv;          /* The pointer to private data of userspace user */
 };
 
+/* This structure describes the state for the sensor user */
+
+struct sensor_ustate_s
+{
+  unsigned long esize;         /* The element size of circular buffer */
+  unsigned long latency;       /* The batch latency for user, in us */
+  unsigned long interval;      /* The subscription interval for user, in us */
+  unsigned long generation;    /* The recent generation of circular buffer */
+};
+
 /* This structure describes the register info for the user sensor */
 
 #ifdef CONFIG_USENSOR
@@ -955,6 +993,12 @@ struct sensor_reginfo_s
   FAR const char *path;        /* The path of user sensor */
   unsigned long   esize;       /* The element size of user sensor */
   unsigned long   nbuffer;     /* The number of queue buffered elements */
+
+  /* The flag is used to indicate that the validity of sensor data
+   * is persistent.
+   */
+
+  bool            persist;
 };
 #endif
 
@@ -1082,6 +1126,58 @@ void sensor_custom_unregister(FAR struct sensor_lowerhalf_s *dev,
 
 #ifdef CONFIG_USENSOR
 int usensor_initialize(void);
+#endif
+
+/****************************************************************************
+ * Name: sensor_rpmsg_register
+ *
+ * Description:
+ *   This function registers rpmsg takeover for the real lower half, and
+ *   initialize rpmsg resource.
+ *
+ * Input Parameters:
+ *   lower - The instance of lower half sensor driver.
+ *   path  - The path of character node, ex: /dev/sensor/xxx.
+ *
+ * Returned Value:
+ *   The takeover rpmsg lowerhalf returned on success, NULL on failure.
+ ****************************************************************************/
+
+#ifdef CONFIG_SENSORS_RPMSG
+FAR struct sensor_lowerhalf_s *sensor_rpmsg_register(
+                                       FAR struct sensor_lowerhalf_s *lower,
+                                       FAR const char *path);
+#endif
+
+/****************************************************************************
+ * Name: sensor_rpmsg_unregister
+ *
+ * Description:
+ *   This function unregisters rpmsg takeover for the real lower half, and
+ *   release rpmsg resource. This API corresponds to the
+ *   sensor_rpmsg_register.
+ *
+ * Input Parameters:
+ *   lower - The instance of lower half sensor driver.
+ ****************************************************************************/
+
+#ifdef CONFIG_SENSORS_RPMSG
+void sensor_rpmsg_unregister(FAR struct sensor_lowerhalf_s *lower);
+#endif
+
+/****************************************************************************
+ * Name: sensor_rpmsg_initialize
+ *
+ * Description:
+ *   This function initializes the context of sensor rpmsg, registers
+ *   rpmsg callback and prepares enviroment to intercat with remote sensor.
+ *
+ * Returned Value:
+ *   OK on success; A negated errno value is returned on any failure.
+ ****************************************************************************/
+
+#ifdef CONFIG_SENSORS_RPMSG
+int sensor_rpmsg_initialize(void);
 #endif
 
 #undef EXTERN
