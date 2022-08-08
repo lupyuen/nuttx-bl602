@@ -90,8 +90,11 @@ enum proc_node_e
 #ifdef CONFIG_SCHED_CRITMONITOR
   PROC_CRITMON,                       /* Critical section monitor */
 #endif
-#ifdef CONFIG_DEBUG_MM
+#if CONFIG_MM_BACKTRACE >= 0
   PROC_HEAP,                          /* Task heap info */
+#endif
+#ifdef CONFIG_DEBUG_MM
+  PROC_HEAP_CHECK,                    /* Task heap check flag */
 #endif
   PROC_STACK,                         /* Task stack info */
   PROC_GROUP,                         /* Group directory */
@@ -178,9 +181,17 @@ static ssize_t proc_critmon(FAR struct proc_file_s *procfile,
                  FAR struct tcb_s *tcb, FAR char *buffer, size_t buflen,
                  off_t offset);
 #endif
-#ifdef CONFIG_MM_BACKTRACE
+#if CONFIG_MM_BACKTRACE >= 0
 static ssize_t proc_heap(FAR struct proc_file_s *procfile,
                          FAR struct tcb_s *tcb, FAR char *buffer,
+                         size_t buflen, off_t offset);
+#endif
+#ifdef CONFIG_DEBUG_MM
+static ssize_t proc_heapcheck(FAR struct proc_file_s *procfile,
+                         FAR struct tcb_s *tcb, FAR char *buffer,
+                         size_t buflen, off_t offset);
+static ssize_t proc_heapcheck_write(FAR struct proc_file_s *procfile,
+                         FAR struct tcb_s *tcb, FAR const char *buffer,
                          size_t buflen, off_t offset);
 #endif
 static ssize_t proc_stack(FAR struct proc_file_s *procfile,
@@ -206,7 +217,8 @@ static int     proc_open(FAR struct file *filep, FAR const char *relpath,
 static int     proc_close(FAR struct file *filep);
 static ssize_t proc_read(FAR struct file *filep, FAR char *buffer,
                  size_t buflen);
-
+static ssize_t proc_write(FAR struct file *filep, FAR const char *buffer,
+                 size_t buflen);
 static int     proc_dup(FAR const struct file *oldp,
                  FAR struct file *newp);
 
@@ -236,7 +248,7 @@ const struct procfs_operations proc_operations =
   proc_open,          /* open */
   proc_close,         /* close */
   proc_read,          /* read */
-  NULL,               /* write */
+  proc_write,         /* write */
 
   proc_dup,           /* dup */
 
@@ -279,10 +291,17 @@ static const struct proc_node_s g_critmon =
 };
 #endif
 
-#ifdef CONFIG_DEBUG_MM
+#if CONFIG_MM_BACKTRACE >= 0
 static const struct proc_node_s g_heap =
 {
   "heap",         "heap",   (uint8_t)PROC_HEAP,          DTYPE_FILE        /* Task heap info */
+};
+#endif
+
+#ifdef CONFIG_DEBUG_MM
+static const struct proc_node_s g_heapcheck =
+{
+  "heapcheck",    "heapcheck", (uint8_t)PROC_HEAP_CHECK, DTYPE_FILE        /* Task heap info */
 };
 #endif
 
@@ -326,8 +345,11 @@ static FAR const struct proc_node_s * const g_nodeinfo[] =
 #ifdef CONFIG_SCHED_CRITMONITOR
   &g_critmon,      /* Critical section Monitor */
 #endif
-#ifdef CONFIG_DEBUG_MM
+#if CONFIG_MM_BACKTRACE >= 0
   &g_heap,         /* Task heap info */
+#endif
+#ifdef CONFIG_DEBUG_MM
+  &g_heapcheck,    /* Task heap check flag */
 #endif
   &g_stack,        /* Task stack info */
   &g_group,        /* Group directory */
@@ -352,8 +374,11 @@ static const struct proc_node_s * const g_level0info[] =
 #ifdef CONFIG_SCHED_CRITMONITOR
   &g_critmon,      /* Critical section monitor */
 #endif
-#ifdef CONFIG_DEBUG_MM
+#if CONFIG_MM_BACKTRACE >= 0
   &g_heap,         /* Task heap info */
+#endif
+#ifdef CONFIG_DEBUG_MM
+  &g_heapcheck,    /* Task heap check flag */
 #endif
   &g_stack,        /* Task stack info */
   &g_group,        /* Group directory */
@@ -904,7 +929,7 @@ static ssize_t proc_critmon(FAR struct proc_file_s *procfile,
  * Name: proc_heap
  ****************************************************************************/
 
-#ifdef CONFIG_MM_BACKTRACE
+#if CONFIG_MM_BACKTRACE >= 0
 static ssize_t proc_heap(FAR struct proc_file_s *procfile,
                          FAR struct tcb_s *tcb, FAR char *buffer,
                          size_t buflen, off_t offset)
@@ -949,6 +974,54 @@ static ssize_t proc_heap(FAR struct proc_file_s *procfile,
   totalsize += procfs_memcpy(procfile->line, linesize, buffer, remaining,
                              &offset);
   return totalsize;
+}
+#endif
+
+#ifdef CONFIG_DEBUG_MM
+static ssize_t proc_heapcheck(FAR struct proc_file_s *procfile,
+                              FAR struct tcb_s *tcb, FAR char *buffer,
+                              size_t buflen, off_t offset)
+{
+  size_t remaining = buflen;
+  size_t linesize;
+  size_t copysize;
+  size_t totalsize = 0;
+  size_t heapcheck = 0;
+
+  if (tcb->flags & TCB_FLAG_HEAPCHECK)
+    {
+      heapcheck = 1;
+    }
+
+  linesize = procfs_snprintf(procfile->line, STATUS_LINELEN, "%-12s%d\n",
+                             "HeapCheck:", heapcheck);
+
+  copysize = procfs_memcpy(procfile->line, linesize, buffer, remaining,
+                           &offset);
+  totalsize += copysize;
+  return totalsize;
+}
+
+static ssize_t proc_heapcheck_write(FAR struct proc_file_s *procfile,
+                                    FAR struct tcb_s *tcb,
+                                    FAR const char *buffer,
+                                    size_t buflen, off_t offset)
+{
+  switch (atoi(buffer))
+    {
+      case 0:
+        tcb->flags &= ~TCB_FLAG_HEAPCHECK;
+        break;
+      case 1:
+        tcb->flags |= TCB_FLAG_HEAPCHECK;
+        break;
+      default:
+        ferr("ERROR: invalid argument\n");
+        return -EINVAL;
+        break;
+    }
+
+  return buflen;
 }
 #endif
 
@@ -1407,18 +1480,6 @@ static int proc_open(FAR struct file *filep, FAR const char *relpath,
 
   finfo("Open '%s'\n", relpath);
 
-  /* PROCFS is read-only.  Any attempt to open with any kind of write
-   * access is not permitted.
-   *
-   * REVISIT:  Write-able proc files could be quite useful.
-   */
-
-  if ((oflags & O_WRONLY) != 0 || (oflags & O_RDONLY) == 0)
-    {
-      ferr("ERROR: Only O_RDONLY supported\n");
-      return -EACCES;
-    }
-
   /* The first segment of the relative path should be a task/thread ID or
    * the string "self".
    */
@@ -1575,9 +1636,14 @@ static ssize_t proc_read(FAR struct file *filep, FAR char *buffer,
       ret = proc_critmon(procfile, tcb, buffer, buflen, filep->f_pos);
       break;
 #endif
-#ifdef CONFIG_MM_BACKTRACE
+#if CONFIG_MM_BACKTRACE >= 0
     case PROC_HEAP: /* Task heap info */
       ret = proc_heap(procfile, tcb, buffer, buflen, filep->f_pos);
+      break;
+#endif
+#ifdef CONFIG_DEBUG_MM
+    case PROC_HEAP_CHECK: /* Task heap check flag */
+      ret = proc_heapcheck(procfile, tcb, buffer, buflen, filep->f_pos);
       break;
 #endif
     case PROC_STACK: /* Task stack info */
@@ -1608,6 +1674,50 @@ static ssize_t proc_read(FAR struct file *filep, FAR char *buffer,
   if (ret > 0)
     {
       filep->f_pos += ret;
+    }
+
+  return ret;
+}
+
+/****************************************************************************
+ * Name: proc_write
+ ****************************************************************************/
+
+static ssize_t proc_write(FAR struct file *filep, FAR const char *buffer,
+                          size_t buflen)
+{
+  FAR struct proc_file_s *procfile;
+  FAR struct tcb_s *tcb;
+  ssize_t ret;
+
+  DEBUGASSERT(filep != NULL && buffer != NULL && buflen > 0);
+
+  procfile = (FAR struct proc_file_s *)filep->f_priv;
+  DEBUGASSERT(procfile != NULL);
+
+  /* Verify that the thread is still valid */
+
+  tcb = nxsched_get_tcb(procfile->pid);
+  if (tcb == NULL)
+    {
+      ferr("ERROR: PID %d is not valid\n", (int)procfile->pid);
+      return -ENODEV;
+    }
+
+  /* Provide the requested data */
+
+  switch (procfile->node->node)
+    {
+#ifdef CONFIG_DEBUG_MM
+      case PROC_HEAP_CHECK:
+        ret = proc_heapcheck_write(procfile, tcb, buffer, buflen,
+                                   filep->f_pos);
+        break;
+#endif
+
+      default:
+        ret = -EINVAL;
+        break;
     }
 
   return ret;

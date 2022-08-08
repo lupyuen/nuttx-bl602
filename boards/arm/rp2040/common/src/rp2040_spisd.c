@@ -59,7 +59,7 @@ int board_spisd_initialize(int minor, int bus)
   int ret;
   struct spi_dev_s *spi;
 
-  /* Initialize spi deivce */
+  /* Initialize spi device */
 
   spi = rp2040_spibus_initialize(bus);
   if (!spi)
@@ -73,14 +73,14 @@ int board_spisd_initialize(int minor, int bus)
 #ifdef CONFIG_RP2040_SPI0
   if (bus == 0)
     {
-      rp2040_gpio_set_pulls(CONFIG_RP2040_SPI0_GPIO, true, false);
+      rp2040_gpio_set_pulls(CONFIG_RP2040_SPI0_RX_GPIO, true, false);
     }
 #endif
 
 #ifdef CONFIG_RP2040_SPI1
   if (bus == 1)
     {
-      rp2040_gpio_set_pulls(CONFIG_RP2040_SPI1_GPIO, true, false);
+      rp2040_gpio_set_pulls(CONFIG_RP2040_SPI1_RX_GPIO, true, false);
     }
 #endif
 

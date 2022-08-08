@@ -33,8 +33,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define PM_IDLE_DOMAIN 0 /* Revisit */
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -59,8 +57,12 @@ void up_idle(void)
 #ifdef CONFIG_PM
   static enum pm_state_e state = PM_NORMAL;
   enum pm_state_e newstate;
+  irqstate_t flags;
 
   /* Fake some power management stuff for testing purposes */
+
+  flags = enter_critical_section();
+  sched_lock();
 
   newstate = pm_checkstate(PM_IDLE_DOMAIN);
   if (newstate != state)
@@ -77,5 +79,12 @@ void up_idle(void)
   /* Driver the simulated interval timer */
 
   up_timer_update();
+#endif
+
+#ifdef CONFIG_PM
+  pm_changestate(PM_IDLE_DOMAIN, PM_RESTORE);
+
+  sched_unlock();
+  leave_critical_section(flags);
 #endif
 }

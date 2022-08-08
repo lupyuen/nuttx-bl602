@@ -696,6 +696,14 @@ static int rpmsg_rtc_server_ept_cb(FAR struct rpmsg_endpoint *ept,
     }
 }
 
+static bool rpmsg_rtc_server_ns_match(FAR struct rpmsg_device *rdev,
+                                      FAR void *priv,
+                                      FAR const char *name,
+                                      uint32_t dest)
+{
+  return !strcmp(name, RPMSG_RTC_EPT_NAME);
+}
+
 static void rpmsg_rtc_server_ns_bind(FAR struct rpmsg_device *rdev,
                                      FAR void *priv,
                                      FAR const char *name,
@@ -703,11 +711,8 @@ static void rpmsg_rtc_server_ns_bind(FAR struct rpmsg_device *rdev,
 {
   FAR struct rpmsg_rtc_server_s *server = priv;
   FAR struct rpmsg_rtc_client_s *client;
-
-  if (strcmp(name, RPMSG_RTC_EPT_NAME))
-    {
-      return;
-    }
+  struct rpmsg_rtc_set_s msg;
+  struct rtc_time rtctime;
 
   client = kmm_zalloc(sizeof(*client));
   if (client == NULL)
@@ -723,6 +728,14 @@ static void rpmsg_rtc_server_ns_bind(FAR struct rpmsg_device *rdev,
     {
       kmm_free(client);
       return;
+    }
+
+  if (server->lower->ops->rdtime(server->lower, &rtctime) >= 0)
+    {
+      msg.sec  = timegm((FAR struct tm *)&rtctime);
+      msg.nsec = rtctime.tm_nsec;
+      msg.header.command = RPMSG_RTC_SYNC;
+      rpmsg_send(&client->ept, &msg, sizeof(msg));
     }
 
   nxsem_wait_uninterruptible(&server->exclsem);
@@ -757,6 +770,7 @@ FAR struct rtc_lowerhalf_s *rpmsg_rtc_initialize(void)
       rpmsg_register_callback(lower,
                               rpmsg_rtc_device_created,
                               rpmsg_rtc_device_destroy,
+                              NULL,
                               NULL);
     }
 
@@ -790,6 +804,7 @@ FAR struct rtc_lowerhalf_s *rpmsg_rtc_server_initialize(
       list_initialize(&server->list);
       nxsem_init(&server->exclsem, 0, 1);
       if (rpmsg_register_callback(server, NULL, NULL,
+                                  rpmsg_rtc_server_ns_match,
                                   rpmsg_rtc_server_ns_bind) < 0)
         {
           nxsem_destroy(&server->exclsem);

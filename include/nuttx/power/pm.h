@@ -54,8 +54,10 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/wdog.h>
 
 #include <stdbool.h>
+#include <time.h>
 #include <queue.h>
 
 #ifdef CONFIG_PM
@@ -80,10 +82,18 @@
 #  error CONFIG_PM_NDOMAINS invalid
 #endif
 
+#define PM_IDLE_DOMAIN 0
+
 /* CONFIG_IDLE_CUSTOM. Some architectures support this definition.  This,
  * if defined, will allow you replace the default IDLE loop with your
  * own, custom idle loop to support board-specific IDLE time power management
  */
+
+#define PM_WAKELOCK_DECLARE(var, name, domain, state) \
+      struct pm_wakelock_s var = {name, domain, state}
+
+#define PM_WAKELOCK_DECLARE_STATIC(var, name, domain, state) \
+static struct pm_wakelock_s var = {name, domain, state}
 
 /****************************************************************************
  * Public Types
@@ -284,6 +294,22 @@ struct pm_user_governor_state_s
 {
   int domain;
   enum pm_state_e state;
+};
+
+struct pm_wakelock_s
+{
+  char name[32];
+  int domain;
+  enum pm_state_e state;
+  uint32_t count;
+  struct dq_entry_s node;
+  struct wdog_s wdog;
+
+#ifdef CONFIG_PM_PROCFS
+  struct dq_entry_s fsnode;
+  struct timespec start;
+  struct timespec elapse;
+#endif
 };
 
 /****************************************************************************
@@ -500,6 +526,30 @@ void pm_stay(int domain, enum pm_state_e state);
 void pm_relax(int domain, enum pm_state_e state);
 
 /****************************************************************************
+ * Name: pm_staytimeout
+ *
+ * Description:
+ *   This function is called by a device driver to indicate that it is
+ *   performing meaningful activities (non-idle), needs the power at kept
+ *   last the specified level.
+ *   And this will be timeout after time (ms), menas auto pm_relax
+ *
+ * Input Parameters:
+ *   domain - The domain of the PM activity
+ *   state - The state want to stay.
+ *   ms - The timeout value ms
+ *
+ * Returned Value:
+ *   None.
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
+ ****************************************************************************/
+
+void pm_staytimeout(int domain, enum pm_state_e state, int ms);
+
+/****************************************************************************
  * Name: pm_staycount
  *
  * Description:
@@ -518,6 +568,126 @@ void pm_relax(int domain, enum pm_state_e state);
  ****************************************************************************/
 
 uint32_t pm_staycount(int domain, enum pm_state_e state);
+
+/****************************************************************************
+ * Name: pm_wakelock_init
+ *
+ * Description:
+ *   Init wakelock ID with name, domain, state
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *   name     - wakelock name
+ *   domain   - the PM domain want to operated
+ *   state    - The PM state want to stay/relax
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void pm_wakelock_init(FAR struct pm_wakelock_s *wakelock,
+                      FAR const char *name, int domain,
+                      enum pm_state_e state);
+
+/****************************************************************************
+ * Name: pm_wakelock_uninit
+ *
+ * Description:
+ *   Uninit wakelock ID
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void pm_wakelock_uninit(FAR struct pm_wakelock_s *wakelock);
+
+/****************************************************************************
+ * Name: pm_wakelock_stay
+ *
+ * Description:
+ *   This function is called by a device driver to indicate that it is
+ *   performing meaningful activities (non-idle), needs the power kept at
+ *   least the specified level.
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *
+ * Returned Value:
+ *   None.
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
+ ****************************************************************************/
+
+void pm_wakelock_stay(FAR struct pm_wakelock_s *wakelock);
+
+/****************************************************************************
+ * Name: pm_wakelock_relax
+ *
+ * Description:
+ *   This function is called by a device driver to indicate that it is
+ *   idle now, could relax the previous requested power level.
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *
+ * Returned Value:
+ *   None.
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
+ ****************************************************************************/
+
+void pm_wakelock_relax(FAR struct pm_wakelock_s *wakelock);
+
+/****************************************************************************
+ * Name: pm_wakelock_staytimeout
+ *
+ * Description:
+ *   This function is called by a device driver to indicate that it is
+ *   performing meaningful activities (non-idle), needs the power at kept
+ *   last the specified level.
+ *   And this will be timeout after time (ms), menas auto pm_wakelock_relax
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *   ms       - The timeout value ms
+ *
+ * Returned Value:
+ *   None.
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
+ ****************************************************************************/
+
+void pm_wakelock_staytimeout(FAR struct pm_wakelock_s *wakelock, int ms);
+
+/****************************************************************************
+ * Name: pm_wakelock_staycount
+ *
+ * Description:
+ *   This function is called to get current stay count in this wakelock ID
+ *
+ * Input Parameters:
+ *   wakelock - wakelock ID
+ *
+ * Returned Value:
+ *   Current pm stay count in this wakelock ID
+ *
+ * Assumptions:
+ *   This function may be called from an interrupt handler.
+ *
+ ****************************************************************************/
+
+int pm_wakelock_staycount(FAR struct pm_wakelock_s *wakelock);
 
 /****************************************************************************
  * Name: pm_checkstate
@@ -631,13 +801,26 @@ void pm_auto_updatestate(int domain);
  * avoid so much conditional compilation in driver code when PM is disabled:
  */
 
+#  define PM_WAKELOCK_DECLARE(v,n,d,s)
+#  define PM_WAKELOCK_DECLARE_STATIC(v,n,d,s)
 #  define pm_initialize()
-#  define pm_register(cb)              (0)
-#  define pm_unregister(cb)            (0)
+#  define pm_register(cb)                     (0)
+#  define pm_unregister(cb)                   (0)
 #  define pm_activity(domain,prio)
-#  define pm_checkstate(domain)        (0)
-#  define pm_changestate(domain,state) (0)
-#  define pm_querystate(domain)        (0)
+#  define pm_stay(domain,state)
+#  define pm_relax(domain,state)
+#  define pm_staytimeout(d,state,ms)
+#  define pm_staycount(domain, state)         (0)
+#  define pm_wakelock_init(w,n,d,s)
+#  define pm_wakelock_uninit(w)
+#  define pm_wakelock_stay(w)
+#  define pm_wakelock_relax(w)
+#  define pm_wakelock_staytimeout(w,m)
+#  define pm_wakelock_staycount(w)            (0)
+#  define pm_checkstate(domain)               (0)
+#  define pm_changestate(domain,state)        (0)
+#  define pm_querystate(domain)               (0)
+#  define pm_auto_updatestate(domain)
 
 #endif /* CONFIG_PM */
 #endif /* __INCLUDE_NUTTX_POWER_PM_H */

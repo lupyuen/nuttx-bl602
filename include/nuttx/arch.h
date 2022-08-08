@@ -1852,6 +1852,7 @@ int up_tls_size(void);
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_THREAD_LOCAL
+struct tls_info_s;
 void up_tls_initialize(FAR struct tls_info_s *info);
 #else
 #define up_tls_initialize(x)
@@ -2552,7 +2553,8 @@ int up_putc(int ch);
  *
  ****************************************************************************/
 
-void up_puts(FAR const char *str);
+#define up_puts(str) up_nputs(str, ~((size_t)0))
+void up_nputs(FAR const char *str, size_t len);
 
 /****************************************************************************
  * Name: arch_sporadic_*

@@ -39,7 +39,38 @@
  * Pre-Processor Definitions
  ****************************************************************************/
 
-#if (CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE + \
+/* Define default values to silent compiler warning about undefined macro */
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_PART1_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_PART1_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_PART2_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_PART2_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_PART3_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_PART3_SIZE 0
+#endif
+
+#ifndef CONFIG_ARCH_BOARD_FLASH_PART4_SIZE
+#define CONFIG_ARCH_BOARD_FLASH_PART4_SIZE 0
+#endif
+
+#if (CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE + \
+     CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_PART1_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_PART2_SIZE + \
@@ -48,7 +79,8 @@
 #   error "Sum of all flash pertitions cannot be bigger than 128"
 #endif
 
-#if (CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE + \
+#if (CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE + \
+     CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_PART1_SIZE + \
      CONFIG_ARCH_BOARD_FLASH_PART2_SIZE + \
@@ -75,6 +107,15 @@ struct part_table
 
 static const struct part_table part_table[] =
 {
+#if CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE > 0
+  {
+    .size   = CONFIG_ARCH_BOARD_FLASH_BL_PROG_SIZE,
+    .name   = "bl-progmem",
+    .mnt    = NULL,
+    .fs     = "rawfs"
+  },
+#endif
+
   {
     .size   = CONFIG_ARCH_BOARD_FLASH_CPU1_PROG_SIZE,
     .name   = "cpu1-progmem",
@@ -83,10 +124,12 @@ static const struct part_table part_table[] =
   },
 
 #if CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE > 0
+  {
     .size   = CONFIG_ARCH_BOARD_FLASH_CPU2_PROG_SIZE,
     .name   = "cpu2-progmem",
     .mnt    = NULL,
     .fs     = "rawfs"
+  },
 #endif
 
   {
@@ -140,6 +183,12 @@ int stm32wl5_flash_init(void)
   int ret;
   int i;
 
+  /* Silent compiler warning in case these filesystems are not enabled */
+
+  UNUSED(nxf_minor);
+  UNUSED(smart_minor);
+  UNUSED(mtdconfig_minor);
+
   /* create an instance of the stm32 flash program memory device driver */
 
   if ((mtd = progmem_initialize()) == NULL)
@@ -165,6 +214,12 @@ int stm32wl5_flash_init(void)
       const char *mnt;
       const char *fs;
 
+      /* Silent compiler warning in case where only non mountable
+       * partitions are defined.
+       */
+
+      UNUSED(mnt);
+
       size = part_table[i].size;
       name = part_table[i].name;
       mnt  = part_table[i].mnt;
@@ -173,7 +228,7 @@ int stm32wl5_flash_init(void)
       finfo("[%s] creating partition, size: %d, fs: %s, offset: %d\n",
             name, size, fs, offset);
 
-      /* create mtd parition */
+      /* create mtd partition */
 
       mtd_part = mtd_partition(mtd, offset, size);
 
@@ -258,7 +313,7 @@ int stm32wl5_flash_init(void)
               ferr("[%s]ERROR: nx_mount failed: %d\n", name, ret);
               if (ret == ENODEV)
                 {
-                  syslog(LOG_INFO, "[%s] mtd, smartfs seems unformated. "
+                  syslog(LOG_INFO, "[%s] mtd, smartfs seems unformatted. "
                          "Did you run 'mksmartfs %s'?\n", name, src);
                 }
 
