@@ -443,6 +443,10 @@ config STM32H7_SPI
 	bool
 	default n
 
+config STM32H7_SPI_DMA
+	bool
+	default n
+
 config STM32H7_TIM
 	bool
 	default n
@@ -471,6 +475,7 @@ config STM32H7_PWR
 config STM32H7_PWM
 	bool
 	default n
+	select ARCH_HAVE_PWM_PULSECOUNT
 
 config STM32H7_USART
 	bool
@@ -954,12 +959,6 @@ config STM32H7_SPI_INTERRUPTS
 		poll-waiting is recommended if the interrupt rate would be to high in
 		the interrupt driven case.
 
-config STM32H7_SPI_DMA
-	bool "SPI DMA"
-	default n
-	---help---
-		Use DMA to improve SPI transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT.
-
 config STM32H7_SPI_DMATHRESHOLD
 	int "SPI DMA threshold"
 	default 4
@@ -972,9 +971,10 @@ config STM32H7_SPI_DMATHRESHOLD
 config STM32H7_SPI1_DMA
 	bool "SPI1 DMA"
 	default n
-	depends on STM32H7_SPI1 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI1 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI1 transfer performance.
+		Use DMA to improve SPI1 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI1_DMA_BUFFER
 	int "SPI1 DMA buffer size"
@@ -994,9 +994,10 @@ config STM32H7_SPI1_COMMTYPE
 config STM32H7_SPI2_DMA
 	bool "SPI2 DMA"
 	default n
-	depends on STM32H7_SPI2 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI2 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI2 transfer performance.
+		Use DMA to improve SPI2 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI2_DMA_BUFFER
 	int "SPI2 DMA buffer size"
@@ -1016,9 +1017,10 @@ config STM32H7_SPI2_COMMTYPE
 config STM32H7_SPI3_DMA
 	bool "SPI3 DMA"
 	default n
-	depends on STM32H7_SPI3 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI3 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI3 transfer performance.
+		Use DMA to improve SPI3 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI3_DMA_BUFFER
 	int "SPI3 DMA buffer size"
@@ -1038,9 +1040,10 @@ config STM32H7_SPI3_COMMTYPE
 config STM32H7_SPI4_DMA
 	bool "SPI4 DMA"
 	default n
-	depends on STM32H7_SPI4 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI4 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI4 transfer performance.
+		Use DMA to improve SPI4 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI4_DMA_BUFFER
 	int "SPI4 DMA buffer size"
@@ -1060,9 +1063,10 @@ config STM32H7_SPI4_COMMTYPE
 config STM32H7_SPI5_DMA
 	bool "SPI5 DMA"
 	default n
-	depends on STM32H7_SPI5 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI5 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI5 transfer performance.
+		Use DMA to improve SPI5 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI5_DMA_BUFFER
 	int "SPI5 DMA buffer size"
@@ -1082,9 +1086,10 @@ config STM32H7_SPI5_COMMTYPE
 config STM32H7_SPI6_DMA
 	bool "SPI6 DMA"
 	default n
-	depends on STM32H7_SPI6 && STM32H7_SPI_DMA
+	depends on STM32H7_SPI6 && !STM32H7_SPI_INTERRUPT
+	select STM32H7_SPI_DMA
 	---help---
-		Use DMA to improve SPI6 transfer performance.
+		Use DMA to improve SPI6 transfer performance.  Cannot be used with STM32H7_SPI_INTERRUPT
 
 config STM32H7_SPI6_DMA_BUFFER
 	int "SPI6 DMA buffer size"
@@ -1942,7 +1947,6 @@ config STM32H7_TIM1_PWM
 	bool "TIM1 PWM"
 	default n
 	depends on STM32H7_TIM1
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 1 for use by PWM
@@ -2225,7 +2229,6 @@ config STM32H7_TIM2_PWM
 	bool "TIM2 PWM"
 	default n
 	depends on STM32H7_TIM2
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 2 for use by PWM
@@ -2405,7 +2408,6 @@ config STM32H7_TIM3_PWM
 	bool "TIM3 PWM"
 	default n
 	depends on STM32H7_TIM3
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 3 for use by PWM
@@ -2585,7 +2587,6 @@ config STM32H7_TIM4_PWM
 	bool "TIM4 PWM"
 	default n
 	depends on STM32H7_TIM4
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 4 for use by PWM
@@ -2765,7 +2766,6 @@ config STM32H7_TIM5_PWM
 	bool "TIM5 PWM"
 	default n
 	depends on STM32H7_TIM5
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 5 for use by PWM
@@ -2945,7 +2945,6 @@ config STM32H7_TIM8_PWM
 	bool "TIM8 PWM"
 	default n
 	depends on STM32H7_TIM8
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 8 for use by PWM
@@ -3228,7 +3227,6 @@ config STM32H7_TIM12_PWM
 	bool "TIM12 PWM"
 	default n
 	depends on STM32H7_TIM12
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 12 for use by PWM
@@ -3335,7 +3333,6 @@ config STM32H7_TIM13_PWM
 	bool "TIM13 PWM"
 	default n
 	depends on STM32H7_TIM13
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 13 for use by PWM
@@ -3409,7 +3406,6 @@ config STM32H7_TIM14_PWM
 	bool "TIM14 PWM"
 	default n
 	depends on STM32H7_TIM14
-	select ARCH_HAVE_PWM_PULSECOUNT
 	select STM32H7_PWM
 	---help---
 		Reserve timer 14 for use by PWM
@@ -3815,7 +3811,7 @@ endif # STM32H7_TIM17_PWM
 config STM32H7_PWM_MULTICHAN
 	bool "PWM Multiple Output Channels"
 	default n
-	depends on STM32H7_TIM1_PWM || STM32H7_TIM2_PWM || STM32H7_TIM3_PWM || STM32H7_TIM4_PWM || STM32H7_TIM5_PWM || STM32H7_TIM8_PWM || STM32H7_TIM12_PWM || STM32H7_TIM15_PWM
+	depends on STM32H7_PWM
 	select ARCH_HAVE_PWM_MULTICHAN
 	---help---
 		Specifies that the PWM driver supports multiple output

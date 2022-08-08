@@ -43,7 +43,7 @@ static void rptun_dump_addr(FAR struct rpmsg_device *rdev,
   ept = rpmsg_get_ept_from_addr(rdev, rx ? hdr->dst : hdr->src);
   if (ept)
     {
-      metal_log(METAL_LOG_INFO,
+      metal_log(METAL_LOG_EMERGENCY,
                 "      %s buffer %p hold by %s\n",
                 rx ? "RX" : "TX", hdr, ept->name);
     }
@@ -59,13 +59,13 @@ static void rptun_dump_buffer(FAR struct rpmsg_virtio_device *rvdev,
   int i;
 
   num = rptun_buffer_nused(rvdev, rx);
-  metal_log(METAL_LOG_INFO,
+  metal_log(METAL_LOG_EMERGENCY,
             "    %s buffer, total %d, pending %d\n",
             rx ? "RX" : "TX", vq->vq_nentries, num);
 
   for (i = 0; i < num; i++)
     {
-      if ((rpmsg_virtio_get_role(rvdev) == RPMSG_MASTER) ^ rx)
+      if ((rpmsg_virtio_get_role(rvdev) == RPMSG_HOST) ^ rx)
         {
           desc_idx = (vq->vq_ring.used->idx + i) & (vq->vq_nentries - 1);
           desc_idx = vq->vq_ring.avail->ring[desc_idx];
@@ -100,24 +100,36 @@ void rptun_dump(FAR struct rpmsg_virtio_device *rvdev)
       return;
     }
 
-  metal_mutex_acquire(&rdev->lock);
+  if (!up_interrupt_context() && !sched_idletask())
+    {
+      metal_mutex_acquire(&rdev->lock);
+    }
 
-  metal_log(METAL_LOG_INFO,
-            "Dump rpmsg info between cpu %s <==> %s:\n",
+  metal_log(METAL_LOG_EMERGENCY,
+            "Dump rpmsg info between cpu (master: %s)%s <==> %s:\n",
+            rpmsg_virtio_get_role(rvdev) == RPMSG_HOST ? "yes" : "no",
             CONFIG_RPTUN_LOCAL_CPUNAME, rpmsg_get_cpuname(rdev));
 
-  metal_log(METAL_LOG_INFO, "  rpmsg ept list:\n");
+  metal_log(METAL_LOG_EMERGENCY, "rpmsg vq RX:\n");
+  virtqueue_dump(rvdev->rvq);
+  metal_log(METAL_LOG_EMERGENCY, "rpmsg vq TX:\n");
+  virtqueue_dump(rvdev->svq);
+
+  metal_log(METAL_LOG_EMERGENCY, "  rpmsg ept list:\n");
 
   metal_list_for_each(&rdev->endpoints, node)
     {
       ept = metal_container_of(node, struct rpmsg_endpoint, node);
-      metal_log(METAL_LOG_INFO, "    ept %s\n", ept->name);
+      metal_log(METAL_LOG_EMERGENCY, "    ept %s\n", ept->name);
     }
 
-  metal_log(METAL_LOG_INFO, "  rpmsg buffer list:\n");
+  metal_log(METAL_LOG_EMERGENCY, "  rpmsg buffer list:\n");
 
   rptun_dump_buffer(rvdev, true);
   rptun_dump_buffer(rvdev, false);
 
-  metal_mutex_release(&rdev->lock);
+  if (!up_interrupt_context() && !sched_idletask())
+    {
+      metal_mutex_release(&rdev->lock);
+    }
 }

@@ -228,7 +228,6 @@ config IMXRT_ENET
 	bool "Ethernet"
 	default n
 	select ARCH_HAVE_PHY
-	select ARCH_PHY_INTERRUPT
 	select ARCH_HAVE_NETDEV_STATISTICS
 
 config IMXRT_LCD
@@ -805,6 +804,11 @@ config LPI2C1_BUSYIDLE
 	int "Bus idle timeout period in clock cycles"
 	default 0
 
+config LPI2C1_DMA
+	bool "Enable DMA for I2C1"
+	default n
+	depends on IMXRT_LPI2C_DMA
+
 config LPI2C1_FILTSCL
 	int "I2C master digital glitch filters for SCL input in clock cycles"
 	default 0
@@ -825,6 +829,11 @@ if IMXRT_LPI2C2
 config LPI2C2_BUSYIDLE
 	int "Bus idle timeout period in clock cycles"
 	default 0
+
+config LPI2C2_DMA
+	bool "Enable DMA for I2C2"
+	default n
+	depends on IMXRT_LPI2C_DMA
 
 config LPI2C2_FILTSCL
 	int "I2C master digital glitch filters for SCL input in clock cycles"
@@ -847,6 +856,11 @@ config LPI2C3_BUSYIDLE
 	int "Bus idle timeout period in clock cycles"
 	default 0
 
+config LPI2C3_DMA
+	bool "Enable DMA for I2C3"
+	default n
+	depends on IMXRT_LPI2C_DMA
+
 config LPI2C3_FILTSCL
 	int "I2C master digital glitch filters for SCL input in clock cycles"
 	default 0
@@ -867,6 +881,11 @@ if IMXRT_LPI2C4
 config LPI2C4_BUSYIDLE
 	int "Bus idle timeout period in clock cycles"
 	default 0
+
+config LPI2C4_DMA
+	bool "Enable DMA for I2C4"
+	default n
+	depends on IMXRT_LPI2C_DMA
 
 config LPI2C4_FILTSCL
 	int "I2C master digital glitch filters for SCL input in clock cycles"
@@ -1356,6 +1375,33 @@ endif # IMXRT_GPIO_IRQ
 menu "Ethernet Configuration"
 	depends on IMXRT_ENET
 
+choice
+	prompt "i.MX RT Ethernet Interface"
+	default IMXRT_ENET1
+	depends on IMXRT_ENET
+
+config IMXRT_ENET1
+	bool "ENET 1"
+
+config IMXRT_ENET2
+	bool "ENET 2"
+
+endchoice # i.MX RT Ethernet Interface
+
+choice
+	prompt "i.MX RT Ethernet TX Clock Source"
+	default IMXRT_PROVIDES_TXC
+	depends on IMXRT_ENET
+
+config IMXRT_MAC_PROVIDES_TXC
+	bool "i.MX RT Ethernet provides TX Clock"
+
+config IMXRT_PHY_PROVIDES_TXC
+	bool "External PHY provides TX Clock"
+
+endchoice # i.MX RT Ethernet TX Clock Source
+
+
 config IMXRT_ENET_NRXBUFFERS
 	int "Number Rx buffers"
 	default 6
@@ -1382,6 +1428,16 @@ config IMXRT_ENET_PHYINIT
 		the configuration then the board specific logic must provide
 		imxrt_phy_boardinitialize();  The i.MXRT ENET driver will call this
 		function one time before it first uses the PHY.
+
+config IMXRT_PHY_POLLING
+	bool "Support network monitoring by poling the PHY"
+	default n
+	depends on IMXRT_ENET
+	select ARCH_PHY_POLLED
+	---help---
+		Some boards may not have an interrupt connected to the PHY.
+		This option allows the network monitor to be used by polling the
+		the PHY for status.
 
 endmenu # IMXRT_ENET
 
@@ -1554,6 +1610,25 @@ endmenu # Memory Configuration
 
 menu "LPI2C Configuration"
 	depends on IMXRT_LPI2C
+
+config IMXRT_LPI2C_DMA
+	bool "I2C DMA Support"
+	default n
+	depends on IMXRT_LPI2C && IMXRT_EDMA && !I2C_POLLED
+	---help---
+		This option enables the DMA for I2C transfers.
+		Note: The user can define CONFIG_I2C_DMAPRIO: a custom priority value
+		for the I2C dma streams, else the default priority level is set to
+		medium.
+
+config IMXRT_LPI2C_DMA_MAXMSG
+	int "Maximum number messages that will be DMAed"
+	default 8
+	depends on IMXRT_LPI2C_DMA
+	---help---
+		This option set the mumber of mesg that can be in a transfer.
+		It is used to allocate space for the 16 bit LPI2C commands
+		that will be DMA-ed to the LPI2C device.
 
 config IMXRT_LPI2C_DYNTIMEO
 	bool "Use dynamic timeouts"
@@ -1733,6 +1808,55 @@ config IMXRT_EDMA_EDBG
 		system exits debug mode or the EDBG bit is cleared
 
 endmenu # eDMA Global Configuration
+
+menu "LPSPI Configuration"
+	depends on IMXRT_LPSPI
+
+config IMXRT_LPSPI_DMA
+	bool "LPSPI DMA"
+	depends on IMXRT_EDMA
+	default n
+	---help---
+		Use DMA to improve LPSPI transfer performance.
+
+config IMXRT_LPSPI_DMATHRESHOLD
+	int "LPSPI DMA threshold"
+	default 4
+	depends on IMXRT_LPSPI_DMA
+	---help---
+		When SPI DMA is enabled, small DMA transfers will still be performed
+		by polling logic.  But we need a threshold value to determine what
+		is small.
+
+config IMXRT_LPSPI1_DMA
+	bool "LPSPI1 DMA"
+	default n
+	depends on IMXRT_LPSPI1 && IMXRT_LPSPI_DMA
+	---help---
+		Use DMA to improve LPSPI1 transfer performance.
+
+config IMXRT_LPSPI2_DMA
+	bool "LPSPI2 DMA"
+	default n
+	depends on IMXRT_LPSPI2 && IMXRT_LPSPI_DMA
+	---help---
+		Use DMA to improve LPSPI2 transfer performance.
+
+config IMXRT_LPSPI3_DMA
+	bool "LPSPI3 DMA"
+	default n
+	depends on IMXRT_LPSPI3 && IMXRT_LPSPI_DMA
+	---help---
+		Use DMA to improve LPSPI3 transfer performance.
+
+config IMXRT_LPSPI4_DMA
+	bool "LPSPI4 DMA"
+	default n
+	depends on IMXRT_LPSPI4 && IMXRT_LPSPI_DMA
+	---help---
+		Use DMA to improve SPI4 transfer performance.
+
+endmenu # LPSPI Configuration
 
 if PM
 

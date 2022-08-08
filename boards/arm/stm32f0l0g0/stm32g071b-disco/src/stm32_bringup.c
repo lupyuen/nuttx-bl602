@@ -83,6 +83,33 @@ int stm32_bringup(void)
   syslog(LOG_INFO, "Successfully registered the joystick driver\n");
 #endif
 
+#ifdef CONFIG_LCD_SSD1306_SPI
+  /* NOTE: SSD1315Z is compatible with the SSD1306 driver */
+
+  board_lcd_initialize();
+#endif
+
+#ifdef CONFIG_SENSORS_INA226
+  /* Initialize and register the INA226 */
+
+  ret = stm32_ina226_initialization();
+  if (ret != OK)
+    {
+      syslog(LOG_ERR,
+             "ERROR: Failed to register the INA226 drivers: %d\n", ret);
+      return ret;
+    }
+#endif
+
+#ifdef CONFIG_DEV_GPIO
+  ret = stm32_gpio_initialize();
+  if (ret < 0)
+    {
+      syslog(LOG_ERR, "Failed to initialize GPIO Driver: %d\n", ret);
+      return ret;
+    }
+#endif
+
   UNUSED(ret);
   return OK;
 }

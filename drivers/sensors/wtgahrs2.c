@@ -73,8 +73,8 @@
 struct wtgahrs2_sensor_s
 {
   struct sensor_lowerhalf_s lower;
-  unsigned int              interval;
-  unsigned int              last_update;
+  unsigned long             interval;
+  uint64_t                  last_update;
   bool                      enable;
 };
 
@@ -83,7 +83,7 @@ struct wtgahrs2_dev_s
   struct wtgahrs2_sensor_s  dev[WTGAHRS2_MAX_IDX];
   struct file               file;
 
-  struct sensor_event_gps   gps;
+  struct sensor_gps   gps;
   unsigned char             gps_mask;
 };
 
@@ -95,9 +95,11 @@ struct wtgahrs2_dev_s
  * Private Function Prototypes
  ****************************************************************************/
 
-static int wtgahrs2_activate(FAR struct sensor_lowerhalf_s *lower, bool sw);
+static int wtgahrs2_activate(FAR struct sensor_lowerhalf_s *lower,
+                             FAR struct file *filep, bool sw);
 static int wtgahrs2_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                                 FAR unsigned int *interval);
+                                 FAR struct file *filep,
+                                 FAR unsigned long *interval);
 
 /****************************************************************************
  * Private Data
@@ -105,7 +107,7 @@ static int wtgahrs2_set_interval(FAR struct sensor_lowerhalf_s *lower,
 
 /* in microseconds */
 
-static const unsigned int g_wtgahrs2_interval[] =
+static const unsigned long g_wtgahrs2_interval[] =
 {
   10000000,  /* 0.1 hz */
   2000000,   /* 0.5 hz */
@@ -152,7 +154,8 @@ static void wtgahrs2_sendcmd(FAR struct wtgahrs2_dev_s *rtdata,
   usleep(10000);
 }
 
-static int wtgahrs2_activate(FAR struct sensor_lowerhalf_s *lower, bool sw)
+static int wtgahrs2_activate(FAR struct sensor_lowerhalf_s *lower,
+                             FAR struct file *filep, bool sw)
 {
   FAR struct wtgahrs2_sensor_s *dev = (FAR struct wtgahrs2_sensor_s *)lower;
   dev->enable = sw;
@@ -161,7 +164,8 @@ static int wtgahrs2_activate(FAR struct sensor_lowerhalf_s *lower, bool sw)
 }
 
 static int wtgahrs2_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                                 FAR unsigned int *interval)
+                                 FAR struct file *filep,
+                                 FAR unsigned long *interval)
 {
   FAR struct wtgahrs2_sensor_s *dev = (FAR struct wtgahrs2_sensor_s *)lower;
   int idx = 0;
@@ -186,7 +190,7 @@ static void wtgahrs2_accel_data(FAR struct wtgahrs2_dev_s *rtdata,
   FAR struct wtgahrs2_sensor_s *dev = &rtdata->dev[WTGAHRS2_ACCEL_IDX];
   FAR struct sensor_lowerhalf_s *lower = &dev->lower;
   uint64_t now = sensor_get_timestamp();
-  struct sensor_event_accel accel;
+  struct sensor_accel accel;
 
   if (!dev->enable || now - dev->last_update < dev->interval)
     {
@@ -212,7 +216,7 @@ static void wtgahrs2_gyro_data(FAR struct wtgahrs2_dev_s *rtdata,
   FAR struct wtgahrs2_sensor_s *dev = &rtdata->dev[WTGAHRS2_GYRO_IDX];
   FAR struct sensor_lowerhalf_s *lower = &dev->lower;
   uint64_t now = sensor_get_timestamp();
-  struct sensor_event_gyro gyro;
+  struct sensor_gyro gyro;
 
   if (!dev->enable || now - dev->last_update < dev->interval)
     {
@@ -238,7 +242,7 @@ static void wtgahrs2_mag_data(FAR struct wtgahrs2_dev_s *rtdata,
   FAR struct wtgahrs2_sensor_s *dev = &rtdata->dev[WTGAHRS2_MAG_IDX];
   FAR struct sensor_lowerhalf_s *lower = &dev->lower;
   uint64_t now = sensor_get_timestamp();
-  struct sensor_event_mag mag;
+  struct sensor_mag mag;
 
   if (!dev->enable || now - dev->last_update < dev->interval)
     {
@@ -264,7 +268,7 @@ static void wtgahrs2_baro_data(FAR struct wtgahrs2_dev_s *rtdata,
   FAR struct wtgahrs2_sensor_s *dev = &rtdata->dev[WTGAHRS2_BARO_IDX];
   FAR struct sensor_lowerhalf_s *lower = &dev->lower;
   uint64_t now = sensor_get_timestamp();
-  struct sensor_event_baro baro;
+  struct sensor_baro baro;
 
   if (!dev->enable || now - dev->last_update < dev->interval)
     {
@@ -471,7 +475,7 @@ int wtgahrs2_initialize(FAR const char *path, int devno)
   tmp = &rtdata->dev[WTGAHRS2_ACCEL_IDX];
   tmp->lower.ops = &g_wtgahrs2_ops;
   tmp->lower.type = SENSOR_TYPE_ACCELEROMETER;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {
@@ -483,7 +487,7 @@ int wtgahrs2_initialize(FAR const char *path, int devno)
   tmp = &rtdata->dev[WTGAHRS2_GYRO_IDX];
   tmp->lower.ops = &g_wtgahrs2_ops;
   tmp->lower.type = SENSOR_TYPE_GYROSCOPE;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {
@@ -495,7 +499,7 @@ int wtgahrs2_initialize(FAR const char *path, int devno)
   tmp = &rtdata->dev[WTGAHRS2_MAG_IDX];
   tmp->lower.ops = &g_wtgahrs2_ops;
   tmp->lower.type = SENSOR_TYPE_MAGNETIC_FIELD;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {
@@ -507,7 +511,7 @@ int wtgahrs2_initialize(FAR const char *path, int devno)
   tmp = &rtdata->dev[WTGAHRS2_BARO_IDX];
   tmp->lower.ops = &g_wtgahrs2_ops;
   tmp->lower.type = SENSOR_TYPE_BAROMETER;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {
@@ -519,7 +523,7 @@ int wtgahrs2_initialize(FAR const char *path, int devno)
   tmp = &rtdata->dev[WTGAHRS2_GPS_IDX];
   tmp->lower.ops = &g_wtgahrs2_ops;
   tmp->lower.type = SENSOR_TYPE_GPS;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {

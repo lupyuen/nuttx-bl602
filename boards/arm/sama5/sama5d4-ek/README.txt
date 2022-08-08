@@ -2572,7 +2572,7 @@ I2C Tool
     o The I2C dev command may have bad side effects on your I2C devices.
       Use only at your own risk.
 
-    As an example, the I2C dev comman can be used to list all devices
+    As an example, the I2C dev command can be used to list all devices
     responding on TWI0 (the default) like this:
 
       nsh> i2c dev 0x03 0x77
@@ -4114,7 +4114,7 @@ Configurations
         C. Build the file system image at apps/bin
 
         $ cd apps/                          : Go to the apps/ directory
-        $ tools/mkimport.sh -x <zip-file>   : Use the full path to nuttx-export-*.zip
+        $ tools/mkimport.sh -z -x <tgz-file>: Use the full path to nuttx-export-*.tar.gz
         $ make import                       : This will build the file system.
 
       You will then need to copy the files from apps/bin to an SD card or USB
@@ -4149,7 +4149,7 @@ Configurations
         C. Build the file system image at apps/bin
 
         $ cd apps/                          : Go to the apps/ directory
-        $ tools/mkimport.sh -x <zip-file>   : Use the full path to nuttx-export-*.zip
+        $ tools/mkimport.sh -z -x <tgz-file>: Use the full path to nuttx-export-*.tar.gz
         $ make import                       : This will build the file system
 
         D. Create the ROMFS file system image

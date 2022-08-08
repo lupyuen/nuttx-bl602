@@ -178,6 +178,8 @@ static int inline local_stream_connect(FAR struct local_conn_s *client,
 
   DEBUGASSERT(client->lc_infile.f_inode != NULL);
 
+  nxsem_post(&client->lc_donesem);
+
   if (!nonblock)
     {
       client->lc_state = LOCAL_STATE_CONNECTED;
@@ -267,6 +269,13 @@ int psock_local_connect(FAR struct socket *psock,
   net_lock();
   while ((conn = local_nextconn(conn)) != NULL)
     {
+      /* Slef found, continue */
+
+      if (conn == psock->s_conn)
+        {
+          continue;
+        }
+
       /* Handle according to the server connection type */
 
       switch (conn->lc_type)

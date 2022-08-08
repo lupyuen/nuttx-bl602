@@ -96,7 +96,7 @@ struct hyt271_dev_s
   sem_t                   lock_measure_cycle;       /* Locks measure cycle */
   uint32_t                freq;                     /* I2C Frequency */
 #ifdef CONFIG_SENSORS_HYT271_POLL
-  unsigned int            interval;                 /* Polling interval */
+  unsigned long           interval;                 /* Polling interval */
   sem_t                   run;                      /* Locks sensor thread */
   bool                    initial_read;             /* Already read */
 #endif
@@ -110,17 +110,20 @@ struct hyt271_dev_s
 /* Sensor functions */
 
 static int hyt271_active(FAR struct sensor_lowerhalf_s *lower,
-                         bool enabled);
+                         FAR struct file *filep, bool enabled);
 
 static int hyt271_fetch(FAR struct sensor_lowerhalf_s *lower,
+                        FAR struct file *filep,
                         FAR char *buffer, size_t buflen);
 
 static int hyt271_control(FAR struct sensor_lowerhalf_s *lower,
+                          FAR struct file *filep,
                           int cmd, unsigned long arg);
 
 #ifdef CONFIG_SENSORS_HYT271_POLL
 static int hyt271_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                               FAR unsigned int *period_us);
+                               FAR struct file *filep,
+                               FAR unsigned long *period_us);
 #endif
 
 /****************************************************************************
@@ -152,7 +155,7 @@ static const struct sensor_ops_s g_hyt271_ops =
  ****************************************************************************/
 
 static void hyt271_humi_from_rawdata(FAR struct hyt271_sensor_data_s *data,
-                                     FAR struct sensor_event_humi *humi)
+                                     FAR struct sensor_humi *humi)
 {
   humi->timestamp   = data->timestamp;
   humi->humidity    = HYT271_HUMIDATA(data->data);
@@ -169,7 +172,7 @@ static void hyt271_humi_from_rawdata(FAR struct hyt271_sensor_data_s *data,
  ****************************************************************************/
 
 static void hyt271_temp_from_rawdata(FAR struct hyt271_sensor_data_s *data,
-                                     FAR struct sensor_event_temp *temp)
+                                     FAR struct sensor_temp *temp)
 {
   temp->timestamp   = data->timestamp;
   temp->temperature = HYT271_TEMPDATA(data->data);
@@ -601,15 +604,17 @@ err_unlock:
  *              conversion.
  *
  * Parameter:
- *   lower  - Pointer to lower half sensor driver instance
- *   buffer - Pointer to the buffer for reading data
- *   buflen - Size of the buffer
+ *   lower  - Pointer to lower half sensor driver instance.
+ *   filep  - The pointer of file, represents each user using the sensor.
+ *   buffer - Pointer to the buffer for reading data.
+ *   buflen - Size of the buffer.
  *
  * Return:
  *   OK - on success
  ****************************************************************************/
 
 static int hyt271_fetch(FAR struct sensor_lowerhalf_s *lower,
+                        FAR struct file *filep,
                         FAR char *buffer, size_t buflen)
 {
   int ret;
@@ -635,14 +640,14 @@ static int hyt271_fetch(FAR struct sensor_lowerhalf_s *lower,
     {
       case SENSOR_TYPE_AMBIENT_TEMPERATURE:
         {
-            struct sensor_event_temp temp;
+            struct sensor_temp temp;
             hyt271_temp_from_rawdata(&data, &temp);
             memcpy(buffer, &temp, sizeof(temp));
         }
         break;
       case SENSOR_TYPE_RELATIVE_HUMIDITY:
         {
-            struct sensor_event_humi humi;
+            struct sensor_humi humi;
             hyt271_humi_from_rawdata(&data, &humi);
             memcpy(buffer, &humi, sizeof(humi));
         }
@@ -664,6 +669,7 @@ static int hyt271_fetch(FAR struct sensor_lowerhalf_s *lower,
  ****************************************************************************/
 
 static int hyt271_control(FAR struct sensor_lowerhalf_s *lower,
+                          FAR struct file *filep,
                           int cmd, unsigned long arg)
 {
   int ret;
@@ -712,7 +718,7 @@ static int hyt271_control(FAR struct sensor_lowerhalf_s *lower,
  ****************************************************************************/
 
 static int hyt271_active(FAR struct sensor_lowerhalf_s *lower,
-                         bool enabled)
+                         FAR struct file *filep, bool enabled)
 {
 #ifdef CONFIG_SENSORS_HYT271_POLL
   bool start_thread = false;
@@ -751,7 +757,8 @@ static int hyt271_active(FAR struct sensor_lowerhalf_s *lower,
 
 #ifdef CONFIG_SENSORS_HYT271_POLL
 static int hyt271_set_interval(FAR struct sensor_lowerhalf_s *lower,
-                               FAR unsigned int *period_us)
+                               FAR struct file *filep,
+                               FAR unsigned long *period_us)
 {
   FAR struct hyt271_sensor_s *priv = (FAR struct hyt271_sensor_s *)lower;
   priv->dev->interval = *period_us;
@@ -812,19 +819,19 @@ static int hyt271_thread(int argc, char** argv)
           if (priv->initial_read == false || (hsensor->enabled == true &&
               !HYT271_HUMIRAWEQUAL(orawdata, data.data)))
             {
-              struct sensor_event_humi humi;
+              struct sensor_humi humi;
               hyt271_humi_from_rawdata(&data, &humi);
               hsensor->lower.push_event(hsensor->lower.priv, &humi,
-                                        sizeof(struct sensor_event_humi));
+                                        sizeof(struct sensor_humi));
             }
 
           if (priv->initial_read == false || (tsensor->enabled == true &&
               !HYT271_TEMPRAWEQUAL(orawdata, data.data)))
             {
-              struct sensor_event_temp temp;
+              struct sensor_temp temp;
               hyt271_temp_from_rawdata(&data, &temp);
               tsensor->lower.push_event(tsensor->lower.priv, &temp,
-                                        sizeof(struct sensor_event_temp));
+                                        sizeof(struct sensor_temp));
             }
 
           if (priv->initial_read == false)
@@ -917,11 +924,11 @@ int hyt271_register(int devno, FAR struct i2c_master_s *i2c, uint8_t addr,
 #ifdef CONFIG_SENSORS_HYT271_POLL
   tmp->enabled = false;
 #endif
-  tmp->buffer_size = sizeof(struct sensor_event_humi);
+  tmp->buffer_size = sizeof(struct sensor_humi);
   tmp->lower.ops = &g_hyt271_ops;
   tmp->lower.type = SENSOR_TYPE_RELATIVE_HUMIDITY;
   tmp->lower.uncalibrated = false;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {
@@ -935,11 +942,11 @@ int hyt271_register(int devno, FAR struct i2c_master_s *i2c, uint8_t addr,
 #ifdef CONFIG_SENSORS_HYT271_POLL
   tmp->enabled = false;
 #endif
-  tmp->buffer_size = sizeof(struct sensor_event_temp);
+  tmp->buffer_size = sizeof(struct sensor_temp);
   tmp->lower.ops = &g_hyt271_ops;
   tmp->lower.type = SENSOR_TYPE_AMBIENT_TEMPERATURE;
   tmp->lower.uncalibrated = false;
-  tmp->lower.buffer_number = 1;
+  tmp->lower.nbuffer = 1;
   ret = sensor_register(&tmp->lower, devno);
   if (ret < 0)
     {

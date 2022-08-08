@@ -78,6 +78,7 @@ struct rpmsgfs_mountpt_s
   char                       fs_root[PATH_MAX];
   void                       *handle;
   int                        timeout;  /* Connect timeout */
+  struct statfs              statfs;
 };
 
 /****************************************************************************
@@ -527,21 +528,7 @@ static ssize_t rpmsgfs_write(FAR struct file *filep, const char *buffer,
   FAR struct rpmsgfs_ofile_s *hf;
   ssize_t ret;
 
-  /* Sanity checks.  I have seen the following assertion misfire if
-   * CONFIG_DEBUG_MM is enabled while re-directing output to a
-   * file.  In this case, the debug output can get generated while
-   * the file is being opened,  FAT data structures are being allocated,
-   * and things are generally in a perverse state.
-   */
-
-#ifdef CONFIG_DEBUG_MM
-  if (filep->f_priv == NULL || filep->f_inode == NULL)
-    {
-      return -ENXIO;
-    }
-#else
   DEBUGASSERT(filep->f_priv != NULL && filep->f_inode != NULL);
-#endif
 
   /* Recover our private data from the struct file instance */
 
@@ -1232,11 +1219,20 @@ static int rpmsgfs_statfs(FAR struct inode *mountpt, FAR struct statfs *buf)
       return ret;
     }
 
+  if (fs->statfs.f_type == RPMSGFS_MAGIC)
+    {
+      memcpy(buf, &fs->statfs, sizeof(struct statfs));
+      rpmsgfs_semgive(fs);
+      return 0;
+    }
+
   /* Call the host fs to perform the statfs */
 
   memset(buf, 0, sizeof(struct statfs));
   ret = rpmsgfs_client_statfs(fs->handle, fs->fs_root, buf);
   buf->f_type = RPMSGFS_MAGIC;
+
+  memcpy(&fs->statfs, buf, sizeof(struct statfs));
 
   rpmsgfs_semgive(fs);
   return ret;
