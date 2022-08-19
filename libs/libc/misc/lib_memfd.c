@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/crc32.h
+ * libs/libc/misc/lib_memfd.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,51 +18,34 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRC32_H
-#define __INCLUDE_CRC32_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-#include <stdint.h>
+#include <sys/memfd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
 
 /****************************************************************************
- * Public Function Prototypes
+ * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
+#define MEM_FD_VFS_PATH CONFIG_LIBC_TMPDIR "/" CONFIG_MEM_FD_VFS_PATH "/%s"
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int memfd_create(FAR const char *name, unsigned int flags)
 {
+#ifdef CONFIG_FS_TMPFS
+  char path[PATH_MAX];
+
+  snprintf(path, sizeof(path), MEM_FD_VFS_PATH, name);
+  return open(path, O_RDWR | flags);
 #else
-#define EXTERN extern
+  set_errno(ENOSYS);
+  return -1;
 #endif
-
-/****************************************************************************
- * Name: crc32part
- *
- * Description:
- *   Continue CRC calculation on a part of the buffer.
- *
- ****************************************************************************/
-
-uint32_t crc32part(FAR const uint8_t *src, size_t len, uint32_t crc32val);
-
-/****************************************************************************
- * Name: crc32
- *
- * Description:
- *   Return a 32-bit CRC of the contents of the 'src' buffer, length 'len'
- *
- ****************************************************************************/
-
-uint32_t crc32(FAR const uint8_t *src, size_t len);
-
-#undef EXTERN
-#ifdef __cplusplus
 }
-#endif
-
-#endif /* __INCLUDE_CRC32_H */

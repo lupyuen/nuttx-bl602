@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/crc8.h
+ * include/nuttx/crc64.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,15 +18,40 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRC8_H
-#define __INCLUDE_CRC8_H
+#ifndef __INCLUDE_NUTTX_CRC64_H
+#define __INCLUDE_NUTTX_CRC64_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <sys/types.h>
 #include <stdint.h>
+
+#ifdef CONFIG_HAVE_LONG_LONG
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* CRC64_CHECK is the CRC64 of the string "123456789" without the null byte.
+ *
+ *   const uint8_t checkbuf[] =
+ *   {
+ *     '1', '2', '3', '4', '5', '6', '7', '8', '9'
+ *   };
+ *
+ *   assert(crc64(checkbuf, sizeof(checkbuf)) == CRC64_CHECK);
+ */
+
+/* CRC-64/WE */
+
+#define CRC64_POLY   ((uint64_t)0x42f0e1eba9ea3693ull)
+#define CRC64_INIT   ((uint64_t)0xffffffffffffffffull)
+#define CRC64_XOROUT ((uint64_t)0xffffffffffffffffull)
+#define CRC64_CHECK  ((uint64_t)0x62ec59e3f1a4f00aull)
 
 /****************************************************************************
  * Public Function Prototypes
@@ -41,64 +66,29 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Name: crc8part
+ * Name: crc64part
  *
  * Description:
- *   Continue CRC calculation on a part of the buffer using the polynomial
- *   x^8+x^6+x^3+x^2+1 (Koopman, et al. "0xA6" poly).
+ *   Continue CRC calculation on a part of the buffer.
  *
  ****************************************************************************/
 
-uint8_t crc8part(FAR const uint8_t *src, size_t len, uint8_t crc8val);
+uint64_t crc64part(FAR const uint8_t *src, size_t len, uint64_t crc64val);
 
 /****************************************************************************
- * Name: crc8
+ * Name: crc64
  *
  * Description:
- *   Return an 8-bit CRC of the contents of the 'src' buffer, length 'len'
- *   using the polynomial x^8+x^6+x^3+x^2+1 (Koopman, et al. "0xA6" poly).
+ *   Return a 64-bit CRC of the contents of the 'src' buffer, length 'len'.
  *
  ****************************************************************************/
 
-uint8_t crc8(FAR const uint8_t *src, size_t len);
-
-/****************************************************************************
- * Name: crc8table
- *
- * Description:
- *   Return a 8-bit CRC of the contents of the 'src' buffer, length 'len'
- *   using a CRC with crc table used for calculation.
- *
- ****************************************************************************/
-
-uint8_t crc8table(const uint8_t table[256], const uint8_t *src,
-                  size_t len, uint8_t crc8val);
-
-/****************************************************************************
- * Name: crc8ccitt
- *
- * Description:
- *   Return an 8-bit CRC of the contents of the 'src' buffer, length 'len'
- *   using the polynomial x^8+x^2+x^1+1 (aka "0x07" poly).
- *
- ****************************************************************************/
-
-uint8_t crc8ccitt(FAR const uint8_t *src, size_t len);
-
-/****************************************************************************
- * Name: crc8part
- *
- * Description:
- *   Continue CRC calculation on a part of the buffer using the polynomial
- *   x^8+x^2+x^1+1 (aka "0x07" poly).
- *
- ****************************************************************************/
-
-uint8_t crc8ccittpart(FAR const uint8_t *src, size_t len, uint8_t crc8val);
+uint64_t crc64(FAR const uint8_t *src, size_t len);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __INCLUDE_CRC8_H */
+#endif /* CONFIG_HAVE_LONG_LONG */
+#endif /* __INCLUDE_NUTTX_CRC64_H */

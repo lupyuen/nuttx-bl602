@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/nuttx/fs/rpmsgfs.h
+ * include/nuttx/crc32.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,15 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NUTTX_FS_HOSTFS_H
-#define __INCLUDE_NUTTX_FS_HOSTFS_H
+#ifndef __INCLUDE_NUTTX_CRC32_H
+#define __INCLUDE_NUTTX_CRC32_H
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <sys/types.h>
+#include <stdint.h>
 
 /****************************************************************************
  * Public Function Prototypes
@@ -33,13 +40,29 @@ extern "C"
 #define EXTERN extern
 #endif
 
-#ifdef CONFIG_FS_RPMSGFS
-int rpmsgfs_server_init(void);
-#endif
+/****************************************************************************
+ * Name: crc32part
+ *
+ * Description:
+ *   Continue CRC calculation on a part of the buffer.
+ *
+ ****************************************************************************/
+
+uint32_t crc32part(FAR const uint8_t *src, size_t len, uint32_t crc32val);
+
+/****************************************************************************
+ * Name: crc32
+ *
+ * Description:
+ *   Return a 32-bit CRC of the contents of the 'src' buffer, length 'len'
+ *
+ ****************************************************************************/
+
+uint32_t crc32(FAR const uint8_t *src, size_t len);
 
 #undef EXTERN
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
 #endif
 
-#endif /* __INCLUDE_NUTTX_FS_HOSTFS_H */
+#endif /* __INCLUDE_NUTTX_CRC32_H */

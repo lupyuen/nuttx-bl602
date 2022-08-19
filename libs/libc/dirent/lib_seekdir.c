@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/crc64.h
+ * libs/libc/dirent/lib_seekdir.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,77 +18,48 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CRC64_H
-#define __INCLUDE_CRC64_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/types.h>
-#include <stdint.h>
-
-#ifdef CONFIG_HAVE_LONG_LONG
+#include <dirent.h>
+#include <errno.h>
+#include <unistd.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Private Functions
  ****************************************************************************/
-
-/* CRC64_CHECK is the CRC64 of the string "123456789" without the null byte.
- *
- *   const uint8_t checkbuf[] =
- *   {
- *     '1', '2', '3', '4', '5', '6', '7', '8', '9'
- *   };
- *
- *   assert(crc64(checkbuf, sizeof(checkbuf)) == CRC64_CHECK);
- */
-
-/* CRC-64/WE */
-
-#define CRC64_POLY   ((uint64_t)0x42f0e1eba9ea3693ull)
-#define CRC64_INIT   ((uint64_t)0xffffffffffffffffull)
-#define CRC64_XOROUT ((uint64_t)0xffffffffffffffffull)
-#define CRC64_CHECK  ((uint64_t)0x62ec59e3f1a4f00aull)
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C"
+/****************************************************************************
+ * Name: seekdir
+ *
+ * Description:
+ *   The seekdir() function sets the location in the directory stream from
+ *   which the next readdir() call will start.  seekdir() should be used with
+ *   an offset returned by telldir().
+ *
+ * Input Parameters:
+ *   dirp -- An instance of type DIR created by a previous
+ *     call to opendir();
+ *   offset -- offset to seek to
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void seekdir(FAR DIR *dirp, off_t offset)
 {
-#else
-#define EXTERN extern
-#endif
-
-/****************************************************************************
- * Name: crc64part
- *
- * Description:
- *   Continue CRC calculation on a part of the buffer.
- *
- ****************************************************************************/
-
-uint64_t crc64part(FAR const uint8_t *src, size_t len, uint64_t crc64val);
-
-/****************************************************************************
- * Name: crc64
- *
- * Description:
- *   Return a 64-bit CRC of the contents of the 'src' buffer, length 'len'.
- *
- ****************************************************************************/
-
-uint64_t crc64(FAR const uint8_t *src, size_t len);
-
-#undef EXTERN
-#ifdef __cplusplus
+  if (dirp != NULL)
+    {
+      lseek(dirp->fd, offset, SEEK_SET);
+    }
+  else
+    {
+      set_errno(EBADF);
+    }
 }
-#endif
-
-#endif /* CONFIG_HAVE_LONG_LONG */
-#endif /* __INCLUDE_CRC64_H */

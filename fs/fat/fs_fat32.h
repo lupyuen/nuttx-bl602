@@ -33,7 +33,6 @@
 #include <time.h>
 
 #include <nuttx/kmalloc.h>
-#include <nuttx/fs/dirent.h>
 #include <nuttx/semaphore.h>
 
 /****************************************************************************
@@ -953,6 +952,20 @@ typedef uint8_t lfnchar;
 #  endif
 #endif
 
+struct fs_fatdir_s
+{
+  off_t        fd_startcluster;    /* Start cluster number of the directory */
+  off_t        fd_currcluster;     /* Current cluster number being read */
+  off_t        fd_currsector;      /* Current sector being read */
+  unsigned int fd_index;           /* Current index of the directory entry to read */
+};
+
+struct fat_dirent_s
+{
+  struct fs_dirent_s base;
+  struct fs_fatdir_s dir;
+};
+
 /* This structure is used internally for describing directory entries */
 
 struct fat_dirinfo_s
@@ -1054,8 +1067,9 @@ EXTERN int    fat_allocatedirentry(struct fat_mountpt_s *fs,
                                    struct fat_dirinfo_s *dirinfo);
 EXTERN int    fat_freedirentry(struct fat_mountpt_s *fs,
                                struct fat_dirseq_s *seq);
-EXTERN int    fat_dirname2path(struct fat_mountpt_s *fs,
-                               struct fs_dirent_s *dir);
+EXTERN int    fat_dirname2path(FAR struct fat_mountpt_s *fs,
+                               FAR struct fs_dirent_s *dir,
+                               FAR struct dirent *entry);
 
 /* File creation and removal helpers */
 
