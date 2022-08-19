@@ -30,7 +30,6 @@
 
 #include <nuttx/kmalloc.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/fs/rpmsgfs.h>
 #include <nuttx/rptun/openamp.h>
 #include <nuttx/semaphore.h>
 
@@ -177,7 +176,7 @@ static int rpmsgfs_ioctl_handler(FAR struct rpmsg_endpoint *ept,
 
   if (cookie->result >= 0 && rsp->arglen > 0)
     {
-      memcpy(cookie->data, (FAR void *)(uintptr_t)rsp->arg, rsp->arglen);
+      memcpy(cookie->data, (FAR void *)(uintptr_t)rsp->buf, rsp->arglen);
     }
 
   rpmsg_post(ept, &cookie->sem);

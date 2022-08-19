@@ -33,7 +33,6 @@
 
 #include <nuttx/kmalloc.h>
 #include <nuttx/fs/fs.h>
-#include <nuttx/fs/rpmsgfs.h>
 #include <nuttx/rptun/openamp.h>
 
 #include "rpmsgfs.h"
@@ -481,7 +480,7 @@ static int rpmsgfs_ioctl_handler(FAR struct rpmsg_endpoint *ept,
     }
 
   msg->header.result = ret;
-  return rpmsg_send(ept, msg, sizeof(*msg));
+  return rpmsg_send(ept, msg, len);
 }
 
 static int rpmsgfs_sync_handler(FAR struct rpmsg_endpoint *ept,

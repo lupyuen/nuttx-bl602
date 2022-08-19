@@ -29,10 +29,24 @@
 #include <nuttx/compiler.h>
 
 /****************************************************************************
- * Public Function Prototypes
+ * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_LIBC_ERR
+/* Append _func suffix to avoid the penitential symbol collision */
+
+#define warn   warn_func
+#define vwarn  vwarn_func
+#define warnx  warnx_func
+#define vwarnx vwarnx_func
+
+#define err    err_func
+#define verr   verr_func
+#define errx   errx_func
+#define verrx  verrx_func
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /* Print "pid: ", FORMAT, ": ", the standard error string for errno,
  * and a newline, on stderr.
@@ -53,5 +67,4 @@ void verr(int status, FAR const char *fmt, va_list ap) printflike(2, 0);
 void errx(int status, FAR const char *fmt, ...) printflike(2, 3);
 void verrx(int status, FAR const char *, va_list ap) printflike(2, 0);
 
-#endif /* CONFIG_LIBC_ERR */
 #endif /* __INCLUDE_ERR_H */
