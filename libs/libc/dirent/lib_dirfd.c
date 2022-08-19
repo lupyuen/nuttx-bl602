@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/err.h
+ * libs/libc/dirent/lib_dirfd.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,53 +18,48 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ERR_H
-#define __INCLUDE_ERR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdarg.h>
-#include <nuttx/compiler.h>
+#include <dirent.h>
+#include <errno.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Private Functions
  ****************************************************************************/
-
-/* Append _func suffix to avoid the penitential symbol collision */
-
-#define warn   warn_func
-#define vwarn  vwarn_func
-#define warnx  warnx_func
-#define vwarnx vwarnx_func
-
-#define err    err_func
-#define verr   verr_func
-#define errx   errx_func
-#define verrx  verrx_func
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-/* Print "pid: ", FORMAT, ": ", the standard error string for errno,
- * and a newline, on stderr.
- */
+/****************************************************************************
+ * Name: dirfd
+ *
+ * Description:
+ *   The dirfd() function returns the file descriptor associated
+ *   with the directory stream dirp.
+ *
+ * Input Parameters:
+ *   dirp -- An instance of type DIR created by a previous
+ *           call to opendir();
+ *
+ * Returned Value:
+ *   On success, a nonnegative file descriptor is returned.
+ *   On error, -1 is returned, and errno is set to indicate
+ *   the cause of the error.
+ *
+ *   EINVAL - dirp does not refer to a valid directory stream.
+ *
+ ****************************************************************************/
 
-void warn(FAR const char *fmt, ...) printflike(1, 2);
-void vwarn(FAR const char *fmt, va_list ap) printflike(1, 0);
+int dirfd(FAR DIR *dirp)
+{
+  if (dirp != NULL)
+    {
+      return dirp->fd;
+    }
 
-/* Likewise, but without ": " and the standard error string.  */
-
-void warnx(FAR const char *fmt, ...) printflike(1, 2);
-void vwarnx(FAR const char *fmt, va_list ap) printflike(1, 0);
-
-/* Likewise, and then exit with STATUS.  */
-
-void err(int status, FAR const char *fmt, ...) printflike(2, 3);
-void verr(int status, FAR const char *fmt, va_list ap) printflike(2, 0);
-void errx(int status, FAR const char *fmt, ...) printflike(2, 3);
-void verrx(int status, FAR const char *, va_list ap) printflike(2, 0);
-
-#endif /* __INCLUDE_ERR_H */
+  set_errno(EINVAL);
+  return -1;
+}

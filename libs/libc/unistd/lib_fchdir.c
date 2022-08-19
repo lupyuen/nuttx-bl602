@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/nuttx/sensors/fakesensor.h
+ * libs/libc/unistd/lib_fchdir.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,52 +18,62 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NUTTX_SENSORS_FAKESENSOR_H
-#define __INCLUDE_NUTTX_SENSORS_FAKESENSOR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
+#include <fcntl.h>
+#include <limits.h>
+#include <unistd.h>
+
+#ifndef CONFIG_DISABLE_ENVIRON
+
 /****************************************************************************
- * Public Function Prototypes
+ * Private Functions
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
- * Name: fakesensor_init
+ * Name: fchdir
  *
  * Description:
- *   This function generates a sensor node under /dev/uorb/. And then
- *   report the data from csv file.
+ *   The fchdir() function changes the current workint directory of the
+ *   calling process to the directory specified in fd.
+ *
+ *   The fchdir() function is identical to chdir(); the only difference is
+ *   that the directory is given as an open file diescriptor.
  *
  * Input Parameters:
- *   type        - The type of sensor and defined in <nuttx/sensors/sensor.h>
- *   file_name   - The name of csv name and the file structure is as follows:
- *                    First row : set interval, unit millisecond
- *                    Second row: csv file header
- *                    third row : data
- *                    (Each line should not exceed 50 characters)
- *                    For example:
- *                    interval:12
- *                    x,y,z
- *                    2.1234,3.23443,2.23456
- *                    ...
- *   devno       - The user specifies which device of this type, from 0.
- *   batch_number- The maximum number of batch
+ *   fd - The file descriptor is the one used internally by the directory
+ *        stream.
+ *
+ * Returned Value:
+ *   0(OK) on success; -1(ERROR) on failure with errno set appropriately:
+ *
+ *   EACCES
+ *     Search permission was denied on the directory open on fd.
+ *   EBADF
+ *     fd is not a valid file descriptor.
+ *
  ****************************************************************************/
 
-int fakesensor_init(int type, FAR const char *file_name,
-                    int devno, uint32_t batch_number);
+int fchdir(int fd)
+{
+  char path[PATH_MAX];
+  int ret;
 
-#ifdef __cplusplus
+  ret = fcntl(fd, F_GETPATH, path);
+  if (ret < 0)
+    {
+      return ret;
+    }
+
+  return chdir(path);
 }
-#endif
 
-#endif
+#endif /* !CONFIG_DISABLE_ENVIRON */
