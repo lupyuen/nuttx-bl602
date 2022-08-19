@@ -40,7 +40,6 @@
 #include <nuttx/kmalloc.h>
 #include <nuttx/fs/fs.h>
 #include <nuttx/fs/procfs.h>
-#include <nuttx/fs/dirent.h>
 #include <nuttx/net/netdev.h>
 
 #include "netdev/netdev.h"
@@ -91,9 +90,10 @@ static int     netprocfs_dup(FAR const struct file *oldp,
                  FAR struct file *newp);
 
 static int     netprocfs_opendir(FAR const char *relpath,
-                 FAR struct fs_dirent_s *dir);
+                 FAR struct fs_dirent_s **dir);
 static int     netprocfs_closedir(FAR struct fs_dirent_s *dir);
-static int     netprocfs_readdir(FAR struct fs_dirent_s *dir);
+static int     netprocfs_readdir(FAR struct fs_dirent_s *dir,
+                                 FAR struct dirent *entry);
 static int     netprocfs_rewinddir(FAR struct fs_dirent_s *dir);
 
 static int     netprocfs_stat(FAR const char *relpath, FAR struct stat *buf);
@@ -379,14 +379,14 @@ static int netprocfs_dup(FAR const struct file *oldp, FAR struct file *newp)
  ****************************************************************************/
 
 static int netprocfs_opendir(FAR const char *relpath,
-                             FAR struct fs_dirent_s *dir)
+                             FAR struct fs_dirent_s **dir)
 {
   FAR struct netprocfs_level1_s *level1;
   int ndevs;
   int ret;
 
   finfo("relpath: \"%s\"\n", relpath ? relpath : "NULL");
-  DEBUGASSERT(relpath && dir && !dir->u.procfs);
+  DEBUGASSERT(relpath && dir);
 
   /* "net" and "net/route" are the only values of relpath that are
    * directories.
@@ -448,7 +448,7 @@ static int netprocfs_opendir(FAR const char *relpath,
       goto errout_with_alloc;
     }
 
-  dir->u.procfs = (FAR void *)level1;
+  *dir = (FAR struct fs_dirent_s *)level1;
   return OK;
 
 errout_with_alloc:
@@ -465,17 +465,8 @@ errout_with_alloc:
 
 static int netprocfs_closedir(FAR struct fs_dirent_s *dir)
 {
-  FAR struct netprocfs_level1_s *priv;
-
-  DEBUGASSERT(dir && dir->u.procfs);
-  priv = dir->u.procfs;
-
-  if (priv)
-    {
-      kmm_free(priv);
-    }
-
-  dir->u.procfs = NULL;
+  DEBUGASSERT(dir);
+  kmm_free(dir);
   return OK;
 }
 
@@ -486,15 +477,16 @@ static int netprocfs_closedir(FAR struct fs_dirent_s *dir)
  *
  ****************************************************************************/
 
-static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
+static int netprocfs_readdir(FAR struct fs_dirent_s *dir,
+                             FAR struct dirent *entry)
 {
   FAR struct netprocfs_level1_s *level1;
   FAR struct net_driver_s *dev;
   int index;
   int ret;
 
-  DEBUGASSERT(dir && dir->u.procfs);
-  level1 = dir->u.procfs;
+  DEBUGASSERT(dir);
+  level1 = (FAR struct netprocfs_level1_s *)dir;
   DEBUGASSERT(level1->base.level > 0);
 
   /* Are we searching this directory?  Or is it just an intermediate on the
@@ -523,8 +515,8 @@ static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
         {
           /* Copy the network statistics directory entry */
 
-          dir->fd_dir.d_type = DTYPE_FILE;
-          strncpy(dir->fd_dir.d_name, "stat", NAME_MAX + 1);
+          entry->d_type = DTYPE_FILE;
+          strncpy(entry->d_name, "stat", NAME_MAX + 1);
         }
       else
 #ifdef CONFIG_NET_MLD
@@ -532,8 +524,8 @@ static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
         {
           /* Copy the MLD directory entry */
 
-          dir->fd_dir.d_type = DTYPE_FILE;
-          strncpy(dir->fd_dir.d_name, "mld", NAME_MAX + 1);
+          entry->d_type = DTYPE_FILE;
+          strncpy(entry->d_name, "mld", NAME_MAX + 1);
         }
       else
 #endif
@@ -543,8 +535,8 @@ static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
         {
           /* Copy the network statistics directory entry */
 
-          dir->fd_dir.d_type = DTYPE_DIRECTORY;
-          strncpy(dir->fd_dir.d_name, "route", NAME_MAX + 1);
+          entry->d_type = DTYPE_DIRECTORY;
+          strncpy(entry->d_name, "route", NAME_MAX + 1);
         }
       else
 #endif
@@ -591,8 +583,8 @@ static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
 
           /* Copy the device statistics file entry */
 
-          dir->fd_dir.d_type = DTYPE_FILE;
-          strncpy(dir->fd_dir.d_name, dev->d_ifname, NAME_MAX + 1);
+          entry->d_type = DTYPE_FILE;
+          strncpy(entry->d_name, dev->d_ifname, NAME_MAX + 1);
         }
 
       /* Set up the next directory entry offset.  NOTE that we could use the
@@ -611,7 +603,7 @@ static int netprocfs_readdir(FAR struct fs_dirent_s *dir)
       DEBUGASSERT(level1->base.procfsentry != NULL &&
                   level1->base.procfsentry->ops->readdir != NULL);
 
-      ret = level1->base.procfsentry->ops->readdir(dir);
+      ret = level1->base.procfsentry->ops->readdir(dir, entry);
     }
 
   return ret;
@@ -628,8 +620,8 @@ static int netprocfs_rewinddir(FAR struct fs_dirent_s *dir)
 {
   FAR struct netprocfs_level1_s *priv;
 
-  DEBUGASSERT(dir && dir->u.procfs);
-  priv = dir->u.procfs;
+  DEBUGASSERT(dir);
+  priv = (FAR struct netprocfs_level1_s *)dir;
 
   priv->base.index = 0;
   return OK;

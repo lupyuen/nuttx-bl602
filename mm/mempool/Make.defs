@@ -1,5 +1,5 @@
 ############################################################################
-# fs/dirent/Make.defs
+# mm/mempool/Make.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -18,9 +18,24 @@
 #
 ############################################################################
 
-CSRCS += fs_closedir.c fs_opendir.c fs_readdir.c fs_rewinddir.c fs_seekdir.c
+# Memory buffer pool management
 
-# Include dirent build support
+ifeq ($(CONFIG_MM_MEMPOOL),y)
 
-DEPPATH += --dep-path dirent
-VPATH += :dirent
+CSRCS += mempool.c
+
+ifeq ($(CONFIG_FS_PROCFS),y)
+
+ifneq ($(CONFIG_FS_PROCFS_EXCLUDE_MEMPOOL),y)
+
+CSRCS += mempool_procfs.c
+
+endif
+
+endif
+
+# Add the memory buffer pool directory to the build
+
+DEPPATH += --dep-path mempool
+VPATH += :mempool
+endif
