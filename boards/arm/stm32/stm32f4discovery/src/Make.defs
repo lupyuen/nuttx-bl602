@@ -123,6 +123,10 @@ CSRCS += stm32_ssd1289.c
 endif
 endif
 
+ifeq ($(CONFIG_LCD_APA102),y)
+CSRCS += stm32_apa102.c
+endif
+
 ifeq ($(CONFIG_LCD_SSD1351),y)
 CSRCS += stm32_ssd1351.c
 endif
@@ -173,6 +177,10 @@ endif
 
 ifeq ($(CONFIG_LCD_ST7789),y)
 CSRCS += stm32_st7789.c
+endif
+
+ifeq ($(CONFIG_INPUT_DJOYSTICK),y)
+  CSRCS += stm32_djoystick.c
 endif
 
 DEPPATH += --dep-path board

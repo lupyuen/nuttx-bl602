@@ -136,7 +136,7 @@ jobs:
         kconfig-tweak --enable  CONFIG_TESTING_SENSORTEST
         kconfig-tweak --set-str CONFIG_TESTING_SENSORTEST_PROGNAME  "sensortest"
         kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_PRIORITY  100
-        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_STACKSIZE 2048
+        kconfig-tweak --set-val CONFIG_TESTING_SENSORTEST_STACKSIZE 4096
 
         ## Preserve the build config
         cp .config nuttx.config
