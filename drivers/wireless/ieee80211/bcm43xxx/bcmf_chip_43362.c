@@ -25,7 +25,7 @@
 #include <nuttx/config.h>
 #include <stdint.h>
 
-#include "bcmf_sdio.h"
+#include "bcmf_interface.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -45,7 +45,7 @@ extern const uint8_t bcm43362_firmware_image[];
 extern const unsigned int bcm43362_firmware_image_len;
 #endif
 
-const struct bcmf_sdio_chip bcmf_43362_config_sdio =
+const struct bcmf_chip_data bcmf_43362_config_data =
 {
   /* General chip stats */
 
