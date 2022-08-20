@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/err.h
+ * libs/libc/dirent/lib_rewinddir.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,53 +18,46 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_ERR_H
-#define __INCLUDE_ERR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdarg.h>
-#include <nuttx/compiler.h>
+#include <dirent.h>
+#include <errno.h>
+#include <unistd.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Private Functions
  ****************************************************************************/
-
-/* Append _func suffix to avoid the penitential symbol collision */
-
-#define warn   warn_func
-#define vwarn  vwarn_func
-#define warnx  warnx_func
-#define vwarnx vwarnx_func
-
-#define err    err_func
-#define verr   verr_func
-#define errx   errx_func
-#define verrx  verrx_func
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-/* Print "pid: ", FORMAT, ": ", the standard error string for errno,
- * and a newline, on stderr.
- */
+/****************************************************************************
+ * Name: rewinddir
+ *
+ * Description:
+ *   The  rewinddir() function resets the position of the
+ *   directory stream dir to the beginning of the directory.
+ *
+ * Input Parameters:
+ *   dirp -- An instance of type DIR created by a previous
+ *     call to opendir();
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
 
-void warn(FAR const char *fmt, ...) printflike(1, 2);
-void vwarn(FAR const char *fmt, va_list ap) printflike(1, 0);
-
-/* Likewise, but without ": " and the standard error string.  */
-
-void warnx(FAR const char *fmt, ...) printflike(1, 2);
-void vwarnx(FAR const char *fmt, va_list ap) printflike(1, 0);
-
-/* Likewise, and then exit with STATUS.  */
-
-void err(int status, FAR const char *fmt, ...) printflike(2, 3);
-void verr(int status, FAR const char *fmt, va_list ap) printflike(2, 0);
-void errx(int status, FAR const char *fmt, ...) printflike(2, 3);
-void verrx(int status, FAR const char *, va_list ap) printflike(2, 0);
-
-#endif /* __INCLUDE_ERR_H */
+void rewinddir(FAR DIR *dirp)
+{
+  if (dirp != NULL)
+    {
+      lseek(dirp->fd, 0, SEEK_SET);
+    }
+  else
+    {
+      set_errno(EBADF);
+    }
+}

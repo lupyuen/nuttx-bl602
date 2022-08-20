@@ -22,14 +22,9 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/types.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <errno.h>
-
-#include <nuttx/fs/fs.h>
-#include <nuttx/fs/dirent.h>
 
 /****************************************************************************
  * Private Functions
@@ -61,15 +56,11 @@
 
 off_t telldir(FAR DIR *dirp)
 {
-  struct fs_dirent_s *idir = (struct fs_dirent_s *)dirp;
-
-  if (!idir || !idir->fd_root)
+  if (dirp != NULL)
     {
-      set_errno(EBADF);
-      return (off_t)-1;
+      return lseek(dirp->fd, 0, SEEK_CUR);
     }
 
-  /* Just return the current position */
-
-  return idir->fd_position;
+  set_errno(EBADF);
+  return -1;
 }
