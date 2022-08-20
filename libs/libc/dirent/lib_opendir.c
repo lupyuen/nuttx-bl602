@@ -1,5 +1,5 @@
 /****************************************************************************
- * include/nuttx/sensors/fakesensor.h
+ * libs/libc/dirent/lib_opendir.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,52 +18,70 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_NUTTX_SENSORS_FAKESENSOR_H
-#define __INCLUDE_NUTTX_SENSORS_FAKESENSOR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+
+#include "libc.h"
 
 /****************************************************************************
- * Public Function Prototypes
+ * Private Functions
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 /****************************************************************************
- * Name: fakesensor_init
+ * Name: opendir
  *
  * Description:
- *   This function generates a sensor node under /dev/uorb/. And then
- *   report the data from csv file.
+ *   The  opendir() function opens a directory stream corresponding to the
+ *   directory name, and returns a pointer to the directory stream. The
+ *   stream is positioned at the first entry in the directory.
  *
  * Input Parameters:
- *   type        - The type of sensor and defined in <nuttx/sensors/sensor.h>
- *   file_name   - The name of csv name and the file structure is as follows:
- *                    First row : set interval, unit millisecond
- *                    Second row: csv file header
- *                    third row : data
- *                    (Each line should not exceed 50 characters)
- *                    For example:
- *                    interval:12
- *                    x,y,z
- *                    2.1234,3.23443,2.23456
- *                    ...
- *   devno       - The user specifies which device of this type, from 0.
- *   batch_number- The maximum number of batch
+ *   path -- the directory to open
+ *
+ * Returned Value:
+ *   The opendir() function returns a pointer to the directory stream.  On
+ *   error, NULL is returned, and errno is set appropriately.
+ *
+ *   EACCES  - Permission denied.
+ *   EMFILE  - Too many file descriptors in use by process.
+ *   ENFILE  - Too many files are currently open in the
+ *             system.
+ *   ENOENT  - Directory does not exist, or name is an empty
+ *             string.
+ *   ENOMEM  - Insufficient memory to complete the operation.
+ *   ENOTDIR - 'path' is not a directory.
+ *
  ****************************************************************************/
 
-int fakesensor_init(int type, FAR const char *file_name,
-                    int devno, uint32_t batch_number);
+FAR DIR *opendir(FAR const char *path)
+{
+  FAR DIR *dir;
+  int fd;
 
-#ifdef __cplusplus
+  dir = lib_malloc(sizeof(*dir));
+  if (dir == NULL)
+    {
+      set_errno(ENOMEM);
+      return NULL;
+    }
+
+  fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+  if (fd < 0)
+    {
+      lib_free(dir);
+      return NULL;
+    }
+
+  dir->fd = fd;
+  return dir;
 }
-#endif
-
-#endif
