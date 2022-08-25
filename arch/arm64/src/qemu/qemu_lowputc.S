@@ -39,11 +39,9 @@
 
  /* 32-bit register definition for qemu pl011 uart */
 
- #////TODO: #define UART1_BASE_ADDRESS 0x9000000
- #////TODO: Allwinner A64 UART0:
+ /* PinePhone Allwinner A64 UART0 Base Address: */
  #define UART1_BASE_ADDRESS 0x01C28000
- #////TODO: Allwinner A64 UART1:
- #////define UART1_BASE_ADDRESS 0x01C28400
+ /* Previously: #define UART1_BASE_ADDRESS 0x9000000 */
  #define EARLY_UART_PL011_BAUD_RATE  115200
 
 /****************************************************************************
@@ -61,7 +59,7 @@
 
 GTEXT(up_earlyserialinit)
 SECTION_FUNC(text, up_earlyserialinit)
-    # ////TODO
+    # TODO: Set PinePhone Allwinner A64 Baud Rate Divisor: UART_LCR (DLAB), UART_DLL, UART_DLH
     # ldr   x15, =UART1_BASE_ADDRESS
     # mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE % 16)
     # strh  w0, [x15, #0x28]      /* -> UARTFBRD (Baud divisor fraction) */
@@ -80,7 +78,7 @@ SECTION_FUNC(text, up_earlyserialinit)
 
 .macro early_uart_ready xb, wt
 1:
-    # ////TODO
+    # TODO: Wait for PinePhone Allwinner A64 UART
     # ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
     # tst   \wt, #0x8              /* Check BUSY bit */
     # b.ne  1b                     /* Wait for the UART to be ready */

@@ -104,7 +104,8 @@ __start:
 
     add     x13, x18, #0x16      /* the magic "MZ" signature */
     b       real_start           /* branch to kernel start */
-    .quad   0x480000              /* Image load offset from start of RAM */
+    .quad   0x0000               /* PinePhone Image load offset from start of RAM */
+    # Previously: .quad   0x480000              /* Image load offset from start of RAM */
     .quad   _e_initstack - __start         /* Effective size of kernel image, little-endian */
     .quad   __HEAD_FLAGS         /* Informative flags, little-endian */
     .quad   0                    /* reserved */

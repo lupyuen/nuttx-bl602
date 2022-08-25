@@ -29,7 +29,8 @@ PHDRS
 
 SECTIONS
 {
-  . = 0x40280000;  /* uboot load address */
+  . = 0x40080000;  /* PinePhone uboot load address (kernel_addr_r) */
+  /* Previously: . = 0x40280000; */  /* uboot load address */
   _start = .;
   .text : {
         _stext = .;            /* Text section */
