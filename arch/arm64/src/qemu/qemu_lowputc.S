@@ -39,7 +39,9 @@
 
  /* 32-bit register definition for qemu pl011 uart */
 
- #define UART1_BASE_ADDRESS 0x9000000
+ #////TODO: #define UART1_BASE_ADDRESS 0x9000000
+ #////TODO: A64 UART:
+ #define UART1_BASE_ADDRESS 0x01C28000
  #define EARLY_UART_PL011_BAUD_RATE  115200
 
 /****************************************************************************
@@ -57,15 +59,16 @@
 
 GTEXT(up_earlyserialinit)
 SECTION_FUNC(text, up_earlyserialinit)
-    ldr   x15, =UART1_BASE_ADDRESS
-    mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE % 16)
-    strh  w0, [x15, #0x28]      /* -> UARTFBRD (Baud divisor fraction) */
-    mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE / 16)
-    strh  w0, [x15, #0x24]      /* -> UARTIBRD (Baud divisor integer) */
-    mov   x0, #0x60             /* 8n1 */
-    str   w0, [x15, #0x2C]      /* -> UARTLCR_H (Line control) */
-    ldr   x0, =0x00000301       /* RXE | TXE | UARTEN */
-    str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
+    # ////TODO
+    # ldr   x15, =UART1_BASE_ADDRESS
+    # mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE % 16)
+    # strh  w0, [x15, #0x28]      /* -> UARTFBRD (Baud divisor fraction) */
+    # mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE / 16)
+    # strh  w0, [x15, #0x24]      /* -> UARTIBRD (Baud divisor integer) */
+    # mov   x0, #0x60             /* 8n1 */
+    # str   w0, [x15, #0x2C]      /* -> UARTLCR_H (Line control) */
+    # ldr   x0, =0x00000301       /* RXE | TXE | UARTEN */
+    # str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
     ret
 
 /* PL011 UART wait UART to be ready to transmit
@@ -75,9 +78,10 @@ SECTION_FUNC(text, up_earlyserialinit)
 
 .macro early_uart_ready xb, wt
 1:
-    ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
-    tst   \wt, #0x8              /* Check BUSY bit */
-    b.ne  1b                     /* Wait for the UART to be ready */
+    # ////TODO
+    # ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
+    # tst   \wt, #0x8              /* Check BUSY bit */
+    # b.ne  1b                     /* Wait for the UART to be ready */
 .endm
 
 /* PL011 UART transmit character
