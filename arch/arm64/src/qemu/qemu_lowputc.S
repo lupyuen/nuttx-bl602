@@ -40,8 +40,10 @@
  /* 32-bit register definition for qemu pl011 uart */
 
  #////TODO: #define UART1_BASE_ADDRESS 0x9000000
- #////TODO: A64 UART:
+ #////TODO: Allwinner A64 UART0:
  #define UART1_BASE_ADDRESS 0x01C28000
+ #////TODO: Allwinner A64 UART1:
+ #////define UART1_BASE_ADDRESS 0x01C28400
  #define EARLY_UART_PL011_BAUD_RATE  115200
 
 /****************************************************************************
