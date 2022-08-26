@@ -175,6 +175,9 @@ primary_core:
     bl    up_earlyserialinit
 #endif
 
+hello:
+    PRINT(hello, "HELLO NUTTX ON PINEPHONE!\r\n")
+
 cpu_boot:
     PRINT(cpu_boot, "- Ready to Boot CPU\r\n")
 
