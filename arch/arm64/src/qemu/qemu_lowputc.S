@@ -71,14 +71,18 @@ SECTION_FUNC(text, up_earlyserialinit)
     # str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
     ret
 
-/* PL011 UART wait UART to be ready to transmit
+/* PinePhone Allwinner A64: Wait UART to be ready to transmit
  * xb: register which contains the UART base address
- * c: scratch register number
+ * wt: scratch register number
  */
 
 .macro early_uart_ready xb, wt
 1:
-    # TODO: Wait for PinePhone Allwinner A64 UART
+    ldrh  \wt, [\xb, #0x14]      /* <- UART_LSR (UART Line Status Register) */
+    tst   \wt, #0x20             /* Check THRE bit (TX Holding Register Empty) */
+    b.eq  1b                     /* Wait for the UART to be ready (THRE=1) */
+
+    # Previously:
     # ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
     # tst   \wt, #0x8              /* Check BUSY bit */
     # b.ne  1b                     /* Wait for the UART to be ready */
