@@ -71,7 +71,7 @@ SECTION_FUNC(text, up_earlyserialinit)
     # str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
     ret
 
-/* PinePhone Allwinner A64: Wait UART to be ready to transmit
+/* PinePhone Allwinner A64: Wait for UART to be ready to transmit
  * xb: register which contains the UART base address
  * wt: scratch register number
  */
