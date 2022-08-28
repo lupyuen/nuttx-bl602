@@ -61,8 +61,9 @@
 
 struct usrsockdev_s
 {
-  sem_t   devsem;     /* Lock for device node */
-  uint8_t ocount;     /* The number of times the device has been opened */
+  sem_t    devsem; /* Lock for device node */
+  uint8_t  ocount; /* The number of times the device has been opened */
+  uint32_t newxid; /* New transcation Id */
 
   struct
   {
@@ -710,7 +711,7 @@ static ssize_t usrsockdev_handle_req_response(FAR struct usrsockdev_s *dev,
       break;
 
     default:
-      nwarn("unknown message type: %d, flags: %d, xid: %" PRIu64 ", "
+      nwarn("unknown message type: %d, flags: %d, xid: %" PRIu32 ", "
             "result: %" PRId32 "\n",
             hdr->head.msgid, hdr->head.flags, hdr->xid, hdr->result);
       return -EINVAL;
@@ -734,7 +735,7 @@ static ssize_t usrsockdev_handle_req_response(FAR struct usrsockdev_s *dev,
       /* No connection waiting for this message. */
 
       nwarn("Could find connection waiting for response"
-            "with xid=%" PRIu64 "\n", hdr->xid);
+            "with xid=%" PRIu32 "\n", hdr->xid);
 
       ret = -EINVAL;
       goto unlock_out;
@@ -1134,16 +1135,8 @@ errout:
 int usrsockdev_do_request(FAR struct usrsock_conn_s *conn,
                           FAR struct iovec *iov, unsigned int iovcnt)
 {
-  FAR struct usrsockdev_s *dev = conn->dev;
+  FAR struct usrsockdev_s *dev = &g_usrsockdev;
   FAR struct usrsock_request_common_s *req_head = iov[0].iov_base;
-
-  if (!dev)
-    {
-      /* Setup conn for new usrsock device. */
-
-      dev = &g_usrsockdev;
-      conn->dev = dev;
-    }
 
   if (!usrsockdev_is_opened(dev))
     {
@@ -1154,7 +1147,12 @@ int usrsockdev_do_request(FAR struct usrsock_conn_s *conn,
 
   /* Get exchange id. */
 
-  req_head->xid = (uintptr_t)conn;
+  if (++dev->newxid == 0)
+    {
+      ++dev->newxid;
+    }
+
+  req_head->xid = dev->newxid;
 
   /* Prepare connection for response. */
 
