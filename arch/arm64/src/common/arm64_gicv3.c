@@ -503,7 +503,7 @@ static int gic_validate_dist_version(void)
     }
   else
     {
-      sinfo("No GIC version detect\n");
+      sinfo("No GIC version detect: reg=%p\n", reg);
       return -ENODEV;
     }
 
