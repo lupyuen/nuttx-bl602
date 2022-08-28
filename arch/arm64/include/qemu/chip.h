@@ -35,16 +35,25 @@
 
 #if defined(CONFIG_ARCH_CHIP_QEMU_A53)
 
+// TODO: PinePhone Interrupt Registers
 #define CONFIG_GICD_BASE          0x8000000
 #define CONFIG_GICR_BASE          0x80a0000
 
+// PinePhone RAM: 0x4000 0000 to 0x4800 0000
 #define CONFIG_RAMBANK1_ADDR      0x40000000
 #define CONFIG_RAMBANK1_SIZE      MB(128)
 
-#define CONFIG_DEVICEIO_BASEADDR  0x7000000
+// PinePhone Device I/O: 0x0 to 0x2000 0000
+#define CONFIG_DEVICEIO_BASEADDR  0x00000000
 #define CONFIG_DEVICEIO_SIZE      MB(512)
 
-#define CONFIG_LOAD_BASE          0x40280000
+// Previously:
+// #define CONFIG_DEVICEIO_BASEADDR  0x7000000
+// #define CONFIG_DEVICEIO_SIZE      MB(512)
+
+// PinePhone uboot load address (kernel_addr_r)
+#define CONFIG_LOAD_BASE          0x40080000
+// Previously: #define CONFIG_LOAD_BASE          0x40280000
 
 #endif
 
