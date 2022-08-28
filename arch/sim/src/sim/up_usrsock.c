@@ -91,7 +91,7 @@ static int usrsock_send(struct usrsock_s *usrsock,
 }
 
 static int usrsock_send_ack(struct usrsock_s *usrsock,
-                            uint64_t xid, int32_t result)
+                            uint32_t xid, int32_t result)
 {
   struct usrsock_message_req_ack_s ack;
 
@@ -106,7 +106,7 @@ static int usrsock_send_ack(struct usrsock_s *usrsock,
 
 static int usrsock_send_dack(struct usrsock_s *usrsock,
                              struct usrsock_message_datareq_ack_s *ack,
-                             uint64_t xid, int32_t result,
+                             uint32_t xid, int32_t result,
                              uint16_t valuelen,
                              uint16_t valuelen_nontrunc)
 {
@@ -399,7 +399,6 @@ static const usrsock_handler_t g_usrsock_handler[] =
  * Public Functions
  ****************************************************************************/
 
-__attribute__ ((visibility("default")))
 int usrsock_event_callback(int16_t usockid, uint16_t events)
 {
   return usrsock_send_event(&g_usrsock, usockid, events);

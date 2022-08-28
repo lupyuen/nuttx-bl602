@@ -68,6 +68,10 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifndef ALIGN_UP
+#  define ALIGN_UP(num, align) (((num) + ((align) - 1)) & ~((align) - 1))
+#endif
+
 /* IRQ Stack Frame Format.  Each value is a uint32_t register index */
 
 #define REG_PC              (0)  /* Return PC */
@@ -138,19 +142,18 @@
 #endif
 
 #if XCHAL_CP_NUM > 0
-#  if (XCHAL_TOTAL_SA_ALIGN == 8) && ((_REG_CP_START & 1) == 1)
-  /* Fpu first address must align to cp align size. */
+  /* FPU first address must align to CP align size. */
 
-#    define REG_CP_DUMMY      (_REG_CP_START + 0)
-#    define XCPTCONTEXT_REGS  (_REG_CP_START + 1)
-#  else
-#    define XCPTCONTEXT_REGS  _REG_CP_START
-#  endif
-#  define XCPTCONTEXT_SIZE    ((4 * XCPTCONTEXT_REGS) + XTENSA_CP_SA_SIZE + 0x20)
+#  define COMMON_CTX_REGS   ALIGN_UP(_REG_CP_START, XCHAL_TOTAL_SA_ALIGN / 4)
+#  define COPROC_CTX_REGS   (XTENSA_CP_SA_SIZE / 4)
+#  define RESERVE_REGS      8
+#  define XCPTCONTEXT_REGS  (COMMON_CTX_REGS + COPROC_CTX_REGS + RESERVE_REGS)
 #else
-#  define XCPTCONTEXT_REGS    _REG_CP_START
-#  define XCPTCONTEXT_SIZE    ((4 * XCPTCONTEXT_REGS) + 0x20)
+#  define RESERVE_REGS      8
+#  define XCPTCONTEXT_REGS  (_REG_CP_START + RESERVE_REGS)
 #endif
+
+#define XCPTCONTEXT_SIZE    (4 * XCPTCONTEXT_REGS)
 
 /****************************************************************************
  * Public Types
