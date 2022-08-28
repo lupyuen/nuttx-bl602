@@ -90,7 +90,6 @@ static void icmpv6_router_terminate(FAR struct icmpv6_router_s *state,
  ****************************************************************************/
 
 static uint16_t icmpv6_router_eventhandler(FAR struct net_driver_s *dev,
-                                           FAR void *pvconn,
                                            FAR void *priv, uint16_t flags)
 {
   FAR struct icmpv6_router_s *state = (FAR struct icmpv6_router_s *)priv;
@@ -190,7 +189,7 @@ static int icmpv6_send_message(FAR struct net_driver_s *dev, bool advertise)
 
   /* Remember the routing device name */
 
-  strncpy((FAR char *)state.snd_ifname, (FAR const char *)dev->d_ifname,
+  strlcpy((FAR char *)state.snd_ifname, (FAR const char *)dev->d_ifname,
           IFNAMSIZ);
 
   /* Allocate resources to receive a callback.  This and the following

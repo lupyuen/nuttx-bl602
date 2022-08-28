@@ -301,6 +301,10 @@ struct tcp_conn_s
   FAR struct devif_callback_s *connevents;
   FAR struct devif_callback_s *connevents_tail;
 
+  /* Reference to TCP close callback instance */
+
+  FAR struct devif_callback_s *clscb;
+
 #if defined(CONFIG_NET_TCP_WRITE_BUFFERS)
   /* Callback instance for TCP send() */
 
@@ -1718,7 +1722,6 @@ int tcp_wrbuffer_test(void);
 
 #ifdef CONFIG_DEBUG_FEATURES
 void tcp_event_handler_dump(FAR struct net_driver_s *dev,
-                            FAR void *pvconn,
                             FAR void *pvpriv,
                             uint16_t flags,
                             FAR struct tcp_conn_s *conn);
