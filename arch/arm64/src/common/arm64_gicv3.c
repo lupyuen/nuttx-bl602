@@ -90,6 +90,7 @@ static inline uint32_t read_gicd_wait_rwp(void)
  * TODO: add timed wait
  */
 
+#ifdef NOTUSED
 static int gic_wait_rwp(uint32_t intid)
 {
   uint32_t      rwp_mask;
@@ -112,7 +113,10 @@ static int gic_wait_rwp(uint32_t intid)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
                                 uint32_t flags)
 {
@@ -148,7 +152,16 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
       putreg32(val, ICFGR(base, idx));
     }
 }
+#else
+// TODO: Set IRQ Priority for PinePhone
+void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
+                                uint32_t flags)
+{
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_enable(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -167,7 +180,15 @@ void arm64_gic_irq_enable(unsigned int intid)
                IROUTER(GET_DIST_BASE(intid), intid));
     }
 }
+#else
+// TODO: Enable IRQ for PinePhone
+void arm64_gic_irq_enable(unsigned int intid)
+{
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_disable(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -179,7 +200,15 @@ void arm64_gic_irq_disable(unsigned int intid)
 
   gic_wait_rwp(intid);
 }
+#else
+// TODO: Disable IRQ for PinePhone
+void arm64_gic_irq_disable(unsigned int intid)
+{
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 bool arm64_gic_irq_is_enabled(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -190,7 +219,16 @@ bool arm64_gic_irq_is_enabled(unsigned int intid)
 
   return (val & mask) != 0;
 }
+#else
+// TODO: Check IRQ for PinePhone
+bool arm64_gic_irq_is_enabled(unsigned int intid)
+{
+  return true;
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 unsigned int arm64_gic_get_active(void)
 {
   int intid;
@@ -201,7 +239,16 @@ unsigned int arm64_gic_get_active(void)
 
   return intid;
 }
+#else
+// TODO: Get active IRQ for PinePhone
+unsigned int arm64_gic_get_active(void)
+{
+  return 0;
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_eoi(unsigned int intid)
 {
   /* Interrupt request deassertion from peripheral to GIC happens
@@ -221,7 +268,15 @@ void arm64_gic_eoi(unsigned int intid)
 
   write_sysreg(intid, ICC_EOIR1_EL1);
 }
+#else
+// TODO: EOI for PinePhone
+void arm64_gic_eoi(unsigned int intid)
+{
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
                         uint16_t target_list)
 {
@@ -247,6 +302,14 @@ int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
 
   return 0;
 }
+#else
+// TODO: Raise SGI for PinePhone
+int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
+                        uint16_t target_list)
+{
+  return 0;
+}
+#endif
 
 /* Wake up GIC redistributor.
  * clear ProcessorSleep and wait till ChildAsleep is cleared.
@@ -254,6 +317,7 @@ int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
  * Check if redistributor is not powered already.
  */
 
+#ifdef NOTUSED
 static void gicv3_rdist_enable(unsigned long rdist)
 {
   uint32_t temp;
@@ -271,9 +335,11 @@ static void gicv3_rdist_enable(unsigned long rdist)
     {
     }
 }
+#endif  //  NOTUSED
 
 /* Initialize the cpu interface. This should be called by each core. */
 
+#ifdef NOTUSED
 static void gicv3_cpuif_init(void)
 {
   uint32_t      icc_sre;
@@ -338,7 +404,9 @@ static void gicv3_cpuif_init(void)
 
   write_sysreg(1, ICC_IGRPEN1_EL1);
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static void gicv3_dist_init(void)
 {
   unsigned int  num_ints;
@@ -433,16 +501,33 @@ static void gicv3_dist_init(void)
                  GICD_CTLR);
 #endif
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void up_enable_irq(int irq)
 {
   arm64_gic_irq_enable(irq);
 }
+#else
+// TODO: Enable IRQ for PinePhone
+void up_enable_irq(int irq)
+{
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void up_disable_irq(int irq)
 {
   arm64_gic_irq_disable(irq);
 }
+#else
+// TODO: Disable IRQ for PinePhone
+void up_disable_irq(int irq)
+{
+}
+#endif  //  NOTUSED
 
 /***************************************************************************
  * Name: arm64_decodeirq
@@ -458,6 +543,8 @@ void up_disable_irq(int irq)
  *   regs - A pointer to the register save area on the stack.
  ***************************************************************************/
 
+#ifdef NOTUSED
+#error NOTUSED
 uint64_t * arm64_decodeirq(uint64_t * regs)
 {
   int irq;
@@ -484,7 +571,15 @@ uint64_t * arm64_decodeirq(uint64_t * regs)
 
   return regs;
 }
+#else
+// TODO: Decode IRQ for PinePhone
+uint64_t * arm64_decodeirq(uint64_t * regs)
+{
+  DEBUGPANIC();
+}
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static int gic_validate_dist_version(void)
 {
   uint32_t  typer;
@@ -527,7 +622,9 @@ static int gic_validate_dist_version(void)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static int gic_validate_redist_version(void)
 {
   uint64_t      typer;
@@ -564,7 +661,9 @@ static int gic_validate_redist_version(void)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static void arm64_gic_init(void)
 {
   uint8_t   cpu;
@@ -585,7 +684,10 @@ static void arm64_gic_init(void)
 
   gicv3_cpuif_init();
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 int arm64_gic_initialize(void)
 {
   int err;
@@ -603,11 +705,27 @@ int arm64_gic_initialize(void)
 
   return 0;
 }
+#else
+// TODO: Init GIC for PinePhone
+int arm64_gic_initialize(void)
+{
+  sinfo("TODO: Init GIC for PinePhone\n");
+  return 0;
+}
+#endif  //  NOTUSED
 
 #ifdef CONFIG_SMP
+#ifdef NOTUSED
 void arm64_gic_secondary_init(void)
 {
   arm64_gic_init();
 }
+#else
+// TODO: Init GIC for PinePhone
+void arm64_gic_secondary_init(void)
+{
+  sinfo("TODO: Init GIC for PinePhone\n");
+}
+#endif  //  NOTUSED
 
 #endif
