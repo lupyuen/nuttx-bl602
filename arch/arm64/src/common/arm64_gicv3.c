@@ -170,6 +170,13 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
                                 uint32_t flags)
 {
   up_putc('A');//// For debugging
+
+  /* Disable the interrupt */
+
+  up_disable_irq(intid);
+
+  /* Set the interrupt priority */
+
   int ret = up_prioritize_irq(intid, prio);
   DEBUGASSERT(ret == OK);
 
