@@ -723,6 +723,8 @@ void arm_gic_initialize(void);
 int arm64_gic_initialize(void)
 {
   sinfo("TODO: Init GIC for PinePhone\n");
+  sinfo("CONFIG_GICD_BASE=%p\n", CONFIG_GICD_BASE);
+  sinfo("CONFIG_GICR_BASE=%p\n", CONFIG_GICR_BASE);
 
   // To verify the GIC Version, read the Peripheral ID2 Register (ICPIDR2) at Offset 0xFE8 of GIC Distributor.
   // Bits 4 to 7 of ICPIDR2 are...
