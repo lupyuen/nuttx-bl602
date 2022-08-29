@@ -40,6 +40,7 @@
  * Pre-processor Definitions
  ***************************************************************************/
 
+#ifdef NOTUSED
 #define GICR_TYPER_NR_PPIS(r)                   \
   ({                                            \
     unsigned int __ppinum = ((r) >> 27) & 0x1f; \
@@ -62,16 +63,20 @@
 /* Redistributor base addresses for each core */
 
 unsigned long gic_rdists[CONFIG_SMP_NCPUS];
+#endif  //  NOTUSED
 
 /***************************************************************************
  * Private Functions
  ***************************************************************************/
 
+#ifdef NOTUSED
 static inline unsigned long gic_get_rdist(void)
 {
   return gic_rdists[this_cpu()];
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static inline uint32_t read_gicd_wait_rwp(void)
 {
   uint32_t value;
@@ -85,6 +90,7 @@ static inline uint32_t read_gicd_wait_rwp(void)
 
   return value;
 }
+#endif  //  NOTUSED
 
 /* Wait for register write pending
  * TODO: add timed wait
