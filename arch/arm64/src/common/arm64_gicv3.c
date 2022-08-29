@@ -706,10 +706,22 @@ int arm64_gic_initialize(void)
   return 0;
 }
 #else
-// TODO: Init GIC for PinePhone
+// TODO: Init GIC for PinePhone. See https://github.com/lupyuen/pinephone-nuttx#interrupt-controller
 int arm64_gic_initialize(void)
 {
   sinfo("TODO: Init GIC for PinePhone\n");
+
+  // To verify the GIC Version, read the Peripheral ID2 Register (ICPIDR2) at Offset 0xFE8 of GIC Distributor.
+  // Bits 4 to 7 of ICPIDR2 are...
+  // - 0x1 for GIC Version 1
+  // - 0x2 for GIC Version 2
+  // GIC Distributor is at 0x01C80000 + 0x1000.
+  // See https://github.com/lupyuen/pinephone-nuttx#interrupt-controller
+  const uint8_t *ICPIDR2 = (const uint8_t *) (0x01C80000 + 0x1000 + 0xFE8);
+  uint8_t version = (*ICPIDR2 >> 4) & 0b1111;
+  sinfo("GIC Version is %d\n", version);
+  DEBUGASSERT(version == 2);
+
   return 0;
 }
 #endif  //  NOTUSED
