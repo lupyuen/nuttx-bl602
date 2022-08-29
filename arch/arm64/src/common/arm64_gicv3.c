@@ -175,8 +175,7 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
 
   /* Interrupt type config */
 
-  // TODO: Do we check for SGI? (Software-Generated Interrupt)
-  // if (!GIC_IS_SGI(intid))
+  if (!GIC_IS_SGI(intid))
     {
       if (flags & IRQ_TYPE_EDGE)
         {
