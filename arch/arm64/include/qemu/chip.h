@@ -35,8 +35,13 @@
 
 #if defined(CONFIG_ARCH_CHIP_QEMU_A53)
 
+// QEMU GIC v2
 #define CONFIG_GICD_BASE          0x8000000
-#define CONFIG_GICR_BASE          0x80a0000
+#define CONFIG_GICR_BASE          0x8010000
+
+// Previously:
+// #define CONFIG_GICD_BASE          0x8000000
+// #define CONFIG_GICR_BASE          0x80a0000
 
 #define CONFIG_RAMBANK1_ADDR      0x40000000
 #define CONFIG_RAMBANK1_SIZE      MB(128)

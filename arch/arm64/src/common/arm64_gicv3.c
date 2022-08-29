@@ -723,6 +723,8 @@ void arm_gic_initialize(void);
 int arm64_gic_initialize(void)
 {
   sinfo("TODO: Init GIC for PinePhone\n");
+  sinfo("CONFIG_GICD_BASE=%p\n", CONFIG_GICD_BASE);
+  sinfo("CONFIG_GICR_BASE=%p\n", CONFIG_GICR_BASE);
 
   // To verify the GIC Version, read the Peripheral ID2 Register (ICPIDR2) at Offset 0xFE8 of GIC Distributor.
   // Bits 4 to 7 of ICPIDR2 are...
@@ -798,7 +800,7 @@ void arm64_gic_secondary_init(void)
 // Decode IRQ for PinePhone, based on arm_decodeirq in arm_gicv2.c
 uint64_t * arm64_decodeirq(uint64_t * regs)
 {
-  up_putc('C');//// For debugging
+  ////up_putc('C');//// For debugging
   uint32_t regval;
   int irq;
 
@@ -822,7 +824,7 @@ uint64_t * arm64_decodeirq(uint64_t * regs)
   /* Write to the end-of-interrupt register */
 
   putreg32(regval, GIC_ICCEOIR);
-  up_putc('D');//// For debugging
+  ////up_putc('D');//// For debugging
   return regs;
 }
 #endif  //  !NOTUSED
