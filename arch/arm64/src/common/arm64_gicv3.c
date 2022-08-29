@@ -40,6 +40,7 @@
  * Pre-processor Definitions
  ***************************************************************************/
 
+#ifdef NOTUSED
 #define GICR_TYPER_NR_PPIS(r)                   \
   ({                                            \
     unsigned int __ppinum = ((r) >> 27) & 0x1f; \
@@ -62,16 +63,20 @@
 /* Redistributor base addresses for each core */
 
 unsigned long gic_rdists[CONFIG_SMP_NCPUS];
+#endif  //  NOTUSED
 
 /***************************************************************************
  * Private Functions
  ***************************************************************************/
 
+#ifdef NOTUSED
 static inline unsigned long gic_get_rdist(void)
 {
   return gic_rdists[this_cpu()];
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static inline uint32_t read_gicd_wait_rwp(void)
 {
   uint32_t value;
@@ -85,11 +90,13 @@ static inline uint32_t read_gicd_wait_rwp(void)
 
   return value;
 }
+#endif  //  NOTUSED
 
 /* Wait for register write pending
  * TODO: add timed wait
  */
 
+#ifdef NOTUSED
 static int gic_wait_rwp(uint32_t intid)
 {
   uint32_t      rwp_mask;
@@ -112,7 +119,10 @@ static int gic_wait_rwp(uint32_t intid)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
                                 uint32_t flags)
 {
@@ -148,7 +158,51 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
       putreg32(val, ICFGR(base, idx));
     }
 }
+#else
+int up_putc(int ch);//// For debugging
 
+// From arm_gicv2.c
+int up_prioritize_irq(int irq, int priority);
+int arm_gic_irq_trigger(int irq, bool edge);
+
+// Set IRQ Priority for PinePhone
+void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
+                                uint32_t flags)
+{
+  up_putc('A');//// For debugging
+
+  /* Disable the interrupt */
+
+  up_disable_irq(intid);
+
+  /* Set the interrupt priority */
+
+  int ret = up_prioritize_irq(intid, prio);
+  DEBUGASSERT(ret == OK);
+
+  /* Interrupt type config */
+
+  if (!GIC_IS_SGI(intid))
+    {
+      if (flags & IRQ_TYPE_EDGE)
+        {
+          // edge - False: Active HIGH level sensitive, True: Rising edge sensitive
+          ret = arm_gic_irq_trigger(intid, true);
+          DEBUGASSERT(ret == OK);
+        }
+      else
+        {
+          // edge - False: Active HIGH level sensitive, True: Rising edge sensitive
+          ret = arm_gic_irq_trigger(intid, false);
+          DEBUGASSERT(ret == OK);
+        }
+    }
+  up_putc('B');//// For debugging
+}
+#endif  //  NOTUSED
+
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_enable(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -167,7 +221,12 @@ void arm64_gic_irq_enable(unsigned int intid)
                IROUTER(GET_DIST_BASE(intid), intid));
     }
 }
+#else
+// Enable IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_irq_disable(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -179,7 +238,12 @@ void arm64_gic_irq_disable(unsigned int intid)
 
   gic_wait_rwp(intid);
 }
+#else
+// Disable IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 bool arm64_gic_irq_is_enabled(unsigned int intid)
 {
   uint32_t  mask    = BIT(intid & (GIC_NUM_INTR_PER_REG - 1));
@@ -190,7 +254,12 @@ bool arm64_gic_irq_is_enabled(unsigned int intid)
 
   return (val & mask) != 0;
 }
+#else
+// Check IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 unsigned int arm64_gic_get_active(void)
 {
   int intid;
@@ -201,7 +270,12 @@ unsigned int arm64_gic_get_active(void)
 
   return intid;
 }
+#else
+// Get active IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void arm64_gic_eoi(unsigned int intid)
 {
   /* Interrupt request deassertion from peripheral to GIC happens
@@ -221,7 +295,12 @@ void arm64_gic_eoi(unsigned int intid)
 
   write_sysreg(intid, ICC_EOIR1_EL1);
 }
+#else
+// EOI for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
                         uint16_t target_list)
 {
@@ -247,6 +326,9 @@ int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
 
   return 0;
 }
+#else
+// Raise SGI (Software-Generated Interrupt) for PinePhone moved moved to arm_gicv2.c
+#endif
 
 /* Wake up GIC redistributor.
  * clear ProcessorSleep and wait till ChildAsleep is cleared.
@@ -254,6 +336,7 @@ int arm64_gic_raise_sgi(unsigned int sgi_id, uint64_t target_aff,
  * Check if redistributor is not powered already.
  */
 
+#ifdef NOTUSED
 static void gicv3_rdist_enable(unsigned long rdist)
 {
   uint32_t temp;
@@ -271,9 +354,11 @@ static void gicv3_rdist_enable(unsigned long rdist)
     {
     }
 }
+#endif  //  NOTUSED
 
 /* Initialize the cpu interface. This should be called by each core. */
 
+#ifdef NOTUSED
 static void gicv3_cpuif_init(void)
 {
   uint32_t      icc_sre;
@@ -338,7 +423,9 @@ static void gicv3_cpuif_init(void)
 
   write_sysreg(1, ICC_IGRPEN1_EL1);
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static void gicv3_dist_init(void)
 {
   unsigned int  num_ints;
@@ -433,16 +520,27 @@ static void gicv3_dist_init(void)
                  GICD_CTLR);
 #endif
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void up_enable_irq(int irq)
 {
   arm64_gic_irq_enable(irq);
 }
+#else
+// Enable IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 void up_disable_irq(int irq)
 {
   arm64_gic_irq_disable(irq);
 }
+#else
+// Disable IRQ for PinePhone moved to arm_gicv2.c
+#endif  //  NOTUSED
 
 /***************************************************************************
  * Name: arm64_decodeirq
@@ -458,6 +556,8 @@ void up_disable_irq(int irq)
  *   regs - A pointer to the register save area on the stack.
  ***************************************************************************/
 
+#ifdef NOTUSED
+#error NOTUSED
 uint64_t * arm64_decodeirq(uint64_t * regs)
 {
   int irq;
@@ -484,7 +584,11 @@ uint64_t * arm64_decodeirq(uint64_t * regs)
 
   return regs;
 }
+#else
+// Decode IRQ for PinePhone moved below
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static int gic_validate_dist_version(void)
 {
   uint32_t  typer;
@@ -503,7 +607,7 @@ static int gic_validate_dist_version(void)
     }
   else
     {
-      sinfo("No GIC version detect\n");
+      sinfo("No GIC version detect: reg=%p\n", reg);
       return -ENODEV;
     }
 
@@ -527,7 +631,9 @@ static int gic_validate_dist_version(void)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static int gic_validate_redist_version(void)
 {
   uint64_t      typer;
@@ -564,7 +670,9 @@ static int gic_validate_redist_version(void)
 
   return 0;
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
 static void arm64_gic_init(void)
 {
   uint8_t   cpu;
@@ -585,7 +693,10 @@ static void arm64_gic_init(void)
 
   gicv3_cpuif_init();
 }
+#endif  //  NOTUSED
 
+#ifdef NOTUSED
+#error NOTUSED
 int arm64_gic_initialize(void)
 {
   int err;
@@ -603,11 +714,115 @@ int arm64_gic_initialize(void)
 
   return 0;
 }
+#else
+// Defined in arm_gicv2.c
+void arm_gic0_initialize(void);
+void arm_gic_initialize(void);
+
+// Init GIC v2 for PinePhone. See https://github.com/lupyuen/pinephone-nuttx#interrupt-controller
+int arm64_gic_initialize(void)
+{
+  sinfo("TODO: Init GIC for PinePhone\n");
+
+  // To verify the GIC Version, read the Peripheral ID2 Register (ICPIDR2) at Offset 0xFE8 of GIC Distributor.
+  // Bits 4 to 7 of ICPIDR2 are...
+  // - 0x1 for GIC Version 1
+  // - 0x2 for GIC Version 2
+  // GIC Distributor is at 0x01C80000 + 0x1000.
+  // See https://github.com/lupyuen/pinephone-nuttx#interrupt-controller
+  const uint8_t *ICPIDR2 = (const uint8_t *) (CONFIG_GICD_BASE + 0xFE8);
+  uint8_t version = (*ICPIDR2 >> 4) & 0b1111;
+  sinfo("GIC Version is %d\n", version);
+  DEBUGASSERT(version == 2);
+
+  // arm_gic0_initialize must be called on CPU0
+  arm_gic0_initialize();
+
+  // arm_gic_initialize must be called for all CPUs
+  // TODO: Move to arm64_gic_secondary_init
+  arm_gic_initialize();
+
+  return 0;
+}
+#endif  //  NOTUSED
 
 #ifdef CONFIG_SMP
+#ifdef NOTUSED
 void arm64_gic_secondary_init(void)
 {
   arm64_gic_init();
 }
+#else
+// TODO: Init GIC for PinePhone
+void arm64_gic_secondary_init(void)
+{
+  sinfo("TODO: Init GIC Secondary for PinePhone\n");
+
+  //  TODO: arm_gic_initialize must be called for all CPUs.
+  arm_gic_initialize();
+}
+#endif  //  NOTUSED
 
 #endif
+
+#ifndef NOTUSED
+// GIC v2 for PinePhone: Reuse the implementation of Arm32 GIC v2
+#define PINEPHONE_GICv2
+#define CONFIG_ARMV7A_HAVE_GICv2
+////#define CONFIG_DEBUG_IRQ_INFO  //  Dump GIC Registers
+
+#define CONFIG_ARCH_TRUSTZONE_NONSECURE
+////#define CONFIG_ARCH_TRUSTZONE_SECURE
+
+#include "../arch/arm/src/armv7-a/mpcore.h"
+
+// Override...
+// MPCORE_ICD_VBASE: GIC Distributor
+// MPCORE_ICC_VBASE: GIC CPU Interface
+// For example...
+// GIC_ICDICTR is MPCORE_ICD_VBASE + GIC_ICDICTR_OFFSET
+// Previously: MPCORE_ICD_VBASE was CHIP_MPCORE_VBASE + MPCORE_ICD_OFFSET
+#undef MPCORE_ICD_VBASE
+#undef MPCORE_ICC_VBASE
+#define MPCORE_ICD_VBASE CONFIG_GICD_BASE  // 0x01C81000  
+#define MPCORE_ICC_VBASE CONFIG_GICR_BASE  // 0x01C82000  
+
+// Arm32 GIC v2 Implementation
+#include "../arch/arm/src/armv7-a/arm_gicv2.c"
+
+// Dump GIC v2 Registers
+#undef irqinfo
+#define irqinfo sinfo
+#include "../arch/arm/src/armv7-a/arm_gicv2_dump.c"
+
+// Decode IRQ for PinePhone, based on arm_decodeirq in arm_gicv2.c
+uint64_t * arm64_decodeirq(uint64_t * regs)
+{
+  up_putc('C');//// For debugging
+  uint32_t regval;
+  int irq;
+
+  /* Read the interrupt acknowledge register and get the interrupt ID */
+
+  regval = getreg32(GIC_ICCIAR);
+  irq    = (regval & GIC_ICCIAR_INTID_MASK) >> GIC_ICCIAR_INTID_SHIFT;
+
+  /* Ignore spurions IRQs.  ICCIAR will report 1023 if there is no pending
+   * interrupt.
+   */
+
+  DEBUGASSERT(irq < NR_IRQS || irq == 1023);
+  if (irq < NR_IRQS)
+    {
+      /* Dispatch the interrupt */
+
+      regs = arm64_doirq(irq, regs);
+    }
+
+  /* Write to the end-of-interrupt register */
+
+  putreg32(regval, GIC_ICCEOIR);
+  up_putc('D');//// For debugging
+  return regs;
+}
+#endif  //  !NOTUSED

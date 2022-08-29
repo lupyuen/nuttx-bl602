@@ -32,7 +32,11 @@
 #include <nuttx/arch.h>
 #include <arch/irq.h>
 
+#ifdef PINEPHONE_GICv2
+#include "arm64_internal.h"
+#else
 #include "arm_internal.h"
+#endif  //  PINEPHONE_GICv2
 #include "gic.h"
 
 #ifdef CONFIG_ARMV7A_HAVE_GICv2
@@ -59,6 +63,7 @@
 
 void arm_gic0_initialize(void)
 {
+  up_putc('E');//// For debugging
   unsigned int nlines = arm_gic_nlines();
   unsigned int irq;
 
@@ -112,6 +117,7 @@ void arm_gic0_initialize(void)
 #endif
 
   arm_gic_dump("Exit arm_gic0_initialize", true, 0);
+  up_putc('F');//// For debugging
 }
 
 /****************************************************************************
@@ -130,6 +136,7 @@ void arm_gic0_initialize(void)
 
 void arm_gic_initialize(void)
 {
+  up_putc('G');//// For debugging
   uint32_t iccicr;
   uint32_t icddcr;
 
@@ -343,6 +350,7 @@ void arm_gic_initialize(void)
 
   putreg32(icddcr, GIC_ICDDCR);
   arm_gic_dump("Exit arm_gic_initialize", true, 0);
+  up_putc('H');//// For debugging
 }
 
 /****************************************************************************
@@ -360,6 +368,7 @@ void arm_gic_initialize(void)
  *
  ****************************************************************************/
 
+#ifndef PINEPHONE_GICv2
 uint32_t *arm_decodeirq(uint32_t *regs)
 {
   uint32_t regval;
@@ -387,6 +396,7 @@ uint32_t *arm_decodeirq(uint32_t *regs)
   putreg32(regval, GIC_ICCEOIR);
   return regs;
 }
+#endif  //  !PINEPHONE_GICv2
 
 /****************************************************************************
  * Name: up_enable_irq
@@ -409,6 +419,7 @@ uint32_t *arm_decodeirq(uint32_t *regs)
 
 void up_enable_irq(int irq)
 {
+  up_putc('I');//// For debugging
   /* Ignore invalid interrupt IDs.  Also, in the Cortex-A9 MPCore, SGIs are
    * always enabled. The corresponding bits in the ICDISERn are read as
    * one, write ignored.
@@ -427,6 +438,7 @@ void up_enable_irq(int irq)
 
       arm_gic_dump("Exit up_enable_irq", false, irq);
     }
+  up_putc('J');//// For debugging
 }
 
 /****************************************************************************
@@ -445,6 +457,7 @@ void up_enable_irq(int irq)
 
 void up_disable_irq(int irq)
 {
+  up_putc('K');//// For debugging
   /* Ignore invalid interrupt IDs.  Also, in the Cortex-A9 MPCore, SGIs are
    * always enabled. The corresponding bits in the ICDISERn are read as
    * one, write ignored.
@@ -463,6 +476,7 @@ void up_disable_irq(int irq)
 
       arm_gic_dump("Exit up_disable_irq", false, irq);
     }
+  up_putc('L');//// For debugging
 }
 
 /****************************************************************************
@@ -478,6 +492,7 @@ void up_disable_irq(int irq)
 
 int up_prioritize_irq(int irq, int priority)
 {
+  up_putc('M');//// For debugging
   DEBUGASSERT(irq >= 0 && irq < NR_IRQS && priority >= 0 && priority <= 255);
 
   /* Ignore invalid interrupt IDs */
@@ -498,6 +513,7 @@ int up_prioritize_irq(int irq, int priority)
       putreg32(regval, regaddr);
 
       arm_gic_dump("Exit up_prioritize_irq", false, irq);
+      up_putc('N');//// For debugging
       return OK;
     }
 
@@ -524,6 +540,7 @@ int up_prioritize_irq(int irq, int priority)
 
 int arm_gic_irq_trigger(int irq, bool edge)
 {
+  up_putc('O');//// For debugging
   uintptr_t regaddr;
   uint32_t regval;
   uint32_t intcfg;
@@ -549,6 +566,7 @@ int arm_gic_irq_trigger(int irq, bool edge)
       regval |= GIC_ICDICFR_ID(irq, intcfg);
       putreg32(regval, regaddr);
 
+      up_putc('P');//// For debugging
       return OK;
     }
 
