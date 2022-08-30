@@ -43,7 +43,6 @@
 /Make.defs
 /nuttx
 /nuttx-*
-/nuttx.*
 /staging
 /tags
 /TAGS
@@ -59,3 +58,5 @@ uImage
 .vscode
 .DS_Store
 Image.gz
+nuttx.manifest
+nuttx.S

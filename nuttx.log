@@ -1,0 +1,430 @@
++ aarch64-none-elf-gcc -v
+Using built-in specs.
+COLLECT_GCC=aarch64-none-elf-gcc
+COLLECT_LTO_WRAPPER=/Applications/ArmGNUToolchain/11.3.rel1/aarch64-none-elf/bin/../libexec/gcc/aarch64-none-elf/11.3.1/lto-wrapper
+Target: aarch64-none-elf
+Configured with: /Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/src/gcc/configure --target=aarch64-none-elf --prefix=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/install --with-gmp=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/host-tools --with-mpfr=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/host-tools --with-mpc=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/host-tools --with-isl=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/host-tools --disable-shared --disable-nls --disable-threads --disable-tls --enable-checking=release --enable-languages=c,c++,fortran --with-newlib --with-gnu-as --with-gnu-ld --with-sysroot=/Volumes/data/jenkins/workspace/GNU-toolchain/arm-11/build-aarch64-none-elf/install/aarch64-none-elf --with-pkgversion='Arm GNU Toolchain 11.3.Rel1' --with-bugurl=https://bugs.linaro.org/
+Thread model: single
+Supported LTO compression algorithms: zlib
+gcc version 11.3.1 20220712 (Arm GNU Toolchain 11.3.Rel1) 
++ make -j
+Create version.h
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/apps'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libxx'
+make[1]: 'libxx.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libxx'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/sched'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/sched'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/drivers'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/drivers'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/boards'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/boards'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/boards/arm64/qemu/qemu-a53/src'
+make[2]: Nothing to be done for 'depend'.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/boards/arm64/qemu/qemu-a53/src'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/fs'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/fs'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/binfmt'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/binfmt'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libc'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libc'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/mm'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/mm'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libxx'
+make[1]: Nothing to be done for 'depend'.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libxx'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/sched'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/drivers'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/boards'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libc'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/mm'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/apps'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/fs'
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/binfmt'
+make[1]: 'libsched.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/sched'
+make[1]: 'libboards.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/boards'
+make[1]: 'libdrivers.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/drivers'
+make[1]: 'libmm.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/mm'
+CC:  misc/lib_utsname.c
+rm -f /Users/Luppy/gicv2/nuttx/apps/libapps.a
+make /Users/Luppy/gicv2/nuttx/apps/libapps.a
+CC:  procfs/fs_procfsversion.c
+make[1]: 'libbinfmt.a' is up to date.
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/binfmt'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/apps'
+AS:  common/arm64_vector_table.S
+AS:  common/arm64_vectors.S
+AR (create): libarch.a  qemu_lowputc.o arm64_vector_table.o arm64_vectors.o arm64_smccc.o arm64_cpu_idle.o arm64_vfork_func.o arm64_testset.o arm64_fpu_func.o qemu_boot.o qemu_serial.o arm64_initialize.o arm64_initialstate.o arm64_boot.o arm64_nputs.o arm64_idle.o arm64_copystate.o arm64_createstack.o arm64_releasestack.o arm64_stackframe.o arm64_usestack.o arm64_task_sched.o arm64_exit.o arm64_vfork.o arm64_reprioritizertr.o arm64_releasepending.o arm64_unblocktask.o arm64_blocktask.o arm64_assert.o arm64_schedulesigaction.o arm64_backtrace.o arm64_sigdeliver.o arm64_mmu.o arm64_arch_timer.o arm64_cache.o arm64_doirq.o arm64_gicv3.o arm64_fatal.o arm64_syscall.o arm64_cpu_psci.o arm64_allocateheap.o arm64_fpu.o arm64_checkstack.o
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+IN: arch/arm64/src/libarch.a -> staging/libarch.a
+AR (create): libc.a    bin/lib_assert.o  bin/lib_builtin_getname.o  bin/lib_builtin_isavail.o  bin/lib_builtin_forindex.o  bin/lib_isalnum.o  bin/lib_isalpha.o  bin/lib_isascii.o  bin/lib_isblank.o  bin/lib_iscntrl.o  bin/lib_isdigit.o  bin/lib_isgraph.o  bin/lib_islower.o  bin/lib_isprint.o  bin/lib_ispunct.o  bin/lib_isspace.o  bin/lib_isupper.o  bin/lib_isxdigit.o  bin/lib_tolower.o  bin/lib_toupper.o  bin/lib_readdirr.o  bin/lib_telldir.o  bin/lib_alphasort.o  bin/lib_scandir.o  bin/lib_ftw.o  bin/lib_nftw.o  bin/lib_opendir.o  bin/lib_closedir.o  bin/lib_readdir.o  bin/lib_rewinddir.o  bin/lib_seekdir.o  bin/lib_dirfd.o  bin/lib_errno.o  bin/lib_fixedmath.o  bin/lib_b16sin.o  bin/lib_b16cos.o  bin/lib_b16atan2.o  bin/lib_ubsqrt.o  bin/lib_getgrgid.o  bin/lib_getgrgidr.o  bin/lib_getgrnam.o  bin/lib_getgrnamr.o  bin/lib_initgroups.o  bin/lib_getgrbuf.o  bin/lib_getgrbufr.o  bin/lib_imaxabs.o  bin/lib_strtoimax.o  bin/lib_strtoumax.o  bin/lib_basename.o  bin/lib_dirname.o  bin/lib_mknod.o  bin/lib_umask.o  bin/lib_utsname.o  bin/lib_getrandom.o  bin/lib_xorshift128.o  bin/lib_tea_encrypt.o  bin/lib_tea_decrypt.o  bin/lib_cxx_initialize.o  bin/lib_impure.o  bin/lib_memfd.o  bin/lib_umul32.o  bin/lib_umul64.o  bin/lib_umul32x64.o  bin/lib_uadd32x64.o  bin/lib_uadd64.o  bin/lib_usub64x32.o  bin/lib_usub64.o  bin/lib_dumpbuffer.o  bin/lib_dumpvbuffer.o  bin/lib_fnmatch.o  bin/lib_debug.o  bin/lib_crc64.o  bin/lib_crc32.o  bin/lib_crc16.o  bin/lib_crc8.o  bin/lib_crc8ccitt.o  bin/lib_crc8table.o  bin/lib_glob.o  bin/lib_execinfo.o  bin/lib_ftok.o  bin/lib_err.o  bin/lib_addrconfig.o  bin/lib_base64.o  bin/lib_htons.o  bin/lib_htonl.o  bin/lib_inetaddr.o  bin/lib_inetaton.o  bin/lib_inetntoa.o  bin/lib_inetntop.o  bin/lib_inetpton.o  bin/lib_etherntoa.o  bin/lib_etheraton.o  bin/pthread_keycreate.o  bin/pthread_setspecific.o  bin/pthread_getspecific.o  bin/pthread_keydelete.o  bin/pthread_attr_init.o  bin/pthread_attr_destroy.o  bin/pthread_attr_setschedpolicy.o  bin/pthread_attr_getschedpolicy.o  bin/pthread_attr_setinheritsched.o  bin/pthread_attr_getinheritsched.o  bin/pthread_attr_setdetachstate.o  bin/pthread_attr_getdetachstate.o  bin/pthread_attr_setstacksize.o  bin/pthread_attr_getstacksize.o  bin/pthread_attr_setstack.o  bin/pthread_attr_getstack.o  bin/pthread_attr_setschedparam.o  bin/pthread_attr_getschedparam.o  bin/pthread_barrierattr_init.o  bin/pthread_barrierattr_destroy.o  bin/pthread_barrierattr_getpshared.o  bin/pthread_barrierattr_setpshared.o  bin/pthread_barrierinit.o  bin/pthread_barrierdestroy.o  bin/pthread_barrierwait.o  bin/pthread_condattr_init.o  bin/pthread_condattr_destroy.o  bin/pthread_condattr_setclock.o  bin/pthread_condattr_getclock.o  bin/pthread_condinit.o  bin/pthread_conddestroy.o  bin/pthread_condtimedwait.o  bin/pthread_create.o  bin/pthread_exit.o  bin/pthread_setname_np.o  bin/pthread_getname_np.o  bin/pthread_get_stackaddr_np.o  bin/pthread_get_stacksize_np.o  bin/pthread_mutexattr_init.o  bin/pthread_mutexattr_destroy.o  bin/pthread_mutexattr_getpshared.o  bin/pthread_mutexattr_setpshared.o  bin/pthread_mutexattr_setprotocol.o  bin/pthread_mutexattr_getprotocol.o  bin/pthread_mutexattr_settype.o  bin/pthread_mutexattr_gettype.o  bin/pthread_mutexattr_setrobust.o  bin/pthread_mutexattr_getrobust.o  bin/pthread_mutex_lock.o  bin/pthread_once.o  bin/pthread_yield.o  bin/pthread_atfork.o  bin/pthread_rwlock.o  bin/pthread_rwlock_rdlock.o  bin/pthread_rwlock_wrlock.o  bin/pthread_setcancelstate.o  bin/pthread_setcanceltype.o  bin/pthread_testcancel.o  bin/lib_getpwnam.o  bin/lib_getpwnamr.o  bin/lib_getpwuid.o  bin/lib_getpwuidr.o  bin/lib_getpwbuf.o  bin/lib_getpwbufr.o  bin/sq_addlast.o  bin/sq_addfirst.o  bin/sq_addafter.o  bin/sq_cat.o  bin/sq_rem.o  bin/sq_remlast.o  bin/sq_remfirst.o  bin/sq_remafter.o  bin/sq_count.o  bin/dq_addlast.o  bin/dq_addfirst.o  bin/dq_addafter.o  bin/dq_addbefore.o  bin/dq_cat.o  bin/dq_rem.o  bin/dq_remlast.o  bin/dq_remfirst.o  bin/dq_count.o  bin/sched_getprioritymax.o  bin/sched_getprioritymin.o  bin/clock_ticks2time.o  bin/clock_time2ticks.o  bin/clock_timespec_add.o  bin/clock_timespec_subtract.o  bin/task_setcanceltype.o  bin/task_testcancel.o  bin/task_startup.o  bin/sem_init.o  bin/sem_getprotocol.o  bin/sem_getvalue.o  bin/sem_setprotocol.o  bin/sig_addset.o  bin/sig_delset.o  bin/sig_emptyset.o  bin/sig_fillset.o  bin/sig_hold.o  bin/sig_ignore.o  bin/sig_ismember.o  bin/sig_pause.o  bin/sig_psignal.o  bin/sig_raise.o  bin/sig_relse.o  bin/sig_set.o  bin/sig_signal.o  bin/sig_wait.o  bin/lib_psfa_addaction.o  bin/lib_psfa_addclose.o  bin/lib_psfa_adddup2.o  bin/lib_psfa_addopen.o  bin/lib_psfa_destroy.o  bin/lib_psfa_init.o  bin/lib_psfa_dump.o  bin/lib_psa_getflags.o  bin/lib_psa_getschedparam.o  bin/lib_psa_getschedpolicy.o  bin/lib_psa_init.o  bin/lib_psa_setflags.o  bin/lib_psa_setschedparam.o  bin/lib_psa_setschedpolicy.o  bin/lib_psa_getsigmask.o  bin/lib_psa_setsigmask.o  bin/lib_psa_getstackaddr.o  bin/lib_psa_setstackaddr.o  bin/lib_psa_getstacksize.o  bin/lib_psa_setstacksize.o  bin/lib_psa_dump.o  bin/lib_fileno.o  bin/lib_printf.o  bin/lib_sprintf.o  bin/lib_asprintf.o  bin/lib_snprintf.o  bin/lib_libsprintf.o  bin/lib_vsprintf.o  bin/lib_vasprintf.o  bin/lib_vsnprintf.o  bin/lib_dprintf.o  bin/lib_vdprintf.o  bin/lib_vprintf.o  bin/lib_perror.o  bin/lib_putchar.o  bin/lib_getchar.o  bin/lib_puts.o  bin/lib_sscanf.o  bin/lib_vsscanf.o  bin/lib_libvscanf.o  bin/lib_libvsprintf.o  bin/lib_remove.o  bin/lib_tempnam.o  bin/lib_tmpnam.o  bin/lib_ultoa_invert.o  bin/lib_dtoa_engine.o  bin/lib_dtoa_data.o  bin/lib_fopen.o  bin/lib_freopen.o  bin/lib_fclose.o  bin/lib_fread.o  bin/lib_libfread.o  bin/lib_fseek.o  bin/lib_fseeko.o  bin/lib_ftell.o  bin/lib_ftello.o  bin/lib_fsetpos.o  bin/lib_getdelim.o  bin/lib_fgetpos.o  bin/lib_getc.o  bin/lib_fgetc.o  bin/lib_fgets.o  bin/lib_gets_s.o  bin/lib_gets.o  bin/lib_libfgets.o  bin/lib_fwrite.o  bin/lib_libfwrite.o  bin/lib_fflush.o  bin/lib_libflushall.o  bin/lib_libfflush.o  bin/lib_rdflush.o  bin/lib_wrflush.o  bin/lib_putc.o  bin/lib_fputc.o  bin/lib_fputs.o  bin/lib_ungetc.o  bin/lib_fprintf.o  bin/lib_vfprintf.o  bin/lib_feof.o  bin/lib_ferror.o  bin/lib_rewind.o  bin/lib_clearerr.o  bin/lib_scanf.o  bin/lib_vscanf.o  bin/lib_fscanf.o  bin/lib_vfscanf.o  bin/lib_tmpfile.o  bin/lib_setbuf.o  bin/lib_setvbuf.o  bin/lib_libstream.o  bin/lib_libfilesem.o  bin/lib_abs.o  bin/lib_abort.o  bin/lib_atof.o  bin/lib_atoi.o  bin/lib_getprogname.o  bin/lib_atol.o  bin/lib_atoll.o  bin/lib_div.o  bin/lib_ldiv.o  bin/lib_lldiv.o  bin/lib_exit.o  bin/lib_itoa.o  bin/lib_labs.o  bin/lib_llabs.o  bin/lib_realpath.o  bin/lib_bsearch.o  bin/lib_rand.o  bin/lib_qsort.o  bin/lib_srand.o  bin/lib_strtol.o  bin/lib_strtoll.o  bin/lib_strtoul.o  bin/lib_strtoull.o  bin/lib_strtod.o  bin/lib_strtof.o  bin/lib_strtold.o  bin/lib_checkbase.o  bin/lib_mktemp.o  bin/lib_mkstemp.o  bin/lib_mkdtemp.o  bin/lib_aligned_alloc.o  bin/lib_posix_memalign.o  bin/lib_valloc.o  bin/lib_mblen.o  bin/lib_mbtowc.o  bin/lib_wctomb.o  bin/lib_mbstowcs.o  bin/lib_wcstombs.o  bin/lib_atexit.o  bin/lib_cxa_atexit.o  bin/lib_onexit.o  bin/lib_meminstream.o  bin/lib_memoutstream.o  bin/lib_memsistream.o  bin/lib_memsostream.o  bin/lib_lowoutstream.o  bin/lib_rawinstream.o  bin/lib_rawoutstream.o  bin/lib_rawsistream.o  bin/lib_rawsostream.o  bin/lib_zeroinstream.o  bin/lib_nullinstream.o  bin/lib_nulloutstream.o  bin/lib_libnoflush.o  bin/lib_libsnoflush.o  bin/lib_stdinstream.o  bin/lib_stdoutstream.o  bin/lib_stdsistream.o  bin/lib_stdsostream.o  bin/lib_blkoutstream.o  bin/lib_ffs.o  bin/lib_ffsl.o  bin/lib_ffsll.o  bin/lib_fls.o  bin/lib_flsl.o  bin/lib_flsll.o  bin/lib_isbasedigit.o  bin/lib_memccpy.o  bin/lib_memrchr.o  bin/lib_memmem.o  bin/lib_popcount.o  bin/lib_popcountl.o  bin/lib_popcountll.o  bin/lib_skipspace.o  bin/lib_stpcpy.o  bin/lib_stpncpy.o  bin/lib_strcasecmp.o  bin/lib_strcat.o  bin/lib_strcspn.o  bin/lib_strchrnul.o  bin/lib_strdup.o  bin/lib_strerror.o  bin/lib_strncasecmp.o  bin/lib_strncat.o  bin/lib_strncmp.o  bin/lib_strndup.o  bin/lib_strcasestr.o  bin/lib_strpbrk.o  bin/lib_strrchr.o  bin/lib_strspn.o  bin/lib_strstr.o  bin/lib_strtok.o  bin/lib_strtokr.o  bin/lib_strsep.o  bin/lib_strerrorr.o  bin/lib_explicit_bzero.o  bin/lib_strsignal.o  bin/lib_index.o  bin/lib_rindex.o  bin/lib_memchr.o  bin/lib_memcmp.o  bin/lib_memcpy.o  bin/lib_memmove.o  bin/lib_memset.o  bin/lib_strchr.o  bin/lib_strcmp.o  bin/lib_strcpy.o  bin/lib_strlcat.o  bin/lib_strlcpy.o  bin/lib_strlen.o  bin/lib_strncpy.o  bin/lib_strnlen.o  bin/symtab_findbyname.o  bin/symtab_findbyvalue.o  bin/symtab_sortbyname.o  bin/lib_syslog.o  bin/lib_setlogmask.o  bin/lib_cfspeed.o  bin/lib_cfmakeraw.o  bin/lib_isatty.o  bin/lib_tcflush.o  bin/lib_tcdrain.o  bin/lib_tcflow.o  bin/lib_tcgetattr.o  bin/lib_tcsetattr.o  bin/lib_ttyname.o  bin/lib_ttynamer.o  bin/lib_strftime.o  bin/lib_strptime.o  bin/lib_calendar2utc.o  bin/lib_daysbeforemonth.o  bin/lib_gettimeofday.o  bin/lib_isleapyear.o  bin/lib_settimeofday.o  bin/lib_time.o  bin/lib_timespec_get.o  bin/lib_nanosleep.o  bin/lib_difftime.o  bin/lib_dayofweek.o  bin/lib_asctime.o  bin/lib_asctimer.o  bin/lib_ctime.o  bin/lib_ctimer.o  bin/lib_gethrtime.o  bin/lib_timegm.o  bin/lib_gmtime.o  bin/lib_gmtimer.o  bin/task_getinfo.o  bin/tls_getinfo.o  bin/tls_destruct.o  bin/lib_readv.o  bin/lib_writev.o  bin/lib_preadv.o  bin/lib_pwritev.o  bin/lib_access.o  bin/lib_daemon.o  bin/lib_swab.o  bin/lib_pathconf.o  bin/lib_sysconf.o  bin/lib_getentropy.o  bin/lib_getopt_common.o  bin/lib_getopt.o  bin/lib_getopt_long.o  bin/lib_getopt_longonly.o  bin/lib_getoptvars.o  bin/lib_getoptargp.o  bin/lib_getopterrp.o  bin/lib_getoptindp.o  bin/lib_getoptoptp.o  bin/lib_times.o  bin/lib_alarm.o  bin/lib_fstatvfs.o  bin/lib_statvfs.o  bin/lib_sleep.o  bin/lib_nice.o  bin/lib_usleep.o  bin/lib_seteuid.o  bin/lib_setegid.o  bin/lib_geteuid.o  bin/lib_getegid.o  bin/lib_setreuid.o  bin/lib_setregid.o  bin/lib_getrusage.o  bin/lib_utime.o  bin/lib_utimes.o  bin/lib_setrlimit.o  bin/lib_getrlimit.o  bin/lib_setpriority.o  bin/lib_getpriority.o  bin/lib_futimes.o  bin/lib_lutimes.o  bin/lib_gethostname.o  bin/lib_sethostname.o  bin/lib_setuid.o  bin/lib_setgid.o  bin/lib_getuid.o  bin/lib_getgid.o  bin/lib_chdir.o  bin/lib_fchdir.o  bin/lib_getcwd.o  bin/lib_restoredir.o  bin/lib_truncate.o  bin/lib_posix_fallocate.o  bin/lib_uuid_compare.o  bin/lib_uuid_create.o  bin/lib_uuid_create_nil.o  bin/lib_uuid_equal.o  bin/lib_uuid_from_string.o  bin/lib_uuid_hash.o  bin/lib_uuid_is_nil.o  bin/lib_uuid_stream.o  bin/lib_uuid_to_string.o  bin/lib_wcscmp.o  bin/lib_wcslen.o  bin/lib_wmemchr.o  bin/lib_wmemcmp.o  bin/lib_wmemcpy.o  bin/lib_wmemmove.o  bin/lib_wmemset.o  bin/lib_btowc.o  bin/lib_mbrtowc.o  bin/lib_wctob.o  bin/lib_wcslcpy.o  bin/lib_wcsxfrm.o  bin/lib_wcrtomb.o  bin/lib_wcsftime.o  bin/lib_wcscoll.o  bin/lib_wcstol.o  bin/lib_wcstoll.o  bin/lib_wcstoul.o  bin/lib_wcstoull.o  bin/lib_wcstold.o  bin/lib_wcstof.o  bin/lib_wcstod.o  bin/lib_swprintf.o  bin/lib_mbsnrtowcs.o  bin/lib_wcsnrtombs.o  bin/lib_mbsinit.o  bin/lib_mbrlen.o  bin/lib_mbsrtowcs.o  bin/lib_wcsrtombs.o  bin/lib_wctype.o  bin/lib_iswctype.o  bin/lib_towlower.o  bin/lib_towupper.o
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+AR (create): libfs.a   fs_initialize.o fs_files.o fs_foreachinode.o fs_inode.o fs_inodeaddref.o fs_inodebasename.o fs_inodefind.o fs_inodefree.o fs_inodegetpath.o fs_inoderelease.o fs_inoderemove.o fs_inodereserve.o fs_inodesearch.o fs_chstat.o fs_close.o fs_dup.o fs_dup2.o fs_fcntl.o fs_epoll.o fs_fchstat.o fs_fstat.o fs_fstatfs.o fs_ioctl.o fs_lseek.o fs_mkdir.o fs_open.o fs_poll.o fs_pread.o fs_pwrite.o fs_read.o fs_rename.o fs_rmdir.o fs_select.o fs_sendfile.o fs_stat.o fs_statfs.o fs_unlink.o fs_write.o fs_dir.o fs_fsync.o fs_truncate.o fs_symlink.o fs_readlink.o fs_fdopen.o fs_registerdriver.o fs_unregisterdriver.o fs_registerblockdriver.o fs_unregisterblockdriver.o fs_findblockdriver.o fs_openblockdriver.o fs_closeblockdriver.o fs_blockpartition.o fs_findmtddriver.o fs_mmap.o fs_munmap.o fs_mmisc.o mq_open.o mq_close.o mq_unlink.o fs_mount.o fs_umount2.o fs_foreachmountpoint.o fs_procfs_mount.o fs_gettype.o fs_partition.o fs_romfs.o fs_romfsutil.o fs_procfs.o fs_procfsutil.o fs_procfsproc.o fs_procfsuptime.o fs_procfscpuload.o fs_procfsmeminfo.o fs_procfsiobinfo.o fs_procfsversion.o fs_procfstcbinfo.o
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/fs'
+IN: fs/libfs.a -> staging/libfs.a
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+CC:  nsh_parse.c
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/libs/libc'
+IN: libs/libc/libc.a -> staging/libc.a
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+AR (add): libapps.a    builtin_list.c.Users.Luppy.gicv2.nuttx.apps.builtin.o exec_builtin.c.Users.Luppy.gicv2.nuttx.apps.builtin.o       
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/builtin'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+AR (add): libapps.a        hello_main.c.Users.Luppy.gicv2.nuttx.apps.examples.hello.o   
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/examples/hello'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+AR (add): libapps.a    nsh_init.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_parse.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_console.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_script.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_system.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_command.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_fscmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_ddcmd.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_proccmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_mmcmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_timcmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_envcmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_syscmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_dbgcmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_session.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_fsutils.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_builtin.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_romfsetc.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_mntcmds.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_consolemain.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_printf.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o nsh_test.c.Users.Luppy.gicv2.nuttx.apps.nshlib.o       
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/nshlib'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+AR (add): libapps.a    dummy.c.Users.Luppy.gicv2.nuttx.apps.platform.o       
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/platform'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+AR (add): libapps.a        nsh_main.c.Users.Luppy.gicv2.nuttx.apps.system.nsh.o sh_main.c.Users.Luppy.gicv2.nuttx.apps.system.nsh.o   
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/nsh'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+AR (add): libapps.a    readline.c.Users.Luppy.gicv2.nuttx.apps.system.readline.o readline_fd.c.Users.Luppy.gicv2.nuttx.apps.system.readline.o readline_common.c.Users.Luppy.gicv2.nuttx.apps.system.readline.o       
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/readline'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+AR (add): libapps.a    system.c.Users.Luppy.gicv2.nuttx.apps.system.system.o       
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/system/system'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+AR (add): libapps.a        getprime_main.c.Users.Luppy.gicv2.nuttx.apps.testing.getprime.o   
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/getprime'
+make[3]: Entering directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+AR (add): libapps.a    getopt.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o dev_null.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o restart.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o sigprocmask.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o sighand.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o signest.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o fpu.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o setvbuf.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o tls.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o waitpid.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o cancel.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o cond.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o mutex.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o timedmutex.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o sem.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o semtimed.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o barrier.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o timedwait.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o pthread_rwlock.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o pthread_rwlock_cancel.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o specific.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o robust.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o roundrobin.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o mqueue.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o timedmqueue.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o posixtimer.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o vfork.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o    ostest_main.c.Users.Luppy.gicv2.nuttx.apps.testing.ostest.o   
+make[3]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps/testing/ostest'
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps'
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/apps'
+IN: /Users/Luppy/gicv2/nuttx/apps/libapps.a -> staging/libapps.a
+make[1]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+make[2]: Entering directory '/Users/Luppy/gicv2/nuttx/nuttx/boards/arm64/qemu/qemu-a53/src'
+make[2]: 'libboard.a' is up to date.
+make[2]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/boards/arm64/qemu/qemu-a53/src'
+LD: nuttx
+make[1]: Leaving directory '/Users/Luppy/gicv2/nuttx/nuttx/arch/arm64/src'
+CP: nuttx.hex
+CP: nuttx.bin
++ aarch64-none-elf-size nuttx
+   text    data     bss     dec     hex filename
+ 208603   12624   48504  269731   41da3 nuttx
++ aarch64-none-elf-objdump -t -S --demangle --line-numbers --wide nuttx
++ cp nuttx.bin Image
++ rm -f Image.gz
++ gzip Image
++ sleep 2
++ qemu-system-aarch64 -smp 4 -cpu cortex-a53 -nographic -machine virt,virtualization=on,gic-version=2 -net none -chardev stdio,id=con,mux=on -serial chardev:con -mon chardev=con,mode=readline -kernel ./nuttx
+- Ready to Boot CPU
+- Boot from EL2
+- Boot from EL1
+- Boot to C runtime for OS Initialize
+nx_start: Entry
+up_allocate_heap: heap_start=0x0x402c4000, heap_size=0x7d3c000
+arm64_gic_initialize: TODO: Init GIC for PinePhone
+arm64_gic_initialize: CONFIG_GICD_BASE=0x8000000
+arm64_gic_initialize: CONFIG_GICR_BASE=0x8010000
+arm64_gic_initialize: GIC Version is 2
+EFGHup_timer_initialize: up_timer_initialize: cp15 timer(s) running at 62.50MHz, cycle 62500
+up_timer_initialize: ARM_ARCH_TIMER_IRQ=27
+up_timer_initialize: arm64_arch_timer_compare_isr=0x4029b2ac
+up_timer_initialize: irq_unexpected_isr=0x402823ec
+up_timer_initialize: g_irqvector[0].handler=0x402823ec
+up_timer_initialize: g_irqvector[1].handler=0x402823ec
+up_timer_initialize: g_irqvector[2].handler=0x402823ec
+up_timer_initialize: g_irqvector[3].handler=0x402823ec
+up_timer_initialize: g_irqvector[4].handler=0x402823ec
+up_timer_initialize: g_irqvector[5].handler=0x402823ec
+up_timer_initialize: g_irqvector[6].handler=0x402823ec
+up_timer_initialize: g_irqvector[7].handler=0x402823ec
+up_timer_initialize: g_irqvector[8].handler=0x402823ec
+up_timer_initialize: g_irqvector[9].handler=0x402823ec
+up_timer_initialize: g_irqvector[10].handler=0x402823ec
+up_timer_initialize: g_irqvector[11].handler=0x402823ec
+up_timer_initialize: g_irqvector[12].handler=0x402823ec
+up_timer_initialize: g_irqvector[13].handler=0x402823ec
+up_timer_initialize: g_irqvector[14].handler=0x402823ec
+up_timer_initialize: g_irqvector[15].handler=0x402823ec
+up_timer_initialize: g_irqvector[16].handler=0x402823ec
+up_timer_initialize: g_irqvector[17].handler=0x402823ec
+up_timer_initialize: g_irqvector[18].handler=0x402823ec
+up_timer_initialize: g_irqvector[19].handler=0x402823ec
+up_timer_initialize: g_irqvector[20].handler=0x402823ec
+up_timer_initialize: g_irqvector[21].handler=0x402823ec
+up_timer_initialize: g_irqvector[22].handler=0x402823ec
+up_timer_initialize: g_irqvector[23].handler=0x402823ec
+up_timer_initialize: g_irqvector[24].handler=0x402823ec
+up_timer_initialize: g_irqvector[25].handler=0x402823ec
+up_timer_initialize: g_irqvector[26].handler=0x402823ec
+up_timer_initialize: g_irqvector[27].handler=0x4029b2ac
+up_timer_initialize: g_irqvector[28].handler=0x402823ec
+up_timer_initialize: g_irqvector[29].handler=0x402823ec
+up_timer_initialize: g_irqvector[30].handler=0x402823ec
+up_timer_initialize: g_irqvector[31].handler=0x402823ec
+up_timer_initialize: g_irqvector[32].handler=0x402823ec
+up_timer_initialize: g_irqvector[33].handler=0x402823ec
+up_timer_initialize: g_irqvector[34].handler=0x402823ec
+up_timer_initialize: g_irqvector[35].handler=0x402823ec
+up_timer_initialize: g_irqvector[36].handler=0x402823ec
+up_timer_initialize: g_irqvector[37].handler=0x402823ec
+up_timer_initialize: g_irqvector[38].handler=0x402823ec
+up_timer_initialize: g_irqvector[39].handler=0x402823ec
+up_timer_initialize: g_irqvector[40].handler=0x402823ec
+up_timer_initialize: g_irqvector[41].handler=0x402823ec
+up_timer_initialize: g_irqvector[42].handler=0x402823ec
+up_timer_initialize: g_irqvector[43].handler=0x402823ec
+up_timer_initialize: g_irqvector[44].handler=0x402823ec
+up_timer_initialize: g_irqvector[45].handler=0x402823ec
+up_timer_initialize: g_irqvector[46].handler=0x402823ec
+up_timer_initialize: g_irqvector[47].handler=0x402823ec
+up_timer_initialize: g_irqvector[48].handler=0x402823ec
+up_timer_initialize: g_irqvector[49].handler=0x402823ec
+up_timer_initialize: g_irqvector[50].handler=0x402823ec
+up_timer_initialize: g_irqvector[51].handler=0x402823ec
+up_timer_initialize: g_irqvector[52].handler=0x402823ec
+up_timer_initialize: g_irqvector[53].handler=0x402823ec
+up_timer_initialize: g_irqvector[54].handler=0x402823ec
+up_timer_initialize: g_irqvector[55].handler=0x402823ec
+up_timer_initialize: g_irqvector[56].handler=0x402823ec
+up_timer_initialize: g_irqvector[57].handler=0x402823ec
+up_timer_initialize: g_irqvector[58].handler=0x402823ec
+up_timer_initialize: g_irqvector[59].handler=0x402823ec
+up_timer_initialize: g_irqvector[60].handler=0x402823ec
+up_timer_initialize: g_irqvector[61].handler=0x402823ec
+up_timer_initialize: g_irqvector[62].handler=0x402823ec
+up_timer_initialize: g_irqvector[63].handler=0x402823ec
+up_timer_initialize: g_irqvector[64].handler=0x402823ec
+up_timer_initialize: g_irqvector[65].handler=0x402823ec
+up_timer_initialize: g_irqvector[66].handler=0x402823ec
+up_timer_initialize: g_irqvector[67].handler=0x402823ec
+up_timer_initialize: g_irqvector[68].handler=0x402823ec
+up_timer_initialize: g_irqvector[69].handler=0x402823ec
+up_timer_initialize: g_irqvector[70].handler=0x402823ec
+up_timer_initialize: g_irqvector[71].handler=0x402823ec
+up_timer_initialize: g_irqvector[72].handler=0x402823ec
+up_timer_initialize: g_irqvector[73].handler=0x402823ec
+up_timer_initialize: g_irqvector[74].handler=0x402823ec
+up_timer_initialize: g_irqvector[75].handler=0x402823ec
+up_timer_initialize: g_irqvector[76].handler=0x402823ec
+up_timer_initialize: g_irqvector[77].handler=0x402823ec
+up_timer_initialize: g_irqvector[78].handler=0x402823ec
+up_timer_initialize: g_irqvector[79].handler=0x402823ec
+up_timer_initialize: g_irqvector[80].handler=0x402823ec
+up_timer_initialize: g_irqvector[81].handler=0x402823ec
+up_timer_initialize: g_irqvector[82].handler=0x402823ec
+up_timer_initialize: g_irqvector[83].handler=0x402823ec
+up_timer_initialize: g_irqvector[84].handler=0x402823ec
+up_timer_initialize: g_irqvector[85].handler=0x402823ec
+up_timer_initialize: g_irqvector[86].handler=0x402823ec
+up_timer_initialize: g_irqvector[87].handler=0x402823ec
+up_timer_initialize: g_irqvector[88].handler=0x402823ec
+up_timer_initialize: g_irqvector[89].handler=0x402823ec
+up_timer_initialize: g_irqvector[90].handler=0x402823ec
+up_timer_initialize: g_irqvector[91].handler=0x402823ec
+up_timer_initialize: g_irqvector[92].handler=0x402823ec
+up_timer_initialize: g_irqvector[93].handler=0x402823ec
+up_timer_initialize: g_irqvector[94].handler=0x402823ec
+up_timer_initialize: g_irqvector[95].handler=0x402823ec
+up_timer_initialize: g_irqvector[96].handler=0x402823ec
+up_timer_initialize: g_irqvector[97].handler=0x402823ec
+up_timer_initialize: g_irqvector[98].handler=0x402823ec
+up_timer_initialize: g_irqvector[99].handler=0x402823ec
+up_timer_initialize: g_irqvector[100].handler=0x402823ec
+up_timer_initialize: g_irqvector[101].handler=0x402823ec
+up_timer_initialize: g_irqvector[102].handler=0x402823ec
+up_timer_initialize: g_irqvector[103].handler=0x402823ec
+up_timer_initialize: g_irqvector[104].handler=0x402823ec
+up_timer_initialize: g_irqvector[105].handler=0x402823ec
+up_timer_initialize: g_irqvector[106].handler=0x402823ec
+up_timer_initialize: g_irqvector[107].handler=0x402823ec
+up_timer_initialize: g_irqvector[108].handler=0x402823ec
+up_timer_initialize: g_irqvector[109].handler=0x402823ec
+up_timer_initialize: g_irqvector[110].handler=0x402823ec
+up_timer_initialize: g_irqvector[111].handler=0x402823ec
+up_timer_initialize: g_irqvector[112].handler=0x402823ec
+up_timer_initialize: g_irqvector[113].handler=0x402823ec
+up_timer_initialize: g_irqvector[114].handler=0x402823ec
+up_timer_initialize: g_irqvector[115].handler=0x402823ec
+up_timer_initialize: g_irqvector[116].handler=0x402823ec
+up_timer_initialize: g_irqvector[117].handler=0x402823ec
+up_timer_initialize: g_irqvector[118].handler=0x402823ec
+up_timer_initialize: g_irqvector[119].handler=0x402823ec
+up_timer_initialize: g_irqvector[120].handler=0x402823ec
+up_timer_initialize: g_irqvector[121].handler=0x402823ec
+up_timer_initialize: g_irqvector[122].handler=0x402823ec
+up_timer_initialize: g_irqvector[123].handler=0x402823ec
+up_timer_initialize: g_irqvector[124].handler=0x402823ec
+up_timer_initialize: g_irqvector[125].handler=0x402823ec
+up_timer_initialize: g_irqvector[126].handler=0x402823ec
+up_timer_initialize: g_irqvector[127].handler=0x402823ec
+up_timer_initialize: g_irqvector[128].handler=0x402823ec
+up_timer_initialize: g_irqvector[129].handler=0x402823ec
+up_timer_initialize: g_irqvector[130].handler=0x402823ec
+up_timer_initialize: g_irqvector[131].handler=0x402823ec
+up_timer_initialize: g_irqvector[132].handler=0x402823ec
+up_timer_initialize: g_irqvector[133].handler=0x402823ec
+up_timer_initialize: g_irqvector[134].handler=0x402823ec
+up_timer_initialize: g_irqvector[135].handler=0x402823ec
+up_timer_initialize: g_irqvector[136].handler=0x402823ec
+up_timer_initialize: g_irqvector[137].handler=0x402823ec
+up_timer_initialize: g_irqvector[138].handler=0x402823ec
+up_timer_initialize: g_irqvector[139].handler=0x402823ec
+up_timer_initialize: g_irqvector[140].handler=0x402823ec
+up_timer_initialize: g_irqvector[141].handler=0x402823ec
+up_timer_initialize: g_irqvector[142].handler=0x402823ec
+up_timer_initialize: g_irqvector[143].handler=0x402823ec
+up_timer_initialize: g_irqvector[144].handler=0x402823ec
+up_timer_initialize: g_irqvector[145].handler=0x402823ec
+up_timer_initialize: g_irqvector[146].handler=0x402823ec
+up_timer_initialize: g_irqvector[147].handler=0x402823ec
+up_timer_initialize: g_irqvector[148].handler=0x402823ec
+up_timer_initialize: g_irqvector[149].handler=0x402823ec
+up_timer_initialize: g_irqvector[150].handler=0x402823ec
+up_timer_initialize: g_irqvector[151].handler=0x402823ec
+up_timer_initialize: g_irqvector[152].handler=0x402823ec
+up_timer_initialize: g_irqvector[153].handler=0x402823ec
+up_timer_initialize: g_irqvector[154].handler=0x402823ec
+up_timer_initialize: g_irqvector[155].handler=0x402823ec
+up_timer_initialize: g_irqvector[156].handler=0x402823ec
+up_timer_initialize: g_irqvector[157].handler=0x402823ec
+up_timer_initialize: g_irqvector[158].handler=0x402823ec
+up_timer_initialize: g_irqvector[159].handler=0x402823ec
+up_timer_initialize: g_irqvector[160].handler=0x402823ec
+up_timer_initialize: g_irqvector[161].handler=0x402823ec
+up_timer_initialize: g_irqvector[162].handler=0x402823ec
+up_timer_initialize: g_irqvector[163].handler=0x402823ec
+up_timer_initialize: g_irqvector[164].handler=0x402823ec
+up_timer_initialize: g_irqvector[165].handler=0x402823ec
+up_timer_initialize: g_irqvector[166].handler=0x402823ec
+up_timer_initialize: g_irqvector[167].handler=0x402823ec
+up_timer_initialize: g_irqvector[168].handler=0x402823ec
+up_timer_initialize: g_irqvector[169].handler=0x402823ec
+up_timer_initialize: g_irqvector[170].handler=0x402823ec
+up_timer_initialize: g_irqvector[171].handler=0x402823ec
+up_timer_initialize: g_irqvector[172].handler=0x402823ec
+up_timer_initialize: g_irqvector[173].handler=0x402823ec
+up_timer_initialize: g_irqvector[174].handler=0x402823ec
+up_timer_initialize: g_irqvector[175].handler=0x402823ec
+up_timer_initialize: g_irqvector[176].handler=0x402823ec
+up_timer_initialize: g_irqvector[177].handler=0x402823ec
+up_timer_initialize: g_irqvector[178].handler=0x402823ec
+up_timer_initialize: g_irqvector[179].handler=0x402823ec
+up_timer_initialize: g_irqvector[180].handler=0x402823ec
+up_timer_initialize: g_irqvector[181].handler=0x402823ec
+up_timer_initialize: g_irqvector[182].handler=0x402823ec
+up_timer_initialize: g_irqvector[183].handler=0x402823ec
+up_timer_initialize: g_irqvector[184].handler=0x402823ec
+up_timer_initialize: g_irqvector[185].handler=0x402823ec
+up_timer_initialize: g_irqvector[186].handler=0x402823ec
+up_timer_initialize: g_irqvector[187].handler=0x402823ec
+up_timer_initialize: g_irqvector[188].handler=0x402823ec
+up_timer_initialize: g_irqvector[189].handler=0x402823ec
+up_timer_initialize: g_irqvector[190].handler=0x402823ec
+up_timer_initialize: g_irqvector[191].handler=0x402823ec
+up_timer_initialize: g_irqvector[192].handler=0x402823ec
+up_timer_initialize: g_irqvector[193].handler=0x402823ec
+up_timer_initialize: g_irqvector[194].handler=0x402823ec
+up_timer_initialize: g_irqvector[195].handler=0x402823ec
+up_timer_initialize: g_irqvector[196].handler=0x402823ec
+up_timer_initialize: g_irqvector[197].handler=0x402823ec
+up_timer_initialize: g_irqvector[198].handler=0x402823ec
+up_timer_initialize: g_irqvector[199].handler=0x402823ec
+up_timer_initialize: g_irqvector[200].handler=0x402823ec
+up_timer_initialize: g_irqvector[201].handler=0x402823ec
+up_timer_initialize: g_irqvector[202].handler=0x402823ec
+up_timer_initialize: g_irqvector[203].handler=0x402823ec
+up_timer_initialize: g_irqvector[204].handler=0x402823ec
+up_timer_initialize: g_irqvector[205].handler=0x402823ec
+up_timer_initialize: g_irqvector[206].handler=0x402823ec
+up_timer_initialize: g_irqvector[207].handler=0x402823ec
+up_timer_initialize: g_irqvector[208].handler=0x402823ec
+up_timer_initialize: g_irqvector[209].handler=0x402823ec
+up_timer_initialize: g_irqvector[210].handler=0x402823ec
+up_timer_initialize: g_irqvector[211].handler=0x402823ec
+up_timer_initialize: g_irqvector[212].handler=0x402823ec
+up_timer_initialize: g_irqvector[213].handler=0x402823ec
+up_timer_initialize: g_irqvector[214].handler=0x402823ec
+up_timer_initialize: g_irqvector[215].handler=0x402823ec
+up_timer_initialize: g_irqvector[216].handler=0x402823ec
+up_timer_initialize: g_irqvector[217].handler=0x402823ec
+up_timer_initialize: g_irqvector[218].handler=0x402823ec
+up_timer_initialize: g_irqvector[219].handler=0x402823ec
+AKLMNOPBIJuart_register: Registering /dev/console
+XTQRXTQRuart_register: Registering /dev/ttyS0
+XTQRAKLMNOPBIJXTQRXTQRwork_start_highpri: Starting high-priority kernel worker thread(s)
+XTQRnx_start_application: Starting init thread
+XSXSXSlib_cxx_initialize: _sinit: 0x402a7000 _einit: 0x402a7000 _stext: 0x40280000 _etext: 0x402a8XTQR000
+XTQRXTQRXTQRXTQRXTQRXTQnsh: sysinit: fopen failed: 2
+XTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQnsh: mkfatfs: command not found
+XTQRXTQRXTQ
+XTQNuttShell (NSH) NuttX-10.3.0-RC2
+XTQnsh> XTQXSXTQRXSnx_start: CPU0: Beginning Idle Loop
+XTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTQRXTRXTRXTRXTRXTRXTRXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXTXT+ kill %1
+qemu-system-aarch64: terminating on signal 15 from pid 29896 (<unknown process>)
+ *  Terminal will be reused by tasks, press any key to close it. 
