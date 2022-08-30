@@ -230,6 +230,21 @@ void up_timer_initialize(void)
   irq_attach(ARM_ARCH_TIMER_IRQ, arm64_arch_timer_compare_isr, 0);
 
   ////Begin
+
+  // Read Vector Base Address Register EL1
+  extern void *_vector_table[];
+  sinfo("_vector_table=%p\n", _vector_table);
+  sinfo("vbar_el1=%p\n", read_sysreg(vbar_el1));
+
+  // Write Vector Base Address Register EL1
+  write_sysreg((uint64_t)_vector_table, vbar_el1);
+  ARM64_ISB();
+
+  // Read Vector Base Address Register EL1
+  extern void *_vector_table[];
+  sinfo("_vector_table=%p\n", _vector_table);
+  sinfo("vbar_el1=%p\n", read_sysreg(vbar_el1));
+
   sinfo("ARM_ARCH_TIMER_IRQ=%d\n", ARM_ARCH_TIMER_IRQ);
   sinfo("arm64_arch_timer_compare_isr=%p\n", arm64_arch_timer_compare_isr);
   sinfo("irq_unexpected_isr=%p\n", irq_unexpected_isr);
