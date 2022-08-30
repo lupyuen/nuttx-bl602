@@ -30,6 +30,9 @@
 #include "arm64_fatal.h"
 #include "arm64_internal.h"
 
+# PinePhone Allwinner A64 UART0 Base Address
+# Previously: #define UART1_BASE_ADDRESS 0x01C28000
+
 # QEMU UART Base Address
 #define UART1_BASE_ADDRESS 0x9000000
 
