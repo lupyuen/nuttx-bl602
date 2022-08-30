@@ -245,6 +245,7 @@ void up_timer_initialize(void)
   sinfo("_vector_table=%p\n", _vector_table);
   sinfo("vbar_el1=%p\n", read_sysreg(vbar_el1));
 
+  // Dump NuttX Interrupt Vector Table
   sinfo("ARM_ARCH_TIMER_IRQ=%d\n", ARM_ARCH_TIMER_IRQ);
   sinfo("arm64_arch_timer_compare_isr=%p\n", arm64_arch_timer_compare_isr);
   sinfo("irq_unexpected_isr=%p\n", irq_unexpected_isr);
@@ -252,6 +253,7 @@ void up_timer_initialize(void)
     {
       sinfo("g_irqvector[%d].handler=%p\n", i, g_irqvector[i].handler);
     }
+    
   ////End
 
   arm64_gic_irq_set_priority(ARM_ARCH_TIMER_IRQ, ARM_ARCH_TIMER_PRIO,
