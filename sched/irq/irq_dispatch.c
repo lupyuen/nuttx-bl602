@@ -122,8 +122,13 @@
  *
  ****************************************************************************/
 
+int up_putc(int ch);//// For debugging
+
 void irq_dispatch(int irq, FAR void *context)
 {
+  static int count = 0; count++;////
+  if (count < 50) { up_putc('Q'); }//// For debugging
+
   xcpt_t vector = irq_unexpected_isr;
   FAR void *arg = NULL;
   unsigned int ndx = irq;

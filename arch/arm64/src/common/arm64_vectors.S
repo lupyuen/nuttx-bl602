@@ -30,6 +30,9 @@
 #include "arm64_fatal.h"
 #include "arm64_internal.h"
 
+# QEMU UART Base Address
+#define UART1_BASE_ADDRESS 0x9000000
+
 /****************************************************************************
  * Public Symbols
  ****************************************************************************/
@@ -179,6 +182,11 @@ restore_new:
 
 GTEXT(arm64_sync_exc)
 SECTION_FUNC(text, arm64_sync_exc)
+
+    mov   x0, #83                 /* For Debug: 'S' */
+    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    strb  w0, [x1]                /* For Debug */
+
     /* checking the EC value to see which exception need to be handle */
 
     mrs    x0, esr_el1
@@ -333,6 +341,11 @@ exc_handle:
 
 GTEXT(arm64_irq_handler)
 SECTION_FUNC(text, arm64_irq_handler)
+
+    mov   x0, #84                 /* For Debug: 'T' */
+    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    strb  w0, [x1]                /* For Debug */
+
     /* switch to IRQ stack and save current sp on it. */
 #ifdef CONFIG_SMP
     get_cpu_id x1
@@ -402,6 +415,11 @@ irq_exit:
 
 GTEXT(arm64_serror_handler)
 SECTION_FUNC(text, arm64_serror_handler)
+
+    mov   x0, #85                 /* For Debug: 'U' */
+    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    strb  w0, [x1]                /* For Debug */
+
     arm64_exception_context_save x0 x1 sp
 
     mov    x0, #K_ERR_CPU_EXCEPTION
@@ -414,6 +432,11 @@ SECTION_FUNC(text, arm64_serror_handler)
 
 GTEXT(arm64_mode32_error)
 SECTION_FUNC(text, arm64_mode32_error)
+
+    mov   x0, #86                 /* For Debug: 'V' */
+    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    strb  w0, [x1]                /* For Debug */
+
     arm64_exception_context_save x0 x1 sp
 
     mov    x1, sp
@@ -426,6 +449,11 @@ SECTION_FUNC(text, arm64_mode32_error)
 
 GTEXT(arm64_irq_spurious)
 SECTION_FUNC(text, arm64_irq_spurious)
+
+    mov   x0, #87                 /* For Debug: 'W' */
+    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    strb  w0, [x1]                /* For Debug */
+
     arm64_exception_context_save x0 x1 sp
 
     mov    x1, sp

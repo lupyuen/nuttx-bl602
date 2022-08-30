@@ -131,8 +131,13 @@ static int arm64_arch_timer_compare_isr(int irq, void *regs, void *arg)
 
 #else
 
+int up_putc(int ch);//// For debugging
+
 static int arm64_arch_timer_compare_isr(int irq, void *regs, void *arg)
 {
+  static int count = 0; count++;////
+  if (count < 50) { up_putc('R'); }//// For debugging
+
   uint64_t      curr_cycle;
   uint32_t      delta_ticks;
   uint64_t      next_cycle;
@@ -202,6 +207,8 @@ uint64_t arm64_counter_read(void)
   return arm64_arch_timer_count();
 }
 
+#include "irq/irq.h" ////
+
 /****************************************************************************
  * Name: up_timer_initialize
  *
@@ -221,6 +228,17 @@ void up_timer_initialize(void)
         (unsigned long)(arch_timer_rate / 10000) % 100, cycle_per_tick);
 
   irq_attach(ARM_ARCH_TIMER_IRQ, arm64_arch_timer_compare_isr, 0);
+
+  ////Begin
+  sinfo("ARM_ARCH_TIMER_IRQ=%d\n", ARM_ARCH_TIMER_IRQ);
+  sinfo("arm64_arch_timer_compare_isr=%p\n", arm64_arch_timer_compare_isr);
+  sinfo("irq_unexpected_isr=%p\n", irq_unexpected_isr);
+  for (int i = 0; i < NR_IRQS; i++)
+    {
+      sinfo("g_irqvector[%d].handler=%p\n", i, g_irqvector[i].handler);
+    }
+  ////End
+
   arm64_gic_irq_set_priority(ARM_ARCH_TIMER_IRQ, ARM_ARCH_TIMER_PRIO,
                              ARM_ARCH_TIMER_FLAGS);
 

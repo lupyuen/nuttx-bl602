@@ -44,8 +44,11 @@
  *
  ****************************************************************************/
 
+int up_putc(int ch);//// For debugging
+
 int irq_unexpected_isr(int irq, FAR void *context, FAR void *arg)
 {
+  { up_putc('*'); }//// For debugging
   UNUSED(context);
   UNUSED(arg);
 
