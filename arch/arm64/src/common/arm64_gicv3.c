@@ -159,8 +159,6 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
     }
 }
 #else
-int up_putc(int ch);//// For debugging
-
 // From arm_gicv2.c
 int up_prioritize_irq(int irq, int priority);
 int arm_gic_irq_trigger(int irq, bool edge);
@@ -169,8 +167,6 @@ int arm_gic_irq_trigger(int irq, bool edge);
 void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
                                 uint32_t flags)
 {
-  up_putc('A');//// For debugging
-
   /* Disable the interrupt */
 
   up_disable_irq(intid);
@@ -197,7 +193,6 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
           DEBUGASSERT(ret == OK);
         }
     }
-  up_putc('B');//// For debugging
 }
 #endif  //  NOTUSED
 
@@ -771,10 +766,10 @@ void arm64_gic_secondary_init(void)
 // GIC v2 for PinePhone: Reuse the implementation of Arm32 GIC v2
 #define PINEPHONE_GICv2
 #define CONFIG_ARMV7A_HAVE_GICv2
-////#define CONFIG_DEBUG_IRQ_INFO  //  Dump GIC Registers
+// #define CONFIG_DEBUG_IRQ_INFO  //  Dump GIC Registers
 
 #define CONFIG_ARCH_TRUSTZONE_NONSECURE
-////#define CONFIG_ARCH_TRUSTZONE_SECURE
+// Or: #define CONFIG_ARCH_TRUSTZONE_SECURE
 
 #include "../arch/arm/src/armv7-a/mpcore.h"
 
@@ -800,7 +795,6 @@ void arm64_gic_secondary_init(void)
 // Decode IRQ for PinePhone, based on arm_decodeirq in arm_gicv2.c
 uint64_t * arm64_decodeirq(uint64_t * regs)
 {
-  up_putc('C');//// For debugging
   uint32_t regval;
   int irq;
 
@@ -824,7 +818,6 @@ uint64_t * arm64_decodeirq(uint64_t * regs)
   /* Write to the end-of-interrupt register */
 
   putreg32(regval, GIC_ICCEOIR);
-  up_putc('D');//// For debugging
   return regs;
 }
 #endif  //  !NOTUSED
