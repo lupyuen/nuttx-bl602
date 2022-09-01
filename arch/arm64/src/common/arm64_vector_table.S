@@ -70,9 +70,9 @@
     stp    x26, x27, [sp, #8 * REG_X26]
     stp    x28, x29, [sp, #8 * REG_X28]
 
-    mov   x0, #88                 /* For Debug: 'X' */
-    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
-    strb  w0, [x1]                /* For Debug */
+    # mov   x0, #88                 /* For Debug: 'X' */
+    # ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    # strb  w0, [x1]                /* For Debug */
 
     /* Save the current task's SP_ELx and x30 */
     mov    \xreg0, sp

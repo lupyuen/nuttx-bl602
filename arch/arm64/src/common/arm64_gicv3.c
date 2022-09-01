@@ -169,7 +169,7 @@ int arm_gic_irq_trigger(int irq, bool edge);
 void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
                                 uint32_t flags)
 {
-  up_putc('A');//// For debugging
+  //up_putc('A');//// For debugging
 
   /* Disable the interrupt */
 
@@ -197,7 +197,7 @@ void arm64_gic_irq_set_priority(unsigned int intid, unsigned int prio,
           DEBUGASSERT(ret == OK);
         }
     }
-  up_putc('B');//// For debugging
+  //up_putc('B');//// For debugging
 }
 #endif  //  NOTUSED
 
@@ -800,7 +800,7 @@ void arm64_gic_secondary_init(void)
 // Decode IRQ for PinePhone, based on arm_decodeirq in arm_gicv2.c
 uint64_t * arm64_decodeirq(uint64_t * regs)
 {
-  ////up_putc('C');//// For debugging
+  //up_putc('C');//// For debugging
   uint32_t regval;
   int irq;
 
@@ -824,7 +824,7 @@ uint64_t * arm64_decodeirq(uint64_t * regs)
   /* Write to the end-of-interrupt register */
 
   putreg32(regval, GIC_ICCEOIR);
-  ////up_putc('D');//// For debugging
+  //up_putc('D');//// For debugging
   return regs;
 }
 #endif  //  !NOTUSED

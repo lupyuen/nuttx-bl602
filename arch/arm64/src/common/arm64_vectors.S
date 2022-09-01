@@ -186,9 +186,9 @@ restore_new:
 GTEXT(arm64_sync_exc)
 SECTION_FUNC(text, arm64_sync_exc)
 
-    mov   x0, #83                 /* For Debug: 'S' */
-    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
-    strb  w0, [x1]                /* For Debug */
+    # mov   x0, #83                 /* For Debug: 'S' */
+    # ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    # strb  w0, [x1]                /* For Debug */
 
     /* checking the EC value to see which exception need to be handle */
 
@@ -345,9 +345,9 @@ exc_handle:
 GTEXT(arm64_irq_handler)
 SECTION_FUNC(text, arm64_irq_handler)
 
-    mov   x0, #84                 /* For Debug: 'T' */
-    ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
-    strb  w0, [x1]                /* For Debug */
+    # mov   x0, #84                 /* For Debug: 'T' */
+    # ldr   x1, =UART1_BASE_ADDRESS /* For Debug */
+    # strb  w0, [x1]                /* For Debug */
 
     /* switch to IRQ stack and save current sp on it. */
 #ifdef CONFIG_SMP

@@ -136,7 +136,7 @@ int up_putc(int ch);//// For debugging
 static int arm64_arch_timer_compare_isr(int irq, void *regs, void *arg)
 {
   static int count = 0; count++;////
-  if (count < 50) { up_putc('R'); }//// For debugging
+  //if (count < 50) { up_putc('R'); }//// For debugging
 
   uint64_t      curr_cycle;
   uint32_t      delta_ticks;
