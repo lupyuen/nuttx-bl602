@@ -461,8 +461,9 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 {
   //up_putc('E');////
-  uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
-  *uart0_base_address = ch;
+  // uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
+  // *uart0_base_address = ch;
+  up_putc(ch);
 }
 #endif  //  NOTUSED
 
