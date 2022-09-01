@@ -405,7 +405,7 @@ static bool qemu_pl011_txready(struct uart_dev_s *dev)
 // Return true if PinePhone Allwinner A64 UART Transmit FIFO is not full
 static bool qemu_pl011_txready(struct uart_dev_s *dev)
 {
-  up_putc('C');////
+  //up_putc('C');////
   // LSR is at Offset 0x14
   const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
 
@@ -434,7 +434,7 @@ static bool qemu_pl011_txempty(struct uart_dev_s *dev)
 // Return true if PinePhone Allwinner A64 UART Transmit FIFO is empty
 static bool qemu_pl011_txempty(struct uart_dev_s *dev)
 {
-  up_putc('D');////
+  //up_putc('D');////
   return qemu_pl011_txready(dev);
 }
 #endif  //  NOTUSED
@@ -460,7 +460,7 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 // Send one byte to PinePhone Allwinner A64 UART
 static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 {
-  up_putc('E');////
+  //up_putc('E');////
   uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
   *uart0_base_address = ch;
 }
@@ -495,7 +495,7 @@ static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 // TODO: Return true if PinePhone Allwinner A64 UART Receive FIFO is not empty
 static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 {
-  up_putc('F');////
+  //up_putc('F');////
   return false;
 }
 #endif  //  NOTUSED
@@ -527,7 +527,7 @@ static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
 // TODO: Enable or disable PinePhone Allwinner A64 UART interrupts
 static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
 {
-  up_putc('G');////
+  //up_putc('G');////
 
   // Write to UART Interrupt Enable Register (UART_IER)
   // Offset: 0x0004
@@ -569,7 +569,7 @@ static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
 // TODO: Enable or disable PinePhone Allwinner A64 UART TX interrupts
 static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
 {
-  up_putc('H');////
+  //up_putc('H');////
 
   // Write to UART Interrupt Enable Register (UART_IER)
   // Offset: 0x0004
@@ -612,7 +612,7 @@ static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 // TODO: Receive data from PinePhone Allwinner A64 UART
 static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 {
-  up_putc('I');////
+  //up_putc('I');////
   return '.';
 }
 #endif  //  NOTUSED
@@ -684,7 +684,7 @@ static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
 // Interrupt Handler for PinePhone Allwinner A64 UART
 static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
 {
-  up_putc('M');////
+  //up_putc('M');////
   struct uart_dev_s         *dev = (struct uart_dev_s *)arg;
   UNUSED(irq);
   UNUSED(context);
@@ -729,7 +729,7 @@ static void qemu_pl011_detach(struct uart_dev_s *dev)
 // TODO: Detach PinePhone Allwinner A64 UART
 static void qemu_pl011_detach(struct uart_dev_s *dev)
 {
-  up_putc('J');////
+  //up_putc('J');////
   up_disable_irq(UART_IRQ);
   irq_detach(UART_IRQ);
 }
@@ -786,7 +786,7 @@ static int qemu_pl011_attach(struct uart_dev_s *dev)
 // TODO: Attach PinePhone Allwinner A64 UART
 static int qemu_pl011_attach(struct uart_dev_s *dev)
 {
-  up_putc('K');////
+  //up_putc('K');////
   int ret;
   ret = irq_attach(UART_IRQ, qemu_pl011_irq_handler, dev);
   arm64_gic_irq_set_priority(UART_IRQ, IRQ_TYPE_LEVEL, 0);
@@ -895,7 +895,7 @@ static int qemu_pl011_setup(struct uart_dev_s *dev)
 // TODO: Setup PinePhone Allwinner A64 UART
 static int qemu_pl011_setup(struct uart_dev_s *dev)
 {
-  up_putc('L');////
+  //up_putc('L');////
   return 0;
 }
 #endif  //  NOTUSED
