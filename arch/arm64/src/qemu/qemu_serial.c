@@ -461,9 +461,8 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 {
   //up_putc('E');////
-  // uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
-  // *uart0_base_address = ch;
-  up_putc(ch);
+  uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
+  *uart0_base_address = ch;
 }
 #endif  //  NOTUSED
 
@@ -497,7 +496,19 @@ static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 {
   //up_putc('F');////
-  return false;
+
+  // UART Line Status Register (UART_LSR)
+  // Offset: 0x0014
+  const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
+
+  // Bit 0: Data Ready (DR)
+  // This is used to indicate that the receiver contains at least one character in
+  // the RBR or the receiver FIFO.
+  // 0: no data ready
+  // 1: data ready
+  // This bit is cleared when the RBR is read in non-FIFO mode, or when the
+  // receiver FIFO is empty, in FIFO mode.
+  return (*uart_lsr) & 1;  // DR=1 if data is ready
 }
 #endif  //  NOTUSED
 
@@ -614,7 +625,21 @@ static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 {
   //up_putc('I');////
-  return '.';
+
+  // Read UART Receiver Buffer Register (UART_RBR)
+  // Offset: 0x0000
+  const uint8_t *uart_rbr = (const uint8_t *) (UART_BASE_ADDRESS + 0x00);
+
+  // Data byte received on the serial input port . The data in this register is
+  // valid only if the Data Ready (DR) bit in the UART Line Status Register
+  // (UART_LCR) is set.
+  //
+  // If in FIFO mode and FIFOs are enabled (UART_FCR[0] set to one), this
+  // register accesses the head of the receive FIFO. If the receive FIFO is full
+  // and this register is not read before the next data character arrives, then
+  // the data already in the FIFO is preserved, but any incoming data are lost
+  // and an overrun error occurs.
+  return *uart_rbr;
 }
 #endif  //  NOTUSED
 
@@ -691,18 +716,33 @@ static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
   UNUSED(context);
   DEBUGASSERT(dev != NULL && dev->priv != NULL);
 
-#ifdef TODO
-  if (pl011_irq_rx_ready(sport))
-    {
-      uart_recvchars(dev);
-    }
-#endif  //  TODO
+  // Read UART Interrupt Identity Register (UART_IIR)
+  // Offset: 0x0008 
+  const uint8_t *uart_iir = (const uint8_t *) (UART_BASE_ADDRESS + 0x08);
 
-  if (qemu_pl011_txready(dev))
-    {
-      uart_xmitchars(dev);
-    }
+  // Bits 3:0: Interrupt ID
+  // This indicates the highest priority pending interrupt which can be one of the following types:
+  // 0000: modem status
+  // 0001: no interrupt pending
+  // 0010: THR empty
+  // 0100: received data available
+  // 0110: receiver line status
+  // 0111: busy detect
+  // 1100: character timeout
+  // Bit 3 indicates an interrupt can only occur when the FIFOs are enabled and used to distinguish a Character Timeout condition interrupt.
+  uint8_t int_id = (*uart_iir) & 0b1111;
 
+  // 0100: If received data is available...
+  if (int_id == 0b0100) {
+    // Receive the data
+    uart_recvchars(dev);
+
+  // 0010: If THR is empty (Transmit Holding Register)...
+  } else if (int_id == 0b0010) {
+    // Transmit the data
+    uart_xmitchars(dev);
+
+  }
   return OK;
 }
 #endif  //  NOTUSED
