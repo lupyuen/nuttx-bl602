@@ -925,6 +925,7 @@ void arm64_serialinit(void)
 // Setup PinePhone Allwinner A64 UART
 static int a64_uart_setup(struct uart_dev_s *dev)
 {
+  // TODO: Set the Baud Rate
   return 0;
 }
 
@@ -965,7 +966,7 @@ static void a64_uart_detach(struct uart_dev_s *dev)
   // Disable UART Interrupt
   up_disable_irq(UART_IRQ);
 
-  // Detach UART Interrupt
+  // Detach UART Interrupt Handler
   irq_detach(UART_IRQ);
 }
 
@@ -995,6 +996,7 @@ static int a64_uart_receive(struct uart_dev_s *dev, unsigned int *status)
   // Offset: 0x0000
   const uint8_t *uart_rbr = (const uint8_t *) (UART_BASE_ADDRESS + 0x00);
 
+  // Bits 7 to 0: Receiver Buffer Register (RBR)
   // Data byte received on the serial input port . The data in this register is
   // valid only if the Data Ready (DR) bit in the UART Line Status Register
   // (UART_LCR) is set.
@@ -1042,8 +1044,19 @@ static bool a64_uart_rxavailable(struct uart_dev_s *dev)
 // Send one byte to PinePhone Allwinner A64 UART
 static void a64_uart_send(struct uart_dev_s *dev, int ch)
 {
-  uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
-  *uart0_base_address = ch;
+  // Write to UART Transmit Holding Register (UART_THR)
+  // Offset: 0x0000
+  uint8_t *uart_thr = (uint8_t *) (UART_BASE_ADDRESS + 0x0);
+
+  // Bits 7 to 0: Transmit Holding Register (THR)
+  // Data to be transmitted on the serial output port . Data should only be
+  // written to the THR when the THR Empty (THRE) bit (UART_LSR[5]) is set.
+
+  // If in FIFO mode and FIFOs are enabled (UART_FCR[0] = 1) and THRE is set,
+  // 16 number of characters of data may be written to the THR before the
+  // FIFO is full. Any attempt to write data when the FIFO is full results in the
+  // write data being lost.
+  *uart_thr = ch;
 }
 
 // Enable or disable Transmit Interrupts for PinePhone Allwinner A64 UART
@@ -1064,17 +1077,25 @@ static void a64_uart_txint(struct uart_dev_s *dev, bool enable)
 // Return true if Transmit FIFO is not full for PinePhone Allwinner A64 UART
 static bool a64_uart_txready(struct uart_dev_s *dev)
 {
-  // Read from UART_LSR
+  // Read from UART Line Status Register (UART_LSR)
   // Offset: 0x0014
   const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
 
-  // Transmit FIFO is ready if THRE=1 (bit 5 of LSR)
-  return (*uart_lsr & 0x20) != 0;
+  // Bit 5: TX Holding Register Empty (THRE)
+  // If the FIFOs are disabled, this bit is set to "1" whenever the TX Holding
+  // Register is empty and ready to accept new data and it is cleared when the
+  // CPU writes to the TX Holding Register.
+
+  // If the FIFOs are enabled, this bit is set to "1" whenever the TX FIFO is
+  // empty and it is cleared when at least one byte is written
+  // to the TX FIFO.
+  return (*uart_lsr & 0b100000) != 0;  // Transmit FIFO is ready if THRE=1 (Bit 5)
 }
 
 // Return true if Transmit FIFO is empty for PinePhone Allwinner A64 UART
 static bool a64_uart_txempty(struct uart_dev_s *dev)
 {
+  // Transmit FIFO is empty if Transmit FIFO is not full (for now)
   return a64_uart_txready(dev);
 }
 
@@ -1091,7 +1112,7 @@ static int a64_uart_irq_handler(int irq, void *context, void *arg)
   // Offset: 0x0008 
   const uint8_t *uart_iir = (const uint8_t *) (UART_BASE_ADDRESS + 0x08);
 
-  // Bits 3:0: Interrupt ID
+  // Bits 3 to 0: Interrupt ID
   // This indicates the highest priority pending interrupt which can be one of the following types:
   // 0000: modem status
   // 0001: no interrupt pending
