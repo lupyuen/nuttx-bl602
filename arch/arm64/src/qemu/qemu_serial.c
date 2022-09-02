@@ -57,6 +57,9 @@
  * Pre-processor Definitions
  ***************************************************************************/
 
+// Use PinePhone Allwinner A64 UART (instead of QEMU PL011)
+#define PINEPHONE_UART
+
 // UART0 IRQ Number for PinePhone Allwinner A64 UART
 #define UART_IRQ 32
 
@@ -240,6 +243,20 @@ struct pl011_uart_port_s
  * Private Functions
  ***************************************************************************/
 
+#ifdef PINEPHONE_UART
+static int qemu_pl011_setup(struct uart_dev_s *dev);
+static int qemu_pl011_attach(struct uart_dev_s *dev);
+static void qemu_pl011_detach(struct uart_dev_s *dev);
+static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status);
+static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable);
+static bool qemu_pl011_rxavailable(struct uart_dev_s *dev);
+static void qemu_pl011_send(struct uart_dev_s *dev, int ch);
+static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable);
+static bool qemu_pl011_txready(struct uart_dev_s *dev);
+static bool qemu_pl011_txempty(struct uart_dev_s *dev);
+static int qemu_pl011_irq_handler(int irq, void *context, void *arg);
+#endif  //  PINEPHONE_UART
+
 #ifdef NOTUSED
 static void pl011_enable(const struct pl011_uart_port_s *sport)
 {
@@ -401,17 +418,6 @@ static bool qemu_pl011_txready(struct uart_dev_s *dev)
   return (config->uart->imsc & PL011_IMSC_TXIM) &&
          pl011_irq_tx_complete(sport);
 }
-#else
-// Return true if PinePhone Allwinner A64 UART Transmit FIFO is not full
-static bool qemu_pl011_txready(struct uart_dev_s *dev)
-{
-  //up_putc('C');////
-  // LSR is at Offset 0x14
-  const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
-
-  // Transmit FIFO is ready if THRE=1 (bit 5 of LSR)
-  return (*uart_lsr & 0x20) != 0;
-}
 #endif  //  NOTUSED
 
 /***************************************************************************
@@ -429,13 +435,6 @@ static bool qemu_pl011_txempty(struct uart_dev_s *dev)
   struct pl011_uart_port_s *sport = (struct pl011_uart_port_s *)dev->priv;
 
   return pl011_irq_tx_complete(sport);
-}
-#else
-// Return true if PinePhone Allwinner A64 UART Transmit FIFO is empty
-static bool qemu_pl011_txempty(struct uart_dev_s *dev)
-{
-  //up_putc('D');////
-  return qemu_pl011_txready(dev);
 }
 #endif  //  NOTUSED
 
@@ -455,14 +454,6 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
   const struct pl011_config *config = &sport->config;
 
   config->uart->dr = ch;
-}
-#else
-// Send one byte to PinePhone Allwinner A64 UART
-static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
-{
-  //up_putc('E');////
-  uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
-  *uart0_base_address = ch;
 }
 #endif  //  NOTUSED
 
@@ -491,25 +482,6 @@ static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 
   return (config->uart->fr & PL011_FR_RXFE) == 0U;
 }
-#else
-// TODO: Return true if PinePhone Allwinner A64 UART Receive FIFO is not empty
-static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
-{
-  //up_putc('F');////
-
-  // UART Line Status Register (UART_LSR)
-  // Offset: 0x0014
-  const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
-
-  // Bit 0: Data Ready (DR)
-  // This is used to indicate that the receiver contains at least one character in
-  // the RBR or the receiver FIFO.
-  // 0: no data ready
-  // 1: data ready
-  // This bit is cleared when the RBR is read in non-FIFO mode, or when the
-  // receiver FIFO is empty, in FIFO mode.
-  return (*uart_lsr) & 1;  // DR=1 if data is ready
-}
 #endif  //  NOTUSED
 
 /***************************************************************************
@@ -534,23 +506,6 @@ static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
     {
       pl011_irq_rx_disable(sport);
     }
-}
-#else
-// TODO: Enable or disable PinePhone Allwinner A64 UART interrupts
-static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
-{
-  //up_putc('G');////
-
-  // Write to UART Interrupt Enable Register (UART_IER)
-  // Offset: 0x0004
-  uint8_t *uart_ier = (uint8_t *) (UART_BASE_ADDRESS + 0x04);
-
-  // Bit 0: Enable Received Data Available Interrupt (ERBFI)
-  // This is used to enable/disable the generation of Received Data Available Interrupt and the Character Timeout Interrupt (if in FIFO mode and FIFOs enabled). These are the second highest priority interrupts.
-  // 0: Disable
-  // 1: Enable
-  if (enable) { *uart_ier |= 0b00000001; }
-  else        { *uart_ier &= 0b11111110; }
 }
 #endif  //  NOTUSED
 
@@ -577,23 +532,6 @@ static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
       pl011_irq_tx_disable(sport);
     }
 }
-#else
-// TODO: Enable or disable PinePhone Allwinner A64 UART TX interrupts
-static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
-{
-  //up_putc('H');////
-
-  // Write to UART Interrupt Enable Register (UART_IER)
-  // Offset: 0x0004
-  uint8_t *uart_ier = (uint8_t *) (UART_BASE_ADDRESS + 0x04);
-
-  // Bit 1: Enable Transmit Holding Register Empty Interrupt (ETBEI)
-  // This is used to enable/disable the generation of Transmitter Holding Register Empty Interrupt. This is the third highest priority interrupt.
-  // 0: Disable
-  // 1: Enable
-  if (enable) { *uart_ier |= 0b00000010; }
-  else        { *uart_ier &= 0b11111101; }
-}
 #endif  //  NOTUSED
 
 /***************************************************************************
@@ -619,27 +557,6 @@ static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
   *status = 0;
 
   return rx;
-}
-#else
-// TODO: Receive data from PinePhone Allwinner A64 UART
-static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
-{
-  //up_putc('I');////
-
-  // Read UART Receiver Buffer Register (UART_RBR)
-  // Offset: 0x0000
-  const uint8_t *uart_rbr = (const uint8_t *) (UART_BASE_ADDRESS + 0x00);
-
-  // Data byte received on the serial input port . The data in this register is
-  // valid only if the Data Ready (DR) bit in the UART Line Status Register
-  // (UART_LCR) is set.
-  //
-  // If in FIFO mode and FIFOs are enabled (UART_FCR[0] set to one), this
-  // register accesses the head of the receive FIFO. If the receive FIFO is full
-  // and this register is not read before the next data character arrives, then
-  // the data already in the FIFO is preserved, but any incoming data are lost
-  // and an overrun error occurs.
-  return *uart_rbr;
 }
 #endif  //  NOTUSED
 
@@ -706,45 +623,6 @@ static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
 
   return OK;
 }
-#else
-// Interrupt Handler for PinePhone Allwinner A64 UART
-static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
-{
-  //up_putc('M');////
-  struct uart_dev_s         *dev = (struct uart_dev_s *)arg;
-  UNUSED(irq);
-  UNUSED(context);
-  DEBUGASSERT(dev != NULL && dev->priv != NULL);
-
-  // Read UART Interrupt Identity Register (UART_IIR)
-  // Offset: 0x0008 
-  const uint8_t *uart_iir = (const uint8_t *) (UART_BASE_ADDRESS + 0x08);
-
-  // Bits 3:0: Interrupt ID
-  // This indicates the highest priority pending interrupt which can be one of the following types:
-  // 0000: modem status
-  // 0001: no interrupt pending
-  // 0010: THR empty
-  // 0100: received data available
-  // 0110: receiver line status
-  // 0111: busy detect
-  // 1100: character timeout
-  // Bit 3 indicates an interrupt can only occur when the FIFOs are enabled and used to distinguish a Character Timeout condition interrupt.
-  uint8_t int_id = (*uart_iir) & 0b1111;
-
-  // 0100: If received data is available...
-  if (int_id == 0b0100) {
-    // Receive the data
-    uart_recvchars(dev);
-
-  // 0010: If THR is empty (Transmit Holding Register)...
-  } else if (int_id == 0b0010) {
-    // Transmit the data
-    uart_xmitchars(dev);
-
-  }
-  return OK;
-}
 #endif  //  NOTUSED
 
 /***************************************************************************
@@ -765,14 +643,6 @@ static void qemu_pl011_detach(struct uart_dev_s *dev)
 
   up_disable_irq(sport->irq_num);
   irq_detach(sport->irq_num);
-}
-#else
-// TODO: Detach PinePhone Allwinner A64 UART
-static void qemu_pl011_detach(struct uart_dev_s *dev)
-{
-  //up_putc('J');////
-  up_disable_irq(UART_IRQ);
-  irq_detach(UART_IRQ);
 }
 #endif  //  NOTUSED
 
@@ -820,33 +690,6 @@ static int qemu_pl011_attach(struct uart_dev_s *dev)
     {
       pl011_enable(sport);
     }
-
-  return ret;
-}
-#else
-// TODO: Attach PinePhone Allwinner A64 UART
-static int qemu_pl011_attach(struct uart_dev_s *dev)
-{
-  //up_putc('K');////
-  int ret;
-  ret = irq_attach(UART_IRQ, qemu_pl011_irq_handler, dev);
-  arm64_gic_irq_set_priority(UART_IRQ, IRQ_TYPE_LEVEL, 0);
-
-  if (ret == OK)
-    {
-      up_enable_irq(UART_IRQ);
-    }
-  else
-    {
-      sinfo("error ret=%d\n", ret);
-    }
-
-#ifdef TODO
-  if (!data->sbsa)
-    {
-      pl011_enable(sport);
-    }
-#endif  //  TODO
 
   return ret;
 }
@@ -932,13 +775,6 @@ static int qemu_pl011_setup(struct uart_dev_s *dev)
 
   return 0;
 }
-#else
-// TODO: Setup PinePhone Allwinner A64 UART
-static int qemu_pl011_setup(struct uart_dev_s *dev)
-{
-  //up_putc('L');////
-  return 0;
-}
 #endif  //  NOTUSED
 
 /***************************************************************************
@@ -947,6 +783,7 @@ static int qemu_pl011_setup(struct uart_dev_s *dev)
 
 /* Serial driver UART operations */
 
+#ifndef PINEPHONE_UART
 static const struct uart_ops_s g_uart_ops =
 {
   .setup    = qemu_pl011_setup,
@@ -965,6 +802,29 @@ static const struct uart_ops_s g_uart_ops =
   .txready  = qemu_pl011_txready,
   .txempty  = qemu_pl011_txempty,
 };
+#endif  //  !PINEPHONE_UART
+
+#ifdef PINEPHONE_UART
+//  Serial driver UART operations for PinePhone Allwinner A64 UART
+static const struct uart_ops_s g_uart_ops =
+{
+  .setup    = qemu_pl011_setup,
+  .shutdown = qemu_pl011_shutdown,
+  .attach   = qemu_pl011_attach,
+  .detach   = qemu_pl011_detach,
+  .ioctl    = qemu_pl011_ioctl,
+  .receive  = qemu_pl011_receive,
+  .rxint    = qemu_pl011_rxint,
+  .rxavailable = qemu_pl011_rxavailable,
+#ifdef CONFIG_SERIAL_IFLOWCONTROL
+  .rxflowcontrol    = NULL,
+#endif
+  .send     = qemu_pl011_send,
+  .txint    = qemu_pl011_txint,
+  .txready  = qemu_pl011_txready,
+  .txempty  = qemu_pl011_txempty,
+};
+#endif  //  PINEPHONE_UART
 
 /* This describes the state of the uart1 port. */
 
@@ -1097,6 +957,180 @@ void arm64_serialinit(void)
       sinfo("error at register dev/ttyS0, ret =%d\n", ret);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// PinePhone Allwinner A64 UART
+
+#ifdef PINEPHONE_UART
+
+// TODO: Setup PinePhone Allwinner A64 UART
+static int qemu_pl011_setup(struct uart_dev_s *dev)
+{
+  return 0;
+}
+
+// Attach Interrupt Handler for PinePhone Allwinner A64 UART
+static int qemu_pl011_attach(struct uart_dev_s *dev)
+{
+  int ret;
+
+  // Attach UART Interrupt Handler
+  ret = irq_attach(UART_IRQ, qemu_pl011_irq_handler, dev);
+
+  // Set Interrupt Priority in GIC v2
+  arm64_gic_irq_set_priority(UART_IRQ, IRQ_TYPE_LEVEL, 0);
+
+  // Enable UART Interrupt
+  if (ret == OK)
+    {
+      up_enable_irq(UART_IRQ);
+    }
+  else
+    {
+      sinfo("error ret=%d\n", ret);
+    }
+  return ret;
+}
+
+// Detach Interrupt Handler for PinePhone Allwinner A64 UART
+static void qemu_pl011_detach(struct uart_dev_s *dev)
+{
+  // Disable UART Interrupt
+  up_disable_irq(UART_IRQ);
+
+  // Detach UART Interrupt
+  irq_detach(UART_IRQ);
+}
+
+// Receive data from PinePhone Allwinner A64 UART
+static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
+{
+  // Read from UART Receiver Buffer Register (UART_RBR)
+  // Offset: 0x0000
+  const uint8_t *uart_rbr = (const uint8_t *) (UART_BASE_ADDRESS + 0x00);
+
+  // Data byte received on the serial input port . The data in this register is
+  // valid only if the Data Ready (DR) bit in the UART Line Status Register
+  // (UART_LCR) is set.
+  //
+  // If in FIFO mode and FIFOs are enabled (UART_FCR[0] set to one), this
+  // register accesses the head of the receive FIFO. If the receive FIFO is full
+  // and this register is not read before the next data character arrives, then
+  // the data already in the FIFO is preserved, but any incoming data are lost
+  // and an overrun error occurs.
+  return *uart_rbr;
+}
+
+// Enable or disable Receive Interrupts for PinePhone Allwinner A64 UART
+static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
+{
+  // Write to UART Interrupt Enable Register (UART_IER)
+  // Offset: 0x0004
+  uint8_t *uart_ier = (uint8_t *) (UART_BASE_ADDRESS + 0x04);
+
+  // Bit 0: Enable Received Data Available Interrupt (ERBFI)
+  // This is used to enable/disable the generation of Received Data Available Interrupt and the Character Timeout Interrupt (if in FIFO mode and FIFOs enabled). These are the second highest priority interrupts.
+  // 0: Disable
+  // 1: Enable
+  if (enable) { *uart_ier |= 0b00000001; }
+  else        { *uart_ier &= 0b11111110; }
+}
+
+// Return true if Receive FIFO is not empty for PinePhone Allwinner A64 UART
+static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
+{
+  // Read from UART Line Status Register (UART_LSR)
+  // Offset: 0x0014
+  const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
+
+  // Bit 0: Data Ready (DR)
+  // This is used to indicate that the receiver contains at least one character in
+  // the RBR or the receiver FIFO.
+  // 0: no data ready
+  // 1: data ready
+  // This bit is cleared when the RBR is read in non-FIFO mode, or when the
+  // receiver FIFO is empty, in FIFO mode.
+  return (*uart_lsr) & 1;  // DR=1 if data is ready
+}
+
+// Send one byte to PinePhone Allwinner A64 UART
+static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
+{
+  uint8_t *uart0_base_address = (uint8_t *) UART_BASE_ADDRESS;
+  *uart0_base_address = ch;
+}
+
+// Enable or disable Transmit Interrupts for PinePhone Allwinner A64 UART
+static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
+{
+  // Write to UART Interrupt Enable Register (UART_IER)
+  // Offset: 0x0004
+  uint8_t *uart_ier = (uint8_t *) (UART_BASE_ADDRESS + 0x04);
+
+  // Bit 1: Enable Transmit Holding Register Empty Interrupt (ETBEI)
+  // This is used to enable/disable the generation of Transmitter Holding Register Empty Interrupt. This is the third highest priority interrupt.
+  // 0: Disable
+  // 1: Enable
+  if (enable) { *uart_ier |= 0b00000010; }
+  else        { *uart_ier &= 0b11111101; }
+}
+
+// Return true if Transmit FIFO is not full for PinePhone Allwinner A64 UART
+static bool qemu_pl011_txready(struct uart_dev_s *dev)
+{
+  // Read from UART_LSR
+  // Offset: 0x0014
+  const uint8_t *uart_lsr = (const uint8_t *) (UART_BASE_ADDRESS + 0x14);
+
+  // Transmit FIFO is ready if THRE=1 (bit 5 of LSR)
+  return (*uart_lsr & 0x20) != 0;
+}
+
+// Return true if Transmit FIFO is empty for PinePhone Allwinner A64 UART
+static bool qemu_pl011_txempty(struct uart_dev_s *dev)
+{
+  return qemu_pl011_txready(dev);
+}
+
+// Interrupt Handler for PinePhone Allwinner A64 UART
+static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
+{
+  struct uart_dev_s *dev = (struct uart_dev_s *)arg;
+  UNUSED(irq);
+  UNUSED(context);
+  DEBUGASSERT(dev != NULL && dev->priv != NULL);
+
+  // Read UART Interrupt Identity Register (UART_IIR)
+  // Offset: 0x0008 
+  const uint8_t *uart_iir = (const uint8_t *) (UART_BASE_ADDRESS + 0x08);
+
+  // Bits 3:0: Interrupt ID
+  // This indicates the highest priority pending interrupt which can be one of the following types:
+  // 0000: modem status
+  // 0001: no interrupt pending
+  // 0010: THR empty
+  // 0100: received data available
+  // 0110: receiver line status
+  // 0111: busy detect
+  // 1100: character timeout
+  // Bit 3 indicates an interrupt can only occur when the FIFOs are enabled and used to distinguish a Character Timeout condition interrupt.
+  uint8_t int_id = (*uart_iir) & 0b1111;
+
+  // 0100: If received data is available...
+  if (int_id == 0b0100) {
+    // Receive the data
+    uart_recvchars(dev);
+
+  // 0010: If THR is empty (Transmit Holding Register)...
+  } else if (int_id == 0b0010) {
+    // Transmit the data
+    uart_xmitchars(dev);
+
+  }
+  return OK;
+}
+
+#endif  //  PINEPHONE_UART
 
 #else /* USE_SERIALDRIVER */
 
