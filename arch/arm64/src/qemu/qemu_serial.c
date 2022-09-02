@@ -244,6 +244,7 @@ struct pl011_uart_port_s
  ***************************************************************************/
 
 #ifdef PINEPHONE_UART
+//  Declarations for PinePhone A64 UART
 static int a64_uart_setup(struct uart_dev_s *dev);
 static void a64_uart_shutdown(struct uart_dev_s *dev);
 static int a64_uart_attach(struct uart_dev_s *dev);
@@ -260,42 +261,35 @@ static int a64_uart_irq_handler(int irq, void *context, void *arg);
 #endif  //  PINEPHONE_UART
 
 #ifndef PINEPHONE_UART
+
 static void pl011_enable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->cr |= PL011_CR_UARTEN;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_disable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->cr &= ~PL011_CR_UARTEN;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_enable_fifo(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->lcr_h |= PL011_LCRH_FEN;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_disable_fifo(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->lcr_h &= ~PL011_LCRH_FEN;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static int pl011_set_baudrate(const struct pl011_uart_port_s *sport,
                               uint32_t clk, uint32_t baudrate)
 {
@@ -331,45 +325,35 @@ static int pl011_set_baudrate(const struct pl011_uart_port_s *sport,
 
   return 0;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_irq_tx_enable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->imsc |= PL011_IMSC_TXIM;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_irq_tx_disable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->imsc &= ~PL011_IMSC_TXIM;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_irq_rx_enable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->imsc |= PL011_IMSC_RXIM | PL011_IMSC_RTIM;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static void pl011_irq_rx_disable(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
 
   config->uart->imsc &= ~(PL011_IMSC_RXIM | PL011_IMSC_RTIM);
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static int pl011_irq_tx_complete(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
@@ -378,9 +362,7 @@ static int pl011_irq_tx_complete(const struct pl011_uart_port_s *sport)
 
   return config->uart->fr & PL011_FR_TXFE;
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
 static int pl011_irq_rx_ready(const struct pl011_uart_port_s *sport)
 {
   const struct pl011_config *config = &sport->config;
@@ -394,7 +376,6 @@ static int pl011_irq_rx_ready(const struct pl011_uart_port_s *sport)
   return (config->uart->imsc & PL011_IMSC_RXIM) &&
          (!(config->uart->fr & PL011_FR_RXFE));
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_txready
@@ -404,8 +385,6 @@ static int pl011_irq_rx_ready(const struct pl011_uart_port_s *sport)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static bool qemu_pl011_txready(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s  *sport  = (struct pl011_uart_port_s *)dev->priv;
@@ -420,7 +399,6 @@ static bool qemu_pl011_txready(struct uart_dev_s *dev)
   return (config->uart->imsc & PL011_IMSC_TXIM) &&
          pl011_irq_tx_complete(sport);
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_txempty
@@ -430,15 +408,12 @@ static bool qemu_pl011_txready(struct uart_dev_s *dev)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static bool qemu_pl011_txempty(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s *sport = (struct pl011_uart_port_s *)dev->priv;
 
   return pl011_irq_tx_complete(sport);
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_send
@@ -448,8 +423,6 @@ static bool qemu_pl011_txempty(struct uart_dev_s *dev)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 {
   struct pl011_uart_port_s  *sport  = (struct pl011_uart_port_s *)dev->priv;
@@ -457,7 +430,6 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
 
   config->uart->dr = ch;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_rxavailable
@@ -467,8 +439,6 @@ static void qemu_pl011_send(struct uart_dev_s *dev, int ch)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s  *sport  = (struct pl011_uart_port_s *)dev->priv;
@@ -484,7 +454,6 @@ static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
 
   return (config->uart->fr & PL011_FR_RXFE) == 0U;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_rxint
@@ -494,8 +463,6 @@ static bool qemu_pl011_rxavailable(struct uart_dev_s *dev)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
 {
   struct pl011_uart_port_s *sport = (struct pl011_uart_port_s *)dev->priv;
@@ -509,7 +476,6 @@ static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
       pl011_irq_rx_disable(sport);
     }
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_txint
@@ -519,8 +485,6 @@ static void qemu_pl011_rxint(struct uart_dev_s *dev, bool enable)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
 {
   struct pl011_uart_port_s *sport = (struct pl011_uart_port_s *)dev->priv;
@@ -534,7 +498,6 @@ static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
       pl011_irq_tx_disable(sport);
     }
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_receive
@@ -546,8 +509,6 @@ static void qemu_pl011_txint(struct uart_dev_s *dev, bool enable)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 {
   struct pl011_uart_port_s  *sport  = (struct pl011_uart_port_s *)dev->priv;
@@ -560,7 +521,6 @@ static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
 
   return rx;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_ioctl
@@ -571,7 +531,6 @@ static int qemu_pl011_receive(struct uart_dev_s *dev, unsigned int *status)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
 static int qemu_pl011_ioctl(struct file *filep, int cmd, unsigned long arg)
 {
   int ret = OK;
@@ -591,7 +550,6 @@ static int qemu_pl011_ioctl(struct file *filep, int cmd, unsigned long arg)
 
   return ret;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_irq_handler (and front-ends)
@@ -603,8 +561,6 @@ static int qemu_pl011_ioctl(struct file *filep, int cmd, unsigned long arg)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
 {
   struct uart_dev_s         *dev = (struct uart_dev_s *)arg;
@@ -627,7 +583,6 @@ static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
 
   return OK;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_detach
@@ -639,8 +594,6 @@ static int qemu_pl011_irq_handler(int irq, void *context, void *arg)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static void qemu_pl011_detach(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s *sport = (struct pl011_uart_port_s *)dev->priv;
@@ -648,7 +601,6 @@ static void qemu_pl011_detach(struct uart_dev_s *dev)
   up_disable_irq(sport->irq_num);
   irq_detach(sport->irq_num);
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_attach
@@ -667,8 +619,6 @@ static void qemu_pl011_detach(struct uart_dev_s *dev)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static int qemu_pl011_attach(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s  *sport;
@@ -697,7 +647,6 @@ static int qemu_pl011_attach(struct uart_dev_s *dev)
 
   return ret;
 }
-#endif  //  !PINEPHONE_UART
 
 /***************************************************************************
  * Name: qemu_pl011_shutdown
@@ -708,16 +657,12 @@ static int qemu_pl011_attach(struct uart_dev_s *dev)
  *
  ***************************************************************************/
 
-#ifndef PINEPHONE_UART
 static void qemu_pl011_shutdown(struct uart_dev_s *dev)
 {
   UNUSED(dev);
   sinfo("%s: call unexpected\n", __func__);
 }
-#endif  //  !PINEPHONE_UART
 
-#ifndef PINEPHONE_UART
-#error NOTUSED
 static int qemu_pl011_setup(struct uart_dev_s *dev)
 {
   struct pl011_uart_port_s  *sport  = (struct pl011_uart_port_s *)dev->priv;
@@ -781,6 +726,7 @@ static int qemu_pl011_setup(struct uart_dev_s *dev)
 
   return 0;
 }
+
 #endif  //  !PINEPHONE_UART
 
 /***************************************************************************
