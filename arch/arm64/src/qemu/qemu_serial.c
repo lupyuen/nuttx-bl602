@@ -992,6 +992,9 @@ static int a64_uart_ioctl(struct file *filep, int cmd, unsigned long arg)
 // Receive data from PinePhone Allwinner A64 UART
 static int a64_uart_receive(struct uart_dev_s *dev, unsigned int *status)
 {
+  // Status is always OK
+  *status = 0;
+
   // Read from UART Receiver Buffer Register (UART_RBR)
   // Offset: 0x0000
   const uint8_t *uart_rbr = (const uint8_t *) (UART_BASE_ADDRESS + 0x00);
