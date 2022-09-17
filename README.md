@@ -2,6 +2,8 @@ __Apache NuttX RTOS for PineDio Stack BL604:__ See the [`pinedio` branch](https:
 
 __Apache NuttX RTOS for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
 
+__Apache NuttX RTOS for PinePhone:__ See the [`pinephone` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinephone)
+
 __Read the articles...__
 
 -   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
@@ -24,6 +26,13 @@ __Read the articles...__
 -   [__"Read NuttX Sensor Data with Zig"__](https://lupyuen.github.io/articles/sensor)
 -   [__"Zig Visual Programming with Blockly"__](https://lupyuen.github.io/articles/blockly)
 -   [__"Visual Programming with Zig and NuttX Sensors"__](https://lupyuen.github.io/articles/visual)
+
+__NuttX on PinePhone__
+
+-   [__"Apache NuttX RTOS on Arm Cortex-A53: How it might run on PinePhone"__](https://lupyuen.github.io/articles/arm)
+-   [__"PinePhone boots Apache NuttX RTOS"__](https://lupyuen.github.io/articles/uboot)
+-   [__"NuttX RTOS on PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
+-   [__"NuttX RTOS on PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
 
 # APACHE NUTTX (INCUBATING)
 
@@ -1429,7 +1438,7 @@ damage your configuration (see
   toolchains.  If you are using the older OABI toolchain the prefix for
   the tools will be `arm-nuttx-elf-`; for the EABI toolchain the prefix will
   be `arm-nuttx-eabi-`. If you are using the older OABI toolchain with
-  an ARM Cortex-M3/4, you will need to set CONFIG_ARMV7M_OABI_TOOLCHAIN
+  an ARM Cortex-M3/4, you will need to set CONFIG_ARM_TOOLCHAIN_BUILDROOT_OABI
   in the `.config` file in order to pick the right tool prefix.
 
   If the make system ever picks the wrong prefix for your toolchain, you

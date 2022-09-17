@@ -27,7 +27,13 @@
 
 ifeq ($(CONFIG_MTD),y)
 
-CSRCS += ftl.c mtd_config.c
+CSRCS += ftl.c
+
+ifeq ($(CONFIG_MTD_CONFIG_FAIL_SAFE),y)
+CSRCS += mtd_config_fs.c
+else ifeq ($(CONFIG_MTD_CONFIG),y)
+CSRCS += mtd_config.c
+endif
 
 ifeq ($(CONFIG_MTD_PARTITION),y)
 CSRCS += mtd_partition.c
@@ -66,6 +72,14 @@ endif
 
 ifeq ($(CONFIG_NULLMTD),y)
 CSRCS += nullmtd.c
+endif
+
+ifeq ($(CONFIG_RPMSGMTD),y)
+CSRCS += rpmsgmtd.c
+endif
+
+ifeq ($(CONFIG_RPMSGMTD_SERVER),y)
+CSRCS += rpmsgmtd_server.c
 endif
 
 ifeq ($(CONFIG_MTD_AT24XX),y)
