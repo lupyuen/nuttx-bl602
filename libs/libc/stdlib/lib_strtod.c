@@ -79,11 +79,15 @@ static inline int is_real(double x)
  * Public Functions
  ****************************************************************************/
 
-/***************************************************(************************
+/****************************************************************************
  * Name: strtod
  *
  * Description:
  *   Convert a string to a double value
+ *
+ *   NOTE: This implementation is limited as compared to POSIX:
+ *   - Hexadecimal input is not supported
+ *   - INF, INFINITY, NAN, and NAN(...) are not supported
  *
  ****************************************************************************/
 
@@ -160,6 +164,7 @@ double strtod(FAR const char *str, FAR char **endptr)
     {
       set_errno(ERANGE);
       number = 0.0;
+      p = (FAR char *)str;
       goto errout;
     }
 
@@ -194,6 +199,14 @@ double strtod(FAR const char *str, FAR char **endptr)
         }
 
       /* Process string of digits */
+
+      if (!isdigit(*p))
+        {
+          set_errno(ERANGE);
+          number = 0.0;
+          p = (FAR char *)str;
+          goto errout;
+        }
 
       n = 0;
       while (isdigit(*p))

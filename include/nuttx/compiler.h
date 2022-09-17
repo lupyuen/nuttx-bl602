@@ -179,12 +179,12 @@
 
 #  define naked_function __attribute__ ((naked,no_instrument_function))
 
-/* The inline_function attribute informs GCC that the function should always
- * be inlined, regardless of the level of optimization.  The
+/* The always_inline_function attribute informs GCC that the function should
+ * always be inlined, regardless of the level of optimization.  The
  * noinline_function indicates that the function should never be inlined.
  */
 
-#  define inline_function __attribute__ ((always_inline,no_instrument_function))
+#  define always_inline_function __attribute__ ((always_inline,no_instrument_function))
 #  define noinline_function __attribute__ ((noinline))
 
 /* The noinstrument_function attribute informs GCC don't instrument it */
@@ -194,6 +194,10 @@
 /* The nosanitize_address attribute informs GCC don't sanitize it */
 
 #  define nosanitize_address __attribute__ ((no_sanitize_address))
+
+/* The nosanitize_undefined attribute informs GCC don't sanitize it */
+
+#  define nosanitize_undefined __attribute__((no_sanitize("undefined")))
 
 /* The nostackprotect_function attribute disables stack protection in
  * sensitive functions, e.g., stack coloration routines.
@@ -461,10 +465,11 @@
 
 /* SDCC does not support forced inlining. */
 
-#  define inline_function
+#  define always_inline_function
 #  define noinline_function
 #  define noinstrument_function
 #  define nosanitize_address
+#  define nosanitize_undefined
 #  define nostackprotect_function
 
 #  define unused_code
@@ -593,10 +598,11 @@
 #  define begin_packed_struct
 #  define end_packed_struct
 #  define naked_function
-#  define inline_function
+#  define always_inline_function
 #  define noinline_function
 #  define noinstrument_function
 #  define nosanitize_address
+#  define nosanitize_undefined
 #  define nostackprotect_function
 #  define unused_code
 #  define unused_data
@@ -694,10 +700,11 @@
 #  define end_packed_struct
 #  define reentrant_function
 #  define naked_function
-#  define inline_function
+#  define always_inline_function
 #  define noinline_function
 #  define noinstrument_function
 #  define nosanitize_address
+#  define nosanitize_undefined
 #  define nostackprotect_function
 #  define unused_code
 #  define unused_data
@@ -761,10 +768,11 @@
 #  define end_packed_struct
 #  define reentrant_function
 #  define naked_function
-#  define inline_function
+#  define always_inline_function
 #  define noinline_function
 #  define noinstrument_function
 #  define nosanitize_address
+#  define nosanitize_undefined
 #  define nostackprotect_function
 #  define unused_code
 #  define unused_data
