@@ -45,6 +45,12 @@
 #ifdef CONFIG_DEBUG_ALERT
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static uint8_t s_last_regs[XCPTCONTEXT_SIZE];
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -93,14 +99,14 @@ static void xtensa_dump_task(struct tcb_s *tcb, void *arg)
 #ifndef CONFIG_DISABLE_PTHREAD
   if ((tcb->flags & TCB_FLAG_TTYPE_MASK) == TCB_FLAG_TTYPE_PTHREAD)
     {
-      FAR struct pthread_tcb_s *ptcb = (FAR struct pthread_tcb_s *)tcb;
+      struct pthread_tcb_s *ptcb = (struct pthread_tcb_s *)tcb;
 
       snprintf(args, sizeof(args), " %p", ptcb->arg);
     }
   else
 #endif
     {
-      FAR char **argv = tcb->group->tg_info->argv + 1;
+      char **argv = tcb->group->tg_info->argv + 1;
       size_t npos = 0;
 
       while (*argv != NULL && npos < sizeof(args))
@@ -343,7 +349,8 @@ void xtensa_dumpstate(void)
     }
   else
     {
-      up_saveusercontext(rtcb->xcp.regs);
+      up_saveusercontext(s_last_regs);
+      rtcb->xcp.regs = (uint32_t *)s_last_regs;
     }
 
   /* Dump the registers (if available) */
