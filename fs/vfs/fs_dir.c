@@ -33,10 +33,6 @@
 
 #include "inode/inode.h"
 
-#ifdef CONFIG_ARCH_CHIP_BL602  //  For BL602 only
-#include "../boards/risc-v/bl602/bl602evb/include/board.h"  //  For PINEDIO_STACK_BL604
-#endif  //  CONFIG_ARCH_CHIP_BL602
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -69,22 +65,12 @@ static int     dir_ioctl(FAR struct file *filep, int cmd, unsigned long arg);
 
 static const struct file_operations g_dir_fileops =
 {
-#ifdef PINEDIO_STACK_BL604
-#warning Diabled dir_open to fix LoRaWAN on PineDio Stack BL604
-  NULL,   /* open */
-#else
   dir_open,   /* open */
-#endif // PINEDIO_STACK_BL604
   dir_close,  /* close */
   dir_read,   /* read */
   NULL,       /* write */
   dir_seek,   /* seek */
-#ifdef PINEDIO_STACK_BL604
-#warning Diabled dir_ioctl to fix LoRaWAN on PineDio Stack BL604
-  NULL,  /* ioctl */
-#else
   dir_ioctl,  /* ioctl */
-#endif // PINEDIO_STACK_BL604
   NULL,       /* poll */
 #ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS
   NULL,       /* unlink */
