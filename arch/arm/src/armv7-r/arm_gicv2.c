@@ -504,7 +504,34 @@ int up_prioritize_irq(int irq, int priority)
 }
 
 /****************************************************************************
- * Name: arm_cpu_sgi
+ * Name: up_affinity_irq
+ *
+ * Description:
+ *   Set an IRQ affinity by software.
+ *
+ ****************************************************************************/
+
+void up_affinity_irq(int irq, cpu_set_t cpuset)
+{
+  if (irq >= GIC_IRQ_SPI && irq < NR_IRQS)
+    {
+      uintptr_t regaddr;
+      uint32_t regval;
+
+      /* Write the new cpuset to the corresponding field in the in the
+       * distributor Interrupt Processor Target Register (GIC_ICDIPTR).
+       */
+
+      regaddr = GIC_ICDIPTR(irq);
+      regval  = getreg32(regaddr);
+      regval &= ~GIC_ICDIPTR_ID_MASK(irq);
+      regval |= GIC_ICDIPTR_ID(irq, cpuset);
+      putreg32(regval, regaddr);
+    }
+}
+
+/****************************************************************************
+ * Name: up_trigger_irq
  *
  * Description:
  *   Perform a Software Generated Interrupt (SGI).  If CONFIG_SMP is
@@ -515,30 +542,28 @@ int up_prioritize_irq(int irq, int priority)
  *   only to the current CPU.
  *
  * Input Parameters
- *   sgi    - The SGI interrupt ID (0-15)
+ *   irq    - The SGI interrupt ID (0-15)
  *   cpuset - The set of CPUs to receive the SGI
- *
- * Returned Value:
- *   OK is always returned at present.
  *
  ****************************************************************************/
 
-int arm_cpu_sgi(int sgi, unsigned int cpuset)
+void up_trigger_irq(int irq, cpu_set_t cpuset)
 {
-  uint32_t regval;
+  if (irq >= 0 && irq <= GIC_IRQ_SGI15)
+    {
+      arm_cpu_sgi(irq, cpuset);
+    }
+  else if (irq >= 0 && irq < NR_IRQS)
+    {
+      uintptr_t regaddr;
 
-#ifdef CONFIG_SMP
-  regval = GIC_ICDSGIR_INTID(sgi)        |
-           GIC_ICDSGIR_CPUTARGET(cpuset) |
-           GIC_ICDSGIR_TGTFILTER_LIST;
-#else
-  regval = GIC_ICDSGIR_INTID(sgi)   |
-           GIC_ICDSGIR_CPUTARGET(0) |
-           GIC_ICDSGIR_TGTFILTER_THIS;
-#endif
+      /* Write '1' to the corresponding bit in the distributor Interrupt
+       * Set-Pending (ICDISPR)
+       */
 
-  putreg32(regval, GIC_ICDSGIR);
-  return OK;
+      regaddr = GIC_ICDISPR(irq);
+      putreg32(GIC_ICDISPR_INT(irq), regaddr);
+    }
 }
 
-#endif							/* CONFIG_ARMV7R_HAVE_GICv2 */
+#endif /* CONFIG_ARMV7R_HAVE_GICv2 */

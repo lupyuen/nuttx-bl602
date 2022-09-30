@@ -24,8 +24,9 @@
 
 #include <nuttx/config.h>
 
-#include <queue.h>
 #include <assert.h>
+
+#include <nuttx/queue.h>
 
 #include "sched/sched.h"
 
@@ -65,7 +66,11 @@ void nxsched_remove_blocked(FAR struct tcb_s *btcb)
    * with this state
    */
 
-  dq_rem((FAR dq_entry_t *)btcb, TLIST_BLOCKED(task_state));
+  dq_rem((FAR dq_entry_t *)btcb, TLIST_BLOCKED(btcb));
+
+  /* Indicate that the wait is over. */
+
+  btcb->waitobj = NULL;
 
   /* Make sure the TCB's state corresponds to not being in
    * any list

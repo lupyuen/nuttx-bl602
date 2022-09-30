@@ -1,5 +1,5 @@
 ############################################################################
-# arch/arm/src/armv8-m/Toolchain.defs
+# arch/arm/src/common/Toolchain.defs
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -78,38 +78,50 @@ endif
 
 ifeq ($(CONFIG_LTO_THIN),y)
   ARCHOPTIMIZATION += -flto=thin
+  ifeq ($(CONFIG_ARM_TOOLCHAIN_ARMCLANG),y)
+    LDFLAGS += --lto
+  endif
 else ifeq ($(CONFIG_LTO_FULL),y)
   ARCHOPTIMIZATION += -flto
   ifeq ($(CONFIG_ARM_TOOLCHAIN_GNU_EABI),y)
     ARCHOPTIMIZATION += -fuse-linker-plugin
   endif
+  ifeq ($(CONFIG_ARM_TOOLCHAIN_ARMCLANG),y)
+    LDFLAGS += --lto
+  endif
 endif
 
 # NuttX buildroot under Linux or Cygwin
 
-ifeq ($(CONFIG_ENDIAN_BIG),y)
-  ARCHCPUFLAGS += -mbig-endian
-  TARGET_ARCH := armeb
-else
-  ARCHCPUFLAGS += -mlittle-endian
-  TARGET_ARCH := arm
+ifeq ($(CONFIG_ARM_TOOLCHAIN_BUILDROOT),y)
+  TARGET_TOOL := -nuttx-eabi-
+else ifeq ($(CONFIG_ARM_TOOLCHAIN_BUILDROOT_OABI),y)
+  TARGET_TOOL := -nuttx-elf-
+else ifeq ($(CONFIG_ARM_TOOLCHAIN_GNU_EABI),y)
+  TARGET_TOOL := -none-eabi-
+endif
+
+ifneq ($(TARGET_TOOL),)
+  ifeq ($(CONFIG_ENDIAN_BIG),y)
+
+    # Fallback to common toolchain if "armeb" is unavailable
+
+    ifeq ($(shell command -v armeb$(TARGET_TOOL)gcc 2> /dev/null),)
+      TARGET_ARCH := arm
+      ARCHCPUFLAGS += -mlittle-endian
+    else
+      TARGET_ARCH := armeb
+      ARCHCPUFLAGS += -mbig-endian
+    endif
+  else
+    ARCHCPUFLAGS += -mlittle-endian
+    TARGET_ARCH := arm
+  endif
+
+  CROSSDEV ?= $(TARGET_ARCH)$(TARGET_TOOL)
 endif
 
 ARCHCPUFLAGS += $(TOOLCHAIN_MARCH) $(TOOLCHAIN_MTUNE) $(TOOLCHAIN_MFLOAT)
-
-ifeq ($(CONFIG_ARM_TOOLCHAIN_BUILDROOT),y)
-  CROSSDEV ?= $(TARGET_ARCH)-nuttx-eabi-
-endif
-
-ifeq ($(CONFIG_ARM_TOOLCHAIN_BUILDROOT_OABI),y)
-  CROSSDEV ?= $(TARGET_ARCH)-nuttx-elf-
-endif
-
-# Generic GNU EABI toolchain
-
-ifeq ($(CONFIG_ARM_TOOLCHAIN_GNU_EABI),y)
-  CROSSDEV ?= $(TARGET_ARCH)-none-eabi-
-endif
 
 # Clang toolchain
 
@@ -157,6 +169,22 @@ else ifeq ($(CONFIG_ARM_TOOLCHAIN_ARMCLANG),y)
   ARCHCPUFLAGS += -Wno-license-management
   LDFLAGS      += --diag_suppress=9931
 
+  # Input sections are specified even though there will be no such
+  # sections found in the libraries linked.
+  # Warning: L6314W: No section matches pattern *(xxx).
+
+  LDFLAGS      += --diag_suppress=6314
+
+  # Allow Empty Execution region declared on scatter
+  # Warning: L6312W: Empty Execution region description for region xxx
+
+  LDFLAGS      += --diag_suppress=6312
+
+  # Match pattern for an unused section that is being removed.
+  # Warning: L6329W: Pattern xxx only matches removed unused sections.
+
+  LDFLAGS      += --diag_suppress=6329
+
 # Default toolchain
 
 else
@@ -198,9 +226,10 @@ ifneq ($(CONFIG_CXX_RTTI),y)
 endif
 
 ARCHOPTIMIZATION += -fno-common -Wall -Wshadow -Wundef
-ARCHOPTIMIZATION += -nostdlib
 
-ifeq ($(CONFIG_ARM_TOOLCHAIN_ARMCLANG),)
+ifeq ($(CONFIG_ARM_TOOLCHAIN_ARMCLANG),y)
+  ARCHOPTIMIZATION += -nostdlib
+else
   LDFLAGS += -nostdlib
 endif
 

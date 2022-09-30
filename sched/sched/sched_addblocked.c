@@ -24,8 +24,9 @@
 
 #include <nuttx/config.h>
 
-#include <queue.h>
 #include <assert.h>
+
+#include <nuttx/queue.h>
 
 #include "sched/sched.h"
 
@@ -62,9 +63,13 @@ void nxsched_add_blocked(FAR struct tcb_s *btcb, tstate_t task_state)
   DEBUGASSERT(task_state >= FIRST_BLOCKED_STATE &&
               task_state <= LAST_BLOCKED_STATE);
 
+  /* Make sure the TCB's state corresponds to the list */
+
+  btcb->task_state = task_state;
+
   /* Add the TCB to the blocked task list associated with this state. */
 
-  tasklist = TLIST_BLOCKED(task_state);
+  tasklist = TLIST_BLOCKED(btcb);
 
   /* Determine if the task is to be added to a prioritized task list. */
 
@@ -80,8 +85,4 @@ void nxsched_add_blocked(FAR struct tcb_s *btcb, tstate_t task_state)
 
       dq_addlast((FAR dq_entry_t *)btcb, tasklist);
     }
-
-  /* Make sure the TCB's state corresponds to the list */
-
-  btcb->task_state = task_state;
 }

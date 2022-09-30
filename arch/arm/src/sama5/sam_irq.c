@@ -63,18 +63,10 @@ typedef uint32_t *(*doirq_t)(int irq, uint32_t *regs);
  * Public Data
  ****************************************************************************/
 
-/* g_current_regs[] holds a references to the current interrupt level
- * register storage structure.  If is non-NULL only during interrupt
- * processing.  Access to g_current_regs[] must be through the macro
- * CURRENT_REGS for portability.
- */
-
-volatile uint32_t *g_current_regs[1];
-
 /* Symbols defined via the linker script */
 
-extern uint32_t _vector_start; /* Beginning of vector block */
-extern uint32_t _vector_end;   /* End+1 of vector block */
+extern uint8_t _vector_start[]; /* Beginning of vector block */
+extern uint8_t _vector_end[];   /* End+1 of vector block */
 
 /****************************************************************************
  * Private Data
@@ -174,13 +166,7 @@ static void sam_dumpaic(const char *msg, uintptr_t base, int irq)
 
 static inline size_t sam_vectorsize(void)
 {
-  uintptr_t src;
-  uintptr_t end;
-
-  src  = (uintptr_t)&_vector_start;
-  end  = (uintptr_t)&_vector_end;
-
-  return (size_t)(end - src);
+  return _vector_end - _vector_start;
 }
 
 /****************************************************************************
@@ -531,15 +517,11 @@ void up_irqinitialize(void)
 #elif defined(CONFIG_SAMA5_BOOT_SDRAM)
   /* Set the VBAR register to the address of the vector table in SDRAM */
 
-  DEBUGASSERT((((uintptr_t)&_vector_start) & ~VBAR_MASK) == 0);
-  cp15_wrvbar((uint32_t)&_vector_start);
+  DEBUGASSERT((((uintptr_t)_vector_start) & ~VBAR_MASK) == 0);
+  cp15_wrvbar((uint32_t)_vector_start);
 
 #endif /* CONFIG_SAMA5_BOOT_ISRAM || CONFIG_SAMA5_BOOT_CS0FLASH */
 #endif /* CONFIG_ARCH_LOWVECTORS */
-
-  /* currents_regs is non-NULL only while processing an interrupt */
-
-  CURRENT_REGS = NULL;
 
 #ifndef CONFIG_SUPPRESS_INTERRUPTS
   /* Initialize logic to support a second level of interrupt decoding for
