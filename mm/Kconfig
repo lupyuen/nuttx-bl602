@@ -160,7 +160,7 @@ endif # MM_PGALLOC
 config MM_SHM
 	bool "Shared memory support"
 	default n
-	depends on MM_PGALLOC && BUILD_KERNEL && EXPERIMENTAL
+	depends on MM_PGALLOC && BUILD_KERNEL
 	---help---
 		Build in support for the shared memory interfaces shmget(), shmat(),
 		shmctl(), and shmdt().
@@ -224,7 +224,7 @@ config MM_UBSAN_ALL
 
 config MM_UBSAN_OPTION
 	string "UBSan options"
-	depends on MM_UBSAN
+	depends on MM_UBSAN || SIM_UBSAN
 	default "-fsanitize=undefined"
 	---help---
 		This option activates specified UBSan instrumentation. Please

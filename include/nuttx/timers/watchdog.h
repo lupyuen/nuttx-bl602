@@ -224,8 +224,20 @@ extern "C"
  *
  ****************************************************************************/
 
+#if defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_ONESHOT)
+struct oneshot_lowerhalf_s;
+FAR void *watchdog_register(FAR const char *path,
+                            FAR struct watchdog_lowerhalf_s *lower,
+                            FAR struct oneshot_lowerhalf_s *oneshot);
+#elif defined(CONFIG_WATCHDOG_AUTOMONITOR_BY_TIMER)
+struct timer_lowerhalf_s;
+FAR void *watchdog_register(FAR const char *path,
+                            FAR struct watchdog_lowerhalf_s *lower,
+                            FAR struct timer_lowerhalf_s *timer);
+#else
 FAR void *watchdog_register(FAR const char *path,
                             FAR struct watchdog_lowerhalf_s *lower);
+#endif
 
 /****************************************************************************
  * Name: watchdog_unregister

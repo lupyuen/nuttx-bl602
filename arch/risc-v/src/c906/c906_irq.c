@@ -36,12 +36,6 @@
 #include "c906.h"
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-volatile uintptr_t *g_current_regs[1];
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -73,7 +67,7 @@ void up_irqinitialize(void)
 
 #if defined(CONFIG_STACK_COLORATION) && CONFIG_ARCH_INTERRUPTSTACK > 15
   size_t intstack_size = (CONFIG_ARCH_INTERRUPTSTACK & ~15);
-  riscv_stack_color((void *)&g_intstackalloc, intstack_size);
+  riscv_stack_color(g_intstackalloc, intstack_size);
 #endif
 
   /* Set priority for all global interrupts to 1 (lowest) */
@@ -88,10 +82,6 @@ void up_irqinitialize(void)
   /* Set irq threshold to 0 (permits all global interrupts) */
 
   putreg32(0, C906_PLIC_MTHRESHOLD);
-
-  /* currents_regs is non-NULL only while processing an interrupt */
-
-  CURRENT_REGS = NULL;
 
   /* Attach the common interrupt handler */
 

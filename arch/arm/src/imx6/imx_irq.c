@@ -44,18 +44,6 @@
  * Public Data
  ****************************************************************************/
 
-/* g_current_regs[] holds a references to the current interrupt level
- * register storage structure.  If is non-NULL only during interrupt
- * processing.  Access to g_current_regs[] must be through the macro
- * CURRENT_REGS for portability.
- */
-
-/* For the case of configurations with multiple CPUs, then there must be one
- * such value for each processor that can receive an interrupt.
- */
-
-volatile uint32_t *g_current_regs[CONFIG_SMP_NCPUS];
-
 #if defined(CONFIG_SMP) && CONFIG_ARCH_INTERRUPTSTACK > 7
 /* In the SMP configuration, we will need custom IRQ and FIQ stacks.
  * These definitions provide the aligned stack allocations.
@@ -98,8 +86,8 @@ uintptr_t g_fiqstack_top[CONFIG_SMP_NCPUS] =
 
 /* Symbols defined via the linker script */
 
-extern uint32_t _vector_start; /* Beginning of vector block */
-extern uint32_t _vector_end;   /* End+1 of vector block */
+extern uint8_t _vector_start[]; /* Beginning of vector block */
+extern uint8_t _vector_end[];   /* End+1 of vector block */
 
 /****************************************************************************
  * Public Functions
@@ -144,13 +132,9 @@ void up_irqinitialize(void)
 
   /* Set the VBAR register to the address of the vector table */
 
-  DEBUGASSERT((((uintptr_t)&_vector_start) & ~VBAR_MASK) == 0);
-  cp15_wrvbar((uint32_t)&_vector_start);
+  DEBUGASSERT((((uintptr_t)_vector_start) & ~VBAR_MASK) == 0);
+  cp15_wrvbar((uint32_t)_vector_start);
 #endif /* CONFIG_ARCH_LOWVECTORS */
-
-  /* currents_regs is non-NULL only while processing an interrupt */
-
-  CURRENT_REGS = NULL;
 
 #ifndef CONFIG_SUPPRESS_INTERRUPTS
 #ifdef CONFIG_IMX6_PIO_IRQ

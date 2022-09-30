@@ -18,7 +18,7 @@
  *
  ****************************************************************************/
 
-/* Reference: "CoreLink™ Level 2 Cache Controller L2C-310", Revision r3p2,
+/* Reference: "CoreLinkâ„¢ Level 2 Cache Controller L2C-310", Revision r3p2,
  *   Technical Reference Manual, ARM DDI 0246F (ID011711), ARM
  */
 
@@ -35,7 +35,7 @@
  * header file as L2CC_BASE.
  */
 
-#include "chip/chip.h"
+#include "chip.h"
 
 /****************************************************************************
  * Pre-processor Definitions
