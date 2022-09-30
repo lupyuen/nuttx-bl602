@@ -80,7 +80,7 @@ void nxsem_wait_irq(FAR struct tcb_s *wtcb, int errcode)
 
   if (wtcb->task_state == TSTATE_WAIT_SEM)
     {
-      sem_t *sem = wtcb->waitsem;
+      FAR sem_t *sem = wtcb->waitobj;
       DEBUGASSERT(sem != NULL && sem->semcount < 0);
 
       /* Restore the correct priority of all threads that hold references
@@ -96,10 +96,6 @@ void nxsem_wait_irq(FAR struct tcb_s *wtcb, int errcode)
        */
 
       sem->semcount++;
-
-      /* Indicate that the semaphore wait is over. */
-
-      wtcb->waitsem = NULL;
 
       /* Mark the errno value for the thread. */
 

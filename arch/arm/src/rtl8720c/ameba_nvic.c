@@ -53,22 +53,6 @@
 #define NVIC_CLEAR_OFFSET         (NVIC_IRQ0_31_CLEAR  - NVIC_IRQ0_31_ENABLE)
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/* g_current_regs[] holds a references to the current interrupt level
- * register storage structure.  If is non-NULL only during interrupt
- * processing.  Access to g_current_regs[] must be through the macro
- * CURRENT_REGS for portability.
- */
-
-volatile uint32_t *g_current_regs[CONFIG_SMP_NCPUS];
-
-/* extern int32_t    __StackLimit; */
-
-extern uint32_t   _vectors[];
-
-/****************************************************************************
  * Private Function Declarations
  ****************************************************************************/
 
@@ -260,45 +244,6 @@ void up_enable_irq(int irq)
 }
 
 /****************************************************************************
- * Name: up_trigger_irq
- *
- * Description:
- *   Trigger an IRQ by software.
- *
- ****************************************************************************/
-
-void up_trigger_irq(int irq)
-{
-  uint32_t pend_bit = 0;
-  DEBUGASSERT(irq >= NVIC_IRQ_NMI && irq < NR_IRQS);
-  if (irq >= NVIC_IRQ_FIRST)
-    {
-      putreg32(irq - NVIC_IRQ_FIRST, NVIC_STIR);
-    }
-
-  else
-    {
-      switch (irq)
-        {
-        case NVIC_IRQ_PENDSV:
-          pend_bit = NVIC_INTCTRL_PENDSVSET;
-          break;
-        case NVIC_IRQ_NMI:
-          pend_bit = NVIC_INTCTRL_NMIPENDSET;
-          break;
-        case NVIC_IRQ_SYSTICK:
-          pend_bit = NVIC_INTCTRL_PENDSTSET;
-          break;
-        }
-
-      if (pend_bit)
-        {
-          modifyreg32(NVIC_INTCTRL, 0, pend_bit);
-        }
-    }
-}
-
-/****************************************************************************
  * Name: up_prioritize_irq
  *
  * Description:
@@ -371,7 +316,7 @@ void up_irqinitialize(void)
 
   /* Restore the NVIC vector location to local */
 
-  memcpy(&__vectors, (void *) * (volatile uint32_t *)(NVIC_VECTAB)
+  memcpy(__vectors, (void *) * (volatile uint32_t *)(NVIC_VECTAB)
          + NVIC_IRQ_FIRST * sizeof(uint32_t), sizeof(__vectors));
 
   /* Set the NVIC vector location in case _vectors not equal zero. */

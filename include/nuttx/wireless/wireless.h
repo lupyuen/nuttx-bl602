@@ -150,6 +150,31 @@
 #define SIOCSIWPTAPRIO      _WLIOC(0x0039)  /* Set PTA priority type */
 #define SIOCGIWPTAPRIO      _WLIOC(0x003a)  /* Get PTA priority type */
 
+/* -------------------- DEV PRIVATE IOCTL LIST -------------------- */
+
+/* These 32 ioctl are wireless device private, for 16 commands.
+ * Each driver is free to use them for whatever purpose it chooses,
+ * however the driver *must* export the description of those ioctls
+ * with SIOCGIWPRIV and *must* use arguments as defined below.
+ */
+
+#define SIOCIWFIRSTPRIV     _WLIOC(0x00e0)
+#define SIOCIWLASTPRIV      _WLIOC(0x00ff)
+
+/* ------------------------- IOCTL STUFF ------------------------- */
+
+/* The first and the last (range) */
+
+#define SIOCIWFIRST         _WLIOC(0x0000)  /* First network command */
+#define SIOCIWLAST          SIOCIWLASTPRIV  /* 0x8bff */
+
+#define IW_IOCTL_IDX(cmd)   ((cmd) - SIOCIWFIRST)
+
+/* Odd : get (world access), even : set (root access) */
+
+#define IW_IS_SET(cmd)      (!((cmd) & 0x1))
+#define IW_IS_GET(cmd)      ((cmd) & 0x1)
+
 #define WL_IS80211POINTERCMD(cmd) ((cmd) == SIOCGIWSCAN || \
                                    (cmd) == SIOCSIWSCAN || \
                                    (cmd) == SIOCSIWCOUNTRY || \
@@ -159,38 +184,6 @@
                                    (cmd) == SIOCGIWENCODEEXT || \
                                    (cmd) == SIOCGIWESSID || \
                                    (cmd) == SIOCSIWESSID)
-
-/* Device-specific network IOCTL commands *******************************************/
-
-#define WL_NETFIRST         0x0000          /* First network command */
-#define WL_NNETCMDS         0x003b          /* Number of network commands */
-
-/* Reserved for Bluetooth network devices (see bt_ioctls.h) */
-
-#define WL_BLUETOOTHFIRST     (WL_NETFIRST + WL_NNETCMDS)
-#define WL_BLUETOOTHCMDS      (28)
-#define WL_IBLUETOOTHCMD(cmd) (_WLIOCVALID(cmd) && \
-                              _IOC_NR(cmd) >= WL_BLUETOOTHFIRST && \
-                              _IOC_NR(cmd) < (WL_BLUETOOTHFIRST + WL_BLUETOOTHCMDS))
-
-/* Reserved for IEEE802.15.4 wireless network devices
- * NOTE:  Not used.  Currently logic uses IOCTL commands from the IEEE802.15.4
- * character driver space.
- */
-
-#define WL_802154FIRST        (WL_BLUETOOTHFIRST + WL_BLUETOOTHCMDS)
-#define WL_N802154CMDS        (3)
-#define WL_IS802154CMD(cmd)   (_WLIOCVALID(cmd) && \
-                               _IOC_NR(cmd) >= WL_802154FIRST && \
-                               _IOC_NR(cmd) < (WL_802154FIRST + WL_N802154CMDS))
-
-/* Reserved for network packet radio network devices  */
-
-#define WL_PKTRADIOFIRST      (WL_802154FIRST + WL_N802154CMDS)
-#define WL_NPKTRADIOCMDS      (3)
-#define WL_ISPKTRADIOCMD(cmd) (_WLIOCVALID(cmd) && \
-                               _IOC_NR(cmd) >= WL_PKTRADIOFIRST && \
-                               _IOC_NR(cmd) < (WL_PKTRADIOFIRST + WL_NPKTRADIOCMDS))
 
 /* ------------------------------ WIRELESS EVENTS --------------------------------- */
 

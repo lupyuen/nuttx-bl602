@@ -30,8 +30,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-extern uint32_t __stack;
-#define IDLE_STACK      ((unsigned)&__stack - 4)
+extern uint8_t __stack[];
+#define IDLE_STACK      (__stack - 4)
 #ifndef ARMV8M_PERIPHERAL_INTERRUPTS
 #  error ARMV8M_PERIPHERAL_INTERRUPTS must be defined to the number of I/O interrupts to be supported
 #endif
@@ -63,8 +63,7 @@ extern void exception_common(void);
  * Note that the [ ... ] designated initialiser is a GCC extension.
  */
 
-unsigned _vectors[] locate_data(".vectors") \
-                    aligned_data(0x100) =
+const void * const _vectors[] locate_data(".vectors") aligned_data(0x100) =
 {
   /* Initial stack */
 
@@ -72,10 +71,10 @@ unsigned _vectors[] locate_data(".vectors") \
 
   /* Reset exception handler */
 
-  (unsigned) &ram_start,
+  ram_start,
 
   /* Vectors 2 - n point directly at the generic handler */
 
-  [2 ...(15 + ARMV8M_PERIPHERAL_INTERRUPTS)] = (unsigned) &exception_common
+  [2 ...(15 + ARMV8M_PERIPHERAL_INTERRUPTS)] = exception_common
 };
 

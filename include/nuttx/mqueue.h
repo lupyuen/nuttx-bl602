@@ -35,7 +35,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <mqueue.h>
-#include <queue.h>
 #include <poll.h>
 
 #if CONFIG_MQ_MAXMSGSIZE > 0
@@ -79,6 +78,16 @@
 #  define _MQ_TIMEDRECEIVE(d,m,l,p,t) mq_timedreceive(d,m,l,p,t)
 #endif
 
+#if CONFIG_FS_MQUEUE_NPOLLWAITERS > 0
+# define nxmq_pollnotify(msgq, eventset) \
+  poll_notify(msgq->fds, CONFIG_FS_MQUEUE_NPOLLWAITERS, eventset)
+#else
+# define nxmq_pollnotify(msgq, eventset)
+#endif
+
+# define MQ_WNELIST(mq)               (&((mq)->waitfornotempty))
+# define MQ_WNFLIST(mq)               (&((mq)->waitfornotfull))
+
 /****************************************************************************
  * Public Type Declarations
  ****************************************************************************/
@@ -88,6 +97,8 @@
 struct mqueue_inode_s
 {
   FAR struct inode *inode;    /* Containing inode */
+  dq_queue_t waitfornotempty; /* Task list waiting for not empty */
+  dq_queue_t waitfornotfull;  /* Task list waiting for not full */
   struct list_node msglist;   /* Prioritized message list */
   int16_t maxmsgs;            /* Maximum number of messages in the queue */
   int16_t nmsgs;              /* Number of message in the queue */
@@ -403,28 +414,6 @@ void nxmq_free_msgq(FAR struct mqueue_inode_s *msgq);
 
 int nxmq_alloc_msgq(FAR struct mq_attr *attr,
                     FAR struct mqueue_inode_s **pmsgq);
-
-/****************************************************************************
- * Name: nxmq_pollnotify
- *
- * Description:
- *   pollnotify, used for notifying the poll
- *
- * Input Parameters:
- *   msgq     - Named message queue
- *   eventset - evnet
- *
- * Returned Value:
- *   The allocated and initialized message queue structure or NULL in the
- *   event of a failure.
- *
- ****************************************************************************/
-
-#if CONFIG_FS_MQUEUE_NPOLLWAITERS > 0
-void nxmq_pollnotify(FAR struct mqueue_inode_s *msgq, pollevent_t eventset);
-#else
-# define nxmq_pollnotify(msgq, eventset)
-#endif
 
 /****************************************************************************
  * Name: file_mq_open
