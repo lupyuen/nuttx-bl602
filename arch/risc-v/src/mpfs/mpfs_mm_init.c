@@ -58,6 +58,11 @@
 #define PGT_L2_SIZE     (512)  /* Enough to map 1 GiB */
 #define PGT_L3_SIZE     (1024) /* Enough to map 4 MiB */
 
+/* Calculate the minimum size for the L3 table */
+
+#define KMEM_SIZE       (KFLASH_SIZE + KSRAM_SIZE)
+#define PGT_L3_MIN_SIZE ((KMEM_SIZE + RV_MMU_PAGE_MASK) >> RV_MMU_PAGE_SHIFT)
+
 #define SLAB_COUNT      (sizeof(m_l3_pgtable) / RV_MMU_PAGE_SIZE)
 
 /****************************************************************************
@@ -172,11 +177,11 @@ static void map_region(uintptr_t paddr, uintptr_t vaddr, size_t size,
           /* No, allocate 1 page, this must not fail */
 
           l3pbase = slab_alloc();
-          DEBUGASSERT(l3pbase);
+          ASSERT(l3pbase);
 
           /* Map it to the L3 table */
 
-          mmu_ln_setentry(2, PGT_L2_VBASE, l3pbase, vaddr, MMU_UPGT_FLAGS);
+          mmu_ln_setentry(2, PGT_L2_VBASE, l3pbase, vaddr, PTE_G);
         }
 
       /* Then add the L3 mappings */
@@ -205,6 +210,19 @@ static void map_region(uintptr_t paddr, uintptr_t vaddr, size_t size,
 
 void mpfs_kernel_mappings(void)
 {
+  /* Ensure the sections are aligned properly, requirement is 2MB due to the
+   * L3 page table size (one table maps 2MB of memory). This mapping cannot
+   * handle unaligned L3 sections.
+   */
+
+  ASSERT((KFLASH_START & RV_MMU_SECTION_ALIGN) == 0);
+  ASSERT((KSRAM_START & RV_MMU_SECTION_ALIGN) == 0);
+  ASSERT((PGPOOL_START & RV_MMU_SECTION_ALIGN) == 0);
+
+  /* Check that the L3 table is of sufficient size */
+
+  ASSERT(PGT_L3_SIZE >= PGT_L3_MIN_SIZE);
+
   /* Initialize slab allocator for L3 page tables */
 
   slab_init(PGT_L3_PBASE);

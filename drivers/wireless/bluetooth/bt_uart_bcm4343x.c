@@ -368,7 +368,7 @@ static int load_bcm4343x_firmware(FAR const struct btuart_lowerhalf_s *lower)
       ret = -ECOMM;
     }
 
-  load_bcm4343x_firmware_finished:
+load_bcm4343x_firmware_finished:
   lower->rxenable(lower, false);
   lower->rxattach(lower, NULL, NULL);
 
@@ -423,6 +423,8 @@ int btuart_register(FAR const struct btuart_lowerhalf_s *lower)
   upper->dev.head_reserve = H4_HEADER_SIZE;
   upper->dev.open = btuart_open;
   upper->dev.send = btuart_send;
+  upper->dev.close = btuart_close;
+  upper->dev.ioctl = btuart_ioctl;
   upper->lower = lower;
 
   /* Load firmware */
