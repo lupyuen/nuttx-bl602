@@ -44,10 +44,16 @@
  * Public Functions
  ****************************************************************************/
 
-#ifdef _REENT_SMALL
+#ifdef __NEWLIB__
+#  if (__NEWLIB__ < 4 || __NEWLIB__ == 4 && __NEWLIB_MINOR__ < 2)
+#    ifdef _REENT_SMALL
 extern struct __sFILE_fake __sf_fake_stdin _ATTRIBUTE((weak));
 extern struct __sFILE_fake __sf_fake_stdout _ATTRIBUTE((weak));
 extern struct __sFILE_fake __sf_fake_stderr _ATTRIBUTE((weak));
+#    endif
+#  else
+extern __FILE __sf[3] _ATTRIBUTE((weak));
+#  endif
 #endif
 
 static struct _reent __ATTRIBUTE_IMPURE_DATA__
