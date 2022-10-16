@@ -1,5 +1,5 @@
 /****************************************************************************
- * boards/arm64/qemu/qemu-a53/src/qemu-a53.h
+ * drivers/usrsock/usrsock_rpmsg.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,42 +18,44 @@
  *
  ****************************************************************************/
 
-#ifndef __BOARDS_ARM64_QEMU_QEMU_A53_SRC_QEMU_A53_H
-#define __BOARDS_ARM64_QEMU_QEMU_A53_SRC_QEMU_A53_H
+#ifndef __DRIVERS_USRSOCK_USRSOCK_RPMSG_H
+#define __DRIVERS_USRSOCK_USRSOCK_RPMSG_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include <nuttx/net/usrsock.h>
 
-#include <stdint.h>
+/****************************************************************************
+ * Pre-processor definitions
+ ****************************************************************************/
+
+#define USRSOCK_RPMSG_EPT_NAME      "rpmsg-usrsock"
+
+#define USRSOCK_RPMSG_DNS_REQUEST    USRSOCK_REQUEST__MAX
+#define USRSOCK_RPMSG_DNS_EVENT      127
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+/* DNS request message */
 
-#ifndef __ASSEMBLY__
+begin_packed_struct struct usrsock_rpmsg_dns_request_s
+{
+  struct usrsock_request_common_s head;
 
-/****************************************************************************
- * Public Functions Definitions
- ****************************************************************************/
+  uint16_t addrlen;
+} end_packed_struct;
 
-/****************************************************************************
- * Name: qemu_bringup
- *
- * Description:
- *   Bring up board features
- *
- ****************************************************************************/
+/* DNS event message */
 
-#if defined(CONFIG_BOARDCTL) || defined(CONFIG_BOARD_LATE_INITIALIZE)
-int qemu_bringup(void);
-#endif
+begin_packed_struct struct usrsock_rpmsg_dns_event_s
+{
+  struct usrsock_message_common_s head;
 
-#endif /* __ASSEMBLY__ */
-#endif /* __BOARDS_ARM64_QEMU_QEMU_A53_SRC_QEMU_A53_H */
+  uint16_t addrlen;
+} end_packed_struct;
+
+#endif /* __DRIVERS_USRSOCK_USRSOCK_RPMSG_H */
