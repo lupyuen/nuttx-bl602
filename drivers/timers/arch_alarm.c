@@ -123,27 +123,27 @@ static void udelay_coarse(useconds_t microseconds)
 static void oneshot_callback(FAR struct oneshot_lowerhalf_s *lower,
                              FAR void *arg)
 {
-  struct timespec now;
+  clock_t now = 0;
 
 #ifdef CONFIG_SCHED_TICKLESS
-  ONESHOT_CURRENT(g_oneshot_lower, &now);
-  nxsched_alarm_expiration(&now);
+  ONESHOT_TICK_CURRENT(g_oneshot_lower, &now);
+  nxsched_alarm_tick_expiration(now);
 #else
-  struct timespec delta;
+  clock_t delta;
 
   do
     {
-      static uint64_t tick = 1;
-      struct timespec next;
+      static clock_t tick = 1;
+      clock_t next;
 
       nxsched_process_timer();
-      timespec_from_usec(&next, ++tick * USEC_PER_TICK);
-      ONESHOT_CURRENT(g_oneshot_lower, &now);
-      clock_timespec_subtract(&next, &now, &delta);
+      next = ++tick;
+      ONESHOT_TICK_CURRENT(g_oneshot_lower, &now);
+      delta = next - now;
     }
-  while (delta.tv_sec == 0 && delta.tv_nsec == 0);
+  while ((sclock_t)delta <= 0);
 
-  ONESHOT_START(g_oneshot_lower, oneshot_callback, NULL, &delta);
+  ONESHOT_TICK_START(g_oneshot_lower, oneshot_callback, NULL, delta);
 #endif
 }
 
@@ -154,19 +154,16 @@ static void oneshot_callback(FAR struct oneshot_lowerhalf_s *lower,
 void up_alarm_set_lowerhalf(FAR struct oneshot_lowerhalf_s *lower)
 {
 #ifdef CONFIG_SCHED_TICKLESS
-  struct timespec maxts;
-  uint64_t maxticks;
+  clock_t ticks;
+#endif
 
   g_oneshot_lower = lower;
-  ONESHOT_MAX_DELAY(g_oneshot_lower, &maxts);
-  maxticks = timespec_to_usec(&maxts) / USEC_PER_TICK;
-  g_oneshot_maxticks = maxticks < UINT32_MAX ? maxticks : UINT32_MAX;
+
+#ifdef CONFIG_SCHED_TICKLESS
+  ONESHOT_TICK_MAX_DELAY(g_oneshot_lower, &ticks);
+  g_oneshot_maxticks = ticks < UINT32_MAX ? ticks : UINT32_MAX;
 #else
-  struct timespec ts;
-
-  g_oneshot_lower = lower;
-  timespec_from_usec(&ts, USEC_PER_TICK);
-  ONESHOT_START(g_oneshot_lower, oneshot_callback, NULL, &ts);
+  ONESHOT_TICK_START(g_oneshot_lower, oneshot_callback, NULL, 1);
 #endif
 }
 
@@ -204,39 +201,19 @@ void up_alarm_set_lowerhalf(FAR struct oneshot_lowerhalf_s *lower)
  ****************************************************************************/
 
 #ifdef CONFIG_CLOCK_TIMEKEEPING
-int weak_function up_timer_getcounter(FAR uint64_t *cycles)
-{
-  int ret = -EAGAIN;
-
-  if (g_oneshot_lower != NULL)
-    {
-      struct timespec now;
-
-      ret = ONESHOT_CURRENT(g_oneshot_lower, &now);
-      if (ret == 0)
-        {
-          *cycles = timespec_to_usec(&now) / USEC_PER_TICK;
-        }
-    }
-
-  return ret;
-}
-
-void weak_function up_timer_getmask(FAR uint64_t *mask)
+void weak_function up_timer_getmask(FAR clock_t *mask)
 {
   *mask = 0;
 
   if (g_oneshot_lower != NULL)
     {
-      struct timespec maxts;
-      uint64_t maxticks;
+      clock_t maxticks;
 
-      ONESHOT_MAX_DELAY(g_oneshot_lower, &maxts);
-      maxticks = timespec_to_usec(&maxts) / USEC_PER_TICK;
+      ONESHOT_TICK_MAX_DELAY(g_oneshot_lower, &maxticks);
 
       for (; ; )
         {
-          uint64_t next = (*mask << 1) | 1;
+          clock_t next = (*mask << 1) | 1;
           if (next > maxticks)
             {
               break;
@@ -248,14 +225,14 @@ void weak_function up_timer_getmask(FAR uint64_t *mask)
 }
 #endif
 
-#if defined(CONFIG_SCHED_TICKLESS)
-int weak_function up_timer_gettime(FAR struct timespec *ts)
+#if defined(CONFIG_SCHED_TICKLESS) || defined(CONFIG_CLOCK_TIMEKEEPING)
+int weak_function up_timer_gettick(FAR clock_t *ticks)
 {
   int ret = -EAGAIN;
 
   if (g_oneshot_lower != NULL)
     {
-      ret = ONESHOT_CURRENT(g_oneshot_lower, ts);
+      ret = ONESHOT_TICK_CURRENT(g_oneshot_lower, ticks);
     }
 
   return ret;
@@ -297,14 +274,14 @@ int weak_function up_timer_gettime(FAR struct timespec *ts)
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_TICKLESS
-int weak_function up_alarm_cancel(FAR struct timespec *ts)
+int weak_function up_alarm_tick_cancel(FAR clock_t *ticks)
 {
   int ret = -EAGAIN;
 
   if (g_oneshot_lower != NULL)
     {
-      ret = ONESHOT_CANCEL(g_oneshot_lower, ts);
-      ONESHOT_CURRENT(g_oneshot_lower, ts);
+      ret = ONESHOT_TICK_CANCEL(g_oneshot_lower, ticks);
+      ONESHOT_TICK_CURRENT(g_oneshot_lower, ticks);
     }
 
   return ret;
@@ -336,18 +313,24 @@ int weak_function up_alarm_cancel(FAR struct timespec *ts)
  ****************************************************************************/
 
 #ifdef CONFIG_SCHED_TICKLESS
-int weak_function up_alarm_start(FAR const struct timespec *ts)
+int weak_function up_alarm_tick_start(clock_t ticks)
 {
   int ret = -EAGAIN;
 
   if (g_oneshot_lower != NULL)
     {
-      struct timespec now;
-      struct timespec delta;
+      clock_t now = 0;
+      clock_t delta;
 
-      ONESHOT_CURRENT(g_oneshot_lower, &now);
-      clock_timespec_subtract(ts, &now, &delta);
-      ret = ONESHOT_START(g_oneshot_lower, oneshot_callback, NULL, &delta);
+      ONESHOT_TICK_CURRENT(g_oneshot_lower, &now);
+      delta = ticks - now;
+      if ((sclock_t)delta < 0)
+        {
+          delta = 0;
+        }
+
+      ret = ONESHOT_TICK_START(g_oneshot_lower, oneshot_callback,
+                               NULL, delta);
     }
 
   return ret;
