@@ -138,6 +138,42 @@ ifeq ($(CONFIG_ARCH_BOARD_COMMON),y)
 NUTTXLIBS += staging$(DELIM)libboard$(LIBEXT)
 endif
 
+# Add Semtech SX1262 library
+
+ifeq ($(CONFIG_LIBSX1262),y)
+NUTTXLIBS += staging$(DELIM)libsx1262$(LIBEXT)
+endif
+
+# Add LoRaWAN library
+
+ifeq ($(CONFIG_LIBLORAWAN),y)
+NUTTXLIBS += staging$(DELIM)liblorawan$(LIBEXT)
+endif
+
+# Add NimBLE Porting Layer library
+
+ifeq ($(CONFIG_LIBNPL),y)
+NUTTXLIBS += staging$(DELIM)libnpl$(LIBEXT)
+endif
+
+# Add TinyCBOR library
+
+ifeq ($(CONFIG_LIBTINYCBOR),y)
+NUTTXLIBS += staging$(DELIM)libtinycbor$(LIBEXT)
+endif
+
+# Add Rust library
+
+ifeq ($(CONFIG_LIBRUST),y)
+NUTTXLIBS += staging$(DELIM)librust$(LIBEXT)
+endif
+
+# Add BL602 ADC library
+
+ifeq ($(CONFIG_LIBBL602_ADC),y)
+NUTTXLIBS += staging$(DELIM)libbl602_adc$(LIBEXT)
+endif
+
 # Export all libraries
 
 EXPORTLIBS = $(NUTTXLIBS)
