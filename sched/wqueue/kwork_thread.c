@@ -80,7 +80,7 @@
 struct hp_wqueue_s g_hpwork =
 {
   {NULL, NULL},
-  NXSEM_INITIALIZER(0, PRIOINHERIT_FLAGS_DISABLE),
+  SEM_INITIALIZER(0),
 };
 
 #endif /* CONFIG_SCHED_HPWORK */
@@ -91,7 +91,7 @@ struct hp_wqueue_s g_hpwork =
 struct lp_wqueue_s g_lpwork =
 {
   {NULL, NULL},
-  NXSEM_INITIALIZER(0, PRIOINHERIT_FLAGS_DISABLE),
+  SEM_INITIALIZER(0),
 };
 
 #endif /* CONFIG_SCHED_LPWORK */
@@ -226,7 +226,7 @@ static int work_thread_create(FAR const char *name, int priority,
   for (wndx = 0; wndx < nthread; wndx++)
     {
       pid = kthread_create(name, priority, stack_size,
-                           (main_t)work_thread, argv);
+                           work_thread, argv);
 
       DEBUGASSERT(pid > 0);
       if (pid < 0)

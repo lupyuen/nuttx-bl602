@@ -50,7 +50,7 @@ int puts(FAR const IPTR char *s)
 
   /* Write the string (the next two steps must be atomic) */
 
-  lib_take_semaphore(stream);
+  flockfile(stream);
 
   /* Write the string without its trailing '\0' */
 
@@ -80,7 +80,7 @@ int puts(FAR const IPTR char *s)
         }
     }
 
-  lib_give_semaphore(stdout);
+  funlockfile(stdout);
   return nput;
 #else
   size_t len = strlen(s);

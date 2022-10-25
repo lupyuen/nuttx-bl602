@@ -32,8 +32,10 @@
 #include <poll.h>
 #include <errno.h>
 #include <debug.h>
+#include <sys/stat.h>
 
 #include <nuttx/kmalloc.h>
+#include <nuttx/mutex.h>
 #include <nuttx/board.h>
 #include <nuttx/signal.h>
 #include <nuttx/fs/fs.h>
@@ -154,7 +156,7 @@ struct cxd56_devsig_table_s
 
 struct cxd56_gnss_dev_s
 {
-  sem_t                           devsem;
+  mutex_t                         devlock;
   sem_t                           syncsem;
   uint8_t                         num_open;
   uint8_t                         notify_data;
@@ -165,7 +167,7 @@ struct cxd56_gnss_dev_s
   struct cxd56_gnss_sig_s         sigs[CONFIG_CXD56_GNSS_NSIGNALRECEIVERS];
 #endif
   struct cxd56_gnss_shared_info_s shared_info;
-  sem_t                           ioctllock;
+  mutex_t                         ioctllock;
   sem_t                           apiwait;
   int                             apiret;
 };
@@ -392,6 +394,14 @@ static struct pm_cpu_freqlock_s g_lv_lock =
 
 static struct pm_cpu_freqlock_s g_hold_lock =
   PM_CPUFREQLOCK_INIT(0, PM_CPUFREQLOCK_FLAG_HOLD);
+
+#ifdef CONFIG_CXD56_GNSS_CEP_ON_SPIFLASH
+/* Buffer and length for CEP data on SPI-Flash */
+
+static int    g_check_cep_flag = 0;
+static char  *g_cepdata = NULL;
+static size_t g_ceplen = 0;
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -1012,12 +1022,90 @@ static int cxd56_gnss_close_cep_data(struct file *filep,
  *   Zero (OK) on success; a negated errno value on failure.
  *
  ****************************************************************************/
+#ifdef CONFIG_CXD56_GNSS_CEP_ON_SPIFLASH
+static int cxd56_gnss_check_cep_data(struct file *filep, unsigned long arg)
+{
+  int ret;
+  struct stat statbuf;
+  struct inode *inode;
+  struct cxd56_gnss_dev_s *priv;
+
+  inode = filep->f_inode;
+  priv  = (struct cxd56_gnss_dev_s *)inode->i_private;
+
+  /* Set a flag for checking CEP data  */
+
+  g_check_cep_flag = 1;
+
+  /* Allocate a buffer and read all of CEP data to it */
+
+  g_cepdata = NULL;
+  g_ceplen = 0;
+
+  ret = file_fstat(&priv->cepfp, &statbuf);
+  if (ret == 0)
+    {
+      g_ceplen = (size_t)statbuf.st_size;
+    }
+  else
+    {
+      return ret;
+    }
+
+  if (g_ceplen > 0)
+    {
+      g_cepdata = (char *)kmm_malloc(g_ceplen);
+    }
+
+  if (!g_cepdata)
+    {
+      gnsserr("Failed to allocate cep data\n");
+      return -ENOMEM;
+    }
+
+  /* Set the file position to the beginning before reading */
+
+  ret = file_seek(&priv->cepfp, 0, SEEK_SET);
+  if (ret < 0)
+    {
+      goto errout;
+    }
+
+  ret = file_read(&priv->cepfp, g_cepdata, g_ceplen);
+  if (ret < 0)
+    {
+      goto errout;
+    }
+
+  ret = fw_gd_cepcheckassistdata();
+
+errout:
+
+  /* Free an allocated buffer */
+
+  if (g_cepdata)
+    {
+      kmm_free(g_cepdata);
+      g_cepdata = NULL;
+      g_ceplen = 0;
+    }
+
+  /* Clear a flag for checking CEP data  */
+
+  g_check_cep_flag = 0;
+
+  return ret;
+}
+
+#else /* !CONFIG_CXD56_GNSS_CEP_ON_SPIFLASH */
 
 static int cxd56_gnss_check_cep_data(struct file *filep,
                                      unsigned long arg)
 {
   return fw_gd_cepcheckassistdata();
 }
+
+#endif
 
 /****************************************************************************
  * Name: cxd56_gnss_get_cep_age
@@ -1483,7 +1571,7 @@ static int cxd56_gnss_set_signal(struct file *filep, unsigned long arg)
   inode = filep->f_inode;
   priv  = (struct cxd56_gnss_dev_s *)inode->i_private;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -1532,7 +1620,7 @@ static int cxd56_gnss_set_signal(struct file *filep, unsigned long arg)
 
 success:
 err:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
 #endif /* CONFIG_CXD56_GNSS_NSIGNALRECEIVERS != 0 */
 
   return ret;
@@ -2135,6 +2223,27 @@ cxd56_gnss_read_cep_file(struct file *fp, int32_t offset,
   char *buf;
   int   ret;
 
+#ifdef CONFIG_CXD56_GNSS_CEP_ON_SPIFLASH
+  if (g_check_cep_flag)
+    {
+      /* If checking CEP data, use a pre-read buffer in advance */
+
+      if (offset + len > g_ceplen)
+        {
+          ret = -ENOENT;
+          goto _err0;
+        }
+
+      buf = &g_cepdata[offset];
+
+      *retval = len;
+
+      cxd56_cpu1sigsend(CXD56_CPU1_DATA_TYPE_CEP, (uint32_t)buf);
+
+      return NULL;
+    }
+#endif
+
   if (fp == NULL)
     {
       ret = -ENOENT;
@@ -2270,7 +2379,7 @@ static void cxd56_gnss_common_signalhandler(uint32_t data,
   int                      i;
   int                      ret;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return;
@@ -2294,7 +2403,7 @@ static void cxd56_gnss_common_signalhandler(uint32_t data,
       fw_gd_setnotifymask(sigtype, FALSE);
     }
 
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
 }
 #endif /* CONFIG_CXD56_GNSS_NSIGNALRECEIVERS != 0 */
 
@@ -2378,7 +2487,7 @@ static void cxd56_gnss_default_sighandler(uint32_t data, void *userdata)
       break;
     }
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return;
@@ -2386,7 +2495,7 @@ static void cxd56_gnss_default_sighandler(uint32_t data, void *userdata)
 
   poll_notify(priv->fds, CONFIG_CXD56_GNSS_NPOLLWAITERS, POLLIN);
 
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
 
 #if CONFIG_CXD56_GNSS_NSIGNALRECEIVERS != 0
   cxd56_gnss_common_signalhandler(data, userdata);
@@ -2594,7 +2703,7 @@ static int cxd56_gnss_open(struct file *filep)
       usleep(100 * 1000);
     }
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -2607,8 +2716,6 @@ static int cxd56_gnss_open(struct file *filep)
         {
           goto err0;
         }
-
-      nxsem_set_protocol(&priv->syncsem, SEM_PRIO_NONE);
 
       /* Prohibit the clock change during loading image */
 
@@ -2668,7 +2775,7 @@ err1:
   nxsem_destroy(&priv->syncsem);
 err0:
 success:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
   return ret;
 }
 
@@ -2695,7 +2802,7 @@ static int cxd56_gnss_close(struct file *filep)
   inode = filep->f_inode;
   priv  = (struct cxd56_gnss_dev_s *)inode->i_private;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -2716,7 +2823,7 @@ static int cxd56_gnss_close(struct file *filep)
     }
 
 errout:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
   return ret;
 }
 
@@ -2842,7 +2949,7 @@ static int cxd56_gnss_ioctl(struct file *filep, int cmd,
       return -EINVAL;
     }
 
-  ret = nxsem_wait(&priv->ioctllock);
+  ret = nxmutex_lock(&priv->ioctllock);
   if (ret < 0)
     {
       return ret;
@@ -2850,8 +2957,7 @@ static int cxd56_gnss_ioctl(struct file *filep, int cmd,
 
   ret = g_cmdlist[cmd](filep, arg);
 
-  nxsem_post(&priv->ioctllock);
-
+  nxmutex_unlock(&priv->ioctllock);
   return ret;
 }
 
@@ -2882,7 +2988,7 @@ static int cxd56_gnss_poll(struct file *filep, struct pollfd *fds,
   inode = filep->f_inode;
   priv  = (struct cxd56_gnss_dev_s *)inode->i_private;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -2933,7 +3039,7 @@ static int cxd56_gnss_poll(struct file *filep, struct pollfd *fds,
     }
 
 errout:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
   return ret;
 }
 
@@ -3015,10 +3121,10 @@ static int cxd56_gnss_register(const char *devpath)
 
   memset(priv, 0, sizeof(struct cxd56_gnss_dev_s));
 
-  ret = nxsem_init(&priv->devsem, 0, 1);
+  ret = nxmutex_init(&priv->devlock);
   if (ret < 0)
     {
-      gnsserr("Failed to initialize gnss devsem!\n");
+      gnsserr("Failed to initialize gnss devlock!\n");
       goto err0;
     }
 
@@ -3029,9 +3135,7 @@ static int cxd56_gnss_register(const char *devpath)
       goto err0;
     }
 
-  nxsem_set_protocol(&priv->apiwait, SEM_PRIO_NONE);
-
-  ret = nxsem_init(&priv->ioctllock, 0, 1);
+  ret = nxmutex_init(&priv->ioctllock);
   if (ret < 0)
     {
       gnsserr("Failed to initialize gnss ioctllock!\n");

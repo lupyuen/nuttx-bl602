@@ -74,18 +74,13 @@ FAR struct nxterm_state_s *
   priv->minor   = minor;
   memcpy(&priv->wndo, wndo, sizeof(struct nxterm_window_s));
 
-  nxsem_init(&priv->exclsem, 0, 1);
+  nxmutex_init(&priv->lock);
 #ifdef CONFIG_DEBUG_GRAPHICS
   priv->holder  = NO_HOLDER;
 #endif
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-  /* The waitsem semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   nxsem_init(&priv->waitsem, 0, 0);
-  nxsem_set_protocol(&priv->waitsem, SEM_PRIO_NONE);
 #endif
 
   /* Connect to the font cache for the configured font characteristics */

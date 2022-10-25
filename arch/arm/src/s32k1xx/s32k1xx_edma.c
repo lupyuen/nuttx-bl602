@@ -58,6 +58,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/queue.h>
 #include <nuttx/spinlock.h>
+#include <nuttx/mutex.h>
 #include <nuttx/semaphore.h>
 
 #include "arm_internal.h"
@@ -136,9 +137,9 @@ struct s32k1xx_dmach_s
 
 struct s32k1xx_edma_s
 {
-  /* These semaphores protect the DMA channel and descriptor tables */
+  /* These mutex protect the DMA channel and descriptor tables */
 
-  sem_t chsem;                    /* Protects channel table */
+  mutex_t chlock;                 /* Protects channel table */
 #if CONFIG_S32K1XX_EDMA_NTCD > 0
   sem_t dsem;                     /* Supports wait for free descriptors */
 #endif
@@ -170,25 +171,6 @@ static struct s32k1xx_edmatcd_s g_tcd_pool[CONFIG_S32K1XX_EDMA_NTCD]
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: s32k1xx_takechsem() and s32k1xx_givechsem()
- *
- * Description:
- *   Used to get exclusive access to the DMA channel table for channel
- *   allocation.
- *
- ****************************************************************************/
-
-static int s32k1xx_takechsem(void)
-{
-  return nxsem_wait_uninterruptible(&g_edma.chsem);
-}
-
-static inline void s32k1xx_givechsem(void)
-{
-  nxsem_post(&g_edma.chsem);
-}
 
 /****************************************************************************
  * Name: s32k1xx_takedsem() and s32k1xx_givedsem()
@@ -730,17 +712,11 @@ void weak_function arm_dma_initialize(void)
       g_edma.dmach[i].chan = i;
     }
 
-  /* Initialize semaphores */
+  /* Initialize mutex & semaphores */
 
-  nxsem_init(&g_edma.chsem, 0, 1);
+  nxmutex_init(&g_edma.chlock);
 #if CONFIG_S32K1XX_EDMA_NTCD > 0
   nxsem_init(&g_edma.dsem, 0, CONFIG_S32K1XX_EDMA_NTCD);
-
-  /* The 'dsem' is used for signaling rather than mutual exclusion and,
-   * hence, should not have priority inheritance enabled.
-   */
-
-  nxsem_set_protocol(&g_edma.dsem, SEM_PRIO_NONE);
 
   /* Initialize the list of free TCDs from the pool of pre-allocated TCDs. */
 
@@ -842,7 +818,7 @@ DMACH_HANDLE s32k1xx_dmach_alloc(uint8_t dmamux, uint8_t dchpri)
   /* Search for an available DMA channel */
 
   dmach = NULL;
-  ret = s32k1xx_takechsem();
+  ret = nxmutex_lock(&g_edma.chlock);
   if (ret < 0)
     {
       return NULL;
@@ -879,7 +855,7 @@ DMACH_HANDLE s32k1xx_dmach_alloc(uint8_t dmamux, uint8_t dchpri)
         }
     }
 
-  s32k1xx_givechsem();
+  nxmutex_unlock(&g_edma.chlock);
 
   /* Show the result of the allocation */
 

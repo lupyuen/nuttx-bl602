@@ -430,7 +430,7 @@ struct file
 
 struct filelist
 {
-  sem_t             fl_sem;     /* Manage access to the file list */
+  mutex_t           fl_lock;    /* Manage access to the file list */
   uint8_t           fl_rows;    /* The number of rows of fl_files array */
   FAR struct file **fl_files;   /* The pointer of two layer file descriptors array */
 };
@@ -475,9 +475,9 @@ struct filelist
 struct file_struct
 {
   FAR struct file_struct *fs_next;      /* Pointer to next file stream */
+  rmutex_t                fs_lock;      /* Recursive lock */
   int                     fs_fd;        /* File descriptor associated with stream */
 #ifndef CONFIG_STDIO_DISABLE_BUFFERING
-  rmutex_t                fs_lock;      /* Recursive lock */
   FAR unsigned char      *fs_bufstart;  /* Pointer to start of buffer */
   FAR unsigned char      *fs_bufend;    /* Pointer to 1 past end of buffer */
   FAR unsigned char      *fs_bufpos;    /* Current position in buffer */
@@ -496,7 +496,7 @@ struct file_struct
 
 struct streamlist
 {
-  sem_t                   sl_sem;   /* For thread safety */
+  mutex_t                 sl_lock;   /* For thread safety */
   struct file_struct      sl_std[3];
   FAR struct file_struct *sl_head;
   FAR struct file_struct *sl_tail;

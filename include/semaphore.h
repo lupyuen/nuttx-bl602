@@ -44,11 +44,14 @@
 
 /* Value returned by sem_open() in the event of a failure. */
 
-#define SEM_FAILED ((FAR sem_t *)NULL)
+#define SEM_FAILED                NULL
 
 /* Bit definitions for the struct sem_s flags field */
 
-#define PRIOINHERIT_FLAGS_DISABLE (1 << 0)  /* Bit 0: Priority inheritance
+#define PRIOINHERIT_FLAGS_ENABLE (1 << 0)  /* Bit 0: Priority inheritance
+                                            * is enabled for this semaphore. */
+
+#define PRIOINHERIT_FLAGS_DISABLE (0 << 0)  /* Bit 0: Priority inheritance
                                              * is disabled for this semaphore. */
 
 /****************************************************************************
