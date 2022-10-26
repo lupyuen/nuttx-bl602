@@ -875,17 +875,14 @@ int bl602_bringup(void)
 
 #ifdef CONFIG_RF_SPI_TEST_DRIVER
 
-  /* Init SPI bus again */
+  /* Register the SPI Test Driver */
 
-  struct spi_dev_s *spitest = bl602_spibus_initialize(0);
-  if (!spitest)
+  if (!spi_bus)
     {
       _err("ERROR: Failed to initialize SPI %d bus for SPI Test Driver\n", 0);
     }
 
-  /* Register the SPI Test Driver */
-
-  ret = spi_test_driver_register("/dev/spitest0", spitest, 0);
+  ret = spi_test_driver_register("/dev/spitest0", spi_bus, 0);
   if (ret < 0)
     {
       _err("ERROR: Failed to register SPI Test Driver\n");
@@ -895,17 +892,14 @@ int bl602_bringup(void)
 
 #ifdef CONFIG_SENSORS_BME280
 
-  /* Init I2C bus for BME280 */
+  /* Register the BME280 driver */
 
-  struct i2c_master_s *bme280_i2c_bus = bl602_i2cbus_initialize(0);
-  if (!bme280_i2c_bus)
+  if (!i2c_bus)
     {
       _err("ERROR: Failed to get I2C%d interface\n", 0);
     }
 
-  /* Register the BME280 driver */
-
-  ret = bme280_register(0, bme280_i2c_bus);
+  ret = bme280_register(0, i2c_bus);
   if (ret < 0)
     {
       _err("ERROR: Failed to register BME280\n");
@@ -914,17 +908,14 @@ int bl602_bringup(void)
 
 #ifdef CONFIG_SENSORS_BMP280
 
-  /* Init I2C bus for BMP280 */
+  /* Register the BMP280 driver */
 
-  struct i2c_master_s *bmp280_i2c_bus = bl602_i2cbus_initialize(0);
-  if (!bmp280_i2c_bus)
+  if (!i2c_bus)
     {
       _err("ERROR: Failed to get I2C%d interface\n", 0);
     }
 
-  /* Register the BMP280 driver */
-
-  ret = bmp280_register(0, bmp280_i2c_bus);
+  ret = bmp280_register(0, i2c_bus);
   if (ret < 0)
     {
       _err("ERROR: Failed to register BMP280\n");
@@ -952,17 +943,14 @@ int bl602_bringup(void)
 
 #ifdef CONFIG_INPUT_CST816S
 
-  /* Init I2C bus for CST816S */
+  /* Register the CST816S driver */
 
-  struct i2c_master_s *cst816s_i2c_bus = bl602_i2cbus_initialize(0);
-  if (!cst816s_i2c_bus)
+  if (!i2c_bus)
     {
       _err("ERROR: Failed to get I2C%d interface\n", 0);
     }
 
-  /* Register the CST816S driver */
-
-  ret = cst816s_register("/dev/input0", cst816s_i2c_bus, CST816S_DEVICE_ADDRESS);
+  ret = cst816s_register("/dev/input0", i2c_bus, CST816S_DEVICE_ADDRESS);
   if (ret < 0)
     {
       _err("ERROR: Failed to register CST816S\n");
@@ -976,9 +964,6 @@ int bl602_bringup(void)
 
 /* SPI Port Number for LCD */
 #define LCD_SPI_PORTNO 0
-
-/* SPI Bus for LCD */
-static struct spi_dev_s *st7789_spi_bus;
 
 /* LCD Device */
 static struct lcd_dev_s *g_lcd = NULL;
@@ -995,13 +980,6 @@ static struct lcd_dev_s *g_lcd = NULL;
 
 int board_lcd_initialize(void)
 {
-  st7789_spi_bus = bl602_spibus_initialize(LCD_SPI_PORTNO);
-  if (!st7789_spi_bus)
-    {
-      lcderr("ERROR: Failed to initialize SPI port %d for LCD\n", LCD_SPI_PORTNO);
-      return -ENODEV;
-    }
-
   /* Pull LCD_RESET high */
 
   bl602_configgpio(BOARD_LCD_RST);
@@ -1033,7 +1011,13 @@ int board_lcd_initialize(void)
 
 FAR struct lcd_dev_s *board_lcd_getdev(int devno)
 {
-  g_lcd = st7789_lcdinitialize(st7789_spi_bus);
+  if (!spi_bus)
+    {
+      lcderr("ERROR: Failed to initialize SPI port %d for LCD\n", LCD_SPI_PORTNO);
+      return -ENODEV;
+    }
+
+  g_lcd = st7789_lcdinitialize(spi_bus);
   if (!g_lcd)
     {
       lcderr("ERROR: Failed to bind SPI port %d to LCD %d\n", LCD_SPI_PORTNO,
