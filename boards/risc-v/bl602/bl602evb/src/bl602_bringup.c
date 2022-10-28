@@ -1011,6 +1011,8 @@ int board_lcd_initialize(void)
 
 FAR struct lcd_dev_s *board_lcd_getdev(int devno)
 {
+  struct spi_dev_s *spi_bus;
+  spi_bus = bl602_spibus_initialize(LCD_SPI_PORTNO);
   if (!spi_bus)
     {
       lcderr("ERROR: Failed to initialize SPI port %d for LCD\n", LCD_SPI_PORTNO);
