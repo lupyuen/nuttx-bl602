@@ -118,15 +118,8 @@ FAR struct local_conn_s *local_alloc(void)
        */
 
 #ifdef CONFIG_NET_LOCAL_STREAM
-      /* This semaphore is used for signaling and, hence, should not have
-       * priority inheritance enabled.
-       */
-
       nxsem_init(&conn->lc_waitsem, 0, 0);
-      nxsem_set_protocol(&conn->lc_waitsem, SEM_PRIO_NONE);
-
       nxsem_init(&conn->lc_donesem, 0, 0);
-      nxsem_set_protocol(&conn->lc_donesem, SEM_PRIO_NONE);
 
 #endif
 
@@ -134,7 +127,7 @@ FAR struct local_conn_s *local_alloc(void)
        * Make sure data will not be garbled when multi-thread sends.
        */
 
-      nxsem_init(&conn->lc_sendsem, 0, 1);
+      nxmutex_init(&conn->lc_sendlock);
 
       /* Add the connection structure to the list of listeners */
 
@@ -218,7 +211,7 @@ void local_free(FAR struct local_conn_s *conn)
 
   /* Destory sem associated with the connection */
 
-  nxsem_destroy(&conn->lc_sendsem);
+  nxmutex_destroy(&conn->lc_sendlock);
 
   /* And free the connection structure */
 

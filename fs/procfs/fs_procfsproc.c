@@ -411,7 +411,7 @@ static FAR const char * const g_statenames[] =
   "Inactive",
   "Waiting,Semaphore",
   "Waiting,Signal"
-#ifndef CONFIG_DISABLE_MQUEUE
+#if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_MQUEUE_SYSV)
   , "Waiting,MQ empty"
   , "Waiting,MQ full"
 #endif
@@ -493,7 +493,6 @@ static ssize_t proc_status(FAR struct proc_file_s *procfile,
                            FAR struct tcb_s *tcb, FAR char *buffer,
                            size_t buflen, off_t offset)
 {
-  FAR struct task_group_s *group;
   FAR const char *policy;
   FAR const char *name;
   size_t remaining;
@@ -543,12 +542,9 @@ static ssize_t proc_status(FAR struct proc_file_s *procfile,
       return totalsize;
     }
 
-  group = tcb->group;
-  DEBUGASSERT(group != NULL);
-
   linesize   = procfs_snprintf(procfile->line, STATUS_LINELEN,
-                               "%-12s%d\n",
-                               "Group:", group->tg_pid);
+                               "%-12s%d\n", "Group:",
+                               tcb->group ? tcb->group->tg_pid : -1);
   copysize   = procfs_memcpy(procfile->line, linesize, buffer, remaining,
                              &offset);
 

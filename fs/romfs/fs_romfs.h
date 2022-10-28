@@ -132,7 +132,7 @@ struct romfs_mountpt_s
 #endif
   bool     rm_mounted;            /* true: The file system is ready */
   uint16_t rm_hwsectorsize;       /* HW: Sector size reported by block driver */
-  sem_t    rm_sem;                /* Used to assume thread-safe access */
+  mutex_t  rm_lock;               /* Used to assume thread-safe access */
   uint32_t rm_refs;               /* The references for all files opened on this mountpoint */
   uint32_t rm_hwnsectors;         /* HW: The number of sectors reported by the hardware */
   uint32_t rm_volsize;            /* Size of the ROMFS volume */
@@ -149,8 +149,10 @@ struct romfs_mountpt_s
 struct romfs_file_s
 {
   uint32_t rf_startoffset;        /* Offset to the start of the file data */
+  uint32_t rf_endsector;          /* Last sector of the file data */
   uint32_t rf_size;               /* Size of the file in bytes */
-  uint32_t rf_cachesector;        /* Current sector in the rf_buffer */
+  uint32_t rf_cachesector;        /* First sector in the rf_buffer */
+  uint32_t rf_ncachesector;       /* Number of sectors in the rf_buffer */
   FAR uint8_t *rf_buffer;         /* File sector buffer, allocated if rm_xipbase==0 */
   uint8_t rf_type;                /* File type (for fstat()) */
   char rf_path[1];                /* Path of open file */
@@ -188,8 +190,6 @@ extern "C"
  * Public Function Prototypes
  ****************************************************************************/
 
-int  romfs_semtake(FAR struct romfs_mountpt_s *rm);
-void romfs_semgive(FAR struct romfs_mountpt_s *rm);
 int  romfs_hwread(FAR struct romfs_mountpt_s *rm, FAR uint8_t *buffer,
                   uint32_t sector, unsigned int nsectors);
 int  romfs_filecacheread(FAR struct romfs_mountpt_s *rm,

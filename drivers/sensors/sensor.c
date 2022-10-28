@@ -520,7 +520,7 @@ static int sensor_open(FAR struct file *filep)
   if (user == NULL)
     {
       ret = -ENOMEM;
-      goto errout_with_sem;
+      goto errout_with_lock;
     }
 
   if (lower->ops->open)
@@ -569,7 +569,6 @@ static int sensor_open(FAR struct file *filep)
   user->state.interval = ULONG_MAX;
   user->state.esize = upper->state.esize;
   nxsem_init(&user->buffersem, 0, 0);
-  nxsem_set_protocol(&user->buffersem, SEM_PRIO_NONE);
   list_add_tail(&upper->userlist, &user->node);
 
   /* The new user generation, notify to other users */
@@ -577,7 +576,7 @@ static int sensor_open(FAR struct file *filep)
   sensor_pollnotify(upper, POLLPRI);
 
   filep->f_priv = user;
-  goto errout_with_sem;
+  goto errout_with_lock;
 
 errout_with_open:
   if (lower->ops->close)
@@ -587,7 +586,7 @@ errout_with_open:
 
 errout_with_user:
   kmm_free(user);
-errout_with_sem:
+errout_with_lock:
   nxrmutex_unlock(&upper->lock);
   return ret;
 }

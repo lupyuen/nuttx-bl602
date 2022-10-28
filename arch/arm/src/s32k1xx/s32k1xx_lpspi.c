@@ -61,10 +61,11 @@
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
+#include <endian.h>
 
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
-#include <nuttx/semaphore.h>
+#include <nuttx/mutex.h>
 #include <nuttx/spi/spi.h>
 #include <nuttx/power/pm.h>
 
@@ -128,7 +129,7 @@ struct s32k1xx_lpspidev_s
 #ifdef CONFIG_S32K1XX_LPSPI_INTERRUPTS
   uint8_t spiirq;             /* SPI IRQ number */
 #endif
-  sem_t exclsem;              /* Held while chip is selected for mutual exclusion */
+  mutex_t lock;               /* Held while chip is selected for mutual exclusion */
   uint32_t frequency;         /* Requested clock frequency */
   uint32_t actual;            /* Actual clock frequency */
   int8_t nbits;               /* Width of word in bits */
@@ -951,11 +952,11 @@ static int s32k1xx_lpspi_lock(struct spi_dev_s *dev, bool lock)
 
   if (lock)
     {
-      ret = nxsem_wait_uninterruptible(&priv->exclsem);
+      ret = nxmutex_lock(&priv->lock);
     }
   else
     {
-      ret = nxsem_post(&priv->exclsem);
+      ret = nxmutex_unlock(&priv->lock);
     }
 
   return ret;
@@ -1655,7 +1656,7 @@ static void s32k1xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
 
           if (src)
             {
-              word = __builtin_bswap16(*src++);
+              word = swap16(*src++);
 
               /* read the required number of bytes */
             }
@@ -1672,7 +1673,7 @@ static void s32k1xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
 
           if (dest)
             {
-              *dest++ = __builtin_bswap16(word);
+              *dest++ = swap16(word);
             }
         }
     }
@@ -1834,9 +1835,9 @@ static void s32k1xx_lpspi_bus_initialize(struct s32k1xx_lpspidev_s *priv)
 
   s32k1xx_lpspi_setmode((struct spi_dev_s *)priv, SPIDEV_MODE0);
 
-  /* Initialize the SPI semaphore that enforces mutually exclusive access */
+  /* Initialize the SPI mutex that enforces mutually exclusive access */
 
-  nxsem_init(&priv->exclsem, 0, 1);
+  nxmutex_init(&priv->lock);
 
   /* Enable LPSPI */
 

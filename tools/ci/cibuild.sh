@@ -46,7 +46,7 @@ case ${os} in
     brew update --quiet
     ;;
   Linux)
-    install="python-tools codechecker clang_clang-tidy gen-romfs gperf kconfig-frontends rust arm-gcc-toolchain arm64-gcc-toolchain mips-gcc-toolchain riscv-gcc-toolchain xtensa-esp32-gcc-toolchain rx-gcc-toolchain sparc-gcc-toolchain c-cache"
+    install="python-tools codechecker clang_clang-tidy gen-romfs gperf kconfig-frontends rust arm-clang-toolchain arm-gcc-toolchain arm64-gcc-toolchain mips-gcc-toolchain riscv-gcc-toolchain xtensa-esp32-gcc-toolchain rx-gcc-toolchain sparc-gcc-toolchain c-cache"
     ;;
 esac
 
@@ -169,6 +169,20 @@ function bloaty {
   fi
 }
 
+function arm-clang-toolchain {
+  add_path "${prebuilt}"/clang-arm-none-eabi/bin
+
+  if [ ! -f "${prebuilt}/clang-arm-none-eabi/bin/clang" ]; then
+    cd "${prebuilt}"
+    curl -O -L -s https://github.com/ARM-software/LLVM-embedded-toolchain-for-Arm/releases/download/release-14.0.0/LLVMEmbeddedToolchainForArm-14.0.0-linux.tar.gz
+    tar zxf LLVMEmbeddedToolchainForArm-14.0.0-linux.tar.gz
+    mv LLVMEmbeddedToolchainForArm-14.0.0 clang-arm-none-eabi
+    cp /usr/bin/clang-extdef-mapping-10 clang-arm-none-eabi/bin/clang-extdef-mapping
+    rm LLVMEmbeddedToolchainForArm-14.0.0-linux.tar.gz
+  fi
+  clang --version
+}
+
 function arm-gcc-toolchain {
   add_path "${prebuilt}"/gcc-arm-none-eabi/bin
 
@@ -176,17 +190,19 @@ function arm-gcc-toolchain {
     local flavor
     case ${os} in
       Darwin)
-        flavor=mac
+        flavor=-darwin
         ;;
       Linux)
-        flavor=x86_64-linux
+        flavor=
         ;;
     esac
     cd "${prebuilt}"
-    wget --quiet https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-${flavor}.tar.bz2
-    tar jxf gcc-arm-none-eabi-10.3-2021.10-${flavor}.tar.bz2
-    mv gcc-arm-none-eabi-10.3-2021.10 gcc-arm-none-eabi
-    rm gcc-arm-none-eabi-10.3-2021.10-${flavor}.tar.bz2
+    wget --quiet https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1${flavor}-x86_64-arm-none-eabi.tar.xz
+    xz -d arm-gnu-toolchain-11.3.rel1${flavor}-x86_64-arm-none-eabi.tar.xz
+    tar xf arm-gnu-toolchain-11.3.rel1${flavor}-x86_64-arm-none-eabi.tar
+    mv arm-gnu-toolchain-11.3.rel1${flavor}-x86_64-arm-none-eabi gcc-arm-none-eabi
+    patch -p0 < ${nuttx}/tools/ci/patch/arm-none-eabi-workaround-for-newlib-version-break.patch
+    rm arm-gnu-toolchain-11.3.rel1${flavor}-x86_64-arm-none-eabi.tar
   fi
   arm-none-eabi-gcc --version
 }

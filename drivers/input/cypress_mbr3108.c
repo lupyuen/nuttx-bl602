@@ -191,7 +191,7 @@ struct mbr3108_dev_s
 
   struct mbr3108_board_s *board;
   const struct mbr3108_sensor_conf_s *sensor_conf;
-  sem_t devsem;
+  mutex_t devlock;
   uint8_t cref;
   struct mbr3108_debug_conf_s debug_conf;
   bool int_pending;
@@ -755,7 +755,7 @@ static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -784,7 +784,7 @@ static ssize_t mbr3108_read(FAR struct file *filep, FAR char *buffer,
   priv->int_pending = false;
   leave_critical_section(flags);
 
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
   return ret < 0 ? ret : outlen;
 }
 
@@ -807,7 +807,7 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
       return -EINVAL;
     }
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -865,7 +865,7 @@ static ssize_t mbr3108_write(FAR struct file *filep, FAR const char *buffer,
     }
 
 out:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
 
   return ret < 0 ? ret : buflen;
 }
@@ -883,7 +883,7 @@ static int mbr3108_open(FAR struct file *filep)
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
 
-  ret = nxsem_wait_uninterruptible(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -897,7 +897,7 @@ static int mbr3108_open(FAR struct file *filep)
       ret = priv->board->set_power(priv->board, true);
       if (ret < 0)
         {
-          goto out_sem;
+          goto out_lock;
         }
 
       /* Let chip to power up before probing */
@@ -912,7 +912,7 @@ static int mbr3108_open(FAR struct file *filep)
           /* No such device. Power off the switch. */
 
           priv->board->set_power(priv->board, false);
-          goto out_sem;
+          goto out_lock;
         }
 
       if (priv->sensor_conf)
@@ -925,7 +925,7 @@ static int mbr3108_open(FAR struct file *filep)
               /* Configuration failed. Power off the switch. */
 
               priv->board->set_power(priv->board, false);
-              goto out_sem;
+              goto out_lock;
             }
         }
 
@@ -939,8 +939,8 @@ static int mbr3108_open(FAR struct file *filep)
       ret = 0;
     }
 
-out_sem:
-  nxsem_post(&priv->devsem);
+out_lock:
+  nxmutex_unlock(&priv->devlock);
   return ret;
 }
 
@@ -957,7 +957,7 @@ static int mbr3108_close(FAR struct file *filep)
   DEBUGASSERT(inode && inode->i_private);
   priv = inode->i_private;
 
-  ret = nxsem_wait_uninterruptible(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -988,8 +988,7 @@ static int mbr3108_close(FAR struct file *filep)
       priv->cref = use_count;
     }
 
-  nxsem_post(&priv->devsem);
-
+  nxmutex_unlock(&priv->devlock);
   return 0;
 }
 
@@ -1008,7 +1007,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
   DEBUGASSERT(inode && inode->i_private);
   priv = (FAR struct mbr3108_dev_s *)inode->i_private;
 
-  ret = nxsem_wait(&priv->devsem);
+  ret = nxmutex_lock(&priv->devlock);
   if (ret < 0)
     {
       return ret;
@@ -1072,7 +1071,7 @@ static int mbr3108_poll(FAR struct file *filep, FAR struct pollfd *fds,
     }
 
 out:
-  nxsem_post(&priv->devsem);
+  nxmutex_unlock(&priv->devlock);
   return ret;
 }
 
@@ -1120,11 +1119,12 @@ int cypress_mbr3108_register(FAR const char *devpath,
   priv->board = board_config;
   priv->sensor_conf = sensor_conf;
 
-  nxsem_init(&priv->devsem, 0, 1);
+  nxmutex_init(&priv->devlock);
 
   ret = register_driver(devpath, &g_mbr3108_fileops, 0666, priv);
   if (ret < 0)
     {
+      nxmutex_destroy(&priv->devlock);
       kmm_free(priv);
       mbr3108_dbg("Error occurred during the driver registering\n");
       return ret;

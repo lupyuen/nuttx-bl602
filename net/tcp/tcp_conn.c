@@ -70,13 +70,6 @@
 #include "icmpv6/icmpv6.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define IPv4BUF ((FAR struct ipv4_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev)])
-#define IPv6BUF ((FAR struct ipv6_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev)])
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -736,7 +729,6 @@ FAR struct tcp_conn_s *tcp_alloc(uint8_t domain)
       conn->snd_bufs      = CONFIG_NET_SEND_BUFSIZE;
 
       nxsem_init(&conn->snd_sem, 0, 0);
-      nxsem_set_protocol(&conn->snd_sem, SEM_PRIO_NONE);
 #endif
     }
 
