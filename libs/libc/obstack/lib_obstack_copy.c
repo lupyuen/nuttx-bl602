@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/unistd/lib_pipe2.c
+ * libs/libc/obstack/lib_obstack_copy.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,50 +22,57 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <errno.h>
-#include <unistd.h>
-
-#include <nuttx/fs/fs.h>
-
-#if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
+#include <obstack.h>
+#include <string.h>
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: pipe2
+ * Name: obstack_copy
  *
  * Description:
- *   pipe2() creates a pair of file descriptors, pointing to a pipe inode,
- *   and  places them in the array pointed to by 'fd'. fd[0] is for reading,
- *   fd[1] is for writing. If flags is 0, then pipe2() is the same as pipe().
+ *   Allocate an object of given size with contents copied from address.
+ *   The same remarks regarding the allocation apply here as for
+ *   obstack_alloc.
  *
  * Input Parameters:
- *   fd[2] - The user provided array in which to catch the pipe file
- *   descriptors
- *   flags - The file status flags.
- *
- * Returned Value:
- *   0 is returned on success; otherwise, -1 is returned with errno set
- *   appropriately.
+ *   h: pointer to the handle to allocate an object in
+ *   address: pointer to the bytes to be used to initialize new object
+ *   size: number of bytes to allocate
  *
  ****************************************************************************/
 
-int pipe2(int fd[2], int flags)
+FAR void *obstack_copy(FAR struct obstack *h,
+                       FAR const void *address, size_t size)
 {
-  int ret;
-
-  ret = nx_pipe(fd, CONFIG_DEV_PIPE_SIZE, flags);
-  if (ret < 0)
-    {
-      set_errno(-ret);
-      ret = ERROR;
-    }
-
-  return ret;
+  FAR void *res = obstack_alloc(h, size);
+  memcpy(res, address, size);
+  return res;
 }
 
-#endif /* CONFIG_PIPES && CONFIG_DEV_PIPE_SIZE > 0 */
+/****************************************************************************
+ * Name: obstack_copy0
+ *
+ * Description:
+ *   Allocate an object of given size+1 with contents copied from address and
+ *   append null byte at the end.
+ *   The same remarks regarding the allocation apply here as for
+ *   obstack_alloc.
+ *
+ * Input Parameters:
+ *   h: pointer to the handle to allocate an object in
+ *   address: pointer to the bytes to be used to initialize new object
+ *   size: number of bytes to allocate (excluding the null byte)
+ *
+ ****************************************************************************/
+
+FAR void *obstack_copy0(FAR struct obstack *h,
+                        FAR const void *address, size_t size)
+{
+  FAR char *res = obstack_alloc(h, size + 1);
+  memcpy(res, address, size);
+  res[size] = '\0';
+  return res;
+}

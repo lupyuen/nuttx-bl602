@@ -1,5 +1,5 @@
 /****************************************************************************
- * libs/libc/unistd/lib_pipe.c
+ * libs/libc/obstack/lib_obstack_malloc.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,53 +18,36 @@
  *
  ****************************************************************************/
 
+#ifndef __LIBS_LIBC_OBSTACK_MALLOC_H
+#define __LIBS_LIBC_OBSTACK_MALLOC_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include <nuttx/compiler.h>
+#include <stddef.h>
 
-#include <errno.h>
-#include <unistd.h>
-
-#include <nuttx/fs/fs.h>
-
-#if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: pipe
- *
- * Description:
- *   pipe() creates a pair of file descriptors, pointing to a pipe inode,
- *   and  places them in the array pointed to by 'fd'. fd[0] is for reading,
- *   fd[1] is for writing.
- *
- * Input Parameters:
- *   fd[2] - The user provided array in which to catch the pipe file
- *   descriptors
- *
- * Returned Value:
- *   0 is returned on success; otherwise, -1 is returned with errno set
- *   appropriately.
- *
- ****************************************************************************/
-
-int pipe(int fd[2])
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
 {
-  int ret;
+#else
+#define EXTERN extern
+#endif
 
-  ret = nx_pipe(fd, CONFIG_DEV_PIPE_SIZE, 0);
-  if (ret < 0)
-    {
-      set_errno(-ret);
-      ret = ERROR;
-    }
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-  return ret;
+FAR void *lib_obstack_malloc(size_t size);
+
+FAR void *lib_obstack_realloc(FAR void *ptr, size_t size);
+
+#undef EXTERN
+#if defined(__cplusplus)
 }
+#endif
 
-#endif /* CONFIG_PIPES && CONFIG_DEV_PIPE_SIZE > 0 */
+#endif /* __LIBS_LIBC_OBSTACK_MALLOC_H */

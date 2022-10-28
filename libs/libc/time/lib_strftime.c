@@ -26,7 +26,6 @@
 #include <sys/types.h>
 
 #include <stdio.h>
-#include <time.h>
 #include <debug.h>
 
 #include <nuttx/time.h>
@@ -368,6 +367,15 @@ size_t strftime(FAR char *s, size_t max, FAR const char *format,
              }
              break;
 
+            /* %R: Shortcut for %H:%M. */
+
+           case 'R':
+             {
+               len = snprintf(dest, chleft, "%02d:%02d",
+                              tm->tm_hour, tm->tm_min);
+             }
+             break;
+
            /* %s: The number of seconds since the Epoch, that is,
             * since 1970-01-01 00:00:00 UTC.
             * Hmmm... mktime argume is not 'const'.
@@ -375,8 +383,8 @@ size_t strftime(FAR char *s, size_t max, FAR const char *format,
 
            case 's':
              {
-               len = snprintf(dest, chleft, "%ju",
-                              (uintmax_t)mktime((FAR struct tm *)tm));
+               struct tm tmp = *tm;
+               len = snprintf(dest, chleft, "%ju", (uintmax_t)mktime(&tmp));
              }
              break;
 
@@ -396,6 +404,15 @@ size_t strftime(FAR char *s, size_t max, FAR const char *format,
              {
                *dest = '\t';
                len   = 1;
+             }
+             break;
+
+           /* %T: Shortcut for %H:%M:%S. */
+
+           case 'T':
+             {
+               len = snprintf(dest, chleft, "%02d:%02d:%02d",
+                              tm->tm_hour, tm->tm_min, tm->tm_sec);
              }
              break;
 
@@ -421,7 +438,8 @@ size_t strftime(FAR char *s, size_t max, FAR const char *format,
 
            case 'Y':
              {
-               len = snprintf(dest, chleft, "%04d", tm->tm_year + 1900);
+               len = snprintf(dest, chleft, "%04d",
+                              tm->tm_year + TM_YEAR_BASE);
              }
              break;
 

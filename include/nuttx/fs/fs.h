@@ -73,7 +73,6 @@
 #  define _NX_READ(f,b,s)      nx_read(f,b,s)
 #  define _NX_WRITE(f,b,s)     nx_write(f,b,s)
 #  define _NX_SEEK(f,o,w)      nx_seek(f,o,w)
-#  define _NX_IOCTL(f,r,a)     nx_ioctl(f,r,a)
 #  define _NX_STAT(p,s)        nx_stat(p,s,1)
 #  define _NX_GETERRNO(r)      (-(r))
 #  define _NX_SETERRNO(r)      set_errno(-(r))
@@ -84,7 +83,6 @@
 #  define _NX_READ(f,b,s)      read(f,b,s)
 #  define _NX_WRITE(f,b,s)     write(f,b,s)
 #  define _NX_SEEK(f,o,w)      lseek(f,o,w)
-#  define _NX_IOCTL(f,r,a)     ioctl(f,r,a)
 #  define _NX_STAT(p,s)        stat(p,s)
 #  define _NX_GETERRNO(r)      errno
 #  define _NX_SETERRNO(r)      ((void)(r))
@@ -158,10 +156,6 @@
 #define CH_STAT_GID        (1 << 2)
 #define CH_STAT_ATIME      (1 << 3)
 #define CH_STAT_MTIME      (1 << 4)
-
-/* nx_umount() is equivalent to nx_umount2() with flags = 0 */
-
-#define umount(t)       umount2(t,0)
 
 /****************************************************************************
  * Public Type Definitions
@@ -791,24 +785,6 @@ int files_duplist(FAR struct filelist *plist, FAR struct filelist *clist);
 int file_dup(FAR struct file *filep, int minfd);
 
 /****************************************************************************
- * Name: nx_dup
- *
- * Description:
- *   nx_dup() is similar to the standard 'dup' interface except that is
- *   not a cancellation point and it does not modify the errno variable.
- *
- *   nx_dup() is an internal NuttX interface and should not be called from
- *   applications.
- *
- * Returned Value:
- *   The new file descriptor is returned on success; a negated errno value is
- *   returned on any failure.
- *
- ****************************************************************************/
-
-int nx_dup(int fd);
-
-/****************************************************************************
  * Name: file_dup2
  *
  * Description:
@@ -1296,25 +1272,6 @@ int file_munmap(FAR void *start, size_t length);
 int file_ioctl(FAR struct file *filep, int req, ...);
 
 /****************************************************************************
- * Name: nx_ioctl
- *
- * Description:
- *   nx_ioctl() is similar to the standard 'ioctl' interface except that is
- *   not a cancellation point and it does not modify the errno variable.
- *
- *   nx_ioctl() is an internal NuttX interface and should not be called from
- *   applications.
- *
- * Returned Value:
- *   Returns a non-negative number on success;  A negated errno value is
- *   returned on any failure (see comments ioctl() for a list of appropriate
- *   errno values).
- *
- ****************************************************************************/
-
-int nx_ioctl(int fd, int req, ...);
-
-/****************************************************************************
  * Name: file_fcntl
  *
  * Description:
@@ -1336,25 +1293,6 @@ int nx_ioctl(int fd, int req, ...);
 int file_fcntl(FAR struct file *filep, int cmd, ...);
 
 /****************************************************************************
- * Name: nx_fcntl
- *
- * Description:
- *   nx_fcntl() is similar to the standard 'fcntl' interface except that is
- *   not a cancellation point and it does not modify the errno variable.
- *
- *   nx_fcntl() is an internal NuttX interface and should not be called
- *   from applications.
- *
- * Returned Value:
- *   Returns a non-negative number on success;  A negated errno value is
- *   returned on any failure (see comments fcntl() for a list of appropriate
- *   errno values).
- *
- ****************************************************************************/
-
-int nx_fcntl(int fd, int cmd, ...);
-
-/****************************************************************************
  * Name: file_poll
  *
  * Description:
@@ -1374,23 +1312,6 @@ int nx_fcntl(int fd, int cmd, ...);
  ****************************************************************************/
 
 int file_poll(FAR struct file *filep, FAR struct pollfd *fds, bool setup);
-
-/****************************************************************************
- * Name: nx_poll
- *
- * Description:
- *   nx_poll() is similar to the standard 'poll' interface except that is
- *   not a cancellation point and it does not modify the errno variable.
- *
- *   nx_poll() is an internal NuttX interface and should not be called from
- *   applications.
- *
- * Returned Value:
- *   Zero is returned on success; a negated value is returned on any failure.
- *
- ****************************************************************************/
-
-int nx_poll(FAR struct pollfd *fds, unsigned int nfds, int timeout);
 
 /****************************************************************************
  * Name: file_fstat
@@ -1477,19 +1398,15 @@ int file_fchstat(FAR struct file *filep, FAR struct stat *buf, int flags);
 int nx_unlink(FAR const char *pathname);
 
 /****************************************************************************
- * Name: nx_pipe
+ * Name: file_pipe
  *
  * Description:
- *   nx_pipe() creates a pair of file descriptors, pointing to a pipe inode,
- *   and  places them in the array pointed to by 'fd'. fd[0] is for reading,
- *   fd[1] is for writing.
- *
- *   NOTE: nx_pipe is a special, non-standard, NuttX-only interface.  Since
- *   the NuttX FIFOs are based in in-memory, circular buffers, the ability
- *   to control the size of those buffers is critical for system tuning.
+ *   file_pipe() creates a pair of file descriptors, pointing to a pipe
+ *   inode, and places them in the array pointed to by 'filep'. filep[0]
+ *   is for reading, filep[1] is for writing.
  *
  * Input Parameters:
- *   fd[2] - The user provided array in which to catch the pipe file
+ *   filep[2] - The user provided array in which to catch the pipe file
  *   descriptors
  *   bufsize - The size of the in-memory, circular buffer in bytes.
  *   flags - The file status flags.
@@ -1502,7 +1419,6 @@ int nx_unlink(FAR const char *pathname);
 
 #if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0
 int file_pipe(FAR struct file *filep[2], size_t bufsize, int flags);
-int nx_pipe(int fd[2], size_t bufsize, int flags);
 #endif
 
 /****************************************************************************
