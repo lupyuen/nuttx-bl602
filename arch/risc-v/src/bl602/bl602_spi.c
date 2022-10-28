@@ -37,7 +37,7 @@
 
 #include <nuttx/irq.h>
 #include <nuttx/kmalloc.h>
-#include <nuttx/semaphore.h>
+#include <nuttx/mutex.h>
 #include <nuttx/signal.h>
 #include <nuttx/spi/spi.h>
 
@@ -130,7 +130,7 @@ struct bl602_spi_priv_s
 
   /* Held while chip is selected for mutual exclusion */
 
-  sem_t exclsem;
+  mutex_t lock;
 
   /* Interrupt wait semaphore */
 
@@ -235,10 +235,13 @@ static const struct spi_ops_s bl602_spi_ops =
 static struct bl602_spi_priv_s bl602_spi_priv =
 {
   .spi_dev =
-              {
-                .ops = &bl602_spi_ops
-              },
-  .config = &bl602_spi_config,
+  {
+    .ops      = &bl602_spi_ops
+  },
+  .config     = &bl602_spi_config,
+  .lock       = NXMUTEX_INITIALIZER,
+  .sem_isr_tx = SEM_INITIALIZER(0),
+  .sem_isr_rx = SEM_INITIALIZER(0),
   .dma_rxchan = -1,
   .dma_txchan = -1,
 };
@@ -447,11 +450,11 @@ static int bl602_spi_lock(struct spi_dev_s *dev, bool lock)
 
   if (lock)
     {
-      ret = nxsem_wait_uninterruptible(&priv->exclsem);
+      ret = nxmutex_lock(&priv->lock);
     }
   else
     {
-      ret = nxsem_post(&priv->exclsem);
+      ret = nxmutex_unlock(&priv->lock);
     }
 
   return ret;
@@ -1565,12 +1568,6 @@ static void bl602_spi_init(struct spi_dev_s *dev)
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
   const struct bl602_spi_config_s *config = priv->config;
 
-  /* Initialize the SPI semaphore that enforces mutually exclusive access */
-
-  nxsem_init(&priv->exclsem, 0, 1);
-  nxsem_init(&priv->sem_isr_rx, 0, 0);
-  nxsem_init(&priv->sem_isr_tx, 0, 0);
-
   bl602_configgpio(BOARD_SPI_CS);
   bl602_configgpio(BOARD_SPI_MOSI);
   bl602_configgpio(BOARD_SPI_MISO);
@@ -1667,7 +1664,6 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
 {
   struct spi_dev_s *spi_dev;
   struct bl602_spi_priv_s *priv;
-  irqstate_t flags;
 
   switch (port)
     {
@@ -1682,21 +1678,19 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
 
   spi_dev = (struct spi_dev_s *)priv;
 
-  flags = enter_critical_section();
-
+  nxmutex_lock(&priv->lock);
   if (priv->refs != 0)
     {
-      leave_critical_section(flags);
+      priv->refs--;
+      nxmutex_unlock(&priv->lock);
 
       return spi_dev;
     }
 
   bl602_spi_init(spi_dev);
-
   priv->refs++;
 
-  leave_critical_section(flags);
-
+  nxmutex_unlock(&priv->lock);
   return spi_dev;
 }
 
@@ -1710,7 +1704,6 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
 
 int bl602_spibus_uninitialize(struct spi_dev_s *dev)
 {
-  irqstate_t flags;
   struct bl602_spi_priv_s *priv = (struct bl602_spi_priv_s *)dev;
 
   DEBUGASSERT(dev);
@@ -1720,22 +1713,14 @@ int bl602_spibus_uninitialize(struct spi_dev_s *dev)
       return ERROR;
     }
 
-  flags = enter_critical_section();
-
+  nxmutex_lock(&priv->lock);
   if (--priv->refs)
     {
-      leave_critical_section(flags);
+      nxmutex_unlock(&priv->lock);
       return OK;
     }
 
-  leave_critical_section(flags);
-
   bl602_spi_deinit(dev);
-
-  nxsem_destroy(&priv->exclsem);
-  nxsem_destroy(&priv->sem_isr_rx);
-  nxsem_destroy(&priv->sem_isr_tx);
-
   return OK;
 }
 

@@ -104,6 +104,11 @@
 
 #define TCP_FAST_RETRANSMISSION_THRESH 3
 
+/* This is a helper pointer for accessing the contents of the tcp header */
+
+#define TCPIPv4BUF ((FAR struct tcp_hdr_s *)IPBUF(IPv4_HDRLEN))
+#define TCPIPv6BUF ((FAR struct tcp_hdr_s *)IPBUF(IPv6_HDRLEN))
+
 /****************************************************************************
  * Public Type Definitions
  ****************************************************************************/
@@ -310,10 +315,6 @@ struct tcp_conn_s
   /* Callback instance for TCP send() */
 
   FAR struct devif_callback_s *sndcb;
-
-#ifdef CONFIG_DEBUG_ASSERTIONS
-  int sndcb_alloc_cnt;    /* The callback allocation counter */
-#endif
 #endif
 
   /* accept() is called when the TCP logic has created a connection

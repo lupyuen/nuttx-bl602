@@ -59,6 +59,7 @@
 
 #include <nuttx/arch.h>
 #include <nuttx/irq.h>
+#include <nuttx/mutex.h>
 #include <nuttx/wqueue.h>
 #include <nuttx/net/arp.h>
 #include <nuttx/net/netdev.h>
@@ -112,11 +113,6 @@
 #  define BUF ((FAR struct eth_hdr_s *)priv->dev.d_buf)
 #endif
 
-/* This is a helper pointer for accessing the contents of the ip header */
-
-#define IPv4BUF ((FAR struct ipv4_hdr_s *)(priv->dev.d_buf + priv->dev.d_llhdrlen))
-#define IPv6BUF ((FAR struct ipv6_hdr_s *)(priv->dev.d_buf + priv->dev.d_llhdrlen))
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -132,7 +128,7 @@ struct tun_device_s
   bool              write_wait;
   struct work_s     work;      /* For deferring poll work to the work queue */
   FAR struct pollfd *poll_fds;
-  sem_t             waitsem;
+  mutex_t           lock;
   sem_t             read_wait_sem;
   sem_t             write_wait_sem;
   size_t            read_d_len;
@@ -153,15 +149,12 @@ struct tun_device_s
 struct tun_driver_s
 {
   uint8_t free_tuns;
-  sem_t waitsem;
+  mutex_t lock;
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
-
-static int  tun_lock(FAR struct tun_device_s *priv);
-static void tun_unlock(FAR struct tun_device_s *priv);
 
 /* Common TX logic */
 
@@ -232,42 +225,6 @@ static const struct file_operations g_tun_file_ops =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: tundev_lock
- ****************************************************************************/
-
-static int tundev_lock(FAR struct tun_driver_s *tun)
-{
-  return nxsem_wait_uninterruptible(&tun->waitsem);
-}
-
-/****************************************************************************
- * Name: tundev_unlock
- ****************************************************************************/
-
-static void tundev_unlock(FAR struct tun_driver_s *tun)
-{
-  nxsem_post(&tun->waitsem);
-}
-
-/****************************************************************************
- * Name: tun_lock
- ****************************************************************************/
-
-static int tun_lock(FAR struct tun_device_s *priv)
-{
-  return nxsem_wait_uninterruptible(&priv->waitsem);
-}
-
-/****************************************************************************
- * Name: tun_unlock
- ****************************************************************************/
-
-static void tun_unlock(FAR struct tun_device_s *priv)
-{
-  nxsem_post(&priv->waitsem);
-}
 
 /****************************************************************************
  * Name: tun_pollnotify
@@ -657,16 +614,18 @@ static void tun_net_receive_tap(FAR struct tun_device_s *priv)
 
 static void tun_net_receive_tun(FAR struct tun_device_s *priv)
 {
-  /* Copy the data data from the hardware to priv->dev.d_buf.  Set amount of
-   * data in priv->dev.d_len
+  FAR struct net_driver_s *dev = &priv->dev;
+
+  /* Copy the data data from the hardware to dev->d_buf.  Set amount of
+   * data in dev->d_len
    */
 
-  NETDEV_RXPACKETS(&priv->dev);
+  NETDEV_RXPACKETS(dev);
 
 #ifdef CONFIG_NET_PKT
   /* When packet sockets are enabled, feed the frame into the tap */
 
-  pkt_input(&priv->dev);
+  pkt_input(dev);
 #endif
 
   /* We only accept IP packets of the configured type */
@@ -675,11 +634,11 @@ static void tun_net_receive_tun(FAR struct tun_device_s *priv)
   if ((IPv4BUF->vhl & IP_VERSION_MASK) == IPv4_VERSION)
     {
       ninfo("IPv4 frame\n");
-      NETDEV_RXIPV4(&priv->dev);
+      NETDEV_RXIPV4(dev);
 
       /* Give the IPv4 packet to the network layer. */
 
-      ipv4_input(&priv->dev);
+      ipv4_input(dev);
     }
   else
 #endif
@@ -687,26 +646,26 @@ static void tun_net_receive_tun(FAR struct tun_device_s *priv)
   if ((IPv6BUF->vtc & IP_VERSION_MASK) == IPv6_VERSION)
     {
       ninfo("IPv6 frame\n");
-      NETDEV_RXIPV6(&priv->dev);
+      NETDEV_RXIPV6(dev);
 
       /* Give the IPv6 packet to the network layer. */
 
-      ipv6_input(&priv->dev);
+      ipv6_input(dev);
     }
   else
 #endif
     {
-      NETDEV_RXDROPPED(&priv->dev);
-      priv->dev.d_len = 0;
+      NETDEV_RXDROPPED(dev);
+      dev->d_len = 0;
     }
 
   /* If the above function invocation resulted in data that should be
    * sent out on the network, d_len field will set to a value > 0.
    */
 
-  if (priv->dev.d_len > 0)
+  if (dev->d_len > 0)
     {
-      priv->write_d_len = priv->dev.d_len;
+      priv->write_d_len = dev->d_len;
       tun_fd_transmit(priv);
     }
 }
@@ -837,7 +796,7 @@ static void tun_txavail_work(FAR void *arg)
   FAR struct tun_device_s *priv = (FAR struct tun_device_s *)arg;
   int ret;
 
-  ret = tun_lock(priv);
+  ret = nxmutex_lock(&priv->lock);
   if (ret < 0)
     {
       /* Thread has been canceled, skip poll-related work */
@@ -849,7 +808,7 @@ static void tun_txavail_work(FAR void *arg)
 
   if (priv->read_d_len != 0)
     {
-      tun_unlock(priv);
+      nxmutex_unlock(&priv->lock);
       return;
     }
 
@@ -863,7 +822,7 @@ static void tun_txavail_work(FAR void *arg)
     }
 
   net_unlock();
-  tun_unlock(priv);
+  nxmutex_unlock(&priv->lock);
 }
 
 /****************************************************************************
@@ -988,16 +947,9 @@ static int tun_dev_init(FAR struct tun_device_s *priv,
 
   /* Initialize the mutual exlcusion and wait semaphore */
 
-  nxsem_init(&priv->waitsem, 0, 1);
+  nxmutex_init(&priv->lock);
   nxsem_init(&priv->read_wait_sem, 0, 0);
   nxsem_init(&priv->write_wait_sem, 0, 0);
-
-  /* The wait semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
-  nxsem_set_protocol(&priv->read_wait_sem, SEM_PRIO_NONE);
-  nxsem_set_protocol(&priv->write_wait_sem, SEM_PRIO_NONE);
 
   /* Assign d_ifname if specified. */
 
@@ -1011,7 +963,7 @@ static int tun_dev_init(FAR struct tun_device_s *priv,
   ret = netdev_register(&priv->dev, tun ? NET_LL_TUN : NET_LL_ETHERNET);
   if (ret != OK)
     {
-      nxsem_destroy(&priv->waitsem);
+      nxmutex_destroy(&priv->lock);
       nxsem_destroy(&priv->read_wait_sem);
       nxsem_destroy(&priv->write_wait_sem);
       return ret;
@@ -1035,7 +987,7 @@ static void tun_dev_uninit(FAR struct tun_device_s *priv)
 
   netdev_unregister(&priv->dev);
 
-  nxsem_destroy(&priv->waitsem);
+  nxmutex_destroy(&priv->lock);
   nxsem_destroy(&priv->read_wait_sem);
   nxsem_destroy(&priv->write_wait_sem);
 }
@@ -1058,13 +1010,13 @@ static int tun_close(FAR struct file *filep)
     }
 
   intf = priv - g_tun_devices;
-  ret  = tundev_lock(tun);
+  ret  = nxmutex_lock(&tun->lock);
   if (ret >= 0)
     {
       tun->free_tuns |= (1 << intf);
       tun_dev_uninit(priv);
 
-      tundev_unlock(tun);
+      nxmutex_unlock(&tun->lock);
     }
 
   return ret;
@@ -1092,7 +1044,7 @@ static ssize_t tun_write(FAR struct file *filep, FAR const char *buffer,
        * thread is canceled) and no data has yet been written.
        */
 
-      ret = nxsem_wait(&priv->waitsem);
+      ret = nxmutex_lock(&priv->lock);
       if (ret < 0)
         {
           return nwritten == 0 ? (ssize_t)ret : nwritten;
@@ -1124,11 +1076,11 @@ static ssize_t tun_write(FAR struct file *filep, FAR const char *buffer,
         }
 
       priv->write_wait = true;
-      tun_unlock(priv);
+      nxmutex_unlock(&priv->lock);
       nxsem_wait(&priv->write_wait_sem);
     }
 
-  tun_unlock(priv);
+  nxmutex_unlock(&priv->lock);
   return nwritten;
 }
 
@@ -1154,7 +1106,7 @@ static ssize_t tun_read(FAR struct file *filep, FAR char *buffer,
        * thread is canceled) and no data has yet been read.
        */
 
-      ret = nxsem_wait(&priv->waitsem);
+      ret = nxmutex_lock(&priv->lock);
       if (ret < 0)
         {
           return nread == 0 ? (ssize_t)ret : nread;
@@ -1208,11 +1160,11 @@ static ssize_t tun_read(FAR struct file *filep, FAR char *buffer,
         }
 
       priv->read_wait = true;
-      tun_unlock(priv);
+      nxmutex_unlock(&priv->lock);
       nxsem_wait(&priv->read_wait_sem);
     }
 
-  tun_unlock(priv);
+  nxmutex_unlock(&priv->lock);
   return nread;
 }
 
@@ -1233,7 +1185,7 @@ int tun_poll(FAR struct file *filep, FAR struct pollfd *fds, bool setup)
       return -EINVAL;
     }
 
-  ret = tun_lock(priv);
+  ret = nxmutex_lock(&priv->lock);
   if (ret < 0)
     {
       return ret;
@@ -1275,7 +1227,7 @@ int tun_poll(FAR struct file *filep, FAR struct pollfd *fds, bool setup)
     }
 
 errout:
-  tun_unlock(priv);
+  nxmutex_unlock(&priv->lock);
   return ret;
 }
 
@@ -1303,7 +1255,7 @@ static int tun_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
           return -EINVAL;
         }
 
-      ret = tundev_lock(tun);
+      ret = nxmutex_lock(&tun->lock);
       if (ret < 0)
         {
           return ret;
@@ -1313,7 +1265,7 @@ static int tun_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
       if (free_tuns == 0)
         {
-          tundev_unlock(tun);
+          nxmutex_unlock(&tun->lock);
           return -ENOMEM;
         }
 
@@ -1326,7 +1278,7 @@ static int tun_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
                          (ifr->ifr_flags & IFF_MASK) == IFF_TUN);
       if (ret != OK)
         {
-          tundev_unlock(tun);
+          nxmutex_unlock(&tun->lock);
           return ret;
         }
 
@@ -1334,7 +1286,7 @@ static int tun_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
       priv = filep->f_priv;
       strlcpy(ifr->ifr_name, priv->dev.d_ifname, IFNAMSIZ);
-      tundev_unlock(tun);
+      nxmutex_unlock(&tun->lock);
 
       return OK;
     }
@@ -1363,7 +1315,7 @@ static int tun_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
 int tun_initialize(void)
 {
-  nxsem_init(&g_tun.waitsem, 0, 1);
+  nxmutex_init(&g_tun.lock);
 
   g_tun.free_tuns = (1 << CONFIG_TUN_NINTERFACES) - 1;
 

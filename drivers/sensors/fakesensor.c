@@ -183,6 +183,7 @@ static inline void fakesensor_read_gps(FAR struct fakesensor_s *sensor)
   float hoop;
   float altitude;
   char raw[150];
+
   memset(&gps, 0, sizeof(struct sensor_gps));
 
 read:
@@ -402,7 +403,6 @@ int fakesensor_init(int type, FAR const char *file_name,
   sensor->file_path = file_name;
 
   nxsem_init(&sensor->wakeup, 0, 0);
-  nxsem_set_protocol(&sensor->wakeup, SEM_PRIO_NONE);
 
   /* Create thread for sensor */
 

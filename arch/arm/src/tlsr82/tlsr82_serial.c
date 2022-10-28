@@ -1548,7 +1548,6 @@ static void tlsr82_uart_dma_txavail(struct uart_dev_s *dev)
   /* Wait for the previous dma transfer finish */
 
   nxsem_wait(priv->txdmasem);
-
   uart_xmitchars_dma(dev);
 }
 #endif

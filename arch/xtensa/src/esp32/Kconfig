@@ -135,47 +135,6 @@ config ESP32_ESP32DXWDXX
 	select ESP32_DUAL_CPU
 	select ARCH_HAVE_I2CRESET
 
-choice ESP32_FLASH_MODE
-	prompt "SPI FLASH mode"
-	default ESP32_FLASH_MODE_DIO
-	---help---
-		These options control how many I/O pins are used for communication with the attached SPI flash chip.
-		The option selected here is then used by esptool when flashing.
-
-config ESP32_FLASH_MODE_DIO
-	bool "Dual IO (DIO)"
-
-config ESP32_FLASH_MODE_DOUT
-	bool "Dual Output (DOUT)"
-
-config ESP32_FLASH_MODE_QIO
-	bool "Quad IO (QIO)"
-
-config ESP32_FLASH_MODE_QOUT
-	bool "Quad Output (QOUT)"
-
-endchoice # ESP32_FLASH_MODE
-
-choice ESP32_FLASH_FREQ
-	prompt "SPI FLASH frequency"
-	default ESP32_FLASH_FREQ_40M
-	---help---
-		SPI FLASH frequency
-
-config ESP32_FLASH_FREQ_80M
-	bool "80 MHz"
-
-config ESP32_FLASH_FREQ_40M
-	bool "40 MHz"
-
-config ESP32_FLASH_FREQ_26M
-	bool "26 MHz"
-
-config ESP32_FLASH_FREQ_20M
-	bool "20 MHz"
-
-endchoice # ESP32_FLASH_FREQ
-
 choice ESP32_DEFAULT_CPU_FREQ
 	prompt "CPU frequency"
 	default ESP32_DEFAULT_CPU_FREQ_240
@@ -285,9 +244,8 @@ config ESP32_LEDC
 		Enable support to PWM on ESP32 using LEDC peripheral.
 
 config ESP32_PCNT
-	bool "Pulse Count Module (PCNT)"
+	bool "Pulse Counter (PCNT / QE) Module"
 	default n
-	depends on EXPERIMENTAL
 	---help---
 		No yet implemented
 
@@ -1228,8 +1186,457 @@ endif # ESP32_SPI3
 
 endmenu # ESP32_SPI
 
+menu "Pulse Counter (PCNT) Configuration"
+	depends on ESP32_PCNT
+
+config ESP32_PCNT_AS_QE
+	bool
+	default n
+
+config ESP32_PCNT_U0
+	bool "Enable PCNT Unit 0"
+	default n
+
+if ESP32_PCNT_U0
+
+config ESP32_PCNT_U0_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U0_CH0_EDGE_PIN
+	int "PCNT_U0 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U0_CH0_LEVEL_PIN
+	int "PCNT_U0 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U0_QE
+
+config ESP32_PCNT_U0_CH1_EDGE_PIN
+	int "PCNT_U0 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U0_QE
+
+config ESP32_PCNT_U0_CH1_LEVEL_PIN
+	int "PCNT_U0 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U0_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U0_FILTER_EN
+
+config ESP32_PCNT_U0_FILTER_THRES
+	int "PCNT_U0 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U0_FILTER_EN
+
+endif # ESP32_PCNT_U0
+
+config ESP32_PCNT_U1
+	bool "Enable PCNT Unit 1"
+	default n
+
+if ESP32_PCNT_U1
+
+config ESP32_PCNT_U1_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U1_CH0_EDGE_PIN
+	int "PCNT_U1 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U1_CH0_LEVEL_PIN
+	int "PCNT_U1 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U1_QE
+
+config ESP32_PCNT_U1_CH1_EDGE_PIN
+	int "PCNT_U1 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U1_QE
+
+config ESP32_PCNT_U1_CH1_LEVEL_PIN
+	int "PCNT_U1 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U1_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U1_FILTER_EN
+
+config ESP32_PCNT_U1_FILTER_THRES
+	int "PCNT_U1 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U1_FILTER_EN
+
+endif # ESP32_PCNT_U1
+
+config ESP32_PCNT_U2
+	bool "Enable PCNT Unit 2"
+	default n
+
+if ESP32_PCNT_U2
+
+config ESP32_PCNT_U2_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U2_CH0_EDGE_PIN
+	int "PCNT_U2 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U2_CH0_LEVEL_PIN
+	int "PCNT_U2 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U2_QE
+
+config ESP32_PCNT_U2_CH1_EDGE_PIN
+	int "PCNT_U2 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U2_QE
+
+config ESP32_PCNT_U2_CH1_LEVEL_PIN
+	int "PCNT_U2 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U2_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U2_FILTER_EN
+
+config ESP32_PCNT_U2_FILTER_THRES
+	int "PCNT_U2 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U2_FILTER_EN
+
+endif # ESP32_PCNT_U2
+
+config ESP32_PCNT_U3
+	bool "Enable PCNT Unit 3"
+	default n
+
+if ESP32_PCNT_U3
+
+config ESP32_PCNT_U3_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U3_CH0_EDGE_PIN
+	int "PCNT_U3 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U3_CH0_LEVEL_PIN
+	int "PCNT_U3 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U3_QE
+
+config ESP32_PCNT_U3_CH1_EDGE_PIN
+	int "PCNT_U3 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U3_QE
+
+config ESP32_PCNT_U3_CH1_LEVEL_PIN
+	int "PCNT_U3 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U3_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U3_FILTER_EN
+
+config ESP32_PCNT_U3_FILTER_THRES
+	int "PCNT_U3 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U3_FILTER_EN
+
+endif # ESP32_PCNT_U3
+
+config ESP32_PCNT_U4
+	bool "Enable PCNT Unit 4"
+	default n
+
+if ESP32_PCNT_U4
+
+config ESP32_PCNT_U4_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U4_CH0_EDGE_PIN
+	int "PCNT_U4 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U4_CH0_LEVEL_PIN
+	int "PCNT_U4 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U4_QE
+
+config ESP32_PCNT_U4_CH1_EDGE_PIN
+	int "PCNT_U4 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U4_QE
+
+config ESP32_PCNT_U4_CH1_LEVEL_PIN
+	int "PCNT_U4 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U4_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U4_FILTER_EN
+
+config ESP32_PCNT_U4_FILTER_THRES
+	int "PCNT_U4 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U4_FILTER_EN
+
+endif # ESP32_PCNT_U4
+
+config ESP32_PCNT_U5
+	bool "Enable PCNT Unit 5"
+	default n
+	select ESP32_PCNT_AS_QE
+
+if ESP32_PCNT_U5
+
+config ESP32_PCNT_U5_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+
+config ESP32_PCNT_U5_CH0_EDGE_PIN
+	int "PCNT_U5 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U5_CH0_LEVEL_PIN
+	int "PCNT_U5 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U5_QE
+
+config ESP32_PCNT_U5_CH1_EDGE_PIN
+	int "PCNT_U5 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U5_QE
+
+config ESP32_PCNT_U5_CH1_LEVEL_PIN
+	int "PCNT_U5 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U5_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U5_FILTER_EN
+
+config ESP32_PCNT_U5_FILTER_THRES
+	int "PCNT_U5 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U5_FILTER_EN
+
+endif # ESP32_PCNT_U5
+
+config ESP32_PCNT_U6
+	bool "Enable PCNT Unit 6"
+	default n
+
+if ESP32_PCNT_U6
+
+config ESP32_PCNT_U6_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U6_CH0_EDGE_PIN
+	int "PCNT_U6 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U6_CH0_LEVEL_PIN
+	int "PCNT_U6 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U6_QE
+
+config ESP32_PCNT_U6_CH1_EDGE_PIN
+	int "PCNT_U6 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U6_QE
+
+config ESP32_PCNT_U6_CH1_LEVEL_PIN
+	int "PCNT_U6 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U6_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U6_FILTER_EN
+
+config ESP32_PCNT_U6_FILTER_THRES
+	int "PCNT_U6 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U6_FILTER_EN
+
+endif # ESP32_PCNT_U6
+
+config ESP32_PCNT_U7
+	bool "Enable PCNT Unit 7"
+	default n
+
+if ESP32_PCNT_U7
+
+config ESP32_PCNT_U7_QE
+	bool "Use this PCNT Unit as Quadrature Encoder"
+	default y
+	select ESP32_PCNT_AS_QE
+
+config ESP32_PCNT_U7_CH0_EDGE_PIN
+	int "PCNT_U7 CH0 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+
+config ESP32_PCNT_U7_CH0_LEVEL_PIN
+	int "PCNT_U7 CH0 Level/Control Pin Number"
+	default 4
+	range -1 39
+	depends on !ESP32_PCNT_U7_QE
+
+config ESP32_PCNT_U7_CH1_EDGE_PIN
+	int "PCNT_U7 CH1 Edge/Pulse Pin Number"
+	default 0
+	range -1 39
+	depends on !ESP32_PCNT_U7_QE
+
+config ESP32_PCNT_U7_CH1_LEVEL_PIN
+	int "PCNT_U7 CH1 Level/Control Pin Number"
+	default 4
+	range -1 39
+
+config ESP32_PCNT_U7_FILTER_EN
+	bool "Enable Glitch Filter for this PCNT Unit"
+	default n
+
+if ESP32_PCNT_U7_FILTER_EN
+
+config ESP32_PCNT_U7_FILTER_THRES
+	int "PCNT_U7 Filter Threshold value"
+	default 5
+	---help---
+		If a pulse is shorter than this number of APB_CLK clock cycles
+		then it will not be considered as a valid pulse.
+
+endif # ESP32_PCNT_U7_FILTER_EN
+
+endif # ESP32_PCNT_U7
+
+endmenu # ESP32_PCNT
+
 menu "SPI Flash configuration"
-	depends on ESP32_SPIFLASH
+
+choice ESP32_FLASH_MODE
+	prompt "SPI Flash mode"
+	default ESP32_FLASH_MODE_DIO
+	---help---
+		These options control how many I/O pins are used for communication with the attached SPI Flash chip.
+		The option selected here is then used by esptool when flashing.
+
+config ESP32_FLASH_MODE_DIO
+	bool "Dual IO (DIO)"
+
+config ESP32_FLASH_MODE_DOUT
+	bool "Dual Output (DOUT)"
+
+config ESP32_FLASH_MODE_QIO
+	bool "Quad IO (QIO)"
+
+config ESP32_FLASH_MODE_QOUT
+	bool "Quad Output (QOUT)"
+
+endchoice # ESP32_FLASH_MODE
+
+choice ESP32_FLASH_FREQ
+	prompt "SPI Flash frequency"
+	default ESP32_FLASH_FREQ_40M
+	---help---
+		SPI Flash frequency.
+
+config ESP32_FLASH_FREQ_80M
+	bool "80 MHz"
+
+config ESP32_FLASH_FREQ_40M
+	bool "40 MHz"
+
+config ESP32_FLASH_FREQ_26M
+	bool "26 MHz"
+
+config ESP32_FLASH_FREQ_20M
+	bool "20 MHz"
+
+endchoice # ESP32_FLASH_FREQ
 
 if ESP32_HAVE_OTA_PARTITION
 
@@ -1274,6 +1681,8 @@ config ESP32_OTA_SCRATCH_DEVPATH
 
 endif
 
+if ESP32_SPIFLASH
+
 comment "General storage MTD configuration"
 
 config ESP32_STORAGE_MTD_ENCRYPT
@@ -1317,9 +1726,11 @@ config ESP32_PARTITION_MOUNTPT
 	default "/dev/esp/partition/"
 	depends on ESP32_PARTITION_TABLE
 
-endif
+endif # ESP32_PARTITION_TABLE
 
-endmenu # ESP32_SPIFLASH
+endif # ESP32_SPIFLASH
+
+endmenu # SPI Flash configuration
 
 menu "SPI RAM Config"
 	depends on ESP32_SPIRAM

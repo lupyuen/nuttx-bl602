@@ -36,6 +36,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/irq.h>
 #include <nuttx/clock.h>
+#include <nuttx/mutex.h>
 #include <nuttx/semaphore.h>
 #include <nuttx/i2c/i2c_master.h>
 
@@ -181,7 +182,7 @@ struct am335x_i2c_priv_s
   const struct am335x_i2c_config_s *config;
 
   int refs;                    /* Reference count */
-  sem_t sem_excl;              /* Mutual exclusion semaphore */
+  mutex_t lock;                /* Mutual exclusion mutex */
 #ifndef CONFIG_I2C_POLLED
   sem_t sem_isr;               /* Interrupt wait semaphore */
 #endif
@@ -219,9 +220,6 @@ static inline void am335x_i2c_putreg(struct am335x_i2c_priv_s *priv,
 static inline void am335x_i2c_modifyreg(struct am335x_i2c_priv_s *priv,
                                         uint16_t offset, uint32_t clearbits,
                                         uint32_t setbits);
-static inline int am335x_i2c_sem_wait(struct am335x_i2c_priv_s *priv);
-static int
-am335x_i2c_sem_wait_noncancelable(struct am335x_i2c_priv_s *priv);
 
 #ifdef CONFIG_AM335X_I2C_DYNTIMEO
 static uint32_t am335x_i2c_toticks(int msgc, struct i2c_msg_s *msgs);
@@ -231,10 +229,6 @@ static inline int
 am335x_i2c_sem_waitdone(struct am335x_i2c_priv_s *priv);
 static inline bool
 am335x_i2c_sem_waitstop(struct am335x_i2c_priv_s *priv);
-static inline void am335x_i2c_sem_post(struct am335x_i2c_priv_s *priv);
-static inline void am335x_i2c_sem_init(struct am335x_i2c_priv_s *priv);
-static inline void
-am335x_i2c_sem_destroy(struct am335x_i2c_priv_s *priv);
 
 #ifdef CONFIG_I2C_TRACE
 static void am335x_i2c_tracereset(struct am335x_i2c_priv_s *priv);
@@ -253,7 +247,7 @@ static inline void am335x_i2c_sendstop(struct am335x_i2c_priv_s *priv);
 static inline uint32_t
 am335x_i2c_getstatus(struct am335x_i2c_priv_s *priv);
 
-static int am335x_i2c_isr_process(struct am335x_i2c_priv_s * priv);
+static int am335x_i2c_isr_process(struct am335x_i2c_priv_s *priv);
 
 #ifndef CONFIG_I2C_POLLED
 static int am335x_i2c_isr(int irq, void *context, void *arg);
@@ -320,6 +314,10 @@ static struct am335x_i2c_priv_s am335x_i2c0_priv =
   .ops        = &am335x_i2c_ops,
   .config     = &am335x_i2c0_config,
   .refs       = 0,
+  .lock       = NXMUTEX_INITIALIZER,
+#ifndef CONFIG_I2C_POLLED
+  .sem_isr    = SEM_INITIALIZER(0),
+#endif
   .intstate   = INTSTATE_IDLE,
   .msgc       = 0,
   .msgv       = NULL,
@@ -351,6 +349,10 @@ static struct am335x_i2c_priv_s am335x_i2c1_priv =
   .ops        = &am335x_i2c_ops,
   .config     = &am335x_i2c1_config,
   .refs       = 0,
+  .lock       = NXMUTEX_INITIALIZER,
+#ifndef CONFIG_I2C_POLLED
+  .sem_isr    = SEM_INITIALIZER(0),
+#endif
   .intstate   = INTSTATE_IDLE,
   .msgc       = 0,
   .msgv       = NULL,
@@ -382,6 +384,10 @@ static struct am335x_i2c_priv_s am335x_i2c2_priv =
   .ops        = &am335x_i2c_ops,
   .config     = &am335x_i2c2_config,
   .refs       = 0,
+  .lock       = NXMUTEX_INITIALIZER,
+#ifndef CONFIG_I2C_POLLED
+  .sem_isr    = SEM_INITIALIZER(0),
+#endif
   .intstate   = INTSTATE_IDLE,
   .msgc       = 0,
   .msgv       = NULL,
@@ -437,34 +443,6 @@ static inline void am335x_i2c_modifyreg(struct am335x_i2c_priv_s *priv,
                                         uint32_t setbits)
 {
   modifyreg32(priv->config->base + offset, clearbits, setbits);
-}
-
-/****************************************************************************
- * Name: am335x_i2c_sem_wait
- *
- * Description:
- *   Take the exclusive access, waiting as necessary.  May be interrupted by
- *   a signal.
- *
- ****************************************************************************/
-
-static inline int am335x_i2c_sem_wait(struct am335x_i2c_priv_s *priv)
-{
-  return nxsem_wait(&priv->sem_excl);
-}
-
-/****************************************************************************
- * Name: am335x_i2c_sem_wait_noncancelable
- *
- * Description:
- *   Take the exclusive access, waiting as necessary.
- *
- ****************************************************************************/
-
-static int
-am335x_i2c_sem_wait_noncancelable(struct am335x_i2c_priv_s *priv)
-{
-  return nxsem_wait_uninterruptible(&priv->sem_excl);
 }
 
 /****************************************************************************
@@ -689,57 +667,6 @@ am335x_i2c_sem_waitstop(struct am335x_i2c_priv_s *priv)
 
   i2cinfo("Timeout with Status Register: %x\n", regval);
   return false;
-}
-
-/****************************************************************************
- * Name: am335x_i2c_sem_post
- *
- * Description:
- *   Release the mutual exclusion semaphore
- *
- ****************************************************************************/
-
-static inline void am335x_i2c_sem_post(struct am335x_i2c_priv_s *priv)
-{
-  nxsem_post(&priv->sem_excl);
-}
-
-/****************************************************************************
- * Name: am335x_i2c_sem_init
- *
- * Description:
- *   Initialize semaphores
- *
- ****************************************************************************/
-
-static inline void am335x_i2c_sem_init(struct am335x_i2c_priv_s *priv)
-{
-  nxsem_init(&priv->sem_excl, 0, 1);
-
-#ifndef CONFIG_I2C_POLLED
-  /* This semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
-  nxsem_init(&priv->sem_isr, 0, 0);
-  nxsem_set_protocol(&priv->sem_isr, SEM_PRIO_NONE);
-#endif
-}
-
-/****************************************************************************
- * Name: am335x_i2c_sem_destroy
- *
- * Description:
- *   Destroy semaphores.
- *
- ****************************************************************************/
-
-static inline void am335x_i2c_sem_destroy(struct am335x_i2c_priv_s *priv)
-{
-  nxsem_destroy(&priv->sem_excl);
-#ifndef CONFIG_I2C_POLLED
-  nxsem_destroy(&priv->sem_isr);
-#endif
 }
 
 /****************************************************************************
@@ -1382,7 +1309,7 @@ static int am335x_i2c_transfer(struct i2c_master_s *dev,
 
   /* Ensure that address or flags don't change meanwhile */
 
-  ret = am335x_i2c_sem_wait(priv);
+  ret = nxmutex_lock(&priv->lock);
   if (ret < 0)
     {
       return ret;
@@ -1498,7 +1425,7 @@ static int am335x_i2c_transfer(struct i2c_master_s *dev,
       priv->ptr = NULL;
     }
 
-  am335x_i2c_sem_post(priv);
+  nxmutex_unlock(&priv->lock);
   return ret;
 }
 
@@ -1535,7 +1462,7 @@ static int am335x_i2c_reset(struct i2c_master_s *dev)
 
   /* Lock out other clients */
 
-  ret = am335x_i2c_sem_wait_noncancelable(priv);
+  ret = nxmutex_lock(&priv->lock);
   if (ret < 0)
     {
       return ret;
@@ -1630,7 +1557,7 @@ out:
 
   /* Release the port for re-use by other clients */
 
-  am335x_i2c_sem_post(priv);
+  nxmutex_unlock(&priv->lock);
   return ret;
 }
 #endif /* CONFIG_I2C_RESET */
@@ -1649,8 +1576,7 @@ out:
 
 struct i2c_master_s *am335x_i2cbus_initialize(int port)
 {
-  struct am335x_i2c_priv_s * priv = NULL;
-  irqstate_t flags;
+  struct am335x_i2c_priv_s *priv = NULL;
 
   /* Get I2C private structure */
 
@@ -1679,16 +1605,13 @@ struct i2c_master_s *am335x_i2cbus_initialize(int port)
    * power-up hardware and configure GPIOs.
    */
 
-  flags = enter_critical_section();
-
-  if ((volatile int)priv->refs++ == 0)
+  nxmutex_lock(&priv->lock);
+  if (priv->refs++ == 0)
     {
-      am335x_i2c_sem_init(priv);
       am335x_i2c_init(priv);
     }
 
-  leave_critical_section(flags);
-
+  nxmutex_unlock(&priv->lock);
   return (struct i2c_master_s *)priv;
 }
 
@@ -1703,7 +1626,6 @@ struct i2c_master_s *am335x_i2cbus_initialize(int port)
 int am335x_i2cbus_uninitialize(struct i2c_master_s *dev)
 {
   struct am335x_i2c_priv_s *priv = (struct am335x_i2c_priv_s *)dev;
-  irqstate_t flags;
 
   DEBUGASSERT(dev);
 
@@ -1714,23 +1636,18 @@ int am335x_i2cbus_uninitialize(struct i2c_master_s *dev)
       return ERROR;
     }
 
-  flags = enter_critical_section();
-
+  nxmutex_lock(&priv->lock);
   if (--priv->refs > 0)
     {
-      leave_critical_section(flags);
+      nxmutex_unlock(&priv->lock);
       return OK;
     }
-
-  leave_critical_section(flags);
 
   /* Disable power and other HW resource (GPIO's) */
 
   am335x_i2c_deinit(priv);
+  nxmutex_unlock(&priv->lock);
 
-  /* Release unused resources */
-
-  am335x_i2c_sem_destroy(priv);
   return OK;
 }
 

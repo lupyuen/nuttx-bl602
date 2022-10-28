@@ -68,7 +68,7 @@ static int pseudorename(FAR const char *oldpath, FAR struct inode *oldinode,
   FAR char *subdir = NULL;
   int ret;
 
-  /* According to POSIX, any old inode at this path should be removed
+  /* According to POSIX, any new inode at this path should be removed
    * first, provided that it is not a directory.
    */
 
@@ -90,7 +90,7 @@ next_subdir:
         {
           inode_release(newinode);
           ret = OK;
-          goto errout; /* Bad naming, this is not an error case. */
+          goto errout; /* Same name, this is not an error case. */
         }
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
@@ -111,9 +111,16 @@ next_subdir:
       if (newinode->u.i_ops == NULL || newinode->i_child != NULL)
         {
           FAR char *subdirname;
-          FAR char *tmp;
 
           inode_release(newinode);
+
+          /* Free memory may be allocated in previous loop */
+
+          if (subdir != NULL)
+            {
+              kmm_free(subdir);
+              subdir = NULL;
+            }
 
           /* Yes.. In this case, the target of the rename must be a
            * subdirectory of newinode, not the newinode itself.  For
@@ -121,16 +128,7 @@ next_subdir:
            */
 
           subdirname = basename((FAR char *)oldpath);
-          tmp        = subdir;
-          subdir     = NULL;
-
           asprintf(&subdir, "%s/%s", newpath, subdirname);
-
-          if (tmp != NULL)
-            {
-              kmm_free(tmp);
-            }
-
           if (subdir == NULL)
             {
               ret = -ENOMEM;
@@ -170,7 +168,7 @@ next_subdir:
    * of  zero.
    */
 
-  ret = inode_semtake();
+  ret = inode_lock();
   if (ret < 0)
     {
       goto errout;
@@ -185,7 +183,7 @@ next_subdir:
        */
 
       ret = -EEXIST;
-      goto errout_with_sem;
+      goto errout_with_lock;
     }
 
   /* Copy the inode state from the old inode to the newly allocated inode */
@@ -230,7 +228,7 @@ next_subdir:
       /* Remove the new node we just recreated */
 
       inode_remove(newpath);
-      goto errout_with_sem;
+      goto errout_with_lock;
     }
 
   /* Remove all of the children from the unlinked inode */
@@ -239,12 +237,11 @@ next_subdir:
   oldinode->i_parent = NULL;
   ret = OK;
 
-errout_with_sem:
-  inode_semgive();
+errout_with_lock:
+  inode_unlock();
 
 errout:
   RELEASE_SEARCH(&newdesc);
-
   if (subdir != NULL)
     {
       kmm_free(subdir);
@@ -291,7 +288,6 @@ static int mountptrename(FAR const char *oldpath, FAR struct inode *oldinode,
    */
 
   SETUP_SEARCH(&newdesc, newpath, true);
-
   ret = inode_find(&newdesc);
   if (ret < 0)
     {
@@ -314,7 +310,17 @@ static int mountptrename(FAR const char *oldpath, FAR struct inode *oldinode,
       goto errout_with_newinode;
     }
 
-  /* Does a directory entry already exist at the 'rewrelpath'?  And is it
+  /* If oldrelpath and newrelpath are the same, then this is an attempt
+   * to move the directory entry onto itself.  Let's not but say we did.
+   */
+
+  if (strcmp(oldrelpath, newrelpath) == 0)
+    {
+      ret = OK;
+      goto errout_with_newinode; /* Same name, this is not an error case. */
+    }
+
+  /* Does a directory entry already exist at the 'newrelpath'?  And is it
    * not the same directory entry that we are moving?
    *
    * If the directory entry at the newrelpath is a regular file, then that
@@ -322,131 +328,105 @@ static int mountptrename(FAR const char *oldpath, FAR struct inode *oldinode,
    *
    * If the directory entry at the target is a directory, then the source
    * file should be moved "under" the directory, i.e., if newrelpath is a
-   * directory, then rename(b,a) should use move the olrelpath should be
+   * directory, then rename(b,a) should use move the oldrelpath should be
    * moved as if rename(b,a/basename(b)) had been called.
    */
 
-  if (oldinode->u.i_mops->stat != NULL &&
-      strcmp(oldrelpath, newrelpath) != 0)
+  if (oldinode->u.i_mops->stat != NULL)
     {
       struct stat buf;
 
 next_subdir:
-      /* Something exists for this directory entry.  Do nothing in the
-       * degenerate case where a directory or file is being moved to
-       * itself.
-       */
-
-      if (strcmp(oldrelpath, newrelpath) != 0)
+      ret = oldinode->u.i_mops->stat(oldinode, newrelpath, &buf);
+      if (ret >= 0)
         {
-          ret = oldinode->u.i_mops->stat(oldinode, newrelpath, &buf);
-          if (ret >= 0)
+          /* Is the directory entry a directory? */
+
+          if (S_ISDIR(buf.st_mode))
             {
-              /* Is the directory entry a directory? */
+              FAR char *subdirname;
 
-              if (S_ISDIR(buf.st_mode))
+              /* Free memory may be allocated in previous loop */
+
+              if (subdir != NULL)
                 {
-                  FAR char *subdirname;
+                   kmm_free(subdir);
+                   subdir = NULL;
+                }
 
-                  /* Yes.. In this case, the target of the rename must be a
-                   * subdirectory of newinode, not the newinode itself.  For
-                   * example: mv b a/ must move b to a/b.
-                   */
+              /* Yes.. In this case, the target of the rename must be a
+               * subdirectory of newinode, not the newinode itself.  For
+               * example: mv b a/ must move b to a/b.
+               */
 
-                  subdirname = basename((FAR char *)oldrelpath);
+              subdirname = basename((FAR char *)oldrelpath);
 
-                  /* Special case the root directory */
+              /* Special case the root directory */
 
-                  if (*newrelpath == '\0')
-                    {
-                      if (subdir != NULL)
-                        {
-                           kmm_free(subdir);
-                           subdir = NULL;
-                        }
-
-                      newrelpath = subdirname;
-                    }
-                  else
-                    {
-                      FAR char *tmp = subdir;
-
-                      subdir = NULL;
-                      asprintf(&subdir, "%s/%s", newrelpath,
-                               subdirname);
-
-                      if (tmp != NULL)
-                        {
-                          kmm_free(tmp);
-                        }
-
-                      if (subdir == NULL)
-                        {
-                          ret = -ENOMEM;
-                          goto errout_with_newinode;
-                        }
-
-                      newrelpath = subdir;
-                    }
-
-                  /* This can be a recursive, another directory may already
-                   * exist at the newrelpath.  In that case, we need to
-                   * do this all over again.  A nasty goto is used because
-                   * I am lazy.
-                   */
-
-                  goto next_subdir;
+              if (*newrelpath == '\0')
+                {
+                  newrelpath = subdirname;
                 }
               else
                 {
-                  /* No.. newrelpath must refer to a regular file.  Make sure
-                   * that the file at the olrelpath actually exists before
-                   * performing any further actions with newrelpath
-                   */
-
-                  ret = oldinode->u.i_mops->stat(oldinode, oldrelpath, &buf);
-                  if (ret < 0)
+                  asprintf(&subdir, "%s/%s", newrelpath,
+                           subdirname);
+                  if (subdir == NULL)
                     {
+                      ret = -ENOMEM;
                       goto errout_with_newinode;
                     }
 
-                  if (oldinode->u.i_mops->unlink)
-                    {
-                      /* Attempt to remove the file before doing the rename.
-                       *
-                       * NOTE that errors are not handled here.  If we failed
-                       * to remove the file, then the file system 'rename'
-                       * method should check that.
-                       */
+                  newrelpath = subdir;
+                }
 
-                       oldinode->u.i_mops->unlink(oldinode, newrelpath);
-                    }
+              /* This can be a recursive, another directory may already
+               * exist at the newrelpath.  In that case, we need to
+               * do this all over again.  A nasty goto is used because
+               * I am lazy.
+               */
+
+              goto next_subdir;
+            }
+          else
+            {
+              /* No.. newrelpath must refer to a regular file.  Make sure
+               * that the file at the oldrelpath actually exists before
+               * performing any further actions with newrelpath
+               */
+
+              ret = oldinode->u.i_mops->stat(oldinode, oldrelpath, &buf);
+              if (ret < 0)
+                {
+                  goto errout_with_newinode;
+                }
+
+              if (oldinode->u.i_mops->unlink)
+                {
+                  /* Attempt to remove the file before doing the rename.
+                   *
+                   * NOTE that errors are not handled here.  If we failed
+                   * to remove the file, then the file system 'rename'
+                   * method should check that.
+                   */
+
+                   oldinode->u.i_mops->unlink(oldinode, newrelpath);
                 }
             }
         }
     }
 
-  /* Just declare success of the oldrepath and the newrelpath point to
-   * the same directory entry.  That directory entry should have been
-   * stat'ed above to assure that it exists.
+  /* Perform the rename operation using the relative paths at the common
+   * mountpoint.
    */
 
-  ret = OK;
-  if (strcmp(oldrelpath, newrelpath) != 0)
-    {
-      /* Perform the rename operation using the relative paths at the common
-       * mountpoint.
-       */
-
-      ret = oldinode->u.i_mops->rename(oldinode, oldrelpath, newrelpath);
-    }
+  ret = oldinode->u.i_mops->rename(oldinode, oldrelpath, newrelpath);
 
 errout_with_newinode:
   inode_release(newinode);
 
 errout_with_newsearch:
   RELEASE_SEARCH(&newdesc);
-
   if (subdir != NULL)
     {
       kmm_free(subdir);
@@ -488,7 +468,6 @@ int rename(FAR const char *oldpath, FAR const char *newpath)
   /* Get an inode that includes the oldpath */
 
   SETUP_SEARCH(&olddesc, oldpath, true);
-
   ret = inode_find(&olddesc);
   if (ret < 0)
     {

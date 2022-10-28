@@ -43,40 +43,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Most internal network OS interfaces are not available in the user space in
- * PROTECTED and KERNEL builds.  In that context, the corresponding
- * application network interfaces must be used.  The differences between the
- * two sets of interfaces are:  The internal OS interfaces (1) do not cause
- * cancellation points and (2) they do not modify the errno variable.
- *
- * This is only important when compiling libraries (libc or libnx) that are
- * used both by the OS (libkc.a and libknx.a) or by the applications
- * (libc.a and libnx.a).  In that case, the correct interface must be
- * used for the build context.
- *
- * REVISIT:  In the flat build, the same functions must be used both by
- * the OS and by applications.  We have to use the normal user functions
- * in this case or we will fail to set the errno or fail to create the
- * cancellation point.
- *
- * The interfaces accept(), read(), recv(), recvfrom(), write(), send(),
- * sendto() are all cancellation points.
- *
- * REVISIT:  These cancellation points are an issue and may cause
- * violations:  It use of these internally will cause the calling function
- * to become a cancellation points!
- */
-
-#if !defined(CONFIG_BUILD_FLAT) && defined(__KERNEL__)
-#  define _NX_SEND(s,b,l,f)         nx_send(s,b,l,f)
-#  define _NX_RECV(s,b,l,f)         nx_recv(s,b,l,f)
-#  define _NX_RECVFROM(s,b,l,f,a,n) nx_recvfrom(s,b,l,f,a,n)
-#else
-#  define _NX_SEND(s,b,l,f)         send(s,b,l,f)
-#  define _NX_RECV(s,b,l,f)         recv(s,b,l,f)
-#  define _NX_RECVFROM(s,b,l,f,a,n) recvfrom(s,b,l,f,a,n)
-#endif
-
 /* Capabilities of a socket */
 
 #define SOCKCAP_NONBLOCKING (1 << 0)  /* Bit 0: Socket supports non-blocking
@@ -928,36 +894,6 @@ ssize_t psock_send(FAR struct socket *psock, const void *buf, size_t len,
                    int flags);
 
 /****************************************************************************
- * Name: nx_send
- *
- * Description:
- *   The nx_send() call may be used only when the socket is in a
- *   connected state (so that the intended recipient is known).  This is an
- *   internal OS interface.  It is functionally equivalent to send() except
- *   that:
- *
- *   - It is not a cancellation point, and
- *   - It does not modify the errno variable.
- *
- *   See comments with send() for more a more complete description of the
- *   functionality.
- *
- * Input Parameters:
- *   sockfd   Socket descriptor of the socket
- *   buf      Data to send
- *   len      Length of data to send
- *   flags    Send flags
- *
- * Returned Value:
- *   On success, returns the number of characters sent.  On any failure, a
- *   negated errno value is returned (See comments with send() for a list
- *   of the appropriate errno value).
- *
- ****************************************************************************/
-
-ssize_t nx_send(int sockfd, FAR const void *buf, size_t len, int flags);
-
-/****************************************************************************
  * Name: psock_sendto
  *
  * Description:
@@ -1063,42 +999,6 @@ ssize_t psock_recvfrom(FAR struct socket *psock, FAR void *buf, size_t len,
 
 #define psock_recv(psock,buf,len,flags) \
   psock_recvfrom(psock,buf,len,flags,NULL,0)
-
-/****************************************************************************
- * Name: nx_recvfrom
- *
- * Description:
- *   nx_recvfrom() receives messages from a socket, and may be used to
- *   receive data on a socket whether or not it is connection-oriented.
- *   This is an internal OS interface.  It is functionally equivalent to
- *   recvfrom() except that:
- *
- *   - It is not a cancellation point, and
- *   - It does not modify the errno variable.
- *
- * Input Parameters:
- *   sockfd    Socket descriptor of socket
- *   buf       Buffer to receive data
- *   len       Length of buffer
- *   flags     Receive flags
- *   from      Address of source (may be NULL)
- *   fromlen   The length of the address structure
- *
- * Returned Value:
- *   On success, returns the number of characters received.  If no data is
- *   available to be received and the peer has performed an orderly shutdown,
- *   nx_recvfrom() will return 0.  Otherwise, on any failure, a negated errno
- *   value is returned (see comments with recvfrom() for a list of
- *   appropriate errno values).
- *
- ****************************************************************************/
-
-ssize_t nx_recvfrom(int sockfd, FAR void *buf, size_t len, int flags,
-                    FAR struct sockaddr *from, FAR socklen_t *fromlen);
-
-/* Internal version os recv */
-
-#define nx_recv(psock,buf,len,flags) nx_recvfrom(psock,buf,len,flags,NULL,0)
 
 /****************************************************************************
  * Name: psock_getsockopt
@@ -1326,7 +1226,6 @@ int psock_ioctl(FAR struct socket *psock, int cmd, ...);
  ****************************************************************************/
 
 struct pollfd; /* Forward reference -- see poll.h */
-
 int psock_poll(FAR struct socket *psock, struct pollfd *fds, bool setup);
 
 /****************************************************************************

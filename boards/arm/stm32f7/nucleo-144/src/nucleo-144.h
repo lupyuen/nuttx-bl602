@@ -151,24 +151,26 @@
 /* GPIO pins used by the GPIO Subsystem */
 
 #define BOARD_NGPIOIN     4   /* Amount of GPIO Input pins */
-#define BOARD_NGPIOOUT    4   /* Amount of GPIO Output pins */
+#define BOARD_NGPIOOUT    8   /* Amount of GPIO Output pins */
 #define BOARD_NGPIOINT    1   /* Amount of GPIO Input w/ Interruption pins */
 
 #define GPIO_INT1         (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTB | GPIO_PIN2)
 
-#define GPIO_IN1          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN8)
-#define GPIO_IN2          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN7)
-#define GPIO_IN3          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN10)
-#define GPIO_IN4          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN12)
+#define GPIO_IN1          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN7)
+#define GPIO_IN2          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN12)
+#define GPIO_IN3          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN14)
+#define GPIO_IN4          (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTE | GPIO_PIN15)
 
-#define GPIO_OUT1         (GPIO_OUTPUT | GPIO_OUTPUT | GPIO_SPEED_50MHz | \
-                                          GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN13)
-#define GPIO_OUT2         (GPIO_OUTPUT | GPIO_OUTPUT | GPIO_SPEED_50MHz | \
-                                          GPIO_OUTPUT_SET | GPIO_PORTE | GPIO_PIN9)
-#define GPIO_OUT3         (GPIO_OUTPUT | GPIO_OUTPUT | GPIO_SPEED_50MHz | \
-                                          GPIO_OUTPUT_SET | GPIO_PORTE | GPIO_PIN11)
-#define GPIO_OUT4         (GPIO_OUTPUT | GPIO_OUTPUT | GPIO_SPEED_50MHz | \
-                                          GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN14)
+#define GPIO_OUT1         (GPIO_OUTPUT | GPIO_SPEED_50MHz | \
+                                GPIO_OUTPUT_SET | GPIO_PORTE | GPIO_PIN4)
+#define GPIO_OUT2         (GPIO_OUTPUT |  GPIO_SPEED_50MHz | \
+                                GPIO_OUTPUT_SET | GPIO_PORTE | GPIO_PIN5)
+#define GPIO_OUT3         (GPIO_OUTPUT | GPIO_SPEED_50MHz | \
+                                GPIO_OUTPUT_SET | GPIO_PORTE | GPIO_PIN6)
+#define GPIO_OUT4          (GPIO_OUTPUT | GPIO_SPEED_50MHz | \
+                                GPIO_OUTPUT_SET | GPIO_PORTA |GPIO_PIN5)
+#define GPIO_OUT5         (GPIO_OUTPUT | GPIO_SPEED_50MHz | \
+                                GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN12)
 
 /****************************************************************************
  * Public Data
@@ -179,6 +181,26 @@
 /****************************************************************************
  * Public Functions Definitions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: stm32_bringup
+ *
+ * Description:
+ *   Perform architecture specific initialization
+ *
+ *   CONFIG_BOARDCTL=y:
+ *     If CONFIG_NSH_ARCHINITIALIZE=y:
+ *       Called from the NSH library (or other application)
+ *     Otherwise, assumed to be called from some other application.
+ *
+ *   Otherwise CONFIG_BOARD_LATE_INITIALIZE=y:
+ *     Called from board_late_initialize().
+ *
+ *   Otherwise, bad news:  Never called
+ *
+ ****************************************************************************/
+
+int stm32_bringup(void);
 
 /****************************************************************************
  * Name: stm32_spidev_initialize
@@ -281,11 +303,35 @@ int stm32_bbsram_int(void);
 #endif
 
 /****************************************************************************
- * Name: stm32F746_qencoder_initialize
+ * Name: stm32_qencoder_initialize
  ****************************************************************************/
 
 #ifdef CONFIG_SENSORS_QENCODER
-int stm32f7_qencoder_initialize(const char *devpath, int timer);
+int stm32_qencoder_initialize(const char *devpath, int timer);
+#endif
+
+/****************************************************************************
+ * Name: stm32_can_setup
+ ****************************************************************************/
+
+#ifdef CONFIG_STM32F7_CAN_CHARDRIVER
+int stm32_can_setup(void);
+#endif
+
+/****************************************************************************
+ * Name: stm32_cansock_setup
+ ****************************************************************************/
+
+#ifdef CONFIG_STM32F7_CAN_SOCKET
+int stm32_cansock_setup(void);
+#endif
+
+/****************************************************************************
+ * Name: stm32f7_gpio_initialize
+ ****************************************************************************/
+
+#ifdef CONFIG_DEV_GPIO
+int stm32_gpio_initialize(void);
 #endif
 
 #endif /* __ASSEMBLY__ */

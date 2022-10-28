@@ -288,7 +288,7 @@ STMPE811_HANDLE stmpe811_instantiate(FAR struct i2c_master_s *dev,
 
   /* Initialize the device state structure */
 
-  nxsem_init(&priv->exclsem, 0, 1);
+  nxmutex_init(&priv->lock);
   priv->config = config;
 
 #ifdef CONFIG_STMPE811_SPI
@@ -302,6 +302,7 @@ STMPE811_HANDLE stmpe811_instantiate(FAR struct i2c_master_s *dev,
   ret = stmpe811_checkid(priv);
   if (ret < 0)
     {
+      nxmutex_destroy(&priv->lock);
 #ifdef CONFIG_STMPE811_MULTIPLE
       g_stmpe811list = priv->flink;
       kmm_free(priv);

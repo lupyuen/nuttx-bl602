@@ -48,6 +48,7 @@
 #include "signal/signal.h"
 #include "semaphore/semaphore.h"
 #include "mqueue/mqueue.h"
+#include "mqueue/msg.h"
 #include "clock/clock.h"
 #include "timer/timer.h"
 #include "irq/irq.h"
@@ -227,11 +228,11 @@ const struct tasklist_s g_tasklisttable[NUM_TASK_STATES] =
 #ifndef CONFIG_DISABLE_MQUEUE
   ,
   {                                              /* TSTATE_WAIT_MQNOTEMPTY */
-    (FAR void *)offsetof(struct mqueue_inode_s, waitfornotempty),
+    (FAR void *)offsetof(struct mqueue_inode_s, cmn.waitfornotempty),
     TLIST_ATTR_PRIORITIZED | TLIST_ATTR_OFFSET
   },
   {                                              /* TSTATE_WAIT_MQNOTFULL */
-    (FAR void *)offsetof(struct mqueue_inode_s, waitfornotfull),
+    (FAR void *)offsetof(struct mqueue_inode_s, cmn.waitfornotfull),
     TLIST_ATTR_PRIORITIZED | TLIST_ATTR_OFFSET
   }
 #endif
@@ -575,10 +576,16 @@ void nx_start(void)
 
   nxsig_initialize();
 
-#ifndef CONFIG_DISABLE_MQUEUE
+#if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_MQUEUE_SYSV)
   /* Initialize the named message queue facility (if in link) */
 
   nxmq_initialize();
+#endif
+
+#ifndef CONFIG_DISABLE_MQUEUE_SYSV
+  /* Initialize the System V message queue facility (if in link) */
+
+  nxmsg_initialize();
 #endif
 
 #ifdef CONFIG_NET

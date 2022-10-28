@@ -44,16 +44,6 @@
 #include "socket/socket.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define IPv4BUF    ((FAR struct ipv4_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev)])
-#define IPv6BUF    ((FAR struct ipv6_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev)])
-
-#define UDPIPv4BUF ((FAR struct udp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv4_HDRLEN])
-#define UDPIPv6BUF ((FAR struct udp_hdr_s *)&dev->d_buf[NET_LL_HDRLEN(dev) + IPv6_HDRLEN])
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -541,13 +531,7 @@ static void udp_recvfrom_initialize(FAR struct udp_conn_s *conn,
   /* Initialize the state structure. */
 
   memset(pstate, 0, sizeof(struct udp_recvfrom_s));
-
-  /* This semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   nxsem_init(&pstate->ir_sem, 0, 0); /* Doesn't really fail */
-  nxsem_set_protocol(&pstate->ir_sem, SEM_PRIO_NONE);
 
   pstate->ir_msg  = msg;
 

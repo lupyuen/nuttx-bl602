@@ -34,28 +34,13 @@
 #include <nuttx/fs/fs.h>
 #include <nuttx/kmalloc.h>
 #include <nuttx/cancelpt.h>
-#include <nuttx/semaphore.h>
+#include <nuttx/mutex.h>
 
 #include "inode/inode.h"
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: _files_semtake
- ****************************************************************************/
-
-static int _files_semtake(FAR struct filelist *list)
-{
-  return nxsem_wait_uninterruptible(&list->fl_sem);
-}
-
-/****************************************************************************
- * Name: _files_semgive
- ****************************************************************************/
-
-#define _files_semgive(list) nxsem_post(&list->fl_sem)
 
 /****************************************************************************
  * Name: files_extend
@@ -123,7 +108,7 @@ void files_initlist(FAR struct filelist *list)
 
   /* Initialize the list access mutex */
 
-  nxsem_init(&list->fl_sem, 0, 1);
+  nxmutex_init(&list->fl_lock);
 }
 
 /****************************************************************************
@@ -142,7 +127,7 @@ void files_releaselist(FAR struct filelist *list)
   DEBUGASSERT(list);
 
   /* Close each file descriptor .. Normally, you would need take the list
-   * semaphore, but it is safe to ignore the semaphore in this context
+   * mutex, but it is safe to ignore the mutex in this context
    * because there should not be any references in this context.
    */
 
@@ -158,9 +143,9 @@ void files_releaselist(FAR struct filelist *list)
 
   kmm_free(list->fl_files);
 
-  /* Destroy the semaphore */
+  /* Destroy the mutex */
 
-  nxsem_destroy(&list->fl_sem);
+  nxmutex_destroy(&list->fl_lock);
 }
 
 /****************************************************************************
@@ -185,7 +170,7 @@ int files_allocate(FAR struct inode *inode, int oflags, off_t pos,
   list = nxsched_get_files();
   DEBUGASSERT(list != NULL);
 
-  ret = _files_semtake(list);
+  ret = nxmutex_lock(&list->fl_lock);
   if (ret < 0)
     {
       /* Probably canceled */
@@ -203,7 +188,7 @@ int files_allocate(FAR struct inode *inode, int oflags, off_t pos,
       ret = files_extend(list, i + 1);
       if (ret < 0)
         {
-          _files_semgive(list);
+          nxmutex_unlock(&list->fl_lock);
           return ret;
         }
     }
@@ -221,7 +206,7 @@ int files_allocate(FAR struct inode *inode, int oflags, off_t pos,
               list->fl_files[i][j].f_pos    = pos;
               list->fl_files[i][j].f_inode  = inode;
               list->fl_files[i][j].f_priv   = priv;
-              _files_semgive(list);
+              nxmutex_unlock(&list->fl_lock);
               return i * CONFIG_NFILE_DESCRIPTORS_PER_BLOCK + j;
             }
         }
@@ -243,7 +228,7 @@ int files_allocate(FAR struct inode *inode, int oflags, off_t pos,
       ret = i * CONFIG_NFILE_DESCRIPTORS_PER_BLOCK;
     }
 
-  _files_semgive(list);
+  nxmutex_unlock(&list->fl_lock);
   return ret;
 }
 
@@ -261,7 +246,7 @@ int files_duplist(FAR struct filelist *plist, FAR struct filelist *clist)
   int i;
   int j;
 
-  ret = _files_semtake(plist);
+  ret = nxmutex_lock(&plist->fl_lock);
   if (ret < 0)
     {
       /* Probably canceled */
@@ -312,7 +297,7 @@ int files_duplist(FAR struct filelist *plist, FAR struct filelist *clist)
     }
 
 out:
-  _files_semgive(plist);
+  nxmutex_unlock(&plist->fl_lock);
   return ret;
 }
 
@@ -339,7 +324,7 @@ int fs_getfilep(int fd, FAR struct file **filep)
   int ret;
 
   DEBUGASSERT(filep != NULL);
-  *filep = (FAR struct file *)NULL;
+  *filep = NULL;
 
   list = nxsched_get_files();
 
@@ -366,7 +351,7 @@ int fs_getfilep(int fd, FAR struct file **filep)
 
   /* And return the file pointer from the list */
 
-  ret = _files_semtake(list);
+  ret = nxmutex_lock(&list->fl_lock);
   if (ret < 0)
     {
       return ret;
@@ -379,12 +364,11 @@ int fs_getfilep(int fd, FAR struct file **filep)
 
   if (!(*filep)->f_inode)
     {
-      *filep = (FAR struct file *)NULL;
+      *filep = NULL;
       ret = -EBADF;
     }
 
-  _files_semgive(list);
-
+  nxmutex_unlock(&list->fl_lock);
   return ret;
 }
 
@@ -429,7 +413,7 @@ int nx_dup2(int fd1, int fd2)
       return -EBADF;
     }
 
-  ret = _files_semtake(list);
+  ret = nxmutex_lock(&list->fl_lock);
   if (ret < 0)
     {
       /* Probably canceled */
@@ -442,7 +426,7 @@ int nx_dup2(int fd1, int fd2)
       ret = files_extend(list, fd2 / CONFIG_NFILE_DESCRIPTORS_PER_BLOCK + 1);
       if (ret < 0)
         {
-          _files_semgive(list);
+          nxmutex_unlock(&list->fl_lock);
           return ret;
         }
     }
@@ -457,10 +441,9 @@ int nx_dup2(int fd1, int fd2)
   ret = file_dup2(&list->fl_files[fd1 / CONFIG_NFILE_DESCRIPTORS_PER_BLOCK]
                                  [fd1 % CONFIG_NFILE_DESCRIPTORS_PER_BLOCK],
                   filep);
-  _files_semgive(list);
+  nxmutex_unlock(&list->fl_lock);
 
   file_close(&file);
-
   return ret < 0 ? ret : fd2;
 }
 
@@ -504,7 +487,7 @@ int dup2(int fd1, int fd2)
  *   on any failure.
  *
  * Assumptions:
- *   Caller holds the list semaphore because the file descriptor will be
+ *   Caller holds the list mutex because the file descriptor will be
  *   freed.
  *
  ****************************************************************************/
@@ -525,7 +508,7 @@ int nx_close(int fd)
 
   /* Perform the protected close operation */
 
-  ret = _files_semtake(list);
+  ret = nxmutex_lock(&list->fl_lock);
   if (ret < 0)
     {
       return ret;
@@ -537,7 +520,7 @@ int nx_close(int fd)
       !list->fl_files[fd / CONFIG_NFILE_DESCRIPTORS_PER_BLOCK]
                      [fd % CONFIG_NFILE_DESCRIPTORS_PER_BLOCK].f_inode)
     {
-      _files_semgive(list);
+      nxmutex_unlock(&list->fl_lock);
       return -EBADF;
     }
 
@@ -546,8 +529,7 @@ int nx_close(int fd)
   memcpy(&file, filep, sizeof(struct file));
   memset(filep, 0,     sizeof(struct file));
 
-  _files_semgive(list);
-
+  nxmutex_unlock(&list->fl_lock);
   return file_close(&file);
 }
 

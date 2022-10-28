@@ -707,7 +707,7 @@ void nxsem_add_holder_tcb(FAR struct tcb_s *htcb, FAR sem_t *sem)
    * inheritance is effectively disabled.
    */
 
-  if (htcb->flink != NULL && (sem->flags & PRIOINHERIT_FLAGS_DISABLE) == 0)
+  if (htcb->flink != NULL && (sem->flags & PRIOINHERIT_FLAGS_ENABLE) != 0)
     {
       /* Find or allocate a container for this new holder */
 
@@ -899,12 +899,12 @@ void nxsem_restore_baseprio(FAR struct tcb_s *stcb, FAR sem_t *sem)
 
   if (stcb != NULL)
     {
-      /* Handler semaphore counts posed from an interrupt handler differently
-       * from interrupts posted from threads.  The primary difference is that
-       * if the semaphore is posted from a thread, then the poster thread is
-       * a player in the priority inheritance scheme.  The interrupt handler
-       * externally injects the new count without otherwise participating
-       * itself.
+      /* Handler semaphore counts posted from an interrupt handler
+       * differently from interrupts posted from threads.  The primary
+       * difference is that if the semaphore is posted from a thread, then
+       * the poster thread is a player in the priority inheritance scheme.
+       * The interrupt handler externally injects the new count without
+       * otherwise participating itself.
        */
 
       if (up_interrupt_context())

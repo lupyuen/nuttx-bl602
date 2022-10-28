@@ -43,8 +43,10 @@
 #ifdef CONFIG_PAGING
 # include "paging/paging.h"
 #endif
-# include "wqueue/wqueue.h"
-# include "init/init.h"
+
+#include "sched/sched.h"
+#include "wqueue/wqueue.h"
+#include "init/init.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -144,7 +146,7 @@ static inline void nx_pgworker(void)
 
   g_pgworker = kthread_create("pgfill", CONFIG_PAGING_DEFPRIO,
                               CONFIG_PAGING_STACKSIZE,
-                              (main_t)pg_worker, (FAR char * const *)NULL);
+                              pg_worker, NULL);
   DEBUGASSERT(g_pgworker > 0);
 }
 
@@ -224,19 +226,20 @@ static inline void nx_workqueues(void)
 
 static inline void nx_start_application(void)
 {
-#ifdef CONFIG_INIT_ARGS
-  FAR char *const argv[] =
+#ifndef CONFIG_INIT_NONE
+  FAR char * const argv[] =
   {
+#  ifdef CONFIG_INIT_ARGS
     CONFIG_INIT_ARGS,
+#  endif
     NULL,
   };
-#else
-  FAR char *const *argv = NULL;
 #endif
-  int ret;
+
 #ifdef CONFIG_INIT_FILE
   posix_spawnattr_t attr;
 #endif
+  int ret;
 
 #ifdef CONFIG_BOARD_LATE_INITIALIZE
   /* Perform any last-minute, board-specific initialization, if so
@@ -256,28 +259,28 @@ static inline void nx_start_application(void)
 
   sinfo("Starting init thread\n");
 
-#ifdef CONFIG_BUILD_PROTECTED
+#  ifdef CONFIG_BUILD_PROTECTED
   DEBUGASSERT(USERSPACE->us_entrypoint != NULL);
   ret = nxtask_create(CONFIG_INIT_ENTRYNAME, CONFIG_INIT_PRIORITY,
                       CONFIG_INIT_STACKSIZE,
-                      USERSPACE->us_entrypoint, argv);
-#else
+                      USERSPACE->us_entrypoint, argv, NULL);
+#  else
   ret = nxtask_create(CONFIG_INIT_ENTRYNAME, CONFIG_INIT_PRIORITY,
                       CONFIG_INIT_STACKSIZE,
-                      (main_t)CONFIG_INIT_ENTRYPOINT, argv);
-#endif
+                      CONFIG_INIT_ENTRYPOINT, argv, NULL);
+#  endif
   DEBUGASSERT(ret > 0);
 
 #elif defined(CONFIG_INIT_FILE)
 
-#ifdef CONFIG_INIT_MOUNT
+#  ifdef CONFIG_INIT_MOUNT
   /* Mount the file system containing the init program. */
 
   ret = nx_mount(CONFIG_INIT_MOUNT_SOURCE, CONFIG_INIT_MOUNT_TARGET,
                  CONFIG_INIT_MOUNT_FSTYPE, CONFIG_INIT_MOUNT_FLAGS,
                  CONFIG_INIT_MOUNT_DATA);
   DEBUGASSERT(ret >= 0);
-#endif
+#  endif
 
   /* Start the application initialization program from a program in a
    * mounted file system.  Presumably the file system was mounted as part
@@ -289,9 +292,9 @@ static inline void nx_start_application(void)
   posix_spawnattr_init(&attr);
 
   attr.priority  = CONFIG_INIT_PRIORITY;
-#ifndef CONFIG_ARCH_ADDRENV
+#  ifndef CONFIG_BUILD_KERNEL
   attr.stacksize = CONFIG_INIT_STACKSIZE;
-#endif
+#  endif
   ret = exec_spawn(CONFIG_INIT_FILEPATH, argv, NULL,
                    CONFIG_INIT_SYMTAB, CONFIG_INIT_NEXPORTS, &attr);
   DEBUGASSERT(ret >= 0);
@@ -352,9 +355,10 @@ static inline void nx_create_initthread(void)
    * execution.
    */
 
-  pid = kthread_create("AppBringUp", CONFIG_BOARD_INITTHREAD_PRIORITY,
-                      CONFIG_BOARD_INITTHREAD_STACKSIZE,
-                      (main_t)nx_start_task, (FAR char * const *)NULL);
+  pid = nxthread_create("AppBringUp", TCB_FLAG_TTYPE_KERNEL,
+                        CONFIG_BOARD_INITTHREAD_PRIORITY,
+                        NULL, CONFIG_BOARD_INITTHREAD_STACKSIZE,
+                        nx_start_task, NULL, environ);
   DEBUGASSERT(pid > 0);
   UNUSED(pid);
 #else

@@ -6047,6 +6047,21 @@ endmenu # Timer Configuration
 menu "CAN driver configuration"
 	depends on STM32F7_CAN
 
+choice
+	prompt "CAN character driver or SocketCAN support"
+	default STM32F7_CAN_CHARDRIVER
+
+config STM32F7_CAN_CHARDRIVER
+	bool "STM32F7 CAN character driver support"
+	select ARCH_HAVE_CAN_ERRORS
+	select CAN
+
+config STM32F7_CAN_SOCKET
+	bool "STM32F7 CAN SocketCAN support"
+	select NET_CAN_HAVE_ERRORS
+
+endchoice # CAN character driver or SocketCAN support
+
 config STM32F7_CAN1_BAUD
 	int "CAN1 BAUD"
 	default 250000
@@ -6340,7 +6355,7 @@ config STM32F7_PHYINIT
 		one time before it first uses the PHY.
 
 config STM32F7_PHY_POLLING
-	bool "Support network monitoring by poling the PHY"
+	bool "Support network monitoring by polling the PHY"
 	default n
 	depends on STM32F7_HAVE_PHY_POLLED
 	select ARCH_PHY_POLLED
