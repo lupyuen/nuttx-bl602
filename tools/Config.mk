@@ -333,7 +333,8 @@ endef
 
 define COMPILEZIG
 	@echo "ZIG: $1"
-	$(Q) $(ZIG) build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1
+	# Previously: $(Q) $(ZIG) build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1
+	$(Q) zig build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1 
 endef
 
 # ASSEMBLE - Default macro to assemble one assembly language file
