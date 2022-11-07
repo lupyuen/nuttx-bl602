@@ -62,7 +62,7 @@ endif
 # Define HOSTCC on the make command line if it differs from these defaults
 # Define HOSTCFLAGS with -g on the make command line to build debug versions
 
-ifeq ($(CONFIG_WINDOWS_MSYS),y)
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 
 # In the Windows native environment, the MinGW GCC compiler is used
 
@@ -106,7 +106,7 @@ endif
 # This define is passed as EXTRAFLAGS for kernel-mode builds.  It is also passed
 # during PASS1 (but not PASS2) context and depend targets.
 
-KDEFINE ?= ${shell $(DEFINE) "$(CC)" __KERNEL__}
+KDEFINE ?= ${DEFINE_PREFIX}__KERNEL__
 
 # DELIM - Path segment delimiter character
 #
@@ -333,8 +333,7 @@ endef
 
 define COMPILEZIG
 	@echo "ZIG: $1"
-	# Previously: $(Q) $(ZIG) build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1 
-	$(Q) zig build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1 
+	$(Q) $(ZIG) build-obj $(ZIGFLAGS) $($(strip $1)_ZIGFLAGS) --name $(basename $2) $1
 endef
 
 # ASSEMBLE - Default macro to assemble one assembly language file
@@ -524,12 +523,18 @@ ifeq ($(CONFIG_ARCH_COVERAGE),y)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+
+define NEWLINE
+
+
+endef
+
 define CLEAN
 	$(Q) if exist *$(OBJEXT) (del /f /q *$(OBJEXT))
 	$(Q) if exist *$(LIBEXT) (del /f /q *$(LIBEXT))
 	$(Q) if exist *~ (del /f /q *~)
 	$(Q) if exist (del /f /q  .*.swp)
-	$(Q) if exist $(OBJS) (del /f /q $(OBJS))
+	$(foreach OBJ, $(OBJS), $(NEWLINE) $(call DELFILE,$(OBJ)))
 	$(Q) if exist $(BIN) (del /f /q  $(BIN))
 	$(Q) if exist $(EXTRA) (del /f /q  $(EXTRA))
 endef
@@ -578,28 +583,31 @@ $(1)_$(2):
 
 endef
 
-# ARCHxxx means the predefined setting(either toolchain, arch, or system specific)
+export DEFINE_PREFIX := $(subst X,,${shell $(DEFINE) "$(CC)" "X"})
+export INCDIR_PREFIX := $(subst "X",,${shell $(INCDIR) "$(CC)" "X"})
+export INCSYSDIR_PREFIX := $(subst "X",,${shell $(INCDIR) -s "$(CC)" "X"})
 
-ARCHDEFINES += ${shell $(DEFINE) "$(CC)" __NuttX__}
+# ARCHxxx means the predefined setting(either toolchain, arch, or system specific)
+ARCHDEFINES += ${DEFINE_PREFIX}__NuttX__
 ifeq ($(CONFIG_NDEBUG),y)
-  ARCHDEFINES += ${shell $(DEFINE) "$(CC)" NDEBUG}
+  ARCHDEFINES += ${DEFINE_PREFIX}NDEBUG
 endif
 
 # The default C/C++ search path
 
-ARCHINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
+ARCHINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include
 
 ifeq ($(CONFIG_LIBCXX),y)
-  ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include$(DELIM)libcxx}
+  ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include$(DELIM)libcxx
 else ifeq ($(CONFIG_UCLIBCXX),y)
-  ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include$(DELIM)uClibc++}
+  ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include$(DELIM)uClibc++
 else
-  ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include$(DELIM)cxx}
+  ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include$(DELIM)cxx
   ifeq ($(CONFIG_ETL),y)
-    ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include$(DELIM)etl}
+    ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include$(DELIM)etl
   endif
 endif
-ARCHXXINCLUDES += ${shell $(INCDIR) -s "$(CC)" $(TOPDIR)$(DELIM)include}
+ARCHXXINCLUDES += ${INCSYSDIR_PREFIX}$(TOPDIR)$(DELIM)include
 
 # Convert filepaths to their proper system format (i.e. Windows/Unix)
 
