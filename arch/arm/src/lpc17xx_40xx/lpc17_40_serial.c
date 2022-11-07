@@ -507,11 +507,13 @@ static inline void up_disableuartint(struct up_dev_s *priv, uint32_t *ier)
  * Name: up_restoreuartint
  ****************************************************************************/
 
+#ifdef HAVE_CONSOLE
 static inline void up_restoreuartint(struct up_dev_s *priv, uint32_t ier)
 {
   priv->ier |= ier & UART_IER_ALLIE;
   up_serialout(priv, LPC17_40_UART_IER_OFFSET, priv->ier);
 }
+#endif
 
 /****************************************************************************
  * Name: up_enablebreaks
@@ -701,7 +703,7 @@ static inline uint32_t lpc17_40_uartcclkdiv(uint32_t baud)
  *
  ****************************************************************************/
 
-#  ifdef LPC176x
+#  if defined(LPC176x) && defined(USE_EARLYSERIALINIT)
 static inline uint32_t lpc17_40_uartcclkdiv(uint32_t baud)
 {
   /* Ignoring the fractional divider, the BAUD is given by:
@@ -788,7 +790,7 @@ static inline uint32_t lpc17_40_uartcclkdiv(uint32_t baud)
       return SYSCON_PCLKSEL_CCLK8;
     }
 }
-#  endif /* LPC176x */
+#  endif /* LPC176x && USE_EARLYSERIALINIT */
 #endif /* CONFIG_LPC17_40_UART_USE_FRACTIONAL_DIVIDER */
 
 /****************************************************************************
@@ -810,7 +812,7 @@ static inline uint32_t lpc17_40_uartcclkdiv(uint32_t baud)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_LPC17_40_UART0
+#if defined(CONFIG_LPC17_40_UART0) && !defined(CONFIG_UART0_SERIAL_CONSOLE)
 static inline void lpc17_40_uart0config(void)
 {
   uint32_t   regval;
@@ -929,7 +931,7 @@ static inline void lpc17_40_uart2config(void)
 };
 #endif
 
-#ifdef CONFIG_LPC17_40_UART3
+#if defined(CONFIG_LPC17_40_UART3) && !defined(CONFIG_UART3_SERIAL_CONSOLE)
 static inline void lpc17_40_uart3config(void)
 {
   uint32_t   regval;

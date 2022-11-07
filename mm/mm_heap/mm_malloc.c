@@ -40,7 +40,7 @@
  * Private Functions
  ****************************************************************************/
 
-static void mm_free_delaylist(FAR struct mm_heap_s *heap)
+static void free_delaylist(FAR struct mm_heap_s *heap)
 {
 #if defined(CONFIG_BUILD_FLAT) || defined(__KERNEL__)
   FAR struct mm_delaynode_s *tmp;
@@ -108,11 +108,10 @@ FAR void *mm_malloc(FAR struct mm_heap_s *heap, size_t size)
   size_t alignsize;
   FAR void *ret = NULL;
   int ndx;
-  bool val;
 
   /* Free the delay list first */
 
-  mm_free_delaylist(heap);
+  free_delaylist(heap);
 
   /* Ignore zero-length allocations */
 
@@ -138,8 +137,7 @@ FAR void *mm_malloc(FAR struct mm_heap_s *heap, size_t size)
 
   /* We need to hold the MM mutex while we muck with the nodelist. */
 
-  val = mm_lock(heap);
-  DEBUGASSERT(val);
+  DEBUGVERIFY(mm_lock(heap));
 
   /* Get the location in the node list to start the search. Special case
    * really big allocations
@@ -221,7 +219,7 @@ FAR void *mm_malloc(FAR struct mm_heap_s *heap, size_t size)
            * the allocated flag.
            */
 
-          next->preceding = remaining | (next->preceding & MM_ALLOC_BIT);
+          next->preceding = remaining | (next->preceding & MM_MASK_BIT);
 
           /* Add the remainder back into the nodelist */
 
@@ -271,5 +269,6 @@ FAR void *mm_malloc(FAR struct mm_heap_s *heap, size_t size)
     }
 #endif
 
+  DEBUGASSERT(ret == NULL || ((uintptr_t)ret) % MM_MIN_CHUNK == 0);
   return ret;
 }

@@ -68,7 +68,7 @@ void mm_foreach(FAR struct mm_heap_s *heap, mmchunk_handler_t handler,
        * Retake the mutex for each region to reduce latencies
        */
 
-      if (!mm_lock(heap))
+      if (mm_lock(heap) < 0)
         {
           return;
         }
@@ -86,7 +86,7 @@ void mm_foreach(FAR struct mm_heap_s *heap, mmchunk_handler_t handler,
           handler(node, arg);
 
           DEBUGASSERT(prev == NULL ||
-                      prev->size == (node->preceding & ~MM_ALLOC_BIT));
+                      prev->size == (node->preceding & ~MM_MASK_BIT));
           prev = node;
         }
 
