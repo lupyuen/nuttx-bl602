@@ -37,7 +37,7 @@
  * Private Functions
  ****************************************************************************/
 
-static void mm_add_delaylist(FAR struct mm_heap_s *heap, FAR void *mem)
+static void add_delaylist(FAR struct mm_heap_s *heap, FAR void *mem)
 {
 #if defined(CONFIG_BUILD_FLAT) || defined(__KERNEL__)
   FAR struct mm_delaynode_s *tmp = mem;
@@ -84,14 +84,14 @@ void mm_free(FAR struct mm_heap_s *heap, FAR void *mem)
       return;
     }
 
-  if (mm_lock(heap) == false)
+  if (mm_lock(heap) < 0)
     {
       /* Meet -ESRCH return, which means we are in situations
        * during context switching(See mm_lock() & getpid()).
        * Then add to the delay list.
        */
 
-      mm_add_delaylist(heap, mem);
+      add_delaylist(heap, mem);
       return;
     }
 
@@ -107,12 +107,12 @@ void mm_free(FAR struct mm_heap_s *heap, FAR void *mem)
 
   DEBUGASSERT(node->preceding & MM_ALLOC_BIT);
 
-  node->preceding &= ~MM_ALLOC_BIT;
+  node->preceding &= ~MM_MASK_BIT;
 
   /* Check if the following node is free and, if so, merge it */
 
   next = (FAR struct mm_freenode_s *)((FAR char *)node + node->size);
-  DEBUGASSERT((next->preceding & ~MM_ALLOC_BIT) == node->size);
+  DEBUGASSERT((next->preceding & ~MM_MASK_BIT) == node->size);
   if ((next->preceding & MM_ALLOC_BIT) == 0)
     {
       FAR struct mm_allocnode_s *andbeyond;
@@ -140,7 +140,7 @@ void mm_free(FAR struct mm_heap_s *heap, FAR void *mem)
 
       node->size          += next->size;
       andbeyond->preceding = node->size |
-                             (andbeyond->preceding & MM_ALLOC_BIT);
+                             (andbeyond->preceding & MM_MASK_BIT);
       next                 = (FAR struct mm_freenode_s *)andbeyond;
     }
 
@@ -149,7 +149,7 @@ void mm_free(FAR struct mm_heap_s *heap, FAR void *mem)
    */
 
   prev = (FAR struct mm_freenode_s *)((FAR char *)node - node->preceding);
-  DEBUGASSERT((node->preceding & ~MM_ALLOC_BIT) == prev->size);
+  DEBUGASSERT((node->preceding & ~MM_MASK_BIT) == prev->size);
   if ((prev->preceding & MM_ALLOC_BIT) == 0)
     {
       /* Remove the node.  There must be a predecessor, but there may
@@ -166,7 +166,7 @@ void mm_free(FAR struct mm_heap_s *heap, FAR void *mem)
       /* Then merge the two chunks */
 
       prev->size     += node->size;
-      next->preceding = prev->size | (next->preceding & MM_ALLOC_BIT);
+      next->preceding = prev->size | (next->preceding & MM_MASK_BIT);
       node            = prev;
     }
 

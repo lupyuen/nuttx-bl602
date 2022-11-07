@@ -770,6 +770,22 @@ void files_releaselist(FAR struct filelist *list);
 int files_duplist(FAR struct filelist *plist, FAR struct filelist *clist);
 
 /****************************************************************************
+ * Name: file_allocate
+ *
+ * Description:
+ *   Allocate a struct files instance and associate it with an inode
+ *   instance.
+ *
+ * Returned Value:
+ *     Returns the file descriptor == index into the files array on success;
+ *     a negated errno value is returned on any failure.
+ *
+ ****************************************************************************/
+
+int file_allocate(FAR struct inode *inode, int oflags, off_t pos,
+                  FAR void *priv, int minfd, bool addref);
+
+/****************************************************************************
  * Name: file_dup
  *
  * Description:
