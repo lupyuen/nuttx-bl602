@@ -39,13 +39,13 @@ ifeq ($(CONFIG_DEBUG_FEATURES),y)
 endif
 
 ifneq ($(CONFIG_IOB_SECTION),"")
-  CFLAGS += ${shell $(DEFINE) "$(CC)" IOB_SECTION=CONFIG_IOB_SECTION}
+  CFLAGS += ${DEFINE_PREFIX}IOB_SECTION=CONFIG_IOB_SECTION
 endif
 
 # Include iob build support
 
 DEPPATH += --dep-path iob
 VPATH += :iob
-CFLAGS += ${shell $(INCDIR) "$(CC)" $(TOPDIR)$(DELIM)mm$(DELIM)iob}
+CFLAGS += ${INCDIR_PREFIX}$(TOPDIR)$(DELIM)mm$(DELIM)iob
 
 endif # CONFIG_MM_IOB

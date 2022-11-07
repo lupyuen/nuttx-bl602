@@ -73,7 +73,7 @@ static void **g_backtrace_code_regions;
  *
  ****************************************************************************/
 
-nosanitize_address static bool in_code_region(unsigned long pc)
+static bool in_code_region(unsigned long pc)
 {
   int i = 0;
 
@@ -191,7 +191,7 @@ static int backtrace_branch(unsigned long top, unsigned long sp,
  *
  ****************************************************************************/
 
-nosanitize_address void up_backtrace_init_code_regions(void **regions)
+void up_backtrace_init_code_regions(void **regions)
 {
   g_backtrace_code_regions = regions;
 }
@@ -250,7 +250,7 @@ int up_backtrace(struct tcb_s *tcb,
 #  ifdef CONFIG_SMP
           top = arm_intstack_top();
 #  else
-          top = g_intstacktop;
+          top = (unsigned long)g_intstacktop;
 #  endif /* CONFIG_SMP */
 #else
           top = (unsigned long)rtcb->stack_base_ptr +

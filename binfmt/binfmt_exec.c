@@ -106,10 +106,15 @@ int exec_spawn(FAR const char *filename, FAR char * const *argv,
           bin->priority = attr->priority;
         }
 
-#ifndef CONFIG_BUILD_KERNEL
       if (attr->stacksize > 0)
         {
           bin->stacksize = attr->stacksize;
+        }
+
+#ifndef CONFIG_BUILD_KERNEL
+      if (attr->stackaddr != NULL)
+        {
+          bin->stackaddr = attr->stackaddr;
         }
 #endif
     }
