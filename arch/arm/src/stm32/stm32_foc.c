@@ -816,7 +816,8 @@ static void stm32_foc_hw_config_get(struct foc_dev_s *dev);
 
 static struct stm32_foc_adccmn_s g_stm32_foc_adccmn123 =
 {
-  .cntr = 0
+  .cntr = 0,
+  .lock = NXMUTEX_INITIALIZER,
 };
 #  endif  /* CONFIG_STM32_HAVE_IP_ADC_V1 */
 
@@ -826,7 +827,8 @@ static struct stm32_foc_adccmn_s g_stm32_foc_adccmn123 =
 
 static struct stm32_foc_adccmn_s g_stm32_foc_adccmn12 =
 {
-  .cntr = 0
+  .cntr = 0,
+  .lock = NXMUTEX_INITIALIZER,
 };
 #    endif  /* CONFIG_STM32_HAVE_ADC1 || CONFIG_STM32_HAVE_ADC2 */
 #    if defined(CONFIG_STM32_HAVE_ADC3) || defined(CONFIG_STM32_HAVE_ADC4)
@@ -834,7 +836,8 @@ static struct stm32_foc_adccmn_s g_stm32_foc_adccmn12 =
 
 static struct stm32_foc_adccmn_s g_stm32_foc_adccmn34 =
 {
-  .cntr = 0
+  .cntr = 0,
+  .lock = NXMUTEX_INITIALIZER,
 };
 #    endif  /* CONFIG_STM32_HAVE_ADC3 || CONFIG_STM32_HAVE_ADC4 */
 #  endif    /* CONFIG_STM32_HAVE_IP_ADC_V2 */
@@ -1133,7 +1136,7 @@ static int stm32_foc_adc_start(struct foc_dev_s *dev, bool state)
 
 static int stm32_foc_adc_cfg(struct foc_dev_s *dev)
 {
-  struct stm32_foc_dev_s  *foc_dev = STM32_FOC_DEV_FROM_DEV_GET(dev);
+  struct stm32_foc_dev_s *foc_dev = STM32_FOC_DEV_FROM_DEV_GET(dev);
 
   DEBUGASSERT(dev);
   DEBUGASSERT(foc_dev);
@@ -1449,10 +1452,10 @@ errout:
 
 static int stm32_foc_shutdown(struct foc_dev_s *dev)
 {
-  struct stm32_foc_dev_s    *foc_dev = STM32_FOC_DEV_FROM_DEV_GET(dev);
-  struct stm32_foc_board_s  *board   = STM32_FOC_BOARD_FROM_DEV_GET(dev);
-  struct stm32_foc_priv_s   *priv    = STM32_FOC_PRIV_FROM_DEV_GET(dev);
-  int                        ret     = OK;
+  struct stm32_foc_dev_s   *foc_dev = STM32_FOC_DEV_FROM_DEV_GET(dev);
+  struct stm32_foc_board_s *board   = STM32_FOC_BOARD_FROM_DEV_GET(dev);
+  struct stm32_foc_priv_s  *priv    = STM32_FOC_PRIV_FROM_DEV_GET(dev);
+  int                       ret     = OK;
 
   DEBUGASSERT(dev);
   DEBUGASSERT(foc_dev);
@@ -2354,12 +2357,6 @@ stm32_foc_initialize(int inst, struct stm32_foc_board_s *board)
    */
 
   modifyreg32(FOC_PWM_FZ_REG, 0, pwmfzbit);
-
-#ifdef FOC_ADC_HAVE_CMN
-  /* Initialize ADC common data mutex  */
-
-  nxmutex_init(&foc_priv->adc_cmn->lock);
-#endif
 
   /* Initialize calibration semaphore */
 

@@ -189,7 +189,7 @@ static void spi_recvblock(struct spi_dev_s *dev, void *rxbuffer,
 
 /* Initialization */
 
-static void        spi_bus_initialize(struct max326_spidev_s *priv);
+static void spi_bus_initialize(struct max326_spidev_s *priv);
 
 /****************************************************************************
  * Private Data
@@ -232,10 +232,11 @@ static const struct spi_ops_s g_sp0iops =
 static struct max326_spidev_s g_spi0dev =
 {
   .dev      =
-    {
-      &g_sp0iops
-    },
+  {
+    .ops    = &g_sp0iops,
+  },
   .base     = MAX326_SPI0_BASE,
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_MAX326_SPI_INTERRUPTS
   .irq      = MAX326_IRQ_SPI,
 #endif
@@ -1432,10 +1433,6 @@ static void spi_bus_initialize(struct max326_spidev_s *priv)
 
   regval = priv->wire3 ? SPI_CTRL2_DATWIDTH_SINGLE : SPI_CTRL2_DATWIDTH_DUAL;
   spi_modify_ctrl2(priv, regval, SPI_CTRL2_DATWIDTH_MASK);
-
-  /* Initialize the SPI mutex that enforces mutually exclusive access */
-
-  nxmutex_init(&priv->lock);
 
   /* Disable all interrupts at the peripheral */
 

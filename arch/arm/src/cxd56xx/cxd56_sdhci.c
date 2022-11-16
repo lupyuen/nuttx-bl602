@@ -261,8 +261,8 @@ struct cxd56_sdiodev_s
   bool usedma;
   bool dmasend_prepare;
   size_t   receive_size;
-  uint8_t  *aligned_buffer;           /* Used to buffer alignment */
-  uint8_t  *receive_buffer;           /* Used to keep receive buffer address */
+  uint8_t *aligned_buffer;            /* Used to buffer alignment */
+  uint8_t *receive_buffer;            /* Used to keep receive buffer address */
   uint32_t dma_cmd;
   uint32_t dmasend_cmd;
   uint32_t dmasend_regcmd;
@@ -464,6 +464,7 @@ struct cxd56_sdiodev_s g_sdhcdev =
       .dmasendsetup     = cxd56_sdio_sendsetup,
 #endif
     },
+  .waitsem = SEM_INITIALIZER(0),
 };
 
 /* Register logging support */
@@ -1314,10 +1315,6 @@ static void cxd56_sdio_sdhci_reset(struct sdio_dev_s *dev)
          getreg32(CXD56_SDHCI_IRQSTATEN));
 
   /* Initialize the SDHC slot structure data structure */
-
-  /* Initialize semaphores */
-
-  nxsem_init(&priv->waitsem, 0, 0);
 
   /* The next phase of the hardware reset would be to set the SYSCTRL INITA
    * bit to send 80 clock ticks for card to power up and then reset the card
@@ -2798,7 +2795,7 @@ static int cxd56_sdio_dmarecvsetup(struct sdio_dev_s *dev,
 {
   struct cxd56_sdiodev_s *priv = (struct cxd56_sdiodev_s *)dev;
   unsigned int blocksize;
-  int      ret = OK;
+  int ret = OK;
 
   DEBUGASSERT(priv != NULL && buffer != NULL && buflen > 0);
   DEBUGASSERT(((uint32_t)buffer & 3) == 0);

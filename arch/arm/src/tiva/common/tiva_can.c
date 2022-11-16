@@ -248,7 +248,7 @@ static int  tivacan_rxhandler(int argc, char** argv);
 int tivacan_handle_errors(struct can_dev_s *dev);
 
 #ifdef CONFIG_CAN_ERRORS
-void tivacan_handle_errors_wqueue(void * dev);
+void tivacan_handle_errors_wqueue(void *dev);
 #endif
 
 /****************************************************************************
@@ -276,8 +276,11 @@ static struct tiva_canmod_s g_tivacan0priv =
 {
   .modnum           = 0,
   .base             = TIVA_CAN_BASE(0),
+  .rxsem            = SEM_INITIALIZER(0),
+  .thd_iface_lock   = NXMUTEX_INITIALIZER,
   .thd_iface_base   = TIVA_CAN_IFACE_BASE(0, 0),
   .isr_iface_base   = TIVA_CAN_IFACE_BASE(0, 1),
+  .fifo_lock        = NXMUTEX_INITIALIZER,
   .rxdefault_fifo   = NULL,
 };
 
@@ -293,8 +296,11 @@ static struct tiva_canmod_s g_tivacan1priv =
 {
   .modnum           = 1,
   .base             = TIVA_CAN_BASE(1),
+  .rxsem            = SEM_INITIALIZER(0),
+  .thd_iface_lock   = NXMUTEX_INITIALIZER,
   .thd_iface_base   = TIVA_CAN_IFACE_BASE(1, 0),
   .isr_iface_base   = TIVA_CAN_IFACE_BASE(1, 1),
+  .fifo_lock        = NXMUTEX_INITIALIZER,
   .rxdefault_fifo   = NULL,
 };
 
@@ -387,19 +393,12 @@ static void tivacan_reset(struct can_dev_s *dev)
 
 static int tivacan_setup(struct can_dev_s *dev)
 {
-  uint32_t  irq;
-  int       ret;
-  uint32_t  reg;
-  struct tiva_canmod_s    *canmod = dev->cd_priv;
-  char     *kthd_argv[2];
+  uint32_t irq;
+  int      ret;
+  uint32_t reg;
+  struct tiva_canmod_s *canmod = dev->cd_priv;
+  char    *kthd_argv[2];
   kthd_argv[1] = NULL;
-
-  ret = nxsem_init(&canmod->rxsem, 0, 0);
-
-  if (ret < 0)
-    {
-      return ret;
-    }
 
   switch (canmod->modnum)
     {
@@ -1380,7 +1379,7 @@ static bool tivacan_txempty(struct can_dev_s *dev)
  ****************************************************************************/
 
 #ifdef CONFIG_CAN_ERRORS
-void tivacan_handle_errors_wqueue(void * dev)
+void tivacan_handle_errors_wqueue(void *dev)
 {
   irqstate_t flags;
   struct tiva_canmod_s *canmod = ((struct can_dev_s *)dev)->cd_priv;
@@ -2043,7 +2042,7 @@ int tivacan_alloc_fifo(struct can_dev_s *dev, int depth)
 static void tivacan_free_fifo(struct can_dev_s *dev,
                               tiva_can_fifo_t *fifo)
 {
-  struct tiva_canmod_s * canmod = dev->cd_priv;
+  struct tiva_canmod_s *canmod = dev->cd_priv;
   nxmutex_lock(&canmod->thd_iface_lock);
 
   for (int i = 0; i < TIVA_CAN_NUM_MBOXES; ++i)
@@ -2376,22 +2375,6 @@ int tiva_can_initialize(char *devpath, int modnum)
 #endif
 
   canmod = dev->cd_priv;
-
-  /* Initialize concurrancy objects for accessing interfaces */
-
-  ret = nxmutex_init(&canmod->thd_iface_lock);
-  if (ret < 0)
-    {
-      canerr("ERROR: failed to initialize mutex: %d\n", ret);
-      return ret;
-    }
-
-  ret = nxmutex_init(&canmod->fifo_lock);
-  if (ret < 0)
-    {
-      canerr("ERROR: failed to initialize mutex: %d\n", ret);
-      return ret;
-    }
 
   /* Register the driver */
 

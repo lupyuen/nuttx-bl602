@@ -80,6 +80,7 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
   char line[DNS_MAX_LINE];
   FAR char *addrstr;
   FAR char *ptr;
+  unsigned int count;
   uint16_t port;
   int keylen;
   int ret;
@@ -96,7 +97,7 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
       return ret;
     }
 
-  dns_semtake();
+  dns_lock();
 
   keylen = strlen(NETDB_DNS_KEYWORD);
   while (fgets(line, DNS_MAX_LINE, stream) != NULL)
@@ -186,8 +187,10 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
             {
               u.ipv4.sin_family = AF_INET;
               u.ipv4.sin_port   = port;
+              dns_breaklock(&count);
               ret = callback(arg, (FAR struct sockaddr *)&u.ipv4,
                              sizeof(struct sockaddr_in));
+              dns_restorelock(count);
             }
           else
 #endif
@@ -205,8 +208,10 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
                 {
                   u.ipv6.sin6_family = AF_INET6;
                   u.ipv6.sin6_port   = port;
+                  dns_breaklock(&count);
                   ret = callback(arg, (FAR struct sockaddr *)&u.ipv6,
                                  sizeof(struct sockaddr_in6));
+                  dns_restorelock(count);
                 }
               else
 #endif
@@ -225,7 +230,7 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
         }
     }
 
-  dns_semgive();
+  dns_unlock();
   fclose(stream);
   return ret;
 }
@@ -235,10 +240,11 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
 int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
 {
   FAR struct sockaddr *addr;
+  unsigned int count;
   int ret = OK;
   int i;
 
-  dns_semtake();
+  dns_lock();
   for (i = 0; i < g_dns_nservers; i++)
     {
 #ifdef CONFIG_NET_IPv4
@@ -255,7 +261,9 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
 
           /* Perform the callback */
 
+          dns_breaklock(&count);
           ret = callback(arg, addr, sizeof(struct sockaddr_in));
+          dns_restorelock(count);
         }
       else
 #endif
@@ -274,7 +282,9 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
 
           /* Perform the callback */
 
+          dns_breaklock(&count);
           ret = callback(arg, addr, sizeof(struct sockaddr_in6));
+          dns_restorelock(count);
         }
       else
 #endif
@@ -290,7 +300,7 @@ int dns_foreach_nameserver(dns_callback_t callback, FAR void *arg)
         }
     }
 
-  dns_semgive();
+  dns_unlock();
   return ret;
 }
 

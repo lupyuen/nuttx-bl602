@@ -38,6 +38,7 @@
 #include <nuttx/irq.h>
 #include <nuttx/kmalloc.h>
 #include <nuttx/mutex.h>
+#include <nuttx/semaphore.h>
 #include <nuttx/signal.h>
 #include <nuttx/spi/spi.h>
 
@@ -1485,7 +1486,7 @@ void bl602_spi_dma_init(struct spi_dev_s *dev)
   /* Request a DMA channel for SPI peripheral */
 
   priv->dma_rxchan = bl602_dma_channel_request(bl602_dma_rx_callback,
-                                               (void *)priv);
+                                               priv);
   if (priv->dma_rxchan < 0)
     {
       spierr("Failed to allocate GDMA channel\n");
@@ -1495,7 +1496,7 @@ void bl602_spi_dma_init(struct spi_dev_s *dev)
     }
 
   priv->dma_txchan = bl602_dma_channel_request(bl602_dma_tx_callback,
-                                               (void *)priv);
+                                               priv);
   if (priv->dma_txchan < 0)
     {
       spierr("Failed to allocate GDMA channel\n");
@@ -1681,7 +1682,7 @@ struct spi_dev_s *bl602_spibus_initialize(int port)
   nxmutex_lock(&priv->lock);
   if (priv->refs != 0)
     {
-      priv->refs--;
+      priv->refs++;
       nxmutex_unlock(&priv->lock);
 
       return spi_dev;
@@ -1721,6 +1722,8 @@ int bl602_spibus_uninitialize(struct spi_dev_s *dev)
     }
 
   bl602_spi_deinit(dev);
+  nxmutex_unlock(&priv->lock);
+
   return OK;
 }
 

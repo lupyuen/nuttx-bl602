@@ -246,15 +246,18 @@ static struct s32k3xx_lpspidev_s g_lpspi0dev =
 {
   .spidev       =
   {
-    &g_spi0ops
+    .ops        = &g_spi0ops,
   },
   .spibase      = S32K3XX_LPSPI0_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI0,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI0_DMA
   .rxch         = DMA_REQ_LPSPI0_RX,
   .txch         = DMA_REQ_LPSPI0_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI0_PINCFG,
 };
@@ -293,15 +296,18 @@ static struct s32k3xx_lpspidev_s g_lpspi1dev =
 {
   .spidev       =
   {
-    &g_spi1ops
+    .ops        = &g_spi1ops,
   },
   .spibase      = S32K3XX_LPSPI1_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI1,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI1_DMA
   .rxch         = DMA_REQ_LPSPI1_RX,
   .txch         = DMA_REQ_LPSPI1_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI1_PINCFG,
 };
@@ -340,15 +346,18 @@ static struct s32k3xx_lpspidev_s g_lpspi2dev =
 {
   .spidev       =
   {
-    &g_spi2ops
+    .ops        = &g_spi2ops,
   },
   .spibase      = S32K3XX_LPSPI2_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI2,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI2_DMA
   .rxch         = DMA_REQ_LPSPI2_RX,
   .txch         = DMA_REQ_LPSPI2_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI2_PINCFG,
 };
@@ -387,15 +396,18 @@ static struct s32k3xx_lpspidev_s g_lpspi3dev =
 {
   .spidev       =
   {
-    &g_spi3ops
+    .ops        = &g_spi3ops,
   },
   .spibase      = S32K3XX_LPSPI3_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI3,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI3_DMA
   .rxch         = DMA_REQ_LPSPI3_RX,
   .txch         = DMA_REQ_LPSPI3_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI3_PINCFG,
 };
@@ -434,15 +446,18 @@ static struct s32k3xx_lpspidev_s g_lpspi4dev =
 {
   .spidev       =
   {
-    &g_spi4ops
+    .ops        = &g_spi4ops,
   },
   .spibase      = S32K3XX_LPSPI4_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI4,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI4_DMA
   .rxch         = DMA_REQ_LPSPI4_RX,
   .txch         = DMA_REQ_LPSPI4_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI4_PINCFG,
 };
@@ -481,15 +496,18 @@ static struct s32k3xx_lpspidev_s g_lpspi5dev =
 {
   .spidev       =
   {
-    &g_spi5ops
+    .ops        = &g_spi5ops,
   },
   .spibase      = S32K3XX_LPSPI5_BASE,
 #ifdef CONFIG_S32K3XX_LPSPI_INTERRUPTS
   .spiirq       = S32K3XX_IRQ_LPSPI5,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_S32K3XX_LPSPI5_DMA
   .rxch         = DMA_REQ_LPSPI5_RX,
   .txch         = DMA_REQ_LPSPI5_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
   .pincfg       = CONFIG_S32K3XX_LPSPI5_PINCFG,
 };
@@ -904,7 +922,6 @@ static inline uint32_t
 {
   uint32_t inclock;
   uint64_t real_delay;
-  uint64_t best_delay;
   uint32_t scaler;
   uint32_t best_scaler;
   uint32_t diff;
@@ -943,15 +960,6 @@ static inline uint32_t
       initial_delay_ns *= 2;
       initial_delay_ns /= clock_div_prescaler;
 
-      /* Calculate the maximum delay */
-
-      best_delay = 1000000000U;
-
-      /* based on DBT+2, or 255 + 2 */
-
-      best_delay *= 257;
-      best_delay /= clock_div_prescaler;
-
       additional_scaler = 1U;
     }
   else
@@ -964,15 +972,6 @@ static inline uint32_t
 
       initial_delay_ns = 1000000000U;
       initial_delay_ns /= clock_div_prescaler;
-
-      /* Calculate the maximum delay */
-
-      best_delay = 1000000000U;
-
-      /* Based on SCKPCS+1 or PCSSCK+1, or 255 + 1 */
-
-      best_delay *= 256;
-      best_delay /= clock_div_prescaler;
 
       additional_scaler = 0;
     }
@@ -1016,7 +1015,6 @@ static inline uint32_t
 
                   min_diff = diff;
                   best_scaler = scaler;
-                  best_delay = real_delay;
                 }
             }
         }
@@ -1537,8 +1535,8 @@ static void s32k3xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
        * take care of big endian mode of hardware !!
        */
 
-      const uint8_t *src = (const uint8_t *)txbuffer;
-      uint8_t *dest = (uint8_t *) rxbuffer;
+      const uint8_t *src = txbuffer;
+      uint8_t *dest = rxbuffer;
       uint32_t word = 0x0;
 #ifdef CONFIG_S32K3XX_LPSPI_DWORD
       uint32_t word1 = 0x0;
@@ -1615,8 +1613,8 @@ static void s32k3xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
     {
       /* 32-bit or 64 bit, word size memory transfers */
 
-      const uint32_t *src = (const uint32_t *)txbuffer;
-      uint32_t *dest = (uint32_t *) rxbuffer;
+      const uint32_t *src = txbuffer;
+      uint32_t *dest = rxbuffer;
       uint32_t word = 0x0;
 #ifdef CONFIG_S32K3XX_LPSPI_DWORD
       uint32_t word1 = 0x0;
@@ -1696,8 +1694,8 @@ static void s32k3xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
     {
       /* 16-bit mode */
 
-      const uint16_t *src = (const uint16_t *)txbuffer;
-      uint16_t *dest = (uint16_t *) rxbuffer;
+      const uint16_t *src = txbuffer;
+      uint16_t *dest = rxbuffer;
       uint16_t word;
 
       while (nwords-- > 0)
@@ -1731,8 +1729,8 @@ static void s32k3xx_lpspi_exchange_nodma(struct spi_dev_s *dev,
     {
       /* 8-bit mode */
 
-      const uint8_t *src = (const uint8_t *)txbuffer;
-      uint8_t *dest = (uint8_t *) rxbuffer;
+      const uint8_t *src = txbuffer;
+      uint8_t *dest = rxbuffer;
       uint8_t word;
 
       while (nwords-- > 0)
@@ -1788,12 +1786,12 @@ static void s32k3xx_lpspi_exchange(struct spi_dev_s *dev,
                                    const void *txbuffer, void *rxbuffer,
                                    size_t nwords)
 {
-  int                          ret;
-  size_t                       adjust;
-  ssize_t                      nbytes;
-  static uint8_t               rxdummy[4] aligned_data(4);
-  static const uint16_t        txdummy = 0xffff;
-  uint32_t                     regval;
+  int                        ret;
+  size_t                     adjust;
+  ssize_t                    nbytes;
+  static uint8_t             rxdummy[4] aligned_data(4);
+  static const uint16_t      txdummy = 0xffff;
+  uint32_t                   regval;
   struct s32k3xx_lpspidev_s *priv = (struct s32k3xx_lpspidev_s *)dev;
 
   DEBUGASSERT(priv != NULL);
@@ -2032,10 +2030,6 @@ static void s32k3xx_lpspi_bus_initialize(struct s32k3xx_lpspidev_s *priv)
   s32k3xx_lpspi_setbits((struct spi_dev_s *)priv, 8);
 
   s32k3xx_lpspi_setmode((struct spi_dev_s *)priv, SPIDEV_MODE0);
-
-  /* Initialize the SPI mutex that enforces mutually exclusive access */
-
-  nxmutex_init(&priv->lock);
 
   /* Enable LPSPI */
 
@@ -2389,17 +2383,10 @@ struct spi_dev_s *s32k3xx_lpspibus_initialize(int bus)
     }
 
 #ifdef CONFIG_S32K3XX_LPSPI_DMA
-  /* Initialize the SPI semaphores that is used to wait for DMA completion.
-   * This semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   if (priv->rxch && priv->txch)
     {
       if (priv->txdma == NULL && priv->rxdma == NULL)
         {
-          nxsem_init(&priv->rxsem, 0, 0);
-          nxsem_init(&priv->txsem, 0, 0);
           priv->txdma = s32k3xx_dmach_alloc(priv->txch | DMAMUX_CHCFG_ENBL,
                                             0);
           priv->rxdma = s32k3xx_dmach_alloc(priv->rxch | DMAMUX_CHCFG_ENBL,

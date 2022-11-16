@@ -539,13 +539,16 @@ static struct sam_xdmach_s g_xdmach0[SAM_NDMACHAN] =
 
 static struct sam_xdmac_s g_xdmac0 =
 {
+  .chlock     = NXMUTEX_INITIALIZER,
+  .dsem       = SEM_INITIALIZER(SAM_NDMACHAN),
+
   /* XDMAC 0 base address */
 
   .base       = SAM_XDMAC0_VBASE,
 
   /* This array describes the available link list descriptors */
 
-  .descr       = g_desc0,
+  .descr      = g_desc0,
 
   /* This array describes each DMA channel */
 
@@ -713,13 +716,16 @@ static struct sam_xdmach_s g_xdmach1[SAM_NDMACHAN] =
 
 static struct sam_xdmac_s g_xdmac1 =
 {
+  .chlock     = NXMUTEX_INITIALIZER,
+  .dsem       = SEM_INITIALIZER(SAM_NDMACHAN),
+
   /* XDMAC 0 base address */
 
   .base       = SAM_XDMAC1_VBASE,
 
   /* This array describes the available link list descriptors */
 
-  .descr       = g_desc1,
+  .descr      = g_desc1,
 
   /* This array describes each DMA channel */
 
@@ -731,24 +737,6 @@ static struct sam_xdmac_s g_xdmac1 =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: sam_takedsem() and sam_givedsem()
- *
- * Description:
- *   Used to wait for availability of descriptors in the descriptor table.
- *
- ****************************************************************************/
-
-static int sam_takedsem(struct sam_xdmac_s *xdmac)
-{
-  return nxsem_wait_uninterruptible(&xdmac->dsem);
-}
-
-static inline void sam_givedsem(struct sam_xdmac_s *xdmac)
-{
-  nxsem_post(&xdmac->dsem);
-}
 
 /****************************************************************************
  * Name: sam_getdmac
@@ -1392,7 +1380,7 @@ sam_allocdesc(struct sam_xdmach_s *xdmach, struct chnext_view1_s *prev,
        * there is at least one free descriptor in the table and it is ours.
        */
 
-      ret = sam_takedsem(xdmac);
+      ret = nxsem_wait_uninterruptible(&xdmac->dsem);
       if (ret < 0)
         {
           return NULL;
@@ -1407,7 +1395,7 @@ sam_allocdesc(struct sam_xdmach_s *xdmach, struct chnext_view1_s *prev,
       ret = nxmutex_lock(&xdmac->chlock);
       if (ret < 0)
         {
-          sam_givedsem(xdmac);
+          nxsem_post(&xdmac->dsem);
           return NULL;
         }
 
@@ -1522,7 +1510,7 @@ static void sam_freelinklist(struct sam_xdmach_s *xdmach)
        */
 
       memset(descr, 0, sizeof(struct chnext_view1_s));
-      sam_givedsem(xdmac);
+      nxsem_post(&xdmac->dsem);
 
       /* Get the virtual address of the next descriptor in the list */
 
@@ -1979,11 +1967,6 @@ void sam_dmainitialize(struct sam_xdmac_s *xdmac)
   /* Disable all DMA channels */
 
   sam_putdmac(xdmac, XDMAC_CHAN_ALL, SAM_XDMAC_GD_OFFSET);
-
-  /* Initialize mutex & semaphores */
-
-  nxmutex_init(&xdmac->chlock);
-  nxsem_init(&xdmac->dsem, 0, SAM_NDMACHAN);
 }
 
 /****************************************************************************

@@ -290,7 +290,11 @@ struct dma_channel_s
 /* This is the array of all DMA channels */
 
 static struct dma_channel_s g_dmach[NCHANNELS];
-static mutex_t g_dmalock;
+static mutex_t g_dmalock = NXMUTEX_INITIALIZER;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 static int dma_init(int ch);
 static int dma_uninit(int ch);
@@ -328,6 +332,7 @@ static struct dmac_register_map *get_device(int ch)
     case 2: return (struct dmac_register_map *)DMAC2_REG_BASE;
     case 3: return (struct dmac_register_map *)DMAC3_REG_BASE;
     }
+
     return NULL;
 }
 
@@ -335,15 +340,17 @@ static struct dmac_ch_register_map *get_channel(int ch)
 {
   struct dmac_register_map *dev = get_device(ch);
   if (dev == NULL)
-     return NULL;
+    {
+      return NULL;
+    }
 
   if (is_dmac(2, dev))
     {
-        return &dev->channel[ch - 7];
+      return &dev->channel[ch - 7];
     }
   else if (is_dmac(3, dev))
     {
-        return &((struct dmac080_register_map *)dev)->channel[ch - 2];
+      return &((struct dmac080_register_map *)dev)->channel[ch - 2];
     }
 
   return &dev->channel[ch & 1];
@@ -397,12 +404,12 @@ static void _dmac_intc_handler(int ch)
 
   if (is_dmac(2, dev))
     {
-        mask = 1u << (ch - 7);
+      mask = 1u << (ch - 7);
     }
 
   else if (is_dmac(3, dev))
     {
-        mask = 1u << (ch - 2);
+      mask = 1u << (ch - 2);
     }
 
   itc = dev->inttcstatus & mask;
@@ -726,8 +733,6 @@ void weak_function arm_dma_initialize(void)
       g_dmach[i].chan = i;
       up_enable_irq(irq_map[i]);
     }
-
-  nxmutex_init(&g_dmalock);
 }
 
 /****************************************************************************

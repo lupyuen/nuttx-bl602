@@ -118,10 +118,18 @@ struct lpc43_i2cdev_s
 };
 
 #ifdef CONFIG_LPC43_I2C0
-static struct lpc43_i2cdev_s g_i2c0dev;
+static struct lpc43_i2cdev_s g_i2c0dev =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .wait = SEM_INITIALIZER(0),
+};
 #endif
 #ifdef CONFIG_LPC43_I2C1
-static struct lpc43_i2cdev_s g_i2c1dev;
+static struct lpc43_i2cdev_s g_i2c1dev =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .wait = SEM_INITIALIZER(0),
+};
 #endif
 
 /****************************************************************************
@@ -137,7 +145,7 @@ static void lpc43_i2c_setfrequency(struct lpc43_i2cdev_s *priv,
 static int  lpc43_i2c_transfer(struct i2c_master_s *dev,
               struct i2c_msg_s *msgs, int count);
 #ifdef CONFIG_I2C_RESET
-static int lpc43_i2c_reset(struct i2c_master_s * dev);
+static int lpc43_i2c_reset(struct i2c_master_s *dev);
 #endif
 
 /****************************************************************************
@@ -428,7 +436,7 @@ static int lpc43_i2c_transfer(struct i2c_master_s *dev,
  ****************************************************************************/
 
 #ifdef CONFIG_I2C_RESET
-static int lpc43_i2c_reset(struct i2c_master_s * dev)
+static int lpc43_i2c_reset(struct i2c_master_s *dev)
 {
   return OK;
 }
@@ -528,11 +536,6 @@ struct i2c_master_s *lpc43_i2cbus_initialize(int port)
 
   putreg32(I2C_CONSET_I2EN, priv->base + LPC43_I2C_CONSET_OFFSET);
 
-  /* Initialize mutex & semaphores */
-
-  nxmutex_init(&priv->lock);
-  nxsem_init(&priv->wait, 0, 0);
-
   /* Attach Interrupt Handler */
 
   irq_attach(priv->irqid, lpc43_i2c_interrupt, priv);
@@ -555,9 +558,9 @@ struct i2c_master_s *lpc43_i2cbus_initialize(int port)
  *
  ****************************************************************************/
 
-int lpc43_i2cbus_uninitialize(struct i2c_master_s * dev)
+int lpc43_i2cbus_uninitialize(struct i2c_master_s *dev)
 {
-  struct lpc43_i2cdev_s *priv = (struct lpc43_i2cdev_s *) dev;
+  struct lpc43_i2cdev_s *priv = (struct lpc43_i2cdev_s *)dev;
 
   putreg32(I2C_CONCLRT_I2ENC, priv->base + LPC43_I2C_CONCLR_OFFSET);
   up_disable_irq(priv->irqid);

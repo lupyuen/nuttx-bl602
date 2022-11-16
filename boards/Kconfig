@@ -266,6 +266,16 @@ config ARCH_BOARD_ESP32_WROVERKIT
   			LCD screen
   			MicroSD card slot
 
+config ARCH_BOARD_LILYGO_TBEAM_LORA_GPS
+	bool "LilyGO TBeam V1.1 LoRa/GPS"
+	depends on ARCH_CHIP_ESP32WROOM32
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS if ESP32_GPIO_IRQ
+	---help---
+		LilyGO_TBeam_V1.1 LoRa/GPS is an ESP32 board with LoRa and GPS.
+		More info: https://github.com/Xinyuan-LilyGO/LilyGo-LoRa-Series/
+
 config ARCH_BOARD_TTGO_LORA_ESP32
 	bool "TTGO LoRa SX1276 ESP32"
 	depends on ARCH_CHIP_ESP32WROOM32
@@ -325,6 +335,15 @@ config ARCH_BOARD_ESP32C3_DEVKIT_RUST1
 		The ESP32-C3-DevKit-RUST-1 features the ESP32-C3 CPU with a RISC-V core.
 		This board includes the ESP32-C3-MINI-1 module, a 6DoF IMU, a temperature
 		and humidity sensor, a Li-Ion battery charger, and a Type-C USB.
+
+config ARCH_BOARD_ESP32S2_KALUGA_1
+	bool "Espressif ESP32-S2-Kaluga-1 V1.3"
+	depends on ARCH_CHIP_ESP32S2WROVER
+	select ARCH_HAVE_LEDS
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_IRQBUTTONS if ESP32S2_GPIO_IRQ
+	---help---
+		This is the ESP32-S2-Kaluga-1 board
 
 config ARCH_BOARD_ESP32S2_SAOLA_1
 	bool "Espressif ESP32-S2-Saola-1 V1.2"
@@ -2653,6 +2672,7 @@ config ARCH_BOARD
 	default "esp32-wrover-kit"         if ARCH_BOARD_ESP32_WROVERKIT
 	default "esp32c3-devkit"           if ARCH_BOARD_ESP32C3_DEVKIT
 	default "esp32c3-devkit-rust-1"    if ARCH_BOARD_ESP32C3_DEVKIT_RUST1
+	default "esp32s2-kaluga-1"         if ARCH_BOARD_ESP32S2_KALUGA_1
 	default "esp32s2-saola-1"          if ARCH_BOARD_ESP32S2_SAOLA_1
 	default "esp32s3-devkit"           if ARCH_BOARD_ESP32S3_DEVKIT
 	default "esp32s3-eye"              if ARCH_BOARD_ESP32S3_EYE
@@ -2861,6 +2881,7 @@ config ARCH_BOARD
 	default "tm4c1294-launchpad"       if ARCH_BOARD_TM4C1294_LAUNCHPAD
 	default "tm4c129e-launchpad"       if ARCH_BOARD_TM4C129E_LAUNCHPAD
 	default "tms570ls31x-usb-kit"      if ARCH_BOARD_TMS570LS31X_USB_KIT
+	default "lilygo_tbeam_lora_gps"    if ARCH_BOARD_LILYGO_TBEAM_LORA_GPS
 	default "ttgo_lora_esp32"          if ARCH_BOARD_TTGO_LORA_ESP32
 	default "ttgo_t_display_esp32"     if ARCH_BOARD_TTGO_T_DISPLAY_ESP32
 	default "twr-k60n512"              if ARCH_BOARD_TWR_K60N512
@@ -3606,6 +3627,9 @@ endif
 if ARCH_BOARD_ESP32C3_DEVKIT_RUST1
 source "boards/risc-v/esp32c3/esp32c3-devkit-rust-1/Kconfig"
 endif
+if ARCH_BOARD_ESP32S2_KALUGA_1
+source "boards/xtensa/esp32s2/esp32s2-kaluga-1/Kconfig"
+endif
 if ARCH_BOARD_ESP32S2_SAOLA_1
 source "boards/xtensa/esp32s2/esp32s2-saola-1/Kconfig"
 endif
@@ -3650,6 +3674,9 @@ source "boards/xtensa/esp32/esp32-lyrat/Kconfig"
 endif
 if ARCH_BOARD_ESP32_WROVERKIT
 source "boards/xtensa/esp32/esp32-wrover-kit/Kconfig"
+endif
+if ARCH_BOARD_LILYGO_TBEAM_LORA_GPS
+source "boards/xtensa/esp32/lilygo_tbeam_lora_gps/Kconfig"
 endif
 if ARCH_BOARD_TTGO_LORA_ESP32
 source "boards/xtensa/esp32/ttgo_lora_esp32/Kconfig"

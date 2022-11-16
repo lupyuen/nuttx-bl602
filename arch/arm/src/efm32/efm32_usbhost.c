@@ -484,14 +484,18 @@ static inline int efm32_hw_initialize(struct efm32_usbhost_s *priv);
  * single global instance.
  */
 
-static struct efm32_usbhost_s g_usbhost;
+static struct efm32_usbhost_s g_usbhost =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+};
 
 /* This is the connection/enumeration interface */
 
 static struct usbhost_connection_s g_usbconn =
 {
-  .wait             = efm32_wait,
-  .enumerate        = efm32_enumerate,
+  .wait      = efm32_wait,
+  .enumerate = efm32_enumerate,
 };
 
 #ifdef HAVE_USBHOST_TRACE
@@ -5259,11 +5263,6 @@ static inline void efm32_sw_initialize(struct efm32_usbhost_s *priv)
 
   usbhost_devaddr_initialize(&priv->rhport);
 
-  /* Initialize semaphores & mutex */
-
-  nxsem_init(&priv->pscsem,  0, 0);
-  nxmutex_init(&priv->lock);
-
   /* Initialize the driver state data */
 
   priv->smstate   = SMSTATE_DETACHED;
@@ -5281,7 +5280,7 @@ static inline void efm32_sw_initialize(struct efm32_usbhost_s *priv)
       struct efm32_chan_s *chan = &priv->chan[i];
 
       chan->chidx = i;
-      nxsem_init(&chan->waitsem,  0, 0);
+      nxsem_init(&chan->waitsem, 0, 0);
     }
 }
 

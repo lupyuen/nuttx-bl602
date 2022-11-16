@@ -184,8 +184,8 @@ struct rx_pending_item_s
 {
   struct list_node node;
   struct bl602_net_driver_s *priv; /* Which interface should to deliver */
-  uint8_t *        data;
-  int              len;
+  uint8_t *data;
+  int      len;
 };
 
 /****************************************************************************
@@ -202,8 +202,8 @@ static struct tx_buf_ind_s g_tx_buf_indicator =
 static uint8_t locate_data(".wifi_ram.txbuff")
 g_tx_buff[BL602_NET_TXBUFF_NUM][BL602_NET_TXBUFF_SIZE];
 
-static mutex_t g_wifi_scan_lock; /* wifi scan complete mutex */
-static sem_t g_wifi_connect_sem;
+static mutex_t g_wifi_scan_lock = NXMUTEX_INITIALIZER;
+static sem_t g_wifi_connect_sem = SEM_INITIALIZER(0);
 
 /* Rx Pending List */
 
@@ -1174,7 +1174,7 @@ static void scan_complete_indicate(void *data, void *param)
 {
   int                        i;
   struct scan_parse_param_s *para;
-  wifi_mgmr_scan_item_t *    scan;
+  wifi_mgmr_scan_item_t     *scan;
 
   para = (struct scan_parse_param_s *)data;
   DEBUGASSERT(para != NULL);
@@ -1506,7 +1506,7 @@ bl602_net_ioctl(struct net_driver_s *dev, int cmd, unsigned long arg)
     case SIOCSIWSCAN:
       do
         {
-          struct iwreq *             req  = (struct iwreq *)arg;
+          struct iwreq              *req  = (struct iwreq *)arg;
           struct scan_parse_param_s *para = NULL;
 
           para = kmm_malloc(sizeof(struct scan_parse_param_s));
@@ -1603,9 +1603,9 @@ bl602_net_ioctl(struct net_driver_s *dev, int cmd, unsigned long arg)
     case SIOCSIWENCODEEXT: /* Set psk */
       do
         {
-          struct iwreq *        req        = (struct iwreq *)arg;
+          struct iwreq         *req        = (struct iwreq *)arg;
           struct iw_encode_ext *ext        = req->u.encoding.pointer;
-          char *                passphrase = kmm_malloc(ext->key_len + 1);
+          char                 *passphrase = kmm_malloc(ext->key_len + 1);
           if (passphrase == NULL)
             {
               return -ENOMEM;
@@ -1673,7 +1673,7 @@ bl602_net_ioctl(struct net_driver_s *dev, int cmd, unsigned long arg)
                 }
 #endif
 
-              priv->wlan = wifi_mgmr_sta_enable((void *)priv);
+              priv->wlan = wifi_mgmr_sta_enable(priv);
 
               memcpy(priv->wlan->mac,
                      priv->net_dev.d_mac.ether.ether_addr_octet,
@@ -1694,7 +1694,7 @@ bl602_net_ioctl(struct net_driver_s *dev, int cmd, unsigned long arg)
                 }
 #endif
 
-              priv->wlan = wifi_mgmr_ap_enable((void *)priv);
+              priv->wlan = wifi_mgmr_ap_enable(priv);
               memcpy(priv->wlan->mac,
                      priv->net_dev.d_mac.ether.ether_addr_octet,
                      6);
@@ -1847,9 +1847,9 @@ bl602_net_ioctl(struct net_driver_s *dev, int cmd, unsigned long arg)
     case SIOCGIWENCODEEXT: /* Get encoding token mode */
       do
         {
-          struct iwreq *        req = (struct iwreq *)arg;
+          struct iwreq         *req = (struct iwreq *)arg;
           struct iw_encode_ext *ext;
-          wifi_mgmr_t *         mgmr = bl602_netdev_get_wifi_mgmr(priv);
+          wifi_mgmr_t          *mgmr = bl602_netdev_get_wifi_mgmr(priv);
           int                   length;
 
           DEBUGASSERT(mgmr != NULL);
@@ -2106,23 +2106,8 @@ void bl602_net_event(int evt, int val)
 int bl602_net_initialize(void)
 {
   struct bl602_net_driver_s *priv;
-  int                            tmp;
-  int                            idx;
-  uint8_t                        mac[6];
-
-  /* Initialize scan mutex & semaphore */
-
-  tmp = nxmutex_init(&g_wifi_scan_lock);
-  if (tmp < 0)
-    {
-      return tmp;
-    }
-
-  tmp = sem_init(&g_wifi_connect_sem, 0, 0);
-  if (tmp < 0)
-    {
-      return tmp;
-    }
+  int                        idx;
+  uint8_t                    mac[6];
 
   list_initialize(&g_rx_pending);
 
@@ -2196,18 +2181,13 @@ int bl602_net_initialize(void)
 
       wifi_mgmr_scan_filter_hidden_ssid(0);
 
-      priv->current_mode    = IW_MODE_AUTO;
+      priv->current_mode = IW_MODE_AUTO;
 
       /* Register the device with the OS so that socket IOCTLs can be
        * performed
        */
 
-      tmp = netdev_register(&priv->net_dev, NET_LL_IEEE80211);
-      if (tmp < 0)
-        {
-          nxmutex_destroy(&g_wifi_scan_lock);
-          return tmp;
-        }
+      return netdev_register(&priv->net_dev, NET_LL_IEEE80211);
     }
 
   return OK;

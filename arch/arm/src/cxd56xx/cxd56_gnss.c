@@ -161,7 +161,7 @@ struct cxd56_gnss_dev_s
   uint8_t                         num_open;
   uint8_t                         notify_data;
   struct file                     cepfp;
-  void *                          cepbuf;
+  void                           *cepbuf;
   struct pollfd                  *fds[CONFIG_CXD56_GNSS_NPOLLWAITERS];
 #if CONFIG_CXD56_GNSS_NSIGNALRECEIVERS != 0
   struct cxd56_gnss_sig_s         sigs[CONFIG_CXD56_GNSS_NSIGNALRECEIVERS];
@@ -1884,8 +1884,8 @@ static int cxd56_gnss_select_rtk_satellite(struct file *filep,
 static int cxd56_gnss_get_rtk_satellite(struct file *filep,
                                         unsigned long arg)
 {
-  int       ret;
-  uint32_t  gnss = 0;
+  int      ret;
+  uint32_t gnss = 0;
 
   if (!arg)
     {
@@ -2688,7 +2688,7 @@ static int cxd56_gnss_initialize(struct cxd56_gnss_dev_s *dev)
 
 static int cxd56_gnss_open(struct file *filep)
 {
-  struct inode *           inode;
+  struct inode            *inode;
   struct cxd56_gnss_dev_s *priv;
   int                      ret = OK;
   int                      retry = 50;
@@ -2711,11 +2711,7 @@ static int cxd56_gnss_open(struct file *filep)
 
   if (priv->num_open == 0)
     {
-      ret = nxsem_init(&priv->syncsem, 0, 0);
-      if (ret < 0)
-        {
-          goto err0;
-        }
+      nxsem_init(&priv->syncsem, 0, 0);
 
       /* Prohibit the clock change during loading image */
 
@@ -2729,13 +2725,13 @@ static int cxd56_gnss_open(struct file *filep)
 
       if (ret < 0)
         {
-          goto err1;
+          goto err0;
         }
 
       ret = fw_pm_startcpu(CXD56_GNSS_GPS_CPUID, 1);
       if (ret < 0)
         {
-          goto err2;
+          goto err1;
         }
 
 #ifndef CONFIG_CXD56_GNSS_HOT_SLEEP
@@ -2750,14 +2746,14 @@ static int cxd56_gnss_open(struct file *filep)
       ret = cxd56_gnss_wait_notify(&priv->syncsem, 5);
       if (ret < 0)
         {
-          goto err2;
+          goto err1;
         }
 
       ret = fw_gd_writebuffer(CXD56_CPU1_DATA_TYPE_INFO, 0,
                               &priv->shared_info, sizeof(priv->shared_info));
       if (ret < 0)
         {
-          goto err2;
+          goto err1;
         }
 
       nxsem_destroy(&priv->syncsem);
@@ -2766,14 +2762,13 @@ static int cxd56_gnss_open(struct file *filep)
   priv->num_open++;
   goto success;
 
-err2:
+err1:
 #ifndef CONFIG_CXD56_GNSS_HOT_SLEEP
   fw_pm_sleepcpu(CXD56_GNSS_GPS_CPUID, PM_SLEEP_MODE_HOT_ENABLE);
 #endif
   fw_pm_sleepcpu(CXD56_GNSS_GPS_CPUID, PM_SLEEP_MODE_COLD);
-err1:
-  nxsem_destroy(&priv->syncsem);
 err0:
+  nxsem_destroy(&priv->syncsem);
 success:
   nxmutex_unlock(&priv->devlock);
   return ret;
@@ -2795,7 +2790,7 @@ success:
 
 static int cxd56_gnss_close(struct file *filep)
 {
-  struct inode *          inode;
+  struct inode            *inode;
   struct cxd56_gnss_dev_s *priv;
   int                     ret = OK;
 
@@ -2937,7 +2932,7 @@ static ssize_t cxd56_gnss_write(struct file *filep,
 static int cxd56_gnss_ioctl(struct file *filep, int cmd,
                             unsigned long arg)
 {
-  struct inode *          inode;
+  struct inode            *inode;
   struct cxd56_gnss_dev_s *priv;
   int ret;
 
@@ -3111,7 +3106,7 @@ static int cxd56_gnss_register(const char *devpath)
     }
   };
 
-  priv = (struct cxd56_gnss_dev_s *)kmm_malloc(
+  priv = (struct cxd56_gnss_dev_s *)kmm_zalloc(
     sizeof(struct cxd56_gnss_dev_s));
   if (!priv)
     {
@@ -3119,28 +3114,9 @@ static int cxd56_gnss_register(const char *devpath)
       return -ENOMEM;
     }
 
-  memset(priv, 0, sizeof(struct cxd56_gnss_dev_s));
-
-  ret = nxmutex_init(&priv->devlock);
-  if (ret < 0)
-    {
-      gnsserr("Failed to initialize gnss devlock!\n");
-      goto err0;
-    }
-
-  ret = nxsem_init(&priv->apiwait, 0, 0);
-  if (ret < 0)
-    {
-      gnsserr("Failed to initialize gnss apiwait!\n");
-      goto err0;
-    }
-
-  ret = nxmutex_init(&priv->ioctllock);
-  if (ret < 0)
-    {
-      gnsserr("Failed to initialize gnss ioctllock!\n");
-      goto err0;
-    }
+  nxmutex_init(&priv->devlock);
+  nxsem_init(&priv->apiwait, 0, 0);
+  nxmutex_init(&priv->ioctllock);
 
   ret = cxd56_gnss_initialize(priv);
   if (ret < 0)
@@ -3177,6 +3153,9 @@ err1:
   unregister_driver(devpath);
 
 err0:
+  nxmutex_destroy(&priv->ioctllock);
+  nxsem_destroy(&priv->apiwait);
+  nxmutex_destroy(&priv->devlock);
   kmm_free(priv);
   return ret;
 }
