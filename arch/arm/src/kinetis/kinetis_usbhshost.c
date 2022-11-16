@@ -588,11 +588,20 @@ static int kinetis_reset(void);
  * single global instance.
  */
 
-static struct kinetis_ehci_s g_ehci;
+static struct kinetis_ehci_s g_ehci =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+  .ep0.iocsem = SEM_INITIALIZER(1),
+};
 
 /* This is the connection/enumeration interface */
 
-static struct usbhost_connection_s g_ehciconn;
+static struct usbhost_connection_s g_ehciconn =
+{
+  .wait = kinetis_wait,
+  .enumerate = kinetis_enumerate,
+};
 
 /* Maps USB chapter 9 speed to EHCI speed */
 
@@ -4037,10 +4046,6 @@ static int kinetis_epalloc(struct usbhost_driver_s *drvr,
   epinfo->xfrtype   = epdesc->xfrtype;
   epinfo->speed     = hport->speed;
 
-  /* The iocsem semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   nxsem_init(&epinfo->iocsem, 0, 0);
 
   /* Success.. return an opaque reference to the endpoint information
@@ -5047,34 +5052,25 @@ struct usbhost_connection_s *kinetis_ehci_initialize(int controller)
   /* Sanity checks */
 
   DEBUGASSERT(controller == 0);
-  DEBUGASSERT(((uintptr_t) & g_asynchead & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_asynchead & 0x1f) == 0);
   DEBUGASSERT((sizeof(struct kinetis_qh_s) & 0x1f) == 0);
   DEBUGASSERT((sizeof(struct kinetis_qtd_s) & 0x1f) == 0);
 
 #  ifdef CONFIG_KINETIS_EHCI_PREALLOCATE
-  DEBUGASSERT(((uintptr_t) & g_qhpool & 0x1f) == 0);
-  DEBUGASSERT(((uintptr_t) & g_qtdpool & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_qhpool & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_qtdpool & 0x1f) == 0);
 #  endif
 
 #  ifndef CONFIG_USBHOST_INT_DISABLE
-  DEBUGASSERT(((uintptr_t) & g_intrhead & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_intrhead & 0x1f) == 0);
 #    ifdef CONFIG_KINETIS_EHCI_PREALLOCATE
-  DEBUGASSERT(((uintptr_t) g_framelist & 0xfff) == 0);
+  DEBUGASSERT(((uintptr_t)g_framelist & 0xfff) == 0);
 #    endif
-#  endif                               /* CONFIG_USBHOST_INT_DISABLE */
+#  endif /* CONFIG_USBHOST_INT_DISABLE */
 
   /* Software Configuration *************************************************/
 
   usbhost_vtrace1(EHCI_VTRACE1_INITIALIZING, 0);
-
-  /* Initialize the EHCI state data structure */
-
-  nxmutex_init(&g_ehci.lock);
-  nxsem_init(&g_ehci.pscsem, 0, 0);
-
-  /* Initialize EP0 */
-
-  nxsem_init(&g_ehci.ep0.iocsem, 0, 1);
 
   /* Initialize the root hub port structures */
 
@@ -5304,7 +5300,7 @@ struct usbhost_connection_s *kinetis_ehci_initialize(int controller)
 
   /* Attach the periodic QH to Period Frame List */
 
-  physaddr = kinetis_physramaddr((uintptr_t) & g_intrhead);
+  physaddr = kinetis_physramaddr((uintptr_t)&g_intrhead);
   for (i = 0; i < FRAME_LIST_SIZE; i++)
     {
       g_framelist[i] = kinetis_swap32(physaddr) | PFL_TYP_QH;
@@ -5406,10 +5402,6 @@ struct usbhost_connection_s *kinetis_ehci_initialize(int controller)
 
   usbhost_vtrace1(EHCI_VTRACE1_INIITIALIZED, 0);
 
-  /* Initialize and return the connection interface */
-
-  g_ehciconn.wait = kinetis_wait;
-  g_ehciconn.enumerate = kinetis_enumerate;
   return &g_ehciconn;
 }
 

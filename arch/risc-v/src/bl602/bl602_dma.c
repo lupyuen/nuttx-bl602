@@ -57,8 +57,8 @@ struct dma_channel_s
 
 struct dma_controller_s
 {
-  sem_t exclsem; /* Protects channel table */
-  sem_t chansem; /* Count of free channels */
+  mutex_t chanlock; /* Protects channel table */
+  sem_t chansem;    /* Count of free channels */
 };
 
 /****************************************************************************
@@ -67,7 +67,11 @@ struct dma_controller_s
 
 /* This is the overall state of the DMA controller */
 
-static struct dma_controller_s g_dmac;
+static struct dma_controller_s g_dmac =
+{
+  .chanlock = NXMUTEX_INITIALIZER,
+  .chansem = SEM_INITIALIZER(BL602_DMA_NCHANNELS),
+};
 
 /* This is the array of all DMA channels */
 
@@ -172,7 +176,7 @@ int8_t bl602_dma_channel_request(bl602_dma_callback_t callback, void *arg)
 
   /* Get exclusive access to the DMA channel list */
 
-  ret = nxsem_wait_uninterruptible(&g_dmac.exclsem);
+  ret = nxmutex_lock(&g_dmac.chanlock);
   if (ret < 0)
     {
       nxsem_post(&g_dmac.chansem);
@@ -194,7 +198,7 @@ int8_t bl602_dma_channel_request(bl602_dma_callback_t callback, void *arg)
         }
     }
 
-  nxsem_post(&g_dmac.exclsem);
+  nxmutex_unlock(&g_dmac.chanlock);
 
   /* Since we have reserved a DMA descriptor by taking a count from chansem,
    * it would be a serious logic failure if we could not find a free channel
@@ -225,7 +229,7 @@ int bl602_dma_channel_release(uint8_t channel_id)
 {
   /* Get exclusive access to the DMA channel list */
 
-  if (nxsem_wait_uninterruptible(&g_dmac.exclsem) < 0)
+  if (nxmutex_lock(&g_dmac.chanlock) < 0)
     {
       return -1;
     }
@@ -242,7 +246,7 @@ int bl602_dma_channel_release(uint8_t channel_id)
       nxsem_post(&g_dmac.chansem);
     }
 
-  nxsem_post(&g_dmac.exclsem);
+  nxmutex_unlock(&g_dmac.chanlock);
   return 0;
 }
 
@@ -356,9 +360,6 @@ void weak_function riscv_dma_initialize(void)
    */
 
   /* Initialize the channel list  */
-
-  nxsem_init(&g_dmac.exclsem, 0, 1);
-  nxsem_init(&g_dmac.chansem, 0, BL602_DMA_NCHANNELS);
 
   for (ch = 0; ch < BL602_DMA_NCHANNELS; ch++)
     {

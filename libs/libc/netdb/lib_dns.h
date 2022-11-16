@@ -132,24 +132,44 @@ EXTERN uint8_t g_dns_nservers;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: dns_semtake
+ * Name: dns_lock
  *
  * Description:
- *   Take the DNS semaphore, ignoring errors due to the receipt of signals.
+ *   Take the DNS mutex, ignoring errors due to the receipt of signals.
  *
  ****************************************************************************/
 
-void dns_semtake(void);
+void dns_lock(void);
 
 /****************************************************************************
- * Name: dns_semgive
+ * Name: dns_unlock
  *
  * Description:
- *   Release the DNS semaphore
+ *   Release the DNS mutex
  *
  ****************************************************************************/
 
-void dns_semgive(void);
+void dns_unlock(void);
+
+/****************************************************************************
+ * Name: dns_breaklock
+ *
+ * Description:
+ *   Break the DNS lock
+ *
+ ****************************************************************************/
+
+void dns_breaklock(FAR unsigned int *count);
+
+/****************************************************************************
+ * Name: dns_restorelock
+ *
+ * Description:
+ *   Restore the DNS lock
+ *
+ ****************************************************************************/
+
+void dns_restorelock(unsigned int count);
 
 /****************************************************************************
  * Name: dns_bind

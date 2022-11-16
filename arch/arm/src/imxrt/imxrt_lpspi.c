@@ -242,15 +242,18 @@ static struct imxrt_lpspidev_s g_lpspi1dev =
 {
   .spidev       =
   {
-    &g_spi1ops
+    .ops        = &g_spi1ops,
   },
   .spibase      = IMXRT_LPSPI1_BASE,
 #ifdef CONFIG_IMXRT_LPSPI_INTERRUPTS
   .spiirq       = IMXRT_IRQ_LPSPI1,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_IMXRT_LPSPI1_DMA
   .rxch         = IMXRT_DMACHAN_LPSPI1_RX,
   .txch         = IMXRT_DMACHAN_LPSPI1_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -288,15 +291,18 @@ static struct imxrt_lpspidev_s g_lpspi2dev =
 {
   .spidev       =
   {
-    &g_spi2ops
+    .ops        = &g_spi2ops,
   },
   .spibase      = IMXRT_LPSPI2_BASE,
 #ifdef CONFIG_IMXRT_LPSPI_INTERRUPTS
   .spiirq       = IMXRT_IRQ_LPSPI2,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_IMXRT_LPSPI2_DMA
   .rxch         = IMXRT_DMACHAN_LPSPI2_RX,
   .txch         = IMXRT_DMACHAN_LPSPI2_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -334,15 +340,18 @@ static struct imxrt_lpspidev_s g_lpspi3dev =
 {
   .spidev       =
   {
-    &g_spi3ops
+    .ops        = &g_spi3ops,
   },
   .spibase      = IMXRT_LPSPI3_BASE,
 #ifdef CONFIG_IMXRT_LPSPI_INTERRUPTS
   .spiirq       = IMXRT_IRQ_LPSPI3,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_IMXRT_LPSPI3_DMA
   .rxch         = IMXRT_DMACHAN_LPSPI3_RX,
   .txch         = IMXRT_DMACHAN_LPSPI3_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -380,15 +389,18 @@ static struct imxrt_lpspidev_s g_lpspi4dev =
 {
   .spidev       =
   {
-    &g_spi4ops
+    .ops        = &g_spi4ops,
   },
   .spibase      = IMXRT_LPSPI4_BASE,
 #ifdef CONFIG_IMXRT_LPSPI_INTERRUPTS
   .spiirq       = IMXRT_IRQ_LPSPI4,
 #endif
+  .lock         = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_IMXRT_LPSPI4_DMA
   .rxch         = IMXRT_DMACHAN_LPSPI4_RX,
   .txch         = IMXRT_DMACHAN_LPSPI4_TX,
+  .rxsem        = SEM_INITIALIZER(0),
+  .txsem        = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -717,7 +729,6 @@ static inline void imxrt_lpspi_master_set_delays(
   uint32_t pll_freq;
   uint32_t src_freq;
   uint64_t real_delay;
-  uint64_t best_delay;
   uint32_t scaler;
   uint32_t best_scaler;
   uint32_t diff;
@@ -773,15 +784,6 @@ static inline void imxrt_lpspi_master_set_delays(
       initial_delay_ns *= 2;
       initial_delay_ns /= clock_div_prescaler;
 
-      /* Calculate the maximum delay */
-
-      best_delay = 1000000000U;
-
-      /* based on DBT+2, or 255 + 2 */
-
-      best_delay *= 257;
-      best_delay /= clock_div_prescaler;
-
       additional_scaler = 1U;
     }
   else
@@ -794,15 +796,6 @@ static inline void imxrt_lpspi_master_set_delays(
 
       initial_delay_ns = 1000000000U;
       initial_delay_ns /= clock_div_prescaler;
-
-      /* Calculate the maximum delay */
-
-      best_delay = 1000000000U;
-
-      /* Based on SCKPCS+1 or PCSSCK+1, or 255 + 1 */
-
-      best_delay *= 256;
-      best_delay /= clock_div_prescaler;
 
       additional_scaler = 0;
     }
@@ -846,7 +839,6 @@ static inline void imxrt_lpspi_master_set_delays(
 
                   min_diff = diff;
                   best_scaler = scaler;
-                  best_delay = real_delay;
                 }
             }
         }
@@ -1318,8 +1310,8 @@ static void imxrt_lpspi_exchange_nodma(struct spi_dev_s *dev,
     {
       /* 16-bit mode */
 
-      const uint16_t *src = (const uint16_t *)txbuffer;
-      uint16_t *dest = (uint16_t *) rxbuffer;
+      const uint16_t *src = txbuffer;
+      uint16_t *dest = rxbuffer;
       uint16_t word;
 
       while (nwords-- > 0)
@@ -1351,8 +1343,8 @@ static void imxrt_lpspi_exchange_nodma(struct spi_dev_s *dev,
     {
       /* 8-bit mode */
 
-      const uint8_t *src = (const uint8_t *)txbuffer;
-      uint8_t *dest = (uint8_t *) rxbuffer;
+      const uint8_t *src = txbuffer;
+      uint8_t *dest = rxbuffer;
       uint8_t word;
 
       while (nwords-- > 0)
@@ -1370,7 +1362,7 @@ static void imxrt_lpspi_exchange_nodma(struct spi_dev_s *dev,
 
           /* Exchange one word */
 
-          word = (uint8_t) imxrt_lpspi_send(dev, (uint32_t) word);
+          word = (uint8_t)imxrt_lpspi_send(dev, word);
 
           /* Is there a buffer to receive the return value? */
 
@@ -1404,16 +1396,16 @@ static void imxrt_lpspi_exchange_nodma(struct spi_dev_s *dev,
  ****************************************************************************/
 
 #ifdef CONFIG_IMXRT_LPSPI_DMA
-static void imxrt_lpspi_exchange(struct spi_dev_s * dev,
-                                 const void * txbuffer,
-                                 void * rxbuffer, size_t nwords)
+static void imxrt_lpspi_exchange(struct spi_dev_s *dev,
+                                 const void *txbuffer,
+                                 void *rxbuffer, size_t nwords)
 {
-  int                          ret;
-  size_t                       adjust;
-  ssize_t                      nbytes;
-  static uint8_t               rxdummy[4] aligned_data(4);
-  static const uint16_t        txdummy = 0xffff;
-  uint32_t                     regval;
+  int                      ret;
+  size_t                   adjust;
+  ssize_t                  nbytes;
+  static uint8_t           rxdummy[4] aligned_data(4);
+  static const uint16_t    txdummy = 0xffff;
+  uint32_t                 regval;
   struct imxrt_lpspidev_s *priv = (struct imxrt_lpspidev_s *)dev;
 
   DEBUGASSERT(priv != NULL);
@@ -1710,10 +1702,6 @@ static void imxrt_lpspi_bus_initialize(struct imxrt_lpspidev_s *priv)
   imxrt_lpspi_setbits((struct spi_dev_s *)priv, 8);
 
   imxrt_lpspi_setmode((struct spi_dev_s *)priv, SPIDEV_MODE0);
-
-  /* Initialize the SPI mutex that enforces mutually exclusive access */
-
-  nxmutex_init(&priv->lock);
 
   /* Enable LPSPI */
 
@@ -2041,18 +2029,10 @@ struct spi_dev_s *imxrt_lpspibus_initialize(int bus)
     }
 
 #ifdef CONFIG_IMXRT_LPSPI_DMA
-  /* Initialize the SPI semaphores that is used to wait for DMA completion.
-   * This semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   if (priv->rxch && priv->txch)
     {
       if (priv->txdma == NULL && priv->rxdma == NULL)
         {
-          nxsem_init(&priv->rxsem, 0, 0);
-          nxsem_init(&priv->txsem, 0, 0);
-
           priv->txdma = imxrt_dmach_alloc(priv->txch | DMAMUX_CHCFG_ENBL,
                                             0);
           priv->rxdma = imxrt_dmach_alloc(priv->rxch | DMAMUX_CHCFG_ENBL,

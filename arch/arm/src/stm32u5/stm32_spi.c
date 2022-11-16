@@ -347,9 +347,9 @@ static uint8_t g_spi1_rxbuf[SPI1_DMABUFSIZE_ADJUSTED] SPI1_DMABUFSIZE_ALGN;
 static struct stm32_spidev_s g_spi1dev =
 {
   .spidev   =
-              {
-               &g_sp1iops
-              },
+  {
+    .ops    = &g_sp1iops,
+  },
   .spibase  = STM32_SPI1_BASE,
   .spiclock = SPI1_KERNEL_CLOCK_FREQ,
   .spiirq   = STM32_IRQ_SPI1,
@@ -361,7 +361,10 @@ static struct stm32_spidev_s g_spi1dev =
   .txbuf    = g_spi1_txbuf,
   .buflen   = SPI1_DMABUFSIZE_ADJUSTED,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -416,9 +419,9 @@ static uint8_t g_spi2_rxbuf[SPI2_DMABUFSIZE_ADJUSTED] SPI2_DMABUFSIZE_ALGN;
 static struct stm32_spidev_s g_spi2dev =
 {
   .spidev   =
-              {
-               &g_sp2iops
-              },
+  {
+    .ops    = &g_sp2iops,
+  },
   .spibase  = STM32_SPI2_BASE,
   .spiclock = SPI2_KERNEL_CLOCK_FREQ,
   .spiirq   = STM32_IRQ_SPI2,
@@ -430,7 +433,10 @@ static struct stm32_spidev_s g_spi2dev =
   .txbuf    = g_spi2_txbuf,
   .buflen   = SPI2_DMABUFSIZE_ADJUSTED,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -485,9 +491,9 @@ static uint8_t g_spi3_rxbuf[SPI3_DMABUFSIZE_ADJUSTED] SPI3_DMABUFSIZE_ALGN;
 static struct stm32_spidev_s g_spi3dev =
 {
   .spidev   =
-              {
-               &g_sp3iops
-              },
+  {
+    .ops    = &g_sp3iops,
+  },
   .spibase  = STM32_SPI3_BASE,
   .spiclock = SPI3_KERNEL_CLOCK_FREQ,
   .spiirq   = STM32_IRQ_SPI3,
@@ -499,7 +505,10 @@ static struct stm32_spidev_s g_spi3dev =
   .txbuf    = g_spi3_txbuf,
   .buflen   = SPI3_DMABUFSIZE_ADJUSTED,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -1777,7 +1786,7 @@ static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer,
   static uint8_t rxdummy[ARMV7M_DCACHE_LINESIZE]
     aligned_data(ARMV7M_DCACHE_LINESIZE);
   static const uint16_t txdummy = 0xffff;
-  void * orig_rxbuffer = rxbuffer;
+  void *orig_rxbuffer = rxbuffer;
 
   DEBUGASSERT(priv != NULL);
 
@@ -2239,14 +2248,7 @@ static void spi_bus_initialize(struct stm32_spidev_s *priv)
 
   spi_putreg(priv, STM32_SPI_CRCPOLY_OFFSET, 7);
 
-  /* Initialize the SPI mutex that enforces mutually exclusive access. */
-
-  nxmutex_init(&priv->lock);
-
 #ifdef CONFIG_STM32U5_SPI_DMA
-  nxsem_init(&priv->rxsem, 0, 0);
-  nxsem_init(&priv->txsem, 0, 0);
-
   /* Get DMA channels.  NOTE: stm32_dmachannel() will always assign the DMA
    * channel.  If the channel is not available, then stm32_dmachannel() will
    * block and wait until the channel becomes available.  WARNING: If you

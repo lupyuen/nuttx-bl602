@@ -129,8 +129,8 @@ struct stm32_1wire_priv_s
 
 struct stm32_1wire_inst_s
 {
-  const struct onewire_ops_s  *ops;  /* Standard 1-Wire operations */
-  struct stm32_1wire_priv_s   *priv; /* Common driver private data structure */
+  const struct onewire_ops_s *ops;  /* Standard 1-Wire operations */
+  struct stm32_1wire_priv_s  *priv; /* Common driver private data structure */
 };
 
 /****************************************************************************
@@ -1273,7 +1273,6 @@ int stm32_1wireuninitialize(struct onewire_dev_s *dev)
   if (--priv->refs)
     {
       nxmutex_unlock(&priv->lock);
-      kmm_free(priv);
       return OK;
     }
 

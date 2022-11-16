@@ -215,9 +215,9 @@ static void twi_startmessage(struct twi_dev_s *priv, struct i2c_msg_s *msg);
 /* I2C device operations */
 
 static int twi_transfer(struct i2c_master_s *dev,
-          struct i2c_msg_s *msgs, int count);
+                        struct i2c_msg_s *msgs, int count);
 #ifdef CONFIG_I2C_RESET
-static int  twi_reset(struct i2c_master_s * dev);
+static int twi_reset(struct i2c_master_s *dev);
 #endif
 
 /* Initialization */
@@ -228,6 +228,14 @@ static void twi_hw_initialize(struct twi_dev_s *priv, uint32_t frequency);
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+static const struct i2c_ops_s g_twiops =
+{
+  .transfer = twi_transfer,
+#ifdef CONFIG_I2C_RESET
+  .reset  = twi_reset
+#endif
+};
 
 #ifdef CONFIG_SAMA5_TWI0
 static const struct twi_attr_s g_twi0attr =
@@ -240,7 +248,16 @@ static const struct twi_attr_s g_twi0attr =
   .base    = SAM_TWI0_VBASE,
 };
 
-static struct twi_dev_s g_twi0;
+static struct twi_dev_s g_twi0 =
+{
+  .dev     =
+  {
+    .ops   = &g_twiops,
+  },
+  .attr    = &g_twi0attr,
+  .lock    = NXMUTEX_INITIALIZER,
+  .waitsem = SEM_INITIALIZER(0),
+};
 #endif
 
 #ifdef CONFIG_SAMA5_TWI1
@@ -254,7 +271,16 @@ static const struct twi_attr_s g_twi1attr =
   .base    = SAM_TWI1_VBASE,
 };
 
-static struct twi_dev_s g_twi1;
+static struct twi_dev_s g_twi1 =
+{
+  .dev     =
+  {
+    .ops   = &g_twiops,
+  },
+  .attr    = &g_twi1attr,
+  .lock    = NXMUTEX_INITIALIZER,
+  .waitsem = SEM_INITIALIZER(0),
+};
 #endif
 
 #ifdef CONFIG_SAMA5_TWI2
@@ -268,7 +294,16 @@ static const struct twi_attr_s g_twi2attr =
   .base    = SAM_TWI2_VBASE,
 };
 
-static struct twi_dev_s g_twi2;
+static struct twi_dev_s g_twi2 =
+{
+  .dev     =
+  {
+    .ops   = &g_twiops,
+  },
+  .attr    = &g_twi2attr,
+  .lock    = NXMUTEX_INITIALIZER,
+  .waitsem = SEM_INITIALIZER(0),
+};
 #endif
 
 #ifdef CONFIG_SAMA5_TWI3
@@ -282,16 +317,17 @@ static const struct twi_attr_s g_twi3attr =
   .base    = SAM_TWI3_VBASE,
 };
 
-static struct twi_dev_s g_twi3;
-#endif
-
-static const struct i2c_ops_s g_twiops =
+static struct twi_dev_s g_twi3 =
 {
-  .transfer = twi_transfer
-#ifdef CONFIG_I2C_RESET
-  , .reset  = twi_reset
-#endif
+  .dev     =
+  {
+    .ops   = &g_twiops,
+  },
+  .attr    = &g_twi3attr,
+  .lock    = NXMUTEX_INITIALIZER,
+  .waitsem = SEM_INITIALIZER(0),
 };
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -1177,13 +1213,9 @@ struct i2c_master_s *sam_i2cbus_initialize(int bus)
 #ifdef CONFIG_SAMA5_TWI0
   if (bus == 0)
     {
-      /* Select up TWI0 and setup invariant attributes */
+      /* Select up TWI0 and the (initial) TWI frequency */
 
-      priv       = &g_twi0;
-      priv->attr = &g_twi0attr;
-
-      /* Select the (initial) TWI frequency */
-
+      priv      = &g_twi0;
       frequency = CONFIG_SAMA5_TWI0_FREQUENCY;
     }
   else
@@ -1191,13 +1223,9 @@ struct i2c_master_s *sam_i2cbus_initialize(int bus)
 #ifdef CONFIG_SAMA5_TWI1
   if (bus == 1)
     {
-      /* Select up TWI1 and setup invariant attributes */
+      /* Select up TWI1 and the (initial) TWI frequency */
 
-      priv       = &g_twi1;
-      priv->attr = &g_twi1attr;
-
-      /* Select the (initial) TWI frequency */
-
+      priv      = &g_twi1;
       frequency = CONFIG_SAMA5_TWI1_FREQUENCY;
     }
   else
@@ -1205,13 +1233,9 @@ struct i2c_master_s *sam_i2cbus_initialize(int bus)
 #ifdef CONFIG_SAMA5_TWI2
   if (bus == 2)
     {
-      /* Select up TWI2 and setup invariant attributes */
+      /* Select up TWI2 and the (initial) TWI frequency */
 
-      priv       = &g_twi2;
-      priv->attr = &g_twi2attr;
-
-      /* Select the (initial) TWI frequency */
-
+      priv      = &g_twi2;
       frequency = CONFIG_SAMA5_TWI2_FREQUENCY;
     }
   else
@@ -1219,13 +1243,9 @@ struct i2c_master_s *sam_i2cbus_initialize(int bus)
 #ifdef CONFIG_SAMA5_TWI3
   if (bus == 3)
     {
-      /* Select up TWI3 and setup invariant attributes */
+      /* Select up TWI3 and the (initial) TWI frequency */
 
-      priv       = &g_twi3;
-      priv->attr = &g_twi3attr;
-
-      /* Select the (initial) TWI frequency */
-
+      priv      = &g_twi3;
       frequency = CONFIG_SAMA5_TWI3_FREQUENCY;
     }
   else
@@ -1248,15 +1268,6 @@ struct i2c_master_s *sam_i2cbus_initialize(int bus)
       goto errout_with_lock;
     }
 
-  /* Initialize the TWI driver structure */
-
-  priv->dev.ops = &g_twiops;
-
-  /* Initialize mutex & semaphores */
-
-  nxmutex_init(&priv->lock);
-  nxsem_init(&priv->waitsem, 0, 0);
-
   /* Perform repeatable TWI hardware initialization */
 
   twi_hw_initialize(priv, frequency);
@@ -1278,18 +1289,13 @@ errout_with_lock:
 
 int sam_i2cbus_uninitialize(struct i2c_master_s *dev)
 {
-  struct twi_dev_s *priv = (struct twi_dev_s *) dev;
+  struct twi_dev_s *priv = (struct twi_dev_s *)dev;
 
   i2cinfo("TWI%d Un-initializing\n", priv->attr->twi);
 
   /* Disable TWI interrupts */
 
   up_disable_irq(priv->attr->irq);
-
-  /* Reset data structures */
-
-  nxmutex_destroy(&priv->lock);
-  nxsem_destroy(&priv->waitsem);
 
   /* Cancel the watchdog timer */
 

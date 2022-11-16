@@ -284,7 +284,7 @@ static inline int usbhost_tdfree(FAR struct usbhost_state_s *priv);
 
 /* struct usbhost_registry_s methods */
 
-static struct usbhost_class_s *usbhost_create(
+static FAR struct usbhost_class_s *usbhost_create(
               FAR struct usbhost_hubport_s *hport,
               FAR const struct usbhost_id_s *id);
 
@@ -353,9 +353,9 @@ static uint32_t g_devinuse;
 
 /* The following are used to managed the class creation operation */
 
-static mutex_t                 g_lock;     /* For mutually exclusive thread creation */
-static sem_t                   g_syncsem;  /* Thread data passing interlock */
-static struct usbhost_state_s *g_priv;     /* Data passed to thread */
+static mutex_t g_lock = NXMUTEX_INITIALIZER;
+static sem_t g_syncsem = SEM_INITIALIZER(0);
+static FAR struct usbhost_state_s *g_priv;
 
 /* The following tables map keyboard scan codes to printable ASIC
  * characters.  There is no support here for function keys or cursor
@@ -1833,8 +1833,8 @@ static int usbhost_tdfree(FAR struct usbhost_state_s *priv)
  ****************************************************************************/
 
 static FAR struct usbhost_class_s *
-  usbhost_create(FAR struct usbhost_hubport_s *hport,
-                 FAR const struct usbhost_id_s *id)
+usbhost_create(FAR struct usbhost_hubport_s *hport,
+               FAR const struct usbhost_id_s *id)
 {
   FAR struct usbhost_state_s *priv;
 
@@ -1978,7 +1978,7 @@ static int usbhost_connect(FAR struct usbhost_class_s *usbclass,
  *
  ****************************************************************************/
 
-static int usbhost_disconnected(struct usbhost_class_s *usbclass)
+static int usbhost_disconnected(FAR struct usbhost_class_s *usbclass)
 {
   FAR struct usbhost_state_s *priv = (FAR struct usbhost_state_s *)usbclass;
 
@@ -2443,11 +2443,6 @@ errout:
 
 int usbhost_kbdinit(void)
 {
-  /* Perform any one-time initialization of the class implementation */
-
-  nxmutex_init(&g_lock);
-  nxsem_init(&g_syncsem, 0, 0);
-
   /* Advertise our availability to support (certain) devices */
 
   return usbhost_registerclass(&g_hidkbd);

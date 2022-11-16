@@ -70,7 +70,7 @@ struct btnet_discoverstate_s
 {
   struct bt_gatt_discover_params_s bd_params;
   struct bt_uuid_s bd_uuid;         /* Discovery UUID */
-  sem_t bd_donesem;                 /* Manages exclusive access */
+  sem_t bd_donesem;                 /* Done notification */
 };
 
 /* GATT read state variables. */
@@ -79,7 +79,7 @@ struct btnet_rdstate_s
 {
   struct btreq_s *rd_btreq;
   uint8_t rd_result;                /* The result of the read */
-  sem_t rd_donesem;                 /* Manages exclusive access */
+  sem_t rd_donesem;                 /* Done notification */
 };
 
 /* GATT write state variables. */
@@ -88,7 +88,7 @@ struct btnet_wrstate_s
 {
   struct btreq_s *wr_btreq;
   uint8_t wr_result;                /* The result of the read */
-  sem_t wr_donesem;                 /* Manages exclusive access */
+  sem_t wr_donesem;                 /* Done notification */
 };
 
 /****************************************************************************
@@ -114,7 +114,10 @@ struct btnet_wrstate_s
  * the unharvested results.
  */
 
-static struct btnet_scanstate_s     g_scanstate;
+static struct btnet_scanstate_s g_scanstate =
+{
+  NXMUTEX_INITIALIZER,
+};
 
 /****************************************************************************
  * Private Functions
@@ -618,7 +621,6 @@ int btnet_ioctl(FAR struct net_driver_s *netdev, int cmd, unsigned long arg)
             {
               /* Initialize scan state */
 
-              nxmutex_init(&g_scanstate.bs_lock);
               g_scanstate.bs_scanning = true;
               g_scanstate.bs_head     = 0;
               g_scanstate.bs_tail     = 0;
@@ -629,7 +631,6 @@ int btnet_ioctl(FAR struct net_driver_s *netdev, int cmd, unsigned long arg)
 
               if (ret < 0)
                 {
-                  nxmutex_destroy(&g_scanstate.bs_lock);
                   g_scanstate.bs_scanning = false;
                 }
             }
@@ -664,7 +665,6 @@ int btnet_ioctl(FAR struct net_driver_s *netdev, int cmd, unsigned long arg)
           ret = bt_stop_scanning();
           wlinfo("Stop scanning: %d\n", ret);
 
-          nxmutex_destroy(&g_scanstate.bs_lock);
           g_scanstate.bs_scanning = false;
         }
         break;

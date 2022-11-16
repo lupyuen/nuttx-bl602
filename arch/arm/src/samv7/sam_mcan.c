@@ -384,7 +384,7 @@
      (MCAN0_TXEVENTFIFO_BYTES >> 2)
 
 #  define MCAN0_TXFIFIOQ_BYTES \
-     MCAN_ALIGN_UP(CONFIG_SAMV7_MCAN0_TXFIFOQ_SIZE *  \
+     MCAN_ALIGN_UP(CONFIG_SAMV7_MCAN0_TXFIFOQ_SIZE * \
                    (MCAN0_TXBUFFER_ELEMENT_SIZE + 8))
 #  define MCAN0_TXFIFIOQ_WORDS (MCAN0_TXFIFIOQ_BYTES >> 2)
 
@@ -669,7 +669,7 @@
      (MCAN1_TXEVENTFIFO_BYTES >> 2)
 
 #  define MCAN1_TXFIFIOQ_BYTES \
-     MCAN_ALIGN_UP(CONFIG_SAMV7_MCAN1_TXFIFOQ_SIZE *  \
+     MCAN_ALIGN_UP(CONFIG_SAMV7_MCAN1_TXFIFOQ_SIZE * \
                    (MCAN1_TXBUFFER_ELEMENT_SIZE + 8))
 #  define MCAN1_TXFIFIOQ_WORDS (MCAN1_TXFIFIOQ_BYTES >> 2)
 
@@ -1006,7 +1006,7 @@ static uint32_t g_mcan0_msgram[MCAN0_MSGRAM_WORDS]
 
 /* Constant configuration */
 
-static struct sam_config_s g_mcan0const =
+static const struct sam_config_s g_mcan0const =
 {
   .rxpinset         = GPIO_MCAN0_RX,
   .txpinset         = GPIO_MCAN0_TX,
@@ -1077,8 +1077,18 @@ static struct sam_config_s g_mcan0const =
 
 /* MCAN0 variable driver state */
 
-static struct sam_mcan_s g_mcan0priv;
-static struct can_dev_s g_mcan0dev;
+static struct sam_mcan_s g_mcan0priv =
+{
+  .config           = &g_mcan1const,
+  .lock             = NXMUTEX_INITIALIZER,
+  .txfsem           = SEM_INITIALIZER(CONFIG_SAMV7_MCAN0_TXFIFOQ_SIZE),
+};
+
+static struct can_dev_s g_mcan0dev =
+{
+  .cd_ops           = &g_mcanops,
+  .cd_priv          = &g_mcan0priv,
+};
 
 #endif /* CONFIG_SAMV7_MCAN0 */
 
@@ -1094,7 +1104,7 @@ static uint32_t g_mcan1_msgram[MCAN1_MSGRAM_WORDS]
 
 /* MCAN1 constant configuration */
 
-static struct sam_config_s g_mcan1const =
+static const struct sam_config_s g_mcan1const =
 {
   .rxpinset         = GPIO_MCAN1_RX,
   .txpinset         = GPIO_MCAN1_TX,
@@ -1164,8 +1174,18 @@ static struct sam_config_s g_mcan1const =
 
 /* MCAN0 variable driver state */
 
-static struct sam_mcan_s g_mcan1priv;
-static struct can_dev_s g_mcan1dev;
+static struct sam_mcan_s g_mcan1priv =
+{
+  .config           = &g_mcan1const,
+  .lock             = NXMUTEX_INITIALIZER,
+  .txfsem           = SEM_INITIALIZER(CONFIG_SAMV7_MCAN0_TXFIFOQ_SIZE),
+};
+
+static struct can_dev_s g_mcan1dev =
+{
+  .cd_ops           = &g_mcanops,
+  .cd_priv          = &g_mcan1priv,
+};
 
 #endif /* CONFIG_SAMV7_MCAN1 */
 
@@ -2354,14 +2374,9 @@ static void mcan_reset(struct can_dev_s *dev)
   mcan_putreg(priv, SAM_MCAN_IE_OFFSET, 0);
   mcan_putreg(priv, SAM_MCAN_TXBTIE_OFFSET, 0);
 
-  /* Make sure that all buffers are released.
-   *
-   * REVISIT: What if a thread is waiting for a buffer?  The following
-   * will not wake up any waiting threads.
-   */
+  /* Make sure that all buffers are released. */
 
-  nxsem_destroy(&priv->txfsem);
-  nxsem_init(&priv->txfsem, 0, config->ntxfifoq);
+  nxsem_reset(&priv->txfsem, config->ntxfifoq);
 
   /* Disable peripheral clocking to the MCAN controller */
 
@@ -4213,9 +4228,7 @@ static int mcan_hw_initialize(struct sam_mcan_s *priv)
 
 struct can_dev_s *sam_mcan_initialize(int port)
 {
-  struct can_dev_s *dev;
   struct sam_mcan_s *priv;
-  const struct sam_config_s *config;
   uint32_t regval;
 
   caninfo("MCAN%d\n", port);
@@ -4239,9 +4252,7 @@ struct can_dev_s *sam_mcan_initialize(int port)
     {
       /* Select the MCAN0 device structure */
 
-      dev    = &g_mcan0dev;
-      priv   = &g_mcan0priv;
-      config = &g_mcan0const;
+      priv = &g_mcan0priv;
 
       /* Configure MCAN0 Message RAM Base Address */
 
@@ -4258,9 +4269,7 @@ struct can_dev_s *sam_mcan_initialize(int port)
     {
       /* Select the MCAN1 device structure */
 
-      dev    = &g_mcan1dev;
-      priv   = &g_mcan1priv;
-      config = &g_mcan1const;
+      priv = &g_mcan1priv;
 
       /* Configure MCAN1 Message RAM Base Address */
 
@@ -4283,10 +4292,7 @@ struct can_dev_s *sam_mcan_initialize(int port)
     {
       /* Yes, then perform one time data initialization */
 
-      memset(priv, 0, sizeof(struct sam_mcan_s));
-      priv->config = config;
-
-      /* Get the revision of the chip (A or B ) */
+      /* Get the revision of the chip (A or B) */
 
       regval = getreg32(SAM_CHIPID_CIDR);
       priv->rev = regval & CHIPID_CIDR_VERSION_MASK;
@@ -4299,29 +4305,21 @@ struct can_dev_s *sam_mcan_initialize(int port)
         {
           /* Revision A */
 
-          priv->btp    = config->btp;
-          priv->fbtp   = config->fbtp;
+          priv->btp  = priv->config->btp;
+          priv->fbtp = priv->config->fbtp;
         }
       else if (priv->rev == 1)
         {
           /* Revision B */
 
-          priv->btp    = config->nbtp;
-          priv->fbtp   = config->dbtp;
+          priv->btp  = priv->config->nbtp;
+          priv->fbtp = priv->config->dbtp;
         }
       else
         {
           canerr("ERROR: Incorrect chip revision: %d\n", priv->rev);
           return NULL;
         }
-
-      /* Initialize mutex & semaphores */
-
-      nxmutex_init(&priv->lock);
-      nxsem_init(&priv->txfsem, 0, config->ntxfifoq);
-
-      dev->cd_ops  = &g_mcanops;
-      dev->cd_priv = (void *)priv;
 
       /* And put the hardware in the initial state */
 

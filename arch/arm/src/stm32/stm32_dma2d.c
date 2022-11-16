@@ -110,7 +110,6 @@ struct stm32_dma2d_s
 #ifdef CONFIG_STM32_FB_CMAP
   uint32_t *clut;              /* Color lookup table */
 #endif
-
   mutex_t  *lock;              /* Ensure mutually exclusive access */
 };
 
@@ -250,11 +249,11 @@ static uint32_t g_clut[STM32_DMA2D_NCLUT *
 
 /* The DMA2D mutex that enforces mutually exclusive access */
 
-static mutex_t g_lock;
+static mutex_t g_lock = NXMUTEX_INITIALIZER;
 
 /* Semaphore for interrupt handling */
 
-static sem_t g_semirq;
+static sem_t g_semirq = SEM_INITIALIZER(0);
 
 /* This structure provides irq handling */
 
@@ -463,8 +462,8 @@ static int stm32_dma2d_waitforirq(void)
 #ifdef CONFIG_STM32_DMA2D_L8
 static int stm32_dma2d_loadclut(uintptr_t pfcreg)
 {
-  int        ret;
-  uint32_t   regval;
+  int      ret;
+  uint32_t regval;
 
   /* Start clut loading */
 
@@ -497,7 +496,7 @@ static int stm32_dma2d_loadclut(uintptr_t pfcreg)
 
 static int stm32_dma2d_start(void)
 {
-  int        ret;
+  int ret;
 
   /* Start dma transfer */
 
@@ -683,7 +682,7 @@ static void stm32_dma2d_lpfc(int lid, uint32_t blendmode, uint8_t alpha,
 #ifdef CONFIG_STM32_FB_CMAP
   if (fmt == DMA2D_PF_L8)
     {
-      struct stm32_dma2d_s * layer = &g_dma2ddev;
+      struct stm32_dma2d_s *layer = &g_dma2ddev;
 
       /* Load CLUT automatically */
 
@@ -747,7 +746,7 @@ static void stm32_dma2d_lpfc(int lid, uint32_t blendmode, uint8_t alpha,
 static int stm32_dma2d_setclut(const struct fb_cmap_s *cmap)
 {
   int n;
-  struct stm32_dma2d_s * priv = &g_dma2ddev;
+  struct stm32_dma2d_s *priv = &g_dma2ddev;
 
   lcdinfo("cmap=%p\n", cmap);
 
@@ -816,7 +815,7 @@ static int stm32_dma2d_fillcolor(struct stm32_dma2d_overlay_s *oinfo,
                                  uint32_t argb)
 {
   int ret;
-  struct stm32_dma2d_s * priv = &g_dma2ddev;
+  struct stm32_dma2d_s *priv = &g_dma2ddev;
   DEBUGASSERT(oinfo != NULL && oinfo->oinfo != NULL && area != NULL);
 
   lcdinfo("oinfo=%p, argb=%08" PRIx32 "\n", oinfo, argb);
@@ -897,9 +896,9 @@ static int stm32_dma2d_blit(struct stm32_dma2d_overlay_s *doverlay,
                             struct stm32_dma2d_overlay_s *soverlay,
                             const struct fb_area_s *sarea)
 {
-  int        ret;
-  uint32_t  mode;
-  struct stm32_dma2d_s * priv = &g_dma2ddev;
+  int      ret;
+  uint32_t mode;
+  struct stm32_dma2d_s *priv = &g_dma2ddev;
 
   lcdinfo("doverlay=%p, destxpos=%" PRId32 ", destypos=%" PRId32
           ", soverlay=%p, sarea=%p\n",
@@ -997,8 +996,8 @@ static int stm32_dma2d_blend(struct stm32_dma2d_overlay_s *doverlay,
                              struct stm32_dma2d_overlay_s *boverlay,
                              const struct fb_area_s *barea)
 {
-  int    ret;
-  struct stm32_dma2d_s * priv = &g_dma2ddev;
+  int ret;
+  struct stm32_dma2d_s *priv = &g_dma2ddev;
 
   lcdinfo("doverlay=%p, destxpos=%" PRId32 ", destypos=%" PRId32 ", "
           "foverlay=%p, forexpos=%" PRId32 ", foreypos=%" PRId32 ", "
@@ -1094,13 +1093,6 @@ int stm32_dma2dinitialize(void)
       /* Enable dma2d is done in rcc_enableahb1, see
        * arch/arm/src/stm32/stm32f40xxx_rcc.c
        */
-
-      /* Initialize the DMA2D mutex that enforces mutually exclusive
-       * access to the driver
-       */
-
-      nxmutex_init(&g_lock);
-      nxsem_init(g_interrupt.sem, 0, 0);
 
 #ifdef CONFIG_STM32_FB_CMAP
       /* Enable dma2d transfer and clut loading interrupts only */

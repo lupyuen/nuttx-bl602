@@ -177,15 +177,19 @@ static const struct spi_ops_s g_spi0ops =
 static struct rp2040_spidev_s g_spi0dev =
 {
   .spidev            =
-                        {
-                          &g_spi0ops
-                        },
+  {
+    .ops             = &g_spi0ops,
+  },
   .spibase           = RP2040_SPI0_BASE,
   .spibasefreq       = 0,
   .port              = 0,
   .initialized       = 0,
 #ifdef CONFIG_RP2040_SPI_INTERRUPTS
   .spiirq            = RP2040_SPI0_IRQ,
+#endif
+  .lock              = NXMUTEX_INITIALIZER,
+#ifdef CONFIG_RP2040_SPI_DMA
+  .dmasem            = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -222,15 +226,19 @@ static const struct spi_ops_s g_spi1ops =
 static struct rp2040_spidev_s g_spi1dev =
 {
   .spidev            =
-                        {
-                          &g_spi1ops
-                        },
+  {
+    .ops             = &g_spi1ops,
+  },
   .spibase           = RP2040_SPI1_BASE,
   .spibasefreq       = 0,
   .port              = 1,
   .initialized       = 0,
 #ifdef CONFIG_RP2040_SPI_INTERRUPTS
   .spiirq            = RP2040_SPI1_IRQ,
+#endif
+  .lock              = NXMUTEX_INITIALIZER,
+#ifdef CONFIG_RP2040_SPI_DMA
+  .dmasem            = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -817,8 +825,6 @@ struct spi_dev_s *rp2040_spibus_initialize(int port)
   /* DMA settings */
 
 #ifdef CONFIG_RP2040_SPI_DMA
-  nxsem_init(&priv->dmasem, 0, 0);
-
   priv->txdmach = rp2040_dmachannel();
   txconf.size = RP2040_DMA_SIZE_BYTE;
   txconf.noincr = false;
@@ -857,10 +863,6 @@ struct spi_dev_s *rp2040_spibus_initialize(int port)
 
   spi_setfrequency((struct spi_dev_s *)priv, 400000);
 
-  /* Initialize the SPI mutex that enforces mutually exclusive access */
-
-  nxmutex_init(&priv->lock);
-
   regval = spi_getreg(priv, RP2040_SPI_SSPCR1_OFFSET);
   spi_putreg(priv, RP2040_SPI_SSPCR1_OFFSET, regval | RP2040_SPI_SSPCR1_SSE);
 
@@ -872,7 +874,6 @@ struct spi_dev_s *rp2040_spibus_initialize(int port)
   /* Set a initialized flag */
 
   priv->initialized = 1;
-
   return &priv->spidev;
 }
 

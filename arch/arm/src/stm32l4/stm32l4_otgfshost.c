@@ -483,14 +483,18 @@ static inline int stm32l4_hw_initialize(struct stm32l4_usbhost_s *priv);
  * single global instance.
  */
 
-static struct stm32l4_usbhost_s g_usbhost;
+static struct stm32l4_usbhost_s g_usbhost =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+};
 
 /* This is the connection/enumeration interface */
 
 static struct usbhost_connection_s g_usbconn =
 {
-  .wait             = stm32l4_wait,
-  .enumerate        = stm32l4_enumerate,
+  .wait      = stm32l4_wait,
+  .enumerate = stm32l4_enumerate,
 };
 
 /****************************************************************************
@@ -5263,11 +5267,6 @@ static inline void stm32l4_sw_initialize(struct stm32l4_usbhost_s *priv)
 
   usbhost_devaddr_initialize(&priv->rhport);
 
-  /* Initialize semaphores & mutex */
-
-  nxsem_init(&priv->pscsem,  0, 0);
-  nxmutex_init(&priv->lock);
-
   /* Initialize the driver state data */
 
   priv->smstate   = SMSTATE_DETACHED;
@@ -5286,7 +5285,7 @@ static inline void stm32l4_sw_initialize(struct stm32l4_usbhost_s *priv)
       struct stm32l4_chan_s *chan = &priv->chan[i];
 
       chan->chidx = i;
-      nxsem_init(&chan->waitsem,  0, 0);
+      nxsem_init(&chan->waitsem, 0, 0);
     }
 }
 

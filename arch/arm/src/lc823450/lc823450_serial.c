@@ -168,7 +168,6 @@ struct up_dev_s
   DMA_HANDLE       hrxdma;
   DMA_HANDLE       htxdma;
   sem_t rxdma_wait;
-  sem_t rxpkt_wait;
   sem_t txdma_wait;
 #endif /* CONFIG_HSUART */
   spinlock_t lock;
@@ -253,6 +252,10 @@ static struct up_dev_s g_uart0priv =
   .parity         = CONFIG_UART0_PARITY,
   .bits           = CONFIG_UART0_BITS,
   .stopbits2      = CONFIG_UART0_2STOP,
+#ifdef CONFIG_HSUART
+  .rxdma_wait     = SEM_INITIALIZER(0),
+  .txdma_wait     = SEM_INITIALIZER(1),
+#endif
 };
 
 static uart_dev_t g_uart0port =
@@ -283,6 +286,10 @@ static struct up_dev_s g_uart1priv =
   .parity         = CONFIG_UART1_PARITY,
   .bits           = CONFIG_UART1_BITS,
   .stopbits2      = CONFIG_UART1_2STOP,
+#ifdef CONFIG_HSUART
+  .rxdma_wait     = SEM_INITIALIZER(0),
+  .txdma_wait     = SEM_INITIALIZER(1),
+#endif
 };
 
 static uart_dev_t g_uart1port =
@@ -313,6 +320,10 @@ static struct up_dev_s g_uart2priv =
   .parity         = CONFIG_UART2_PARITY,
   .bits           = CONFIG_UART2_BITS,
   .stopbits2      = CONFIG_UART2_2STOP,
+#ifdef CONFIG_HSUART
+  .rxdma_wait     = SEM_INITIALIZER(0),
+  .txdma_wait     = SEM_INITIALIZER(1),
+#endif
 };
 
 static uart_dev_t g_uart2port =
@@ -1100,7 +1111,7 @@ static void uart_rxdma_callback(DMA_HANDLE hdma, void *arg, int result)
  * Name: up_hs_dmasetup
  ****************************************************************************/
 
-static void  up_hs_dmasetup()
+static void  up_hs_dmasetup(void)
 {
   irqstate_t flags;
 
@@ -1329,11 +1340,9 @@ void arm_serialinit(void)
 #ifdef TTYS1_DEV
   uart_register("/dev/ttyS1", &TTYS1_DEV);
 #ifdef CONFIG_HSUART
-  nxsem_init(&g_uart1priv.txdma_wait, 0, 1);
   g_uart1priv.htxdma = lc823450_dmachannel(DMA_CHANNEL_UART1TX);
   lc823450_dmarequest(g_uart1priv.htxdma, DMA_REQUEST_UART1TX);
 
-  nxsem_init(&g_uart1priv.rxdma_wait, 0, 0);
   g_uart1priv.hrxdma = lc823450_dmachannel(DMA_CHANNEL_UART1RX);
   lc823450_dmarequest(g_uart1priv.hrxdma, DMA_REQUEST_UART1RX);
 

@@ -137,8 +137,11 @@ static const struct block_operations g_bops =
   NULL                 /* ioctl    */
 };
 
-static sem_t g_waitsem;
-struct cxd56_emmc_state_s g_emmcdev;
+static sem_t g_waitsem = SEM_INITIALIZER(0);
+struct cxd56_emmc_state_s g_emmcdev =
+{
+  .lock = NXMUTEX_INITIALIZER,
+};
 
 /****************************************************************************
  * Private Functions
@@ -268,7 +271,7 @@ static struct emmc_dma_desc_s *emmc_setupdma(void *buf, unsigned int nbytes)
   int i;
   int ndescs;
   struct emmc_dma_desc_s *descs;
-  struct emmc_dma_desc_s  *d;
+  struct emmc_dma_desc_s *d;
   uint32_t addr;
   uint32_t size;
   unsigned int remain;
@@ -932,16 +935,10 @@ static int cxd56_emmc_geometry(struct inode *inode,
 
 int cxd56_emmcinitialize(void)
 {
-  struct cxd56_emmc_state_s *priv;
+  struct cxd56_emmc_state_s *priv = &g_emmcdev;
   uint8_t *buf;
   struct emmc_dma_desc_s *descs;
   int ret;
-
-  priv = &g_emmcdev;
-
-  memset(priv, 0, sizeof(struct cxd56_emmc_state_s));
-  nxmutex_init(&priv->lock);
-  nxsem_init(&g_waitsem, 0, 0);
 
   ret = emmc_hwinitialize();
   if (ret != OK)
