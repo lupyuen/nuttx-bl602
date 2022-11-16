@@ -777,8 +777,6 @@ static inline struct sam_ep_s *
 static inline void
               sam_ep_unreserve(struct sam_usbdev_s *priv,
                 struct sam_ep_s *privep);
-static inline bool
-              sam_ep_reserved(struct sam_usbdev_s *priv, int epno);
 static int    sam_ep_configure_internal(struct sam_ep_s *privep,
                 const struct usb_epdesc_s *desc);
 
@@ -1004,14 +1002,18 @@ static void sam_add_sof_user(struct sam_usbhost_s *priv);
  * instance.
  */
 
-static struct sam_usbhost_s g_usbhost;
+static struct sam_usbhost_s g_usbhost =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+};
 
 /* This is the connection/enumeration interface */
 
 static struct usbhost_connection_s g_usbconn =
 {
-  .wait             = sam_wait,
-  .enumerate        = sam_enumerate,
+  .wait      = sam_wait,
+  .enumerate = sam_enumerate,
 };
 #endif
 
@@ -1880,7 +1882,6 @@ static int sam_req_read(struct sam_usbdev_s *priv, struct sam_ep_s *privep,
                         uint16_t recvsize)
 {
   struct sam_req_s *privreq;
-  uint32_t packetsize;
   int epno;
 
   DEBUGASSERT(priv && privep && privep->epstate == USB_EPSTATE_IDLE);
@@ -1953,10 +1954,6 @@ static int sam_req_read(struct sam_usbdev_s *priv, struct sam_ep_s *privep,
   privreq->inflight = privreq->req.len;
   priv->eplist[epno].descb[0]->addr = (uint32_t) privreq->req.buf;
   uinfo("addr=%p\n", privreq->req.buf);
-  packetsize        = priv->eplist[epno].descb[0]->pktsize;
-  packetsize       &= ~USBDEV_PKTSIZE_BCNT_MASK;
-  packetsize       &= ~USBDEV_PKTSIZE_MPKTSIZE_MASK;
-  packetsize       |=  USBDEV_PKTSIZE_MPKTSIZE(privreq->inflight);
   sam_putreg8(USBDEV_EPSTATUS_BK0RDY, SAM_USBDEV_EPSTATUSCLR(epno));
 
   return OK;
@@ -2222,20 +2219,6 @@ sam_ep_unreserve(struct sam_usbdev_s *priv, struct sam_ep_s *privep)
 }
 
 /****************************************************************************
- * Name: sam_ep_reserved
- *
- * Description:
- *   Check if the endpoint has already been allocated.
- *
- ****************************************************************************/
-
-static inline bool
-sam_ep_reserved(struct sam_usbdev_s *priv, int epno)
-{
-  return ((priv->epavail & SAM_EP_BIT(epno)) == 0);
-}
-
-/****************************************************************************
  * Endpoint operations
  ****************************************************************************/
 
@@ -2349,14 +2332,13 @@ static struct usbdev_req_s *sam_ep_allocreq(struct usbdev_ep_s *ep)
 
   usbtrace(TRACE_EPALLOCREQ, USB_EPNO(ep->eplog));
 
-  privreq = (struct sam_req_s *)kmm_malloc(sizeof(struct sam_req_s));
+  privreq = (struct sam_req_s *)kmm_zalloc(sizeof(struct sam_req_s));
   if (!privreq)
     {
       usbtrace(TRACE_DEVERROR(SAM_TRACEERR_ALLOCFAIL), 0);
       return NULL;
     }
 
-  memset(privreq, 0, sizeof(struct sam_req_s));
   return &privreq->req;
 }
 
@@ -3151,16 +3133,16 @@ static void sam_setdevaddr(struct sam_usbdev_s *priv, uint8_t address)
 
 static void sam_ep0_setup(struct sam_usbdev_s *priv)
 {
-  struct sam_ep_s     *ep0 = &priv->eplist[EP0];
-  struct sam_ep_s     *privep;
-  union wb_u           value;
-  union wb_u           index;
-  union wb_u           len;
-  union wb_u           response;
-  enum sam_ep0setup_e  ep0result;
-  uint8_t              epno;
-  int                  nbytes = 0; /* Assume zero-length packet */
-  int                  ret;
+  struct sam_ep_s    *ep0 = &priv->eplist[EP0];
+  struct sam_ep_s    *privep;
+  union wb_u          value;
+  union wb_u          index;
+  union wb_u          len;
+  union wb_u          response;
+  enum sam_ep0setup_e ep0result;
+  uint8_t             epno;
+  int                 nbytes = 0; /* Assume zero-length packet */
+  int                 ret;
 
   /* Terminate any pending requests */
 
@@ -8470,13 +8452,6 @@ static inline void sam_sw_initialize(struct sam_usbhost_s *priv)
   struct usbhost_hubport_s *hport;
   int epno;
 
-  /* Initialize the device state structure.  NOTE: many fields
-   * have the initial value of zero and, hence, are not explicitly
-   * initialized here.
-   */
-
-  memset(priv, 0, sizeof(struct sam_usbhost_s));
-
   /* Initialize the device operations */
 
   drvr                 = &priv->drvr;
@@ -8530,17 +8505,6 @@ static inline void sam_sw_initialize(struct sam_usbhost_s *priv)
     }
 
   sam_reset_pipes(priv, false);
-
-  /* Initialize semaphore & mutex */
-
-  nxsem_init(&priv->pscsem,  0, 0);
-  nxmutex_init(&priv->lock);
-
-  /* The pscsem semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
-  sem_setprotocol(&priv->pscsem, SEM_PRIO_NONE);
 
   /* Initialize the driver state data */
 

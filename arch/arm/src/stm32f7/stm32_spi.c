@@ -330,7 +330,7 @@ static struct stm32_spidev_s g_spi1dev =
 {
   .spidev   =
   {
-    &g_sp1iops
+    .ops    = &g_sp1iops,
   },
   .spibase  = STM32_SPI1_BASE,
   .spiclock = STM32_PCLK2_FREQUENCY,
@@ -341,7 +341,7 @@ static struct stm32_spidev_s g_spi1dev =
 #  ifdef CONFIG_STM32F7_SPI1_DMA
   .rxch     = DMAMAP_SPI1_RX,
   .txch     = DMAMAP_SPI1_TX,
-#if defined(SPI1_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI1_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi1_rxbuf,
   .txbuf    = g_spi1_txbuf,
   .buflen   = SPI1_DMABUFSIZE_ADJUSTED,
@@ -350,7 +350,10 @@ static struct stm32_spidev_s g_spi1dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -398,7 +401,7 @@ static struct stm32_spidev_s g_spi2dev =
 {
   .spidev   =
   {
-    &g_sp2iops
+    .ops    = &g_sp2iops,
   },
   .spibase  = STM32_SPI2_BASE,
   .spiclock = STM32_PCLK1_FREQUENCY,
@@ -409,7 +412,7 @@ static struct stm32_spidev_s g_spi2dev =
 #  ifdef CONFIG_STM32F7_SPI2_DMA
   .rxch     = DMAMAP_SPI2_RX,
   .txch     = DMAMAP_SPI2_TX,
-#if defined(SPI2_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI3_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi2_rxbuf,
   .txbuf    = g_spi2_txbuf,
   .buflen   = SPI2_DMABUFSIZE_ADJUSTED,
@@ -418,7 +421,10 @@ static struct stm32_spidev_s g_spi2dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -466,7 +472,7 @@ static struct stm32_spidev_s g_spi3dev =
 {
   .spidev   =
   {
-    &g_sp3iops
+    .ops    = &g_sp3iops,
   },
   .spibase  = STM32_SPI3_BASE,
   .spiclock = STM32_PCLK1_FREQUENCY,
@@ -477,7 +483,7 @@ static struct stm32_spidev_s g_spi3dev =
 #  ifdef CONFIG_STM32F7_SPI3_DMA
   .rxch     = DMAMAP_SPI3_RX,
   .txch     = DMAMAP_SPI3_TX,
-#if defined(SPI3_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI3_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi3_rxbuf,
   .txbuf    = g_spi3_txbuf,
   .buflen   = SPI3_DMABUFSIZE_ADJUSTED,
@@ -486,7 +492,10 @@ static struct stm32_spidev_s g_spi3dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -534,7 +543,7 @@ static struct stm32_spidev_s g_spi4dev =
 {
   .spidev   =
   {
-    &g_sp4iops
+    .ops    = &g_sp4iops,
   },
   .spibase  = STM32_SPI4_BASE,
   .spiclock = STM32_PCLK2_FREQUENCY,
@@ -545,7 +554,7 @@ static struct stm32_spidev_s g_spi4dev =
 #  ifdef CONFIG_STM32F7_SPI4_DMA
   .rxch     = DMAMAP_SPI4_RX,
   .txch     = DMAMAP_SPI4_TX,
-#if defined(SPI4_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI4_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi4_rxbuf,
   .txbuf    = g_spi4_txbuf,
   .buflen   = SPI4_DMABUFSIZE_ADJUSTED,
@@ -554,7 +563,10 @@ static struct stm32_spidev_s g_spi4dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -602,7 +614,7 @@ static struct stm32_spidev_s g_spi5dev =
 {
   .spidev   =
   {
-    &g_sp5iops
+    .ops    = &g_sp5iops,
   },
   .spibase  = STM32_SPI5_BASE,
   .spiclock = STM32_PCLK2_FREQUENCY,
@@ -613,7 +625,7 @@ static struct stm32_spidev_s g_spi5dev =
 #  ifdef CONFIG_STM32F7_SPI5_DMA
   .rxch     = DMAMAP_SPI5_RX,
   .txch     = DMAMAP_SPI5_TX,
-#if defined(SPI5_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI5_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi5_rxbuf,
   .txbuf    = g_spi5_txbuf,
   .buflen   = SPI5_DMABUFSIZE_ADJUSTED,
@@ -622,7 +634,10 @@ static struct stm32_spidev_s g_spi5dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -670,7 +685,7 @@ static struct stm32_spidev_s g_spi6dev =
 {
   .spidev   =
   {
-    &g_sp6iops
+    .ops    = &g_sp6iops,
   },
   .spibase  = STM32_SPI6_BASE,
   .spiclock = STM32_PCLK2_FREQUENCY,
@@ -681,7 +696,7 @@ static struct stm32_spidev_s g_spi6dev =
 #  ifdef CONFIG_STM32F7_SPI6_DMA
   .rxch     = DMAMAP_SPI6_RX,
   .txch     = DMAMAP_SPI6_TX,
-#if defined(SPI6_DMABUFSIZE_ADJUSTED)
+#    ifdef SPI6_DMABUFSIZE_ADJUSTED
   .rxbuf    = g_spi6_rxbuf,
   .txbuf    = g_spi6_txbuf,
   .buflen   = SPI6_DMABUFSIZE_ADJUSTED,
@@ -690,7 +705,10 @@ static struct stm32_spidev_s g_spi6dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
+  .lock     = NXMUTEX_INITIALIZER,
 #ifdef CONFIG_PM
   .pm_cb.prepare = spi_pm_prepare,
 #endif
@@ -1787,7 +1805,7 @@ static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer,
                          void *rxbuffer, size_t nwords)
 {
   struct stm32_spidev_s *priv = (struct stm32_spidev_s *)dev;
-  void * xbuffer = rxbuffer;
+  void *xbuffer = rxbuffer;
   int ret;
 
   DEBUGASSERT(priv != NULL);
@@ -2153,16 +2171,9 @@ static void spi_bus_initialize(struct stm32_spidev_s *priv)
 
   spi_putreg(priv, STM32_SPI_CRCPR_OFFSET, 7);
 
-  /* Initialize the SPI mutex that enforces mutually exclusive access. */
-
-  nxmutex_init(&priv->lock);
-
 #ifdef CONFIG_STM32F7_SPI_DMA
   if (priv->rxch && priv->txch)
     {
-      nxsem_init(&priv->rxsem, 0, 0);
-      nxsem_init(&priv->txsem, 0, 0);
-
       /* Get DMA channels.  NOTE: stm32_dmachannel() will always assign the
        * DMA channel.  If the channel is not available, then
        * stm32_dmachannel() will block and wait until the channel becomes

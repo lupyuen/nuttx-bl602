@@ -189,7 +189,7 @@ extern int lc823450_dvfs_boost(int timeout);
 static struct lc823450_usbdev_s g_usbdev;
 
 static DMA_HANDLE g_hdma;
-static sem_t dma_wait;
+static sem_t dma_wait = SEM_INITIALIZER(0);
 
 #ifdef CONFIG_USBMSC_OPT
 static struct lc823450_dma_llist g_dma_list[16];
@@ -560,7 +560,7 @@ static struct usbdev_req_s *lc823450_epallocreq(struct usbdev_ep_s *ep)
   usbtrace(TRACE_EPALLOCREQ, ((struct lc823450_ep_s *)ep)->epphy);
 
   privreq = (struct lc823450_req_s *)
-    kmm_malloc(sizeof(struct lc823450_req_s));
+    kmm_zalloc(sizeof(struct lc823450_req_s));
 
   if (!privreq)
     {
@@ -568,7 +568,6 @@ static struct usbdev_req_s *lc823450_epallocreq(struct usbdev_ep_s *ep)
       return NULL;
     }
 
-  memset(privreq, 0, sizeof(struct lc823450_req_s));
   return &privreq->req;
 }
 
@@ -1453,7 +1452,6 @@ void arm_usbinitialize(void)
       return;
     }
 
-  nxsem_init(&dma_wait, 0, 0);
   g_hdma = lc823450_dmachannel(DMA_CHANNEL_USBDEV);
   lc823450_dmarequest(g_hdma, DMA_REQUEST_USBDEV);
 
@@ -1711,7 +1709,7 @@ int usbdev_unregister(struct usbdevclass_driver_s *driver)
  * Name: usbdev_msc_read_enter
  ****************************************************************************/
 
-void usbdev_msc_read_enter()
+void usbdev_msc_read_enter(void)
 {
   struct lc823450_ep_s *privep;
 #  ifdef CONFIG_DVFS
@@ -1722,14 +1720,13 @@ void usbdev_msc_read_enter()
   privep->epcmd &= ~USB_EPCMD_EMPTY_EN;
   epcmd_write(CONFIG_USBMSC_EPBULKIN, (privep->epcmd));
   lc823450_dmareauest_dir(g_hdma, DMA_REQUEST_USBDEV, 1);
-  nxsem_init(&dma_wait, 0, 0);
 }
 
 /****************************************************************************
  * Name: usbdev_msc_read_exit
  ****************************************************************************/
 
-void usbdev_msc_read_exit()
+void usbdev_msc_read_exit(void)
 {
   struct lc823450_ep_s *privep;
 
@@ -1825,7 +1822,6 @@ void usbdev_msc_write_enter0(void)
   privep->epcmd &= ~USB_EPCMD_READY_EN;
   epcmd_write(CONFIG_USBMSC_EPBULKOUT, (privep->epcmd));
   lc823450_dmareauest_dir(g_hdma, DMA_REQUEST_USBDEV, 0);
-  nxsem_init(&dma_wait, 0, 0);
 }
 
 /****************************************************************************

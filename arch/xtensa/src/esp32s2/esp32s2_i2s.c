@@ -286,11 +286,6 @@ struct esp32s2_i2s_s
 #  define       i2s_dump_buffer(m,b,s)
 #endif
 
-/* Semaphore helpers */
-
-static int      i2s_bufsem_take(struct esp32s2_i2s_s *priv);
-#define         i2s_bufsem_give(priv) nxsem_post(&priv->bufsem)
-
 /* Buffer container helpers */
 
 static struct esp32s2_buffer_s *
@@ -352,7 +347,7 @@ static const struct esp32s2_i2s_config_s esp32s2_i2s0_config =
   .data_width       = CONFIG_ESP32S2_I2S_DATA_BIT_WIDTH,
   .rate             = CONFIG_ESP32S2_I2S_SAMPLE_RATE,
   .total_slot       = 2,
-  .mclk_multiple    = I2S_MCLK_MULTIPLE_256,
+  .mclk_multiple    = I2S_MCLK_MULTIPLE_384,
   .tx_en            = I2S_TX_ENABLED,
   .rx_en            = I2S_RX_ENABLED,
 #ifdef CONFIG_ESP32S2_I2S_MCLK
@@ -393,36 +388,18 @@ static const struct esp32s2_i2s_config_s esp32s2_i2s0_config =
 static struct esp32s2_i2s_s esp32s2_i2s0_priv =
 {
   .dev =
-        {
-          .ops = &g_i2sops
-        },
-  .config = &esp32s2_i2s0_config
+  {
+    .ops = &g_i2sops
+  },
+  .lock = NXMUTEX_INITIALIZER,
+  .config = &esp32s2_i2s0_config,
+  .bufsem = SEM_INITIALIZER(0)
 };
 #endif /* CONFIG_ESP32S2_I2S */
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: i2s_bufsem_take
- *
- * Description:
- *   Take the buffer semaphore handling any exceptional conditions
- *
- * Input Parameters:
- *   priv - A reference to the i2s peripheral state
- *
- * Returned Value:
- *   Normally OK, but may return -ECANCELED in the rare event that the task
- *   has been canceled.
- *
- ****************************************************************************/
-
-static int i2s_bufsem_take(struct esp32s2_i2s_s *priv)
-{
-  return nxsem_wait_uninterruptible(&priv->bufsem);
-}
 
 /****************************************************************************
  * Name: i2s_buf_allocate
@@ -454,7 +431,7 @@ static struct esp32s2_buffer_s *i2s_buf_allocate(struct esp32s2_i2s_s *priv)
    * have at least one free buffer container.
    */
 
-  ret = i2s_bufsem_take(priv);
+  ret = nxsem_wait_uninterruptible(&priv->bufsem);
   if (ret < 0)
     {
       return NULL;
@@ -510,7 +487,7 @@ static void i2s_buf_free(struct esp32s2_i2s_s *priv,
 
   /* Wake up any threads waiting for a buffer container */
 
-  i2s_bufsem_give(priv);
+  nxsem_post(&priv->bufsem);
 }
 
 /****************************************************************************
@@ -534,19 +511,10 @@ static void i2s_buf_free(struct esp32s2_i2s_s *priv,
 
 static int i2s_buf_initialize(struct esp32s2_i2s_s *priv)
 {
-  int ret;
-
   priv->tx.carry.bytes = 0;
   priv->tx.carry.value = 0;
 
   priv->bf_freelist = NULL;
-  ret = nxsem_init(&priv->bufsem, 0, 0);
-
-  if (ret < 0)
-    {
-      i2serr("ERROR: nxsem_init failed: %d\n", ret);
-      return ret;
-    }
 
   for (int i = 0; i < CONFIG_ESP32S2_I2S_MAXINFLIGHT; i++)
     {
@@ -971,13 +939,13 @@ static void i2s_configure(struct esp32s2_i2s_s *priv)
 
           esp32s2_gpiowrite(priv->config->ws_pin, 1);
           esp32s2_configgpio(priv->config->ws_pin, INPUT_FUNCTION_2);
-          esp32s2_gpio_matrix_out(priv->config->ws_pin,
-                                  priv->config->ws_out_insig, 0, 0);
+          esp32s2_gpio_matrix_in(priv->config->ws_pin,
+                                 priv->config->ws_out_insig, 0);
 
           esp32s2_gpiowrite(priv->config->bclk_pin, 1);
           esp32s2_configgpio(priv->config->bclk_pin, INPUT_FUNCTION_2);
-          esp32s2_gpio_matrix_out(priv->config->bclk_pin,
-                                  priv->config->bclk_out_insig, 0, 0);
+          esp32s2_gpio_matrix_in(priv->config->bclk_pin,
+                                 priv->config->bclk_out_insig, 0);
         }
       else
         {
@@ -987,13 +955,13 @@ static void i2s_configure(struct esp32s2_i2s_s *priv)
 
           esp32s2_gpiowrite(priv->config->ws_pin, 1);
           esp32s2_configgpio(priv->config->ws_pin, INPUT_FUNCTION_2);
-          esp32s2_gpio_matrix_out(priv->config->ws_pin,
-                                  priv->config->ws_in_insig, 0, 0);
+          esp32s2_gpio_matrix_in(priv->config->ws_pin,
+                                 priv->config->ws_in_insig, 0);
 
           esp32s2_gpiowrite(priv->config->bclk_pin, 1);
           esp32s2_configgpio(priv->config->bclk_pin, INPUT_FUNCTION_2);
-          esp32s2_gpio_matrix_out(priv->config->bclk_pin,
-                                  priv->config->bclk_in_insig, 0, 0);
+          esp32s2_gpio_matrix_in(priv->config->bclk_pin,
+                                 priv->config->bclk_in_insig, 0);
         }
     }
   else
@@ -1747,8 +1715,6 @@ struct i2s_dev_s *esp32s2_i2sbus_initialize(void)
 
   flags = enter_critical_section();
 
-  nxmutex_init(&priv->lock);
-
   i2s_configure(priv);
 
   /* Allocate buffer containers */
@@ -1783,7 +1749,6 @@ struct i2s_dev_s *esp32s2_i2sbus_initialize(void)
 
 err:
   leave_critical_section(flags);
-  nxmutex_destroy(&priv->lock);
   return NULL;
 }
 

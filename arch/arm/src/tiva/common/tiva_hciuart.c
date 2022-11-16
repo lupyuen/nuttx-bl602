@@ -182,21 +182,25 @@ static uint8_t g_uart0_txbuffer[CONFIG_TIVA_HCIUART0_TXBUFSIZE];
 
 /* HCI UART0 variable state information */
 
-static struct hciuart_state_s g_hciuart0_state;
+static struct hciuart_state_s g_hciuart0_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART0 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart0_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart0_state,
 
@@ -228,21 +232,25 @@ static uint8_t g_uart1_txbuffer[CONFIG_TIVA_HCIUART1_TXBUFSIZE];
 
 /* HCI UART1 variable state information */
 
-static struct hciuart_state_s g_hciuart1_state;
+static struct hciuart_state_s g_hciuart1_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART1 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart1_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart1_state,
 
@@ -274,21 +282,25 @@ static uint8_t g_uart2_txbuffer[CONFIG_TIVA_HCIUART2_TXBUFSIZE];
 
 /* HCI UART2 variable state information */
 
-static struct hciuart_state_s g_hciuart2_state;
+static struct hciuart_state_s g_hciuart2_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART2 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart2_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart2_state,
 
@@ -320,21 +332,25 @@ static uint8_t g_uart3_txbuffer[CONFIG_TIVA_HCIUART3_TXBUFSIZE];
 
 /* HCI UART3 variable state information */
 
-static struct hciuart_state_s g_hciuart3_state;
+static struct hciuart_state_s g_hciuart3_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART3 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart3_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart3_state,
 
@@ -367,20 +383,24 @@ static uint8_t g_uart4_txbuffer[CONFIG_TIVA_HCIUART4_TXBUFSIZE];
 /* HCI UART4 variable state information */
 
 static struct hciuart_state_s g_hciuart4_state;
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART4 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart4_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart4_state,
 
@@ -412,21 +432,25 @@ static uint8_t g_uart5_txbuffer[CONFIG_TIVA_HCIUART5_TXBUFSIZE];
 
 /* HCI UART5 variable state information */
 
-static struct hciuart_state_s g_hciuart5_state;
+static struct hciuart_state_s g_hciuart5_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART5 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart5_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart5_state,
 
@@ -458,21 +482,25 @@ static uint8_t g_uart6_txbuffer[CONFIG_TIVA_HCIUART6_TXBUFSIZE];
 
 /* HCI UART6 variable state information */
 
-static struct hciuart_state_s g_hciuart6_state;
+static struct hciuart_state_s g_hciuart6_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART6 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart6_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart6_state,
 
@@ -504,21 +532,25 @@ static uint8_t g_uart7_txbuffer[CONFIG_TIVA_HCIUART7_TXBUFSIZE];
 
 /* HCI UART7 variable state information */
 
-static struct hciuart_state_s g_hciuart7_state;
+static struct hciuart_state_s g_hciuart7_state =
+{
+  .rxwait = SEM_INITIALIZER(0),
+  .txwait = SEM_INITIALIZER(0),
+};
 
 /* HCI UART7 constant configuration information */
 
 static const struct hciuart_config_s g_hciuart7_config =
 {
   .lower         =
-    {
-      .rxattach  = hciuart_rxattach,
-      .rxenable  = hciuart_rxenable,
-      .setbaud   = hciuart_setbaud,
-      .read      = hciuart_read,
-      .write     = hciuart_write,
-      .rxdrain   = hciuart_rxdrain,
-    },
+  {
+    .rxattach    = hciuart_rxattach,
+    .rxenable    = hciuart_rxenable,
+    .setbaud     = hciuart_setbaud,
+    .read        = hciuart_read,
+    .write       = hciuart_write,
+    .rxdrain     = hciuart_rxdrain,
+  },
 
   .state         = &g_hciuart7_state,
 
@@ -1842,11 +1874,6 @@ void hciuart_initialize(void)
           /* Disable UART interrupts */
 
           hciuart_disableints(config, HCIUART_ALLINTS);
-
-          /* Initialize signalling semaphores */
-
-          nxsem_init(&state->rxwait, 0, 0);
-          nxsem_init(&state->txwait, 0, 0);
 
           /* Attach and enable the HCI UART IRQ */
 

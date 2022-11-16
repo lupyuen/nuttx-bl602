@@ -567,11 +567,20 @@ static int imxrt_reset(void);
  * single global instance.
  */
 
-static struct imxrt_ehci_s g_ehci;
+static struct imxrt_ehci_s g_ehci =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+  .ep0.iocsem = SEM_INITIALIZER(1),
+};
 
 /* This is the connection/enumeration interface */
 
-static struct usbhost_connection_s g_ehciconn;
+static struct usbhost_connection_s g_ehciconn =
+{
+  .wait = imxrt_wait,
+  .enumerate = imxrt_enumerate,
+};
 
 /* Maps USB chapter 9 speed to EHCI speed */
 
@@ -587,7 +596,7 @@ static struct imxrt_qh_s g_asynchead aligned_data(32);
 #ifndef CONFIG_USBHOST_INT_DISABLE
 /* The head of the periodic queue */
 
-static struct imxrt_qh_s g_intrhead   aligned_data(32);
+static struct imxrt_qh_s g_intrhead aligned_data(32);
 
 /* The frame list */
 
@@ -4973,34 +4982,25 @@ struct usbhost_connection_s *imxrt_ehci_initialize(int controller)
   /* Sanity checks */
 
   DEBUGASSERT(controller == 0);
-  DEBUGASSERT(((uintptr_t) & g_asynchead & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_asynchead & 0x1f) == 0);
   DEBUGASSERT((sizeof(struct imxrt_qh_s) & 0x1f) == 0);
   DEBUGASSERT((sizeof(struct imxrt_qtd_s) & 0x1f) == 0);
 
 #  ifdef CONFIG_IMXRT_EHCI_PREALLOCATE
-  DEBUGASSERT(((uintptr_t) & g_qhpool & 0x1f) == 0);
-  DEBUGASSERT(((uintptr_t) & g_qtdpool & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_qhpool & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_qtdpool & 0x1f) == 0);
 #  endif
 
 #  ifndef CONFIG_USBHOST_INT_DISABLE
-  DEBUGASSERT(((uintptr_t) & g_intrhead & 0x1f) == 0);
+  DEBUGASSERT(((uintptr_t)&g_intrhead & 0x1f) == 0);
 #    ifdef CONFIG_IMXRT_EHCI_PREALLOCATE
-  DEBUGASSERT(((uintptr_t) g_framelist & 0xfff) == 0);
+  DEBUGASSERT(((uintptr_t)g_framelist & 0xfff) == 0);
 #    endif
-#  endif                               /* CONFIG_USBHOST_INT_DISABLE */
+#  endif /* CONFIG_USBHOST_INT_DISABLE */
 
   /* Software Configuration *************************************************/
 
   usbhost_vtrace1(EHCI_VTRACE1_INITIALIZING, 0);
-
-  /* Initialize the EHCI state data structure */
-
-  nxmutex_init(&g_ehci.lock);
-  nxsem_init(&g_ehci.pscsem, 0, 0);
-
-  /* Initialize EP0 */
-
-  nxsem_init(&g_ehci.ep0.iocsem, 0, 1);
 
   /* Initialize the root hub port structures */
 
@@ -5203,7 +5203,7 @@ struct usbhost_connection_s *imxrt_ehci_initialize(int controller)
    */
 
   memset(&g_asynchead, 0, sizeof(struct imxrt_qh_s));
-  physaddr = imxrt_physramaddr((uintptr_t) & g_asynchead);
+  physaddr = imxrt_physramaddr((uintptr_t)&g_asynchead);
   g_asynchead.hw.hlp = imxrt_swap32(physaddr | QH_HLP_TYP_QH);
   g_asynchead.hw.epchar = imxrt_swap32(QH_EPCHAR_H | QH_EPCHAR_EPS_FULL);
   g_asynchead.hw.overlay.nqp = imxrt_swap32(QH_NQP_T);
@@ -5234,7 +5234,7 @@ struct usbhost_connection_s *imxrt_ehci_initialize(int controller)
 
   /* Attach the periodic QH to Period Frame List */
 
-  physaddr = imxrt_physramaddr((uintptr_t) & g_intrhead);
+  physaddr = imxrt_physramaddr((uintptr_t)&g_intrhead);
   for (i = 0; i < FRAME_LIST_SIZE; i++)
     {
       g_framelist[i] = imxrt_swap32(physaddr) | PFL_TYP_QH;
@@ -5336,10 +5336,6 @@ struct usbhost_connection_s *imxrt_ehci_initialize(int controller)
 
   usbhost_vtrace1(EHCI_VTRACE1_INIITIALIZED, 0);
 
-  /* Initialize and return the connection interface */
-
-  g_ehciconn.wait = imxrt_wait;
-  g_ehciconn.enumerate = imxrt_enumerate;
   return &g_ehciconn;
 }
 

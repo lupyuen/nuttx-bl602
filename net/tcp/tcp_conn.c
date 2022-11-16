@@ -68,6 +68,7 @@
 #include "tcp/tcp.h"
 #include "arp/arp.h"
 #include "icmpv6/icmpv6.h"
+#include "nat/nat.h"
 
 /****************************************************************************
  * Private Data
@@ -162,107 +163,6 @@ static FAR struct tcp_conn_s *
     }
 
   return NULL;
-}
-
-/****************************************************************************
- * Name: tcp_selectport
- *
- * Description:
- *   If the port number is zero; select an unused port for the connection.
- *   If the port number is non-zero, verify that no other connection has
- *   been created with this port number.
- *
- * Input Parameters:
- *   portno -- the selected port number in network order. Zero means no port
- *     selected.
- *
- * Returned Value:
- *   Selected or verified port number in network order on success, a negated
- *   errno on failure:
- *
- *   EADDRINUSE
- *     The given address is already in use.
- *   EADDRNOTAVAIL
- *     Cannot assign requested address (unlikely)
- *
- * Assumptions:
- *   Interrupts are disabled
- *
- ****************************************************************************/
-
-static int tcp_selectport(uint8_t domain,
-                          FAR const union ip_addr_u *ipaddr,
-                          uint16_t portno)
-{
-  static uint16_t g_last_tcp_port;
-  ssize_t ret;
-
-  /* Generate port base dynamically */
-
-  if (g_last_tcp_port == 0)
-    {
-      ret = getrandom(&g_last_tcp_port, sizeof(uint16_t), 0);
-      if (ret < 0)
-        {
-          ret = getrandom(&g_last_tcp_port, sizeof(uint16_t), GRND_RANDOM);
-        }
-
-      if (ret != sizeof(uint16_t))
-        {
-          g_last_tcp_port = clock_systime_ticks() % 32000;
-        }
-      else
-        {
-          g_last_tcp_port = g_last_tcp_port % 32000;
-        }
-
-      if (g_last_tcp_port < 4096)
-        {
-          g_last_tcp_port += 4096;
-        }
-    }
-
-  if (portno == 0)
-    {
-      /* No local port assigned. Loop until we find a valid listen port
-       * number that is not being used by any other connection. NOTE the
-       * following loop is assumed to terminate but could not if all
-       * 32000-4096+1 ports are in used (unlikely).
-       */
-
-      do
-        {
-          /* Guess that the next available port number will be the one after
-           * the last port number assigned. Make sure that the port number
-           * is within range.
-           */
-
-          if (++g_last_tcp_port >= 32000)
-            {
-              g_last_tcp_port = 4096;
-            }
-
-          portno = HTONS(g_last_tcp_port);
-        }
-      while (tcp_listener(domain, ipaddr, portno));
-    }
-  else
-    {
-      /* A port number has been supplied.  Verify that no other TCP/IP
-       * connection is using this local port.
-       */
-
-      if (tcp_listener(domain, ipaddr, portno))
-        {
-          /* It is in use... return EADDRINUSE */
-
-          return -EADDRINUSE;
-        }
-    }
-
-  /* Return the selected or verified port number (host byte order) */
-
-  return portno;
 }
 
 /****************************************************************************
@@ -574,6 +474,117 @@ FAR struct tcp_conn_s *tcp_alloc_conn(void)
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: tcp_selectport
+ *
+ * Description:
+ *   If the port number is zero; select an unused port for the connection.
+ *   If the port number is non-zero, verify that no other connection has
+ *   been created with this port number.
+ *
+ * Input Parameters:
+ *   portno -- the selected port number in network order. Zero means no port
+ *     selected.
+ *
+ * Returned Value:
+ *   Selected or verified port number in network order on success, a negated
+ *   errno on failure:
+ *
+ *   EADDRINUSE
+ *     The given address is already in use.
+ *   EADDRNOTAVAIL
+ *     Cannot assign requested address (unlikely)
+ *
+ * Assumptions:
+ *   Interrupts are disabled
+ *
+ ****************************************************************************/
+
+int tcp_selectport(uint8_t domain,
+                   FAR const union ip_addr_u *ipaddr,
+                   uint16_t portno)
+{
+  static uint16_t g_last_tcp_port;
+  ssize_t ret;
+
+  /* Generate port base dynamically */
+
+  if (g_last_tcp_port == 0)
+    {
+      ret = getrandom(&g_last_tcp_port, sizeof(uint16_t), 0);
+      if (ret < 0)
+        {
+          ret = getrandom(&g_last_tcp_port, sizeof(uint16_t), GRND_RANDOM);
+        }
+
+      if (ret != sizeof(uint16_t))
+        {
+          g_last_tcp_port = clock_systime_ticks() % 32000;
+        }
+      else
+        {
+          g_last_tcp_port = g_last_tcp_port % 32000;
+        }
+
+      if (g_last_tcp_port < 4096)
+        {
+          g_last_tcp_port += 4096;
+        }
+    }
+
+  if (portno == 0)
+    {
+      /* No local port assigned. Loop until we find a valid listen port
+       * number that is not being used by any other connection. NOTE the
+       * following loop is assumed to terminate but could not if all
+       * 32000-4096+1 ports are in used (unlikely).
+       */
+
+      do
+        {
+          /* Guess that the next available port number will be the one after
+           * the last port number assigned. Make sure that the port number
+           * is within range.
+           */
+
+          if (++g_last_tcp_port >= 32000)
+            {
+              g_last_tcp_port = 4096;
+            }
+
+          portno = HTONS(g_last_tcp_port);
+        }
+      while (tcp_listener(domain, ipaddr, portno)
+#if defined(CONFIG_NET_NAT) && defined(CONFIG_NET_IPv4)
+             || (domain == PF_INET &&
+                 ipv4_nat_port_inuse(IP_PROTO_TCP, ipaddr->ipv4, portno))
+#endif
+      );
+    }
+  else
+    {
+      /* A port number has been supplied.  Verify that no other TCP/IP
+       * connection is using this local port.
+       */
+
+      if (tcp_listener(domain, ipaddr, portno)
+#if defined(CONFIG_NET_NAT) && defined(CONFIG_NET_IPv4)
+          || (domain == PF_INET &&
+              ipv4_nat_port_inuse(IP_PROTO_TCP, ipaddr->ipv4, portno))
+#endif
+      )
+        {
+          /* It is in use... return EADDRINUSE */
+
+          return -EADDRINUSE;
+        }
+    }
+
+  /* Return the selected or verified port number (host byte order) */
+
+  return portno;
+}
 
 /****************************************************************************
  * Name: tcp_initialize
@@ -1028,6 +1039,10 @@ FAR struct tcp_conn_s *tcp_alloc_accept(FAR struct net_driver_s *dev,
       conn->tcpstateflags = TCP_SYN_RCVD;
 
       tcp_initsequence(conn->sndseq);
+#if !defined(CONFIG_NET_TCP_WRITE_BUFFERS)
+      conn->rexmit_seq = tcp_getsequence(conn->sndseq);
+#endif
+
       conn->tx_unacked    = 1;
 #ifdef CONFIG_NET_TCP_WRITE_BUFFERS
       conn->expired       = 0;
@@ -1301,6 +1316,12 @@ int tcp_connect(FAR struct tcp_conn_s *conn, FAR const struct sockaddr *addr)
 
   conn->tcpstateflags = TCP_SYN_SENT;
   tcp_initsequence(conn->sndseq);
+
+  /* Save initial sndseq to rexmit_seq, otherwise it will be zero */
+
+#if !defined(CONFIG_NET_TCP_WRITE_BUFFERS)
+  conn->rexmit_seq = tcp_getsequence(conn->sndseq);
+#endif
 
   conn->tx_unacked = 1;    /* TCP length of the SYN is one. */
   conn->nrtx       = 0;

@@ -155,7 +155,13 @@ struct imxrt_edma_s
 
 /* The state of the eDMA */
 
-static struct imxrt_edma_s g_edma;
+static struct imxrt_edma_s g_edma =
+{
+  .chlock = NXMUTEX_INITIALIZER,
+#if CONFIG_IMXRT_EDMA_NTCD > 0
+  .dsem = SEM_INITIALIZER(CONFIG_IMXRT_EDMA_NTCD),
+#endif
+};
 
 #if CONFIG_IMXRT_EDMA_NTCD > 0
 /* This is a singly-linked list of free TCDs */
@@ -171,26 +177,6 @@ static struct imxrt_edmatcd_s g_tcd_pool[CONFIG_IMXRT_EDMA_NTCD]
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: imxrt_takedsem() and imxrt_givedsem()
- *
- * Description:
- *   Used to wait for availability of descriptors in the descriptor table.
- *
- ****************************************************************************/
-
-#if CONFIG_IMXRT_EDMA_NTCD > 0
-static void imxrt_takedsem(void)
-{
-  nxsem_wait_uninterruptible(&g_edma.dsem);
-}
-
-static inline void imxrt_givedsem(void)
-{
-  nxsem_post(&g_edma.dsem);
-}
-#endif
 
 /****************************************************************************
  * Name: imxrt_tcd_alloc
@@ -215,7 +201,7 @@ static struct imxrt_edmatcd_s *imxrt_tcd_alloc(void)
    */
 
   flags = enter_critical_section();
-  imxrt_takedsem();
+  nxsem_wait_uninterruptible(&g_edma.dsem);
 
   /* Now there should be a TCD in the free list reserved just for us */
 
@@ -247,7 +233,7 @@ static void imxrt_tcd_free(struct imxrt_edmatcd_s *tcd)
 
   flags = spin_lock_irqsave(NULL);
   sq_addlast((sq_entry_t *)tcd, &g_tcd_free);
-  imxrt_givedsem();
+  nxsem_post(&g_edma.dsem);
   spin_unlock_irqrestore(NULL, flags);
 }
 #endif
@@ -740,18 +726,12 @@ void weak_function arm_dma_initialize(void)
 
   /* Initialize data structures */
 
-  memset(&g_edma, 0, sizeof(struct imxrt_edma_s));
   for (i = 0; i < IMXRT_EDMA_NCHANNELS; i++)
     {
       g_edma.dmach[i].chan = i;
     }
 
-  /* Initialize mutex & semaphores */
-
-  nxmutex_init(&g_edma.chlock);
 #if CONFIG_IMXRT_EDMA_NTCD > 0
-  nxsem_init(&g_edma.dsem, 0, CONFIG_IMXRT_EDMA_NTCD);
-
   /* Initialize the list of free TCDs from the pool of pre-allocated TCDs. */
 
   imxrt_tcd_initialize();

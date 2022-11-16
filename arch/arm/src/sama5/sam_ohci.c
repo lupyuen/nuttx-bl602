@@ -461,11 +461,19 @@ static void sam_disconnect(struct usbhost_driver_s *drvr,
  * single global instance.
  */
 
-static struct sam_ohci_s g_ohci;
+static struct sam_ohci_s g_ohci =
+{
+  .lock = NXMUTEX_INITIALIZER,
+  .pscsem = SEM_INITIALIZER(0),
+};
 
 /* This is the connection/enumeration interface */
 
-static struct usbhost_connection_s g_ohciconn;
+static struct usbhost_connection_s g_ohciconn =
+{
+  .wait = sam_wait,
+  .enumerate = sam_enumerate,
+};
 
 /* This is a free list of EDs and TD buffers */
 
@@ -3110,7 +3118,7 @@ static int sam_ctrlin(struct usbhost_driver_s *drvr, usbhost_ep_t ep0,
   struct sam_rhport_s *rhport = (struct sam_rhport_s *)drvr;
   struct sam_eplist_s *eplist = (struct sam_eplist_s *)ep0;
   uint16_t len;
-  int  ret;
+  int ret;
 
   DEBUGASSERT(rhport != NULL && eplist != NULL && req != NULL);
 
@@ -3954,11 +3962,6 @@ struct usbhost_connection_s *sam_ohci_initialize(int controller)
   DEBUGASSERT(sizeof(struct sam_ed_s)  == SIZEOF_SAM_ED_S);
   DEBUGASSERT(sizeof(struct sam_gtd_s) == SIZEOF_SAM_TD_S);
 
-  /* Initialize the state data structure */
-
-  nxsem_init(&g_ohci.pscsem,  0, 0);
-  nxmutex_init(&g_ohci.lock);
-
 #ifndef CONFIG_USBHOST_INT_DISABLE
   g_ohci.ininterval  = MAX_PERINTERVAL;
   g_ohci.outinterval = MAX_PERINTERVAL;
@@ -4202,10 +4205,6 @@ struct usbhost_connection_s *sam_ohci_initialize(int controller)
 
   usbhost_vtrace1(OHCI_VTRACE1_INITIALIZED, 0);
 
-  /* Initialize and return the connection interface */
-
-  g_ohciconn.wait      = sam_wait;
-  g_ohciconn.enumerate = sam_enumerate;
   return &g_ohciconn;
 }
 

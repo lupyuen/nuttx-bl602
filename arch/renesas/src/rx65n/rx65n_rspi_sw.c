@@ -277,10 +277,10 @@ static const struct spi_ops_s g_rspi0ops =
 
 static struct rx65n_rspidev_s g_rspi0dev =
 {
-  .rspidev   =
-    {
-      &g_rspi0ops
-    },
+  .rspidev =
+  {
+    .ops = &g_rspi0ops,
+  },
   .rspibase  = RX65N_RSPI0_BASE,
   .rspiclock = RX65N_PCLK_FREQUENCY,
 #ifndef CONFIG_SPI_POLLWAIT
@@ -291,7 +291,9 @@ static struct rx65n_rspidev_s g_rspi0dev =
   .rspigrpbase = RX65N_GRPAL0_ADDR,
   .rspierimask = RX65N_GRPAL0_SPEI0_MASK,
   .rspiidlimask = RX65N_GRPAL0_SPII0_MASK,
+  .waitsem = SEM_INITIALIZER(0),
 #endif
+  .lock = NXMUTEX_INITIALIZER,
 };
 #endif
 
@@ -329,10 +331,10 @@ static const struct spi_ops_s g_rspi1ops =
 
 static struct rx65n_rspidev_s g_rspi1dev =
 {
-  .rspidev   =
-    {
-      &g_rspi1ops
-    },
+  .rspidev =
+  {
+    .ops = &g_rspi1ops,
+  },
   .rspibase  = RX65N_RSPI1_BASE,
   .rspiclock = RX65N_PCLK_FREQUENCY,
 #ifndef CONFIG_SPI_POLLWAIT
@@ -343,7 +345,9 @@ static struct rx65n_rspidev_s g_rspi1dev =
   .rspigrpbase = RX65N_GRPAL0_ADDR,
   .rspierimask = RX65N_GRPAL0_SPEI1_MASK,
   .rspiidlimask = RX65N_GRPAL0_SPII1_MASK,
+  .waitsem = SEM_INITIALIZER(0),
 #endif
+  .lock = NXMUTEX_INITIALIZER,
 };
 #endif
 
@@ -381,10 +385,10 @@ static const struct spi_ops_s g_rspi2ops =
 
 static struct rx65n_rspidev_s g_rspi2dev =
 {
-  .rspidev   =
-    {
-      &g_rspi2ops
-    },
+  .rspidev =
+  {
+    .ops = &g_rspi2ops,
+  },
   .rspibase  = RX65N_RSPI2_BASE,
   .rspiclock = RX65N_PCLK_FREQUENCY,
 #ifndef CONFIG_SPI_POLLWAIT
@@ -395,7 +399,9 @@ static struct rx65n_rspidev_s g_rspi2dev =
   .rspigrpbase = RX65N_GRPAL0_ADDR,
   .rspierimask = RX65N_GRPAL0_SPEI2_MASK,
   .rspiidlimask = RX65N_GRPAL0_SPII2_MASK,
+  .waitsem = SEM_INITIALIZER(0),
 #endif
+  .lock = NXMUTEX_INITIALIZER,
 };
 #endif
 
@@ -1790,7 +1796,7 @@ void rspi_interrupt_init(FAR struct rx65n_rspidev_s *priv, uint8_t bus)
  * Return Value : none
  ****************************************************************************/
 
-static void rspi_power_on_off (uint8_t channel, uint8_t on_or_off)
+static void rspi_power_on_off(uint8_t channel, uint8_t on_or_off)
 {
   SYSTEM.PRCR.WORD = 0xa50bu;
 
@@ -1816,7 +1822,7 @@ static void rspi_power_on_off (uint8_t channel, uint8_t on_or_off)
  * Return Value : none
  ****************************************************************************/
 
-static void rspi_reg_protect (uint8_t enable)
+static void rspi_reg_protect(uint8_t enable)
 {
   SYSTEM.PRCR.WORD = 0xa50b;
   MPC.PWPR.BIT.B0WI = 0;
@@ -1842,11 +1848,6 @@ static void rspi_bus_initialize(FAR struct rx65n_rspidev_s *priv)
 {
   uint8_t regval8;
   uint16_t regval16;
-
-#ifndef CONFIG_SPI_POLLWAIT
-  nxsem_init(&priv->waitsem, 0, 0);
-#endif
-  nxmutex_init(&priv->lock);
 
   /* Initialize control register */
 

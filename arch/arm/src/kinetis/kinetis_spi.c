@@ -221,12 +221,13 @@ static const struct spi_ops_s g_spi0ops =
 
 static struct kinetis_spidev_s g_spi0dev =
 {
-  .spidev            =
+  .spidev   =
   {
     &g_spi0ops
   },
-  .spibase           = KINETIS_SPI0_BASE,
-  .ctarsel           = KINETIS_SPI_CTAR0_OFFSET,
+  .spibase  = KINETIS_SPI0_BASE,
+  .lock     = NXMUTEX_INITIALIZER,
+  .ctarsel  = KINETIS_SPI_CTAR0_OFFSET,
 #ifdef CONFIG_KINETIS_SPI_DMA
 #  ifdef CONFIG_KINETIS_SPI0_DMA
   .rxch     = KINETIS_DMA_REQUEST_SRC_SPI0_RX,
@@ -235,6 +236,8 @@ static struct kinetis_spidev_s g_spi0dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -270,12 +273,13 @@ static const struct spi_ops_s g_spi1ops =
 
 static struct kinetis_spidev_s g_spi1dev =
 {
-  .spidev            =
+  .spidev   =
   {
     &g_spi1ops
   },
-  .spibase           = KINETIS_SPI1_BASE,
-  .ctarsel           = KINETIS_SPI_CTAR0_OFFSET,
+  .spibase  = KINETIS_SPI1_BASE,
+  .lock     = NXMUTEX_INITIALIZER,
+  .ctarsel  = KINETIS_SPI_CTAR0_OFFSET,
 #ifdef CONFIG_KINETIS_SPI_DMA
 #  ifdef CONFIG_KINETIS_SPI1_DMA
   .rxch     = KINETIS_DMA_REQUEST_SRC_SPI1_RX,
@@ -284,6 +288,8 @@ static struct kinetis_spidev_s g_spi1dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -319,12 +325,13 @@ static const struct spi_ops_s g_spi2ops =
 
 static struct kinetis_spidev_s g_spi2dev =
 {
-  .spidev            =
+  .spidev   =
   {
     &g_spi2ops
   },
-  .spibase           = KINETIS_SPI2_BASE,
-  .ctarsel           = KINETIS_SPI_CTAR0_OFFSET,
+  .spibase  = KINETIS_SPI2_BASE,
+  .lock     = NXMUTEX_INITIALIZER,
+  .ctarsel  = KINETIS_SPI_CTAR0_OFFSET,
 #ifdef CONFIG_KINETIS_SPI_DMA
 #  ifdef CONFIG_KINETIS_SPI2_DMA
   .rxch     = KINETIS_DMA_REQUEST_SRC_FTM3_CH6__SPI2_RX,
@@ -333,6 +340,8 @@ static struct kinetis_spidev_s g_spi2dev =
   .rxch     = 0,
   .txch     = 0,
 #  endif
+  .rxsem    = SEM_INITIALIZER(0),
+  .txsem    = SEM_INITIALIZER(0),
 #endif
 };
 #endif
@@ -1658,7 +1667,7 @@ struct spi_dev_s *kinetis_spibus_initialize(int port)
 
   /* select mode 0 */
 
-  priv->mode      = SPIDEV_MODE3;
+  priv->mode = SPIDEV_MODE3;
   spi_setmode(&priv->spidev, SPIDEV_MODE0);
 
   /* Select a default frequency of approx. 400KHz */
@@ -1666,22 +1675,11 @@ struct spi_dev_s *kinetis_spibus_initialize(int port)
   priv->frequency = 0;
   spi_setfrequency(&priv->spidev, KINETIS_SPI_CLK_INIT);
 
-  /* Initialize the SPI mutex that enforces mutually exclusive access */
-
-  nxmutex_init(&priv->lock);
 #ifdef CONFIG_KINETIS_SPI_DMA
-  /* Initialize the SPI semaphores that is used to wait for DMA completion.
-   * This semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
   if (priv->rxch && priv->txch)
     {
       if (priv->txdma == NULL && priv->rxdma == NULL)
         {
-          nxsem_init(&priv->rxsem, 0, 0);
-          nxsem_init(&priv->txsem, 0, 0);
-
           priv->txdma = kinetis_dmach_alloc(priv->txch | DMAMUX_CHCFG_ENBL,
                                             0);
           priv->rxdma = kinetis_dmach_alloc(priv->rxch | DMAMUX_CHCFG_ENBL,

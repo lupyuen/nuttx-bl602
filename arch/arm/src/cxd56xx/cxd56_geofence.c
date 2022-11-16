@@ -399,7 +399,7 @@ static int cxd56_geofence_get_all_status(unsigned long arg)
 
 static int cxd56_geofence_set_mode(unsigned long arg)
 {
-  int                                   ret;
+  int                           ret;
   struct cxd56_geofence_mode_s *mode;
 
   if (!arg)
@@ -550,7 +550,7 @@ static int cxd56_geofence_poll(struct file *filep,
                                struct pollfd *fds,
                                bool setup)
 {
-  struct inode *               inode;
+  struct inode                *inode;
   struct cxd56_geofence_dev_s *priv;
   int                          ret = OK;
   int                          i;
@@ -632,7 +632,7 @@ static int cxd56_geofence_register(const char *devpath)
   struct cxd56_geofence_dev_s *priv;
   int                          ret;
 
-  priv = (struct cxd56_geofence_dev_s *)kmm_malloc(
+  priv = (struct cxd56_geofence_dev_s *)kmm_zalloc(
     sizeof(struct cxd56_geofence_dev_s));
   if (!priv)
     {
@@ -640,7 +640,6 @@ static int cxd56_geofence_register(const char *devpath)
       return -ENOMEM;
     }
 
-  memset(priv, 0, sizeof(struct cxd56_geofence_dev_s));
   nxmutex_init(&priv->devlock);
 
   ret = cxd56_geofence_initialize(priv);
@@ -674,6 +673,7 @@ err1:
   unregister_driver(devpath);
 
 err0:
+  nxmutex_destroy(&priv->devlock);
   kmm_free(priv);
   return ret;
 }

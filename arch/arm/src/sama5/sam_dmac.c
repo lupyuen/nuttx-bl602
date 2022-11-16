@@ -342,6 +342,9 @@ static struct sam_dmach_s g_dmach0[SAM_NDMACHAN] =
 
 static struct sam_dmac_s g_dmac0 =
 {
+  .chlock     = NXMUTEX_INITIALIZER,
+  .dsem       = SEM_INITIALIZER(SAM_NDMACHAN),
+
   /* DMAC 0 base address */
 
   .base       = SAM_DMAC0_VBASE,
@@ -444,6 +447,9 @@ static struct sam_dmach_s g_dmach1[SAM_NDMACHAN] =
 
 static struct sam_dmac_s g_dmac1 =
 {
+  .chlock     = NXMUTEX_INITIALIZER,
+  .dsem       = SEM_INITIALIZER(SAM_NDMACHAN),
+
   /* DMAC 0 base address */
 
   .base       = SAM_DMAC1_VBASE,
@@ -462,24 +468,6 @@ static struct sam_dmac_s g_dmac1 =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: sam_takedsem() and sam_givedsem()
- *
- * Description:
- *   Used to wait for availability of descriptors in the descriptor table.
- *
- ****************************************************************************/
-
-static int sam_takedsem(struct sam_dmac_s *dmac)
-{
-  return nxsem_wait_uninterruptible(&dmac->dsem);
-}
-
-static inline void sam_givedsem(struct sam_dmac_s *dmac)
-{
-  nxsem_post(&dmac->dsem);
-}
 
 /****************************************************************************
  * Name: sam_getdmac
@@ -1334,7 +1322,7 @@ sam_allocdesc(struct sam_dmach_s *dmach, struct dma_linklist_s *prev,
        * there is at least one free descriptor in the table and it is ours.
        */
 
-      ret = sam_takedsem(dmac);
+      ret = nxsem_wait_uninterruptible(&dmac->dsem);
       if (ret < 0)
         {
           return NULL;
@@ -1349,7 +1337,7 @@ sam_allocdesc(struct sam_dmach_s *dmach, struct dma_linklist_s *prev,
       ret = nxmutex_lock(&dmac->chlock);
       if (ret < 0)
         {
-          sam_givedsem(dmac);
+          nxsem_post(&dmac->dsem);
           return NULL;
         }
 
@@ -1471,7 +1459,7 @@ static void sam_freelinklist(struct sam_dmach_s *dmach)
        */
 
       memset(desc, 0, sizeof(struct dma_linklist_s));
-      sam_givedsem(dmac);
+      nxsem_post(&dmac->dsem);
 
       /* Get the virtual address of the next descriptor in the list */
 
@@ -1854,11 +1842,6 @@ void sam_dmainitialize(struct sam_dmac_s *dmac)
   /* Enable the DMA controller */
 
   sam_putdmac(dmac, DMAC_EN_ENABLE, SAM_DMAC_EN_OFFSET);
-
-  /* Initialize muttex & semaphores */
-
-  nxmutex_init(&dmac->chlock);
-  nxsem_init(&dmac->dsem, 0, SAM_NDMACHAN);
 }
 
 /****************************************************************************
