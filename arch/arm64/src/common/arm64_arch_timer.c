@@ -221,6 +221,25 @@ void up_timer_initialize(void)
         (unsigned long)(arch_timer_rate / 10000) % 100, cycle_per_tick);
 
   irq_attach(ARM_ARCH_TIMER_IRQ, arm64_arch_timer_compare_isr, 0);
+
+  // For PinePhone: Read Vector Base Address Register EL1
+  extern void *_vector_table[];
+  sinfo("_vector_table=%p\n", _vector_table);
+  sinfo("Before writing: vbar_el1=%p\n", read_sysreg(vbar_el1));
+
+  // For PinePhone: Write Vector Base Address Register EL1
+  write_sysreg((uint64_t)_vector_table, vbar_el1);
+  ARM64_ISB();
+
+  // For PinePhone: Read Vector Base Address Register EL1
+  sinfo("After writing: vbar_el1=%p\n", read_sysreg(vbar_el1));
+
+  // For PinePhone: Dump NuttX Interrupt Vector Table
+  // sinfo("ARM_ARCH_TIMER_IRQ=%d\n", ARM_ARCH_TIMER_IRQ);
+  // sinfo("arm64_arch_timer_compare_isr=%p\n", arm64_arch_timer_compare_isr);
+  // sinfo("irq_unexpected_isr=%p\n", irq_unexpected_isr);
+  // for (int i = 0; i < NR_IRQS; i++) { sinfo("g_irqvector[%d].handler=%p\n", i, g_irqvector[i].handler); }
+
   arm64_gic_irq_set_priority(ARM_ARCH_TIMER_IRQ, ARM_ARCH_TIMER_PRIO,
                              ARM_ARCH_TIMER_FLAGS);
 

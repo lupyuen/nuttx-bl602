@@ -32,7 +32,11 @@
 #include <nuttx/arch.h>
 #include <arch/irq.h>
 
+#ifdef PINEPHONE_GICv2
+#include "arm64_internal.h"
+#else
 #include "arm_internal.h"
+#endif  //  PINEPHONE_GICv2
 #include "gic.h"
 
 #ifdef CONFIG_ARMV7A_HAVE_GICv2
@@ -360,6 +364,7 @@ void arm_gic_initialize(void)
  *
  ****************************************************************************/
 
+#ifndef PINEPHONE_GICv2
 uint32_t *arm_decodeirq(uint32_t *regs)
 {
   uint32_t regval;
@@ -387,6 +392,7 @@ uint32_t *arm_decodeirq(uint32_t *regs)
   putreg32(regval, GIC_ICCEOIR);
   return regs;
 }
+#endif  //  !PINEPHONE_GICv2
 
 /****************************************************************************
  * Name: up_enable_irq

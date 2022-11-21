@@ -27,7 +27,11 @@
 #include <stdint.h>
 #include <debug.h>
 
+#ifdef PINEPHONE_GICv2
+#include "arm64_internal.h"
+#else
 #include "arm_internal.h"
+#endif  //  PINEPHONE_GICv2
 #include "gic.h"
 
 #if defined(CONFIG_ARMV7A_HAVE_GICv2) && defined(CONFIG_DEBUG_IRQ_INFO)
@@ -245,7 +249,7 @@ static inline void arm_gic_dump_distributor(bool all, int irq, int nlines)
   irqinfo("         %08x %08x %08x %08x\n",
           getreg32(GIC_ICDPIDR(0)), getreg32(GIC_ICDPIDR(1)),
           getreg32(GIC_ICDPIDR(2)), getreg32(GIC_ICDPIDR(3)));
-  irqinfo("         %08x %08x %08x %08x\n",
+  irqinfo("         %08x %08x %08x\n",
           getreg32(GIC_ICDPIDR(4)), getreg32(GIC_ICDPIDR(5)),
           getreg32(GIC_ICDPIDR(6)));
   irqinfo("       CIDR[%08lx]:\n", (unsigned long)GIC_ICDCIDR(0));

@@ -41,7 +41,11 @@
 #endif
 
 #include "mpcore.h"
+#ifdef PINEPHONE_GICv2
+#include "arm64_internal.h"
+#else
 #include "arm_internal.h"
+#endif  //  PINEPHONE_GICv2
 
 #ifdef CONFIG_ARMV7A_HAVE_GICv2
 

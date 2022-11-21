@@ -39,7 +39,9 @@
 
  /* 32-bit register definition for qemu pl011 uart */
 
- #define UART1_BASE_ADDRESS 0x9000000
+ /* PinePhone Allwinner A64 UART0 Base Address: */
+ #define UART1_BASE_ADDRESS 0x01C28000
+ /* Previously: #define UART1_BASE_ADDRESS 0x9000000 */
  #define EARLY_UART_PL011_BAUD_RATE  115200
 
 /****************************************************************************
@@ -57,27 +59,33 @@
 
 GTEXT(up_earlyserialinit)
 SECTION_FUNC(text, up_earlyserialinit)
-    ldr   x15, =UART1_BASE_ADDRESS
-    mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE % 16)
-    strh  w0, [x15, #0x28]      /* -> UARTFBRD (Baud divisor fraction) */
-    mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE / 16)
-    strh  w0, [x15, #0x24]      /* -> UARTIBRD (Baud divisor integer) */
-    mov   x0, #0x60             /* 8n1 */
-    str   w0, [x15, #0x2C]      /* -> UARTLCR_H (Line control) */
-    ldr   x0, =0x00000301       /* RXE | TXE | UARTEN */
-    str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
+    # TODO: Set PinePhone Allwinner A64 Baud Rate Divisor: UART_LCR (DLAB), UART_DLL, UART_DLH
+    # ldr   x15, =UART1_BASE_ADDRESS
+    # mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE % 16)
+    # strh  w0, [x15, #0x28]      /* -> UARTFBRD (Baud divisor fraction) */
+    # mov   x0, #(7372800 / EARLY_UART_PL011_BAUD_RATE / 16)
+    # strh  w0, [x15, #0x24]      /* -> UARTIBRD (Baud divisor integer) */
+    # mov   x0, #0x60             /* 8n1 */
+    # str   w0, [x15, #0x2C]      /* -> UARTLCR_H (Line control) */
+    # ldr   x0, =0x00000301       /* RXE | TXE | UARTEN */
+    # str   w0, [x15, #0x30]      /* -> UARTCR (Control Register) */
     ret
 
-/* PL011 UART wait UART to be ready to transmit
+/* PinePhone Allwinner A64: Wait for UART to be ready to transmit
  * xb: register which contains the UART base address
- * c: scratch register number
+ * wt: scratch register number
  */
 
 .macro early_uart_ready xb, wt
 1:
-    ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
-    tst   \wt, #0x8              /* Check BUSY bit */
-    b.ne  1b                     /* Wait for the UART to be ready */
+    ldrh  \wt, [\xb, #0x14]      /* <- UART_LSR (UART Line Status Register) */
+    tst   \wt, #0x20             /* Check THRE bit (TX Holding Register Empty) */
+    b.eq  1b                     /* Wait for the UART to be ready (THRE=1) */
+
+    # Previously:
+    # ldrh  \wt, [\xb, #0x18]      /* <- UARTFR (Flag register) */
+    # tst   \wt, #0x8              /* Check BUSY bit */
+    # b.ne  1b                     /* Wait for the UART to be ready */
 .endm
 
 /* PL011 UART transmit character
