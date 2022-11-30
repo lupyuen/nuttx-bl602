@@ -2277,15 +2277,9 @@ static int cdcmbim_txpoll(struct net_driver_s *dev)
 
   nxmutex_lock(&priv->lock);
 
-  if (priv->netdev.d_len > 0)
-    {
-      if (!devif_loopback(&priv->netdev))
-        {
-          /* Send the packet */
+  /* Send the packet */
 
-          cdcmbim_transmit(priv);
-        }
-    }
+  cdcmbim_transmit(priv);
 
   nxmutex_unlock(&priv->lock);
 
@@ -2318,8 +2312,8 @@ static int cdcmbim_ifup(struct net_driver_s *dev)
 
 #ifdef CONFIG_NET_IPv4
   ninfo("Bringing up: %d.%d.%d.%d\n",
-        dev->d_ipaddr & 0xff, (dev->d_ipaddr >> 8) & 0xff,
-        (dev->d_ipaddr >> 16) & 0xff, dev->d_ipaddr >> 24);
+        (int)(dev->d_ipaddr & 0xff), (int)((dev->d_ipaddr >> 8) & 0xff),
+        (int)((dev->d_ipaddr >> 16) & 0xff), (int)(dev->d_ipaddr >> 24));
 #endif
 #ifdef CONFIG_NET_IPv6
   ninfo("Bringing up: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",

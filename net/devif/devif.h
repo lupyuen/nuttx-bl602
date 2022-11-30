@@ -52,6 +52,7 @@
 #include <arch/irq.h>
 
 #include <nuttx/net/ip.h>
+#include <nuttx/net/netdev.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -512,6 +513,52 @@ void devif_pkt_send(FAR struct net_driver_s *dev, FAR const void *buf,
 void devif_can_send(FAR struct net_driver_s *dev, FAR const void *buf,
                     unsigned int len);
 #endif
+
+/****************************************************************************
+ * Name: devif_out
+ *
+ * Description:
+ *   Common interface to build L2 headers
+ *
+ * Assumptions:
+ *   This function is called from the MAC device driver with the network
+ *   locked.
+ *
+ ****************************************************************************/
+
+void devif_out(FAR struct net_driver_s *dev);
+
+/****************************************************************************
+ * Name: devif_poll_out
+ *
+ * Description:
+ *   Generic callback before device output to build L2 headers before sending
+ *
+ * Assumptions:
+ *   This function is called from the MAC device driver with the network
+ *   locked.
+ *
+ ****************************************************************************/
+
+int devif_poll_out(FAR struct net_driver_s *dev,
+                   devif_poll_callback_t callback);
+
+/****************************************************************************
+ * Name: devif_loopback
+ *
+ * Description:
+ *   This function should be called before sending out a packet. The function
+ *   checks the destination address of the packet to see whether the target
+ *   of packet is ourself and then consume the packet directly by calling
+ *   input process functions.
+ *
+ * Returned Value:
+ *   Zero is returned if the packet don't loop back to ourself, otherwise
+ *   a non-zero value is returned.
+ *
+ ****************************************************************************/
+
+int devif_loopback(FAR struct net_driver_s *dev);
 
 #undef EXTERN
 #ifdef __cplusplus

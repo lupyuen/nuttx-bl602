@@ -355,17 +355,7 @@ static int slip_txpoll(FAR struct net_driver_s *dev)
   FAR struct slip_driver_s *priv =
     (FAR struct slip_driver_s *)dev->d_private;
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value > 0.
-   */
-
-  if (priv->dev.d_len > 0)
-    {
-      if (!devif_loopback(&priv->dev))
-        {
-          slip_transmit(priv);
-        }
-    }
+  slip_transmit(priv);
 
   /* If zero is returned, the polling will continue until all connections
    * have been examined.
@@ -742,8 +732,8 @@ static int slip_ifup(FAR struct net_driver_s *dev)
 
 #ifdef CONFIG_NET_IPv4
   nerr("Bringing up: %d.%d.%d.%d\n",
-       dev->d_ipaddr & 0xff, (dev->d_ipaddr >> 8) & 0xff,
-       (dev->d_ipaddr >> 16) & 0xff, dev->d_ipaddr >> 24);
+        (int)(dev->d_ipaddr & 0xff), (int)((dev->d_ipaddr >> 8) & 0xff),
+        (int)((dev->d_ipaddr >> 16) & 0xff), (int)(dev->d_ipaddr >> 24));
 #endif
 #ifdef CONFIG_NET_IPv6
   ninfo("Bringing up: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",

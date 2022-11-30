@@ -1370,11 +1370,8 @@ static void emac_rx_interrupt_work(void *arg)
         {
           ninfo("IPv4 frame\n");
 
-          /* Handle ARP on input then give the IPv4 packet to the network
-           * layer
-           */
+          /* Receive an IPv4 packet from the network device */
 
-          arp_ipin(&priv->dev);
           ipv4_input(&priv->dev);
 
           /* If the above function invocation resulted in data that should be
@@ -1383,21 +1380,6 @@ static void emac_rx_interrupt_work(void *arg)
 
           if (priv->dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv6
-              if (IFF_IS_IPv4(priv->dev.d_flags))
-#endif
-                {
-                  arp_out(&priv->dev);
-                }
-#ifdef CONFIG_NET_IPv6
-              else
-                {
-                  neighbor_out(&priv->dev);
-                }
-#endif
-
               /* And send the packet */
 
               emac_transmit(priv);
@@ -1420,21 +1402,6 @@ static void emac_rx_interrupt_work(void *arg)
 
           if (priv->dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv4
-              if (IFF_IS_IPv4(priv->dev.d_flags))
-                {
-                  arp_out(&priv->dev);
-                }
-              else
-#endif
-#ifdef CONFIG_NET_IPv6
-                {
-                  neighbor_out(&priv->dev);
-                }
-#endif
-
               /* And send the packet */
 
               emac_transmit(priv);
@@ -1583,66 +1550,32 @@ static int emac_txpoll(struct net_driver_s *dev)
 
   DEBUGASSERT(priv->dev.d_buf != NULL);
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value == 0.
+  /* Send the packet */
+
+  emac_transmit(priv);
+  DEBUGASSERT(dev->d_len == 0 && dev->d_buf == NULL);
+
+  /* Check if the current TX descriptor is owned by the Ethernet DMA
+   * or CPU. We cannot perform the TX poll if we are unable to accept
+   * another packet for transmission.
    */
 
-  if (priv->dev.d_len == 0)
+  if (TX_IS_BUSY(priv))
     {
-      return 0;
-    }
-
-  /* Look up the destination MAC address and add it to the Ethernet
-   * header.
-   */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-  if (IFF_IS_IPv4(priv->dev.d_flags))
-#endif
-    {
-      arp_out(&priv->dev);
-    }
-#endif /* CONFIG_NET_IPv4 */
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-  else
-#endif
-    {
-      neighbor_out(&priv->dev);
-    }
-#endif /* CONFIG_NET_IPv6 */
-
-  if (!devif_loopback(&priv->dev))
-    {
-      /* Send the packet */
-
-      emac_transmit(priv);
-      DEBUGASSERT(dev->d_len == 0 && dev->d_buf == NULL);
-
-      /* Check if the current TX descriptor is owned by the Ethernet DMA
-       * or CPU. We cannot perform the TX poll if we are unable to accept
-       * another packet for transmission.
+      /* We have to terminate the poll if we have no more descriptors
+       * available for another transfer.
        */
 
-      if (TX_IS_BUSY(priv))
-        {
-          /* We have to terminate the poll if we have no more descriptors
-           * available for another transfer.
-           */
-
-          return -EBUSY;
-        }
-
-      dev->d_buf = (uint8_t *)emac_alloc_buffer(priv);
-      if (dev->d_buf == NULL)
-        {
-          return -ENOMEM;
-        }
-
-      dev->d_len = EMAC_BUF_LEN;
+      return -EBUSY;
     }
+
+  dev->d_buf = (uint8_t *)emac_alloc_buffer(priv);
+  if (dev->d_buf == NULL)
+    {
+      return -ENOMEM;
+    }
+
+  dev->d_len = EMAC_BUF_LEN;
 
   /* If zero is returned, the polling will continue until all connections
    * have been examined.
@@ -2141,7 +2074,7 @@ error:
 }
 
 /****************************************************************************
- * Function: up_netinitialize
+ * Function: xtensa_netinitialize
  *
  * Description:
  *   This is the "standard" network initialization logic called from the
@@ -2156,7 +2089,7 @@ error:
  ****************************************************************************/
 
 #if !defined(CONFIG_NETDEV_LATEINIT)
-void up_netinitialize(void)
+void xtensa_netinitialize(void)
 {
   esp32_emac_init();
 }

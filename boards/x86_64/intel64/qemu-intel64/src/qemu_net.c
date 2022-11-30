@@ -30,7 +30,7 @@
 #include <arch/arch.h>
 #include <arch/board/board.h>
 
-#include "up_internal.h"
+#include "x86_64_internal.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -52,7 +52,6 @@
 #ifdef CONFIG_NET
 void up_netinitialize(void)
 {
-  return;
 }
 #endif
 

@@ -345,45 +345,9 @@ static int ftmac100_txpoll(struct net_driver_s *dev)
   FAR struct ftmac100_driver_s *priv =
     (FAR struct ftmac100_driver_s *)dev->d_private;
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value > 0.
-   */
+  /* Send the packet */
 
-  if (priv->ft_dev.d_len > 0)
-    {
-      /* Look up the destination MAC address and add it to the Ethernet
-       * header.
-       */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      if (IFF_IS_IPv4(priv->ft_dev.d_flags))
-#endif
-        {
-          arp_out(&priv->ft_dev);
-        }
-#endif /* CONFIG_NET_IPv4 */
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      else
-#endif
-        {
-          neighbor_out(&priv->ft_dev);
-        }
-#endif /* CONFIG_NET_IPv6 */
-
-      if (!devif_loopback(&priv->ft_dev))
-        {
-          /* Send the packet */
-
-          ftmac100_transmit(priv);
-
-          /* Check if there is room in the device to hold another packet.  If
-           * not, return a non-zero value to terminate the poll.
-           */
-        }
-    }
+  ftmac100_transmit(priv);
 
   /* If zero is returned, the polling will continue until all connections
    * have been examined.
@@ -687,11 +651,8 @@ static void ftmac100_receive(FAR struct ftmac100_driver_s *priv)
         {
           ninfo("IPv4 frame\n");
 
-          /* Handle ARP on input then give the IPv4 packet to the network
-           * layer
-           */
+          /* Receive an IPv4 packet from the network device */
 
-          arp_ipin(&priv->ft_dev);
           ipv4_input(&priv->ft_dev);
 
           /* If the above function invocation resulted in data that should be
@@ -701,21 +662,6 @@ static void ftmac100_receive(FAR struct ftmac100_driver_s *priv)
 
           if (priv->ft_dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv6
-              if (IFF_IS_IPv4(priv->ft_dev.d_flags))
-#endif
-                {
-                  arp_out(&priv->ft_dev);
-                }
-#ifdef CONFIG_NET_IPv6
-              else
-                {
-                  neighbor_out(&priv->ft_dev);
-                }
-#endif
-
               /* And send the packet */
 
               ftmac100_transmit(priv);
@@ -739,21 +685,6 @@ static void ftmac100_receive(FAR struct ftmac100_driver_s *priv)
 
           if (priv->ft_dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv4
-              if (IFF_IS_IPv4(priv->ft_dev.d_flags))
-                {
-                  arp_out(&priv->ft_dev);
-                }
-              else
-#endif
-#ifdef CONFIG_NET_IPv6
-                {
-                  neighbor_out(&priv->ft_dev);
-                }
-#endif
-
               /* And send the packet */
 
               ftmac100_transmit(priv);
@@ -1108,8 +1039,8 @@ static int ftmac100_ifup(struct net_driver_s *dev)
 
 #ifdef CONFIG_NET_IPv4
   ninfo("Bringing up: %d.%d.%d.%d\n",
-        dev->d_ipaddr & 0xff, (dev->d_ipaddr >> 8) & 0xff,
-        (dev->d_ipaddr >> 16) & 0xff, dev->d_ipaddr >> 24);
+        (int)(dev->d_ipaddr & 0xff), (int)((dev->d_ipaddr >> 8) & 0xff),
+        (int)((dev->d_ipaddr >> 16) & 0xff), (int)(dev->d_ipaddr >> 24));
 #endif
 #ifdef CONFIG_NET_IPv6
   ninfo("Bringing up: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",

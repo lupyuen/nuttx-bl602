@@ -576,11 +576,13 @@ static inline int __mpu_write_pwr_mgmt_2(FAR struct mpu_dev_s *dev,
   return __mpu_write_reg(dev, PWR_MGMT_2, &val, sizeof(val));
 }
 
+#ifdef CONFIG_MPU60X0_SPI
 static inline int __mpu_write_user_ctrl(FAR struct mpu_dev_s *dev,
                                         uint8_t val)
 {
   return __mpu_write_reg(dev, USER_CTRL, &val, sizeof(val));
 }
+#endif
 
 /* __mpu_write_gyro_config() :
  *
@@ -643,15 +645,6 @@ static inline int __mpu_write_config(FAR struct mpu_dev_s *dev,
   uint8_t val = TO_BITFIELD(CONFIG__EXT_SYNC_SET, ext_sync_set) |
                 TO_BITFIELD(CONFIG__DLPF_CFG, dlpf_cfg);
   return __mpu_write_reg(dev, CONFIG, &val, sizeof(val));
-}
-
-/* WHO_AM_I (0x75) : read-only, always returns 0x68 for mpu60x0 */
-
-static inline uint8_t __mpu_read_who_am_i(FAR struct mpu_dev_s *dev)
-{
-  uint8_t val = 0xff;
-  __mpu_read_reg(dev, WHO_AM_I, &val, sizeof(val));
-  return val;
 }
 
 /* Resets the mpu60x0, sets it to a default configuration. */
