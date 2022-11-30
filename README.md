@@ -1,48 +1,6 @@
-__Apache NuttX RTOS for PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinedio)
-
-__Apache NuttX RTOS for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
-
-__Apache NuttX RTOS for PinePhone:__ See the [`pinephone` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinephone)
-
-__Read the articles...__
-
--   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
--   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
--   [__"SPI on Apache NuttX OS"__](https://lupyuen.github.io/articles/spi2)
--   [__"LoRa SX1262 on Apache NuttX OS"__](https://lupyuen.github.io/articles/sx1262)
--   [__"LoRaWAN on Apache NuttX OS"__](https://lupyuen.github.io/articles/lorawan3)
--   [__"Encode Sensor Data with CBOR on Apache NuttX OS"__](https://lupyuen.github.io/articles/cbor2)
--   [__"Rust on Apache NuttX OS"__](https://lupyuen.github.io/articles/rust2)
--   [__"Auto Flash and Test NuttX on RISC-V BL602"__](https://lupyuen.github.io/articles/auto)
--   [__"Connect IKEA Air Quality Sensor to Apache NuttX OS"__](https://lupyuen.github.io/articles/ikea)
--   [__"Apache NuttX Driver for BME280 Sensor: Ported from Zephyr OS"__](https://lupyuen.github.io/articles/bme280)
--   [__"Rust talks I2C on Apache NuttX RTOS"__](https://lupyuen.github.io/articles/rusti2c)
--   [__"NuttX Touch Panel Driver for PineDio Stack BL604"__](https://lupyuen.github.io/articles/touch)
--   [__"NuttX GPIO Expander for PineDio Stack BL604"__](https://lupyuen.github.io/articles/expander)
--   [__"(Mostly) Automated Testing of Apache NuttX RTOS on PineDio Stack BL604 RISC-V Board"__](https://lupyuen.github.io/articles/auto2)
--   [__"Zig on RISC-V BL602: Quick Peek with Apache NuttX RTOS"__](https://lupyuen.github.io/articles/zig)
--   [__"Build an IoT App with Zig and LoRaWAN"__](https://lupyuen.github.io/articles/iot)
--   [__"Build an LVGL Touchscreen App with Zig"__](https://lupyuen.github.io/articles/lvgl)
--   [__"Read NuttX Sensor Data with Zig"__](https://lupyuen.github.io/articles/sensor)
--   [__"Zig Visual Programming with Blockly"__](https://lupyuen.github.io/articles/blockly)
--   [__"Visual Programming with Zig and NuttX Sensors"__](https://lupyuen.github.io/articles/visual)
-
-__NuttX on PinePhone__
-
--   [__"Apache NuttX RTOS on Arm Cortex-A53: How it might run on PinePhone"__](https://lupyuen.github.io/articles/arm)
--   [__"PinePhone boots Apache NuttX RTOS"__](https://lupyuen.github.io/articles/uboot)
--   [__"NuttX RTOS for PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
--   [__"NuttX RTOS for PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
--   [__"NuttX RTOS for PinePhone: Blinking the LEDs"__](https://lupyuen.github.io/articles/pio)
--   [__"Understanding PinePhone's Display (MIPI DSI)"__](https://lupyuen.github.io/articles/dsi)
--   [__"NuttX RTOS for PinePhone: Display Driver in Zig"__](https://lupyuen.github.io/articles/dsi2)
--   [__"Rendering PinePhone's Display (DE and TCON0)"__](https://lupyuen.github.io/articles/de)
--   [__"NuttX RTOS for PinePhone: Render Graphics in Zig"__](https://lupyuen.github.io/articles/de2)
-
-# APACHE NUTTX (INCUBATING)
+# APACHE NUTTX
 
 * Introduction
-  - Incubation Status
 * Community
   - Getting Help
   - Mailing Lists
@@ -88,25 +46,18 @@ __NuttX on PinePhone__
 
 # INTRODUCTION
 
-Apache NuttX (Incubating) is a real-time operating system (RTOS) with an
-emphasis on standards compliance and small footprint.  Scalable from 8-bit
-to 32-bit microcontroller environments, the primary governing standards in
-NuttX are POSIX and ANSI standards. Additional standard APIs from Unix and
-other common RTOSs (such as VxWorks) are adopted for functionality not
-available under these standards, or for functionality that is not
-appropriate for deeply-embedded environments (such as fork()).
+Apache NuttX is a real-time operating system (RTOS) with an emphasis on
+standards compliance and small footprint. Scalable from 8-bit to 64-bit
+microcontroller environments, the primary governing standards in NuttX are
+POSIX and ANSI standards. Additional standard APIs from Unix and other
+common RTOSs (such as VxWorks) are adopted for functionality not available
+under these standards, or for functionality that is not appropriate for
+deeply-embedded environments (such as fork()).
 
 Extensive documentation can be found on the project wiki:
   <https://cwiki.apache.org/NUTTX/NuttX>
 
-## Incubation Status
-
-Apache NuttX (Incubating) is an effort undergoing Incubation at The Apache
-Software Foundation (ASF), sponsored by the Incubator.  For more on our
-incubation effort, please see the file DISCLAIMER-WIP, in the same
-directory as this README.
-
-For brevity, the rest of this file will refer to it as Apache NuttX or
+For brevity, many parts of the documentation will refer to Apache NuttX as
 simply NuttX.
 
 # COMMUNITY
@@ -173,26 +124,26 @@ into future releases.
 
 ## Source Code
 
-The project sources are in two Git repositories.  The core OS is in
-incubator-nuttx and the apps repository is in incubator-nuttx-apps.  These
-are housed in GitBox on ASF servers and also mirrored at GitHub.  These
-are kept in sync, so you can use whichever option you prefer.
+The project sources are in two Git repositories.  The core OS is in nuttx
+and the apps repository is in nuttx-apps.  These are housed in GitBox on
+ASF servers and also mirrored at GitHub.  These are kept in sync, so you
+can use whichever option you prefer.
 
   - NuttX core OS repository:
 
     - Primary:
-      <https://gitbox.apache.org/repos/asf?p=incubator-nuttx.git>
+      <https://gitbox.apache.org/repos/asf?p=nuttx.git>
 
     - GitHub Mirror:
-      <https://github.com/apache/incubator-nuttx>
+      <https://github.com/apache/nuttx>
 
   - Apps repository:
 
     - Primary:
-      <https://gitbox.apache.org/repos/asf?p=incubator-nuttx-apps.git>
+      <https://gitbox.apache.org/repos/asf?p=nuttx-apps.git>
 
     - GitHub Mirror:
-      <https://github.com/apache/incubator-nuttx-apps>
+      <https://github.com/apache/nuttx-apps>
 
 ## Website Source Code
 
@@ -200,10 +151,10 @@ The project website sources are accessible via the website source code
   repository which is also mirrored in GitHub:
 
 - Primary:
-  <https://gitbox.apache.org/repos/asf?p=incubator-nuttx-website.git>
+  <https://gitbox.apache.org/repos/asf?p=nuttx-website.git>
 
 - GitHub Mirror:
-  <https://github.com/apache/incubator-nuttx-website>
+  <https://github.com/apache/nuttx-website>
 
 # ENVIRONMENTS
 
@@ -674,19 +625,19 @@ The current NuttX du jour is available in from a GIT repository.  Here are
 instructions for cloning the core NuttX RTOS (corresponding to the nuttx
 tarball discussed above):
 
-    git clone https://gitbox.apache.org/repos/asf/incubator-nuttx.git nuttx
+    git clone https://gitbox.apache.org/repos/asf/nuttx.git nuttx
 
 -or-
 
-    git clone https://github.com/apache/incubator-nuttx.git nuttx
+    git clone https://github.com/apache/nuttx.git nuttx
 
 And the semi-optional apps/ application directory and be cloned like:
 
-    git clone https://gitbox.apache.org/repos/asf/incubator-nuttx-apps.git apps
+    git clone https://gitbox.apache.org/repos/asf/nuttx-apps.git apps
 
 -or-
 
-    git clone https://github.com/apache/incubator-nuttx-apps.git apps
+    git clone https://github.com/apache/nuttx-apps.git apps
 
 That will give you the same directory structure like this:
 
@@ -728,9 +679,9 @@ some scripts like configure.sh. Before cloning, do the following:
 
 These are standalone repositories:
 
-  * <https://gitbox.apache.org/repos/asf/incubator-nuttx-apps>
+  * <https://gitbox.apache.org/repos/asf/nuttx-apps>
     or
-    <https://github.com/apache/incubator-nuttx-apps.git>
+    <https://github.com/apache/nuttx-apps.git>
 
     This directory holds an optional package of applications and libraries
     can be used with the NuttX RTOS.  There is a README.txt file there that
