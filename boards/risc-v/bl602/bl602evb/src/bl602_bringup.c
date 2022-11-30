@@ -438,8 +438,6 @@ static void ble_uart_write(const uint8_t *bufptr,
   bthci_receive((uint8_t *)bufptr, size);
 
   callback(dummy, 0);
-
-  return;
 }
 
 static int bthci_send(struct bt_driver_s *drv,
@@ -618,7 +616,6 @@ void bl602_hci_uart_init(uint8_t uartid)
 
   bthci_register();
   rw_main_task_post_from_fw();
-  return;
 }
 #endif /* CONFIG_BL602_BLE_CONTROLLER */
 

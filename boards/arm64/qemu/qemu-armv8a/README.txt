@@ -4,7 +4,7 @@ README.txt
 This board configuration will use QEMU to emulate generic ARM64 v8-A series
 hardware platform and provides support for these devices:
 
- - GICv3 interrupt controller
+ - GICv2 and GICv3 interrupt controllers
  - ARM Generic Timer
  - PL011 UART controller
 
@@ -41,7 +41,7 @@ Getting Started
    $ qemu-system-aarch64 --help
 
 3. Configuring and running
-  3.1 Single Core
+  3.1 Single Core (GICv3)
    Configuring NuttX and compile:
    $ ./tools/configure.sh -l qemu-armv8a:nsh
    $ make
@@ -51,7 +51,20 @@ Getting Started
      -net none -chardev stdio,id=con,mux=on -serial chardev:con \
      -mon chardev=con,mode=readline -kernel ./nuttx
 
-  3.2 SMP
+  3.1.1 Single Core with network (GICv3)
+   Configuring NuttX and compile:
+   $ ./tools/configure.sh -l qemu-armv8a:netnsh
+   $ make
+   Running with qemu
+   $ qemu-system-aarch64 -cpu cortex-a53 -nographic \
+     -machine virt,virtualization=on,gic-version=3 \
+     -chardev stdio,id=con,mux=on -serial chardev:con \
+     -global virtio-mmio.force-legacy=false \
+     -netdev user,id=u1,hostfwd=tcp:127.0.0.1:10023-10.0.2.15:23,hostfwd=tcp:127.0.0.1:15001-10.0.2.15:5001 \
+     -device virtio-net-device,netdev=u1,bus=virtio-mmio-bus.0 \
+     -mon chardev=con,mode=readline -kernel ./nuttx
+
+  3.2 SMP (GICv3)
    Configuring NuttX and compile:
    $ ./tools/configure.sh -l qemu-armv8a:nsh_smp
    $ make
@@ -61,6 +74,29 @@ Getting Started
       -net none -chardev stdio,id=con,mux=on -serial chardev:con \
       -mon chardev=con,mode=readline -kernel ./nuttx
 
+  3.2.1 SMP (GICv3)
+   Configuring NuttX and compile:
+   $ ./tools/configure.sh -l qemu-armv8a:netnsh_smp
+   $ make
+   Running with qemu
+   $ qemu-system-aarch64 -cpu cortex-a53 -smp 4 -nographic \
+     -machine virt,virtualization=on,gic-version=3 \
+     -chardev stdio,id=con,mux=on -serial chardev:con \
+     -global virtio-mmio.force-legacy=false \
+     -netdev user,id=u1,hostfwd=tcp:127.0.0.1:10023-10.0.2.15:23,hostfwd=tcp:127.0.0.1:15001-10.0.2.15:5001 \
+     -device virtio-net-device,netdev=u1,bus=virtio-mmio-bus.0 \
+     -mon chardev=con,mode=readline -kernel ./nuttx
+
+  3.3 Single Core (GICv2)
+   Configuring NuttX and compile:
+   $ ./tools/configure.sh -l qemu-armv8a:nsh_gicv2
+   $ make
+   Running with qemu
+   $ qemu-system-aarch64 -cpu cortex-a53 -nographic \
+     -machine virt,virtualization=on,gic-version=2 \
+     -net none -chardev stdio,id=con,mux=on -serial chardev:con \
+     -mon chardev=con,mode=readline -kernel ./nuttx
+
    Note:
    1. Make sure the aarch64-none-elf toolchain install PATH has been added to environment variable
    2. To quit QEMU, type Ctrl + X
@@ -69,6 +105,11 @@ Getting Started
 
 Status
 ======
+
+2022-11-18:
+1. Added support for GICv2.
+
+2. Added board configuration for nsh_gicv2.
 
 2022-10-13:
 1. Renamed the board configuration name from qemu-a53 to qemu-v8a.

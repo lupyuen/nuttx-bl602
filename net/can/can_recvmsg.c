@@ -56,7 +56,7 @@
 
 struct can_recvfrom_s
 {
-  FAR struct socket *pr_sock;          /* The parent socket structure */
+  FAR struct can_conn_s *pr_conn;      /* Connection associated with the socket */
   FAR struct devif_callback_s *pr_cb;  /* Reference to callback instance */
   sem_t        pr_sem;                 /* Semaphore signals recv completion */
   size_t       pr_buflen;              /* Length of receive buffer */
@@ -175,9 +175,8 @@ static inline void can_newdata(FAR struct net_driver_s *dev,
 
   if (recvlen < dev->d_len)
     {
-      FAR struct can_conn_s *conn =
-        (FAR struct can_conn_s *)pstate->pr_sock->s_conn;
-      FAR uint8_t *buffer = (FAR uint8_t *)dev->d_appdata + recvlen;
+      FAR struct can_conn_s *conn = pstate->pr_conn;
+      FAR uint8_t *buffer = dev->d_appdata + recvlen;
       uint16_t buflen = dev->d_len - recvlen;
 #ifdef CONFIG_DEBUG_NET
       uint16_t nsaved;
@@ -230,8 +229,7 @@ static inline void can_newdata(FAR struct net_driver_s *dev,
 
 static inline int can_readahead(struct can_recvfrom_s *pstate)
 {
-  FAR struct can_conn_s *conn =
-    (FAR struct can_conn_s *) pstate->pr_sock->s_conn;
+  FAR struct can_conn_s *conn = pstate->pr_conn;
   FAR struct iob_s *iob;
   int recvlen;
 
@@ -408,7 +406,7 @@ static uint16_t can_recvfrom_eventhandler(FAR struct net_driver_s *dev,
 {
   struct can_recvfrom_s *pstate = pvpriv;
 #if defined(CONFIG_NET_CANPROTO_OPTIONS) || defined(CONFIG_NET_TIMESTAMP)
-  struct can_conn_s *conn = (struct can_conn_s *)pstate->pr_sock->s_conn;
+  struct can_conn_s *conn = pstate->pr_conn;
 #endif
 
   /* 'priv' might be null in some race conditions (?) */
@@ -434,9 +432,9 @@ static uint16_t can_recvfrom_eventhandler(FAR struct net_driver_s *dev,
 #endif
             {
 #ifdef CONFIG_NET_TIMESTAMP
-              if ((conn->sconn.s_timestamp && (dev->d_len >
+              if ((conn->timestamp && (dev->d_len >
                   sizeof(struct can_frame) + sizeof(struct timeval)))
-                  || (!conn->sconn.s_timestamp && (dev->d_len >
+                  || (!conn->timestamp && (dev->d_len >
                    sizeof(struct can_frame))))
 #else
               if (dev->d_len > sizeof(struct can_frame))
@@ -454,7 +452,7 @@ static uint16_t can_recvfrom_eventhandler(FAR struct net_driver_s *dev,
           can_newdata(dev, pstate);
 
 #ifdef CONFIG_NET_TIMESTAMP
-          if (conn->sconn.s_timestamp)
+          if (conn->timestamp)
             {
               if (pstate->pr_msglen == sizeof(struct timeval))
                 {
@@ -587,7 +585,7 @@ ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
   state.pr_buffer = msg->msg_iov->iov_base;
 
 #ifdef CONFIG_NET_TIMESTAMP
-  if (conn->sconn.s_timestamp && msg->msg_controllen >=
+  if (conn->timestamp && msg->msg_controllen >=
         (sizeof(struct cmsghdr) + sizeof(struct timeval)))
     {
       struct cmsghdr *cmsg = CMSG_FIRSTHDR(msg);
@@ -608,7 +606,7 @@ ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
     }
 #endif
 
-  state.pr_sock   = psock;
+  state.pr_conn = conn;
 
   /* Handle any any CAN data already buffered in a read-ahead buffer.  NOTE
    * that there may be read-ahead data to be retrieved even after the
@@ -619,7 +617,7 @@ ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
   if (ret > 0)
     {
 #ifdef CONFIG_NET_TIMESTAMP
-      if (conn->sconn.s_timestamp)
+      if (conn->timestamp)
         {
           if (state.pr_msglen == sizeof(struct timeval))
             {

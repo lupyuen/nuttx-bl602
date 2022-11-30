@@ -92,7 +92,7 @@ RUN mkdir clang-arm-none-eabi && \
 RUN mkdir gcc-arm-none-eabi && \
   curl -s -L  "https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi.tar.xz" \
   | tar -C gcc-arm-none-eabi --strip-components 1 -xJ  \
-  && curl -s -L -O "https://raw.githubusercontent.com/apache/incubator-nuttx/master/tools/ci/patch/arm-none-eabi-workaround-for-newlib-version-break.patch" \
+  && curl -s -L -O "https://raw.githubusercontent.com/apache/nuttx/master/tools/ci/patch/arm-none-eabi-workaround-for-newlib-version-break.patch" \
   && patch -p0 < arm-none-eabi-workaround-for-newlib-version-break.patch
 
 ###############################################################################
@@ -246,6 +246,7 @@ RUN apt-get update -qq && DEBIAN_FRONTEND="noninteractive" apt-get install -y -q
   libc6-dev-i386 \
   libcurl4-openssl-dev \
   libncurses5-dev \
+  libmad0-dev:i386 \
   libpulse-dev libpulse-dev:i386 \
   libpython2.7 \
   libtinfo5 \
@@ -308,7 +309,7 @@ ENV PATH="/tools/rust/cargo/bin:$PATH"
 
 # ARM toolchain
 COPY --from=nuttx-toolchain-arm /tools/clang-arm-none-eabi/ clang-arm-none-eabi/
-CMD cp /usr/bin/clang-extdef-mapping-10 clang-arm-none-eabi/bin/clang-extdef-mapping
+RUN cp /usr/bin/clang-extdef-mapping-10 clang-arm-none-eabi/bin/clang-extdef-mapping
 ENV PATH="/tools/clang-arm-none-eabi/bin:$PATH"
 
 COPY --from=nuttx-toolchain-arm /tools/gcc-arm-none-eabi/ gcc-arm-none-eabi/

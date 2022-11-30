@@ -67,14 +67,6 @@
 #  undef CONFIG_LIBC_LONG_LONG
 #endif
 
-/* [Re]define putc() */
-
-#ifdef putc
-#  undef putc
-#endif
-
-#define putc(c,stream)  (total_len++, (stream)->put(stream, c))
-
 /* Order is relevant here and matches order in format string */
 
 #define FL_ZFILL           0x0001
@@ -201,9 +193,9 @@ static int vsprintf_internal(FAR struct lib_outstream_s *stream,
   FAR const char *pnt;
   size_t size;
   unsigned char len;
-  int total_len = 0;
 
 #ifdef CONFIG_LIBC_NUMBERED_ARGS
+  int total_len = 0;
   int argnumber = 0;
 #endif
 
@@ -229,10 +221,10 @@ static int vsprintf_internal(FAR struct lib_outstream_s *stream,
 #ifdef CONFIG_LIBC_NUMBERED_ARGS
           if (stream != NULL)
             {
-              putc(c, stream);
+              lib_stream_put(stream, c);
             }
 #else
-          putc(c, stream);
+          lib_stream_put(stream, c);
 #endif
         }
 
@@ -459,8 +451,11 @@ static int vsprintf_internal(FAR struct lib_outstream_s *stream,
                 {
                   flags |= FL_REPD_TYPE;
                 }
+              else
+                {
+                  flags |= FL_LONG;
+                }
 
-              flags |= FL_LONG;
               flags &= ~FL_SHORT;
               continue;
             }
@@ -471,8 +466,11 @@ static int vsprintf_internal(FAR struct lib_outstream_s *stream,
                 {
                   flags |= FL_REPD_TYPE;
                 }
+              else
+                {
+                  flags |= FL_SHORT;
+                }
 
-              flags |= FL_SHORT;
               flags &= ~FL_LONG;
               continue;
             }
@@ -655,7 +653,7 @@ flt_oper:
                     {
                       do
                         {
-                          putc(' ', stream);
+                          lib_stream_put(stream, ' ');
                         }
                       while (--width);
                     }
@@ -667,7 +665,7 @@ flt_oper:
 
               if (sign)
                 {
-                  putc(sign, stream);
+                  lib_stream_put(stream, sign);
                 }
 
               p = "inf";
@@ -686,7 +684,7 @@ flt_oper:
                       ndigs += 'I' - 'i';
                     }
 
-                  putc(ndigs, stream);
+                  lib_stream_put(stream, ndigs);
                   p++;
                 }
 
@@ -760,21 +758,21 @@ flt_oper:
             {
               while (width)
                 {
-                  putc(' ', stream);
+                  lib_stream_put(stream, ' ');
                   width--;
                 }
             }
 
           if (sign != 0)
             {
-              putc(sign, stream);
+              lib_stream_put(stream, sign);
             }
 
           if ((flags & FL_LPAD) == 0)
             {
               while (width)
                 {
-                  putc('0', stream);
+                  lib_stream_put(stream, '0');
                   width--;
                 }
             }
@@ -798,7 +796,7 @@ flt_oper:
 
                   if (n == -1)
                     {
-                      putc('.', stream);
+                      lib_stream_put(stream, '.');
                     }
 
                   /* Pull digits from buffer when in-range, otherwise use 0 */
@@ -816,13 +814,13 @@ flt_oper:
                     {
                       if ((flags & FL_ALT) != 0 && n == -1)
                         {
-                          putc('.', stream);
+                          lib_stream_put(stream, '.');
                         }
 
                       break;
                     }
 
-                  putc(out, stream);
+                  lib_stream_put(stream, out);
                 }
               while (1);
 
@@ -832,7 +830,7 @@ flt_oper:
                   out = '1';
                 }
 
-              putc(out, stream);
+              lib_stream_put(stream, out);
             }
           else
             {
@@ -846,25 +844,26 @@ flt_oper:
                   _dtoa.flags &= ~DTOA_CARRY;
                 }
 
-              putc(_dtoa.digits[0], stream);
+              lib_stream_put(stream, _dtoa.digits[0]);
               if (prec > 0)
                 {
                   uint8_t pos;
 
-                  putc('.', stream);
+                  lib_stream_put(stream, '.');
                   for (pos = 1; pos < 1 + prec; pos++)
                     {
-                      putc(pos < ndigs ? _dtoa.digits[pos] : '0', stream);
+                      lib_stream_put(stream, pos < ndigs ?
+                                     _dtoa.digits[pos] : '0');
                     }
                 }
               else if ((flags & FL_ALT) != 0)
                 {
-                  putc('.', stream);
+                  lib_stream_put(stream, '.');
                 }
 
               /* Exponent */
 
-              putc(flags & FL_FLTUPP ? 'E' : 'e', stream);
+              lib_stream_put(stream, flags & FL_FLTUPP ? 'E' : 'e');
               ndigs = '+';
               if (exp < 0 || (exp == 0 && (_dtoa.flags & DTOA_CARRY) != 0))
                 {
@@ -872,14 +871,13 @@ flt_oper:
                   ndigs = '-';
                 }
 
-              putc(ndigs, stream);
-              for (ndigs = '0'; exp >= 10; exp -= 10)
+              lib_stream_put(stream, ndigs);
+              c = __ultoa_invert(exp, (FAR char *)buf, 10) - (FAR char *)buf;
+              while (c > 0)
                 {
-                  ndigs += 1;
+                  lib_stream_put(stream, buf[c - 1]);
+                  c--;
                 }
-
-              putc(ndigs, stream);
-              putc('0' + exp, stream);
             }
 
           goto tail;
@@ -942,14 +940,14 @@ str_lpad:
             {
               while (size < width)
                 {
-                  putc(' ', stream);
+                  lib_stream_put(stream, ' ');
                   width--;
                 }
             }
 
           while (size)
             {
-              putc(*pnt++, stream);
+              lib_stream_put(stream, *pnt++);
               if (width != 0)
                 {
                   width -= 1;
@@ -1159,7 +1157,7 @@ str_lpad:
                           pnt = symbol->sym_name;
                           while (*pnt != '\0')
                             {
-                              putc(*pnt++, stream);
+                              lib_stream_put(stream, *pnt++);
                             }
 
                           if (c == 'S')
@@ -1204,8 +1202,8 @@ str_lpad:
               break;
 
             default:
-              putc('%', stream);
-              putc(c, stream);
+              lib_stream_put(stream, '%');
+              lib_stream_put(stream, c);
               continue;
             }
 
@@ -1273,7 +1271,7 @@ str_lpad:
 
           while (len < width)
             {
-              putc(' ', stream);
+              lib_stream_put(stream, ' ');
               len++;
             }
         }
@@ -1282,10 +1280,10 @@ str_lpad:
 
       if ((flags & FL_ALT) != 0)
         {
-          putc('0', stream);
+          lib_stream_put(stream, '0');
           if ((flags & FL_ALTHEX) != 0)
             {
-              putc(flags & FL_ALTUPP ? 'X' : 'x', stream);
+              lib_stream_put(stream, flags & FL_ALTUPP ? 'X' : 'x');
             }
         }
       else if ((flags & (FL_NEGATIVE | FL_PLUS | FL_SPACE)) != 0)
@@ -1301,18 +1299,18 @@ str_lpad:
               z = '-';
             }
 
-          putc(z, stream);
+          lib_stream_put(stream, z);
         }
 
       while (prec > c)
         {
-          putc('0', stream);
+          lib_stream_put(stream, '0');
           prec--;
         }
 
       while (c)
         {
-          putc(buf[--c], stream);
+          lib_stream_put(stream, buf[--c]);
         }
 
 tail:
@@ -1321,13 +1319,17 @@ tail:
 
       while (width)
         {
-          putc(' ', stream);
+          lib_stream_put(stream, ' ');
           width--;
         }
     }
 
 ret:
-  return total_len;
+#ifdef CONFIG_LIBC_NUMBERED_ARGS
+  return stream ? stream->nput : total_len;
+#else
+  return stream->nput;
+#endif
 }
 
 /****************************************************************************

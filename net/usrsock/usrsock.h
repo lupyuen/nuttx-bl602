@@ -41,11 +41,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Internal socket type/domain for marking usrsock sockets */
-
-#define SOCK_USRSOCK_TYPE   0x7f
-#define PF_USRSOCK_DOMAIN   0x7f
-
 /* Internal event flags */
 
 #define USRSOCK_EVENT_CONNECT_READY (1 << 0)
@@ -84,7 +79,6 @@ struct usrsock_conn_s
 
   enum usrsock_conn_state_e state;   /* State of kernel<->daemon link for conn */
   bool          connected;           /* Socket has been connected */
-  int8_t        type;                /* Socket type (SOCK_STREAM, etc) */
   int16_t       usockid;             /* Connection number used for kernel<->daemon */
   uint16_t      flags;               /* Socket state flags */
 
@@ -546,7 +540,7 @@ ssize_t usrsock_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
  *   See <sys/socket.h> a complete list of values for the 'option' argument.
  *
  * Input Parameters:
- *   conn      usrsock socket connection structure
+ *   psock     Socket structure of the socket to query
  *   level     Protocol level to set the option
  *   option    identifies the option to get
  *   value     Points to the argument value
@@ -554,9 +548,8 @@ ssize_t usrsock_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
  *
  ****************************************************************************/
 
-int usrsock_getsockopt(FAR struct usrsock_conn_s *conn, int level,
-                       int option, FAR void *value,
-                       FAR socklen_t *value_len);
+int usrsock_getsockopt(FAR struct socket *psock, int level, int option,
+                       FAR void *value, FAR socklen_t *value_len);
 
 /****************************************************************************
  * Name: usrsock_setsockopt
@@ -572,7 +565,7 @@ int usrsock_getsockopt(FAR struct usrsock_conn_s *conn, int level,
  *   See <sys/socket.h> a complete list of values for the 'option' argument.
  *
  * Input Parameters:
- *   conn      usrsock socket connection structure
+ *   psock     Socket structure of the socket to query
  *   level     Protocol level to set the option
  *   option    identifies the option to set
  *   value     Points to the argument value
@@ -580,9 +573,8 @@ int usrsock_getsockopt(FAR struct usrsock_conn_s *conn, int level,
  *
  ****************************************************************************/
 
-int usrsock_setsockopt(FAR struct usrsock_conn_s *conn, int level,
-                       int option, FAR const void *value,
-                       FAR socklen_t value_len);
+int usrsock_setsockopt(FAR struct socket *psock, int level, int option,
+                       FAR const void *value, socklen_t value_len);
 
 /****************************************************************************
  * Name: usrsock_getsockname

@@ -54,7 +54,7 @@
 #  include <nuttx/net/pkt.h>
 #endif
 
-#include "up_internal.h"
+#include "renesas_internal.h"
 #include "chip.h"
 #include "rx65n_definitions.h"
 #include "rx65n_eth.h"
@@ -1047,76 +1047,44 @@ static int rx65n_txpoll(struct net_driver_s *dev)
 
   DEBUGASSERT(priv->dev.d_buf != NULL);
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value > 0.
+  /* Send the packet */
+
+  rx65n_transmit(priv);
+  DEBUGASSERT(dev->d_len == 0 && dev->d_buf == NULL);
+
+  /* Check if the next TX descriptor is owned by the Ethernet DMA or
+   * CPU. We cannot perform the TX poll if we are unable to accept
+   * another packet fo transmission.
+   *
+   * In a race condition, TACT may be cleared BUT still not available
+   * because rx65n_freeframe() has not yet run. If rx65n_freeframe()
+   * has run, the buffer1 pointer (tdes2) will be nullified (and
+   * inflight should be CONFIG_RX65N_ETH_NTXDESC).
    */
 
-  if (priv->dev.d_len > 0)
+  if ((priv->txhead->tdes0 & TACT) != 0 ||
+       priv->txhead->tdes2 != 0)
     {
-      /* Look up the destination MAC address and add it to the Ethernet
-       * header.
+      /* We have to terminate the poll if we have no more descriptors
+       * available for another transfer.
        */
 
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      if (IFF_IS_IPv4(priv->dev.d_flags))
-#endif
-        {
-          arp_out(&priv->dev);
-        }
-#endif /* CONFIG_NET_IPv4 */
+      return -EBUSY;
+    }
 
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      else
-#endif
-        {
-          neighbor_out(&priv->dev);
-        }
-#endif /* CONFIG_NET_IPv6 */
+  /* We have the descriptor, we can continue the poll. Allocate a new
+   * buffer for the poll.
+   */
 
-      if (!devif_loopback(&priv->dev))
-        {
-          /* Send the packet */
+  dev->d_buf = rx65n_allocbuffer(priv);
 
-          rx65n_transmit(priv);
-          DEBUGASSERT(dev->d_len == 0 && dev->d_buf == NULL);
+  /* We can't continue the poll if we have no buffers */
 
-          /* Check if the next TX descriptor is owned by the Ethernet DMA or
-           * CPU. We cannot perform the TX poll if we are unable to accept
-           * another packet fo transmission.
-           *
-           * In a race condition, TACT may be cleared BUT still not available
-           * because rx65n_freeframe() has not yet run. If rx65n_freeframe()
-           * has run, the buffer1 pointer (tdes2) will be nullified (and
-           * inflight should be CONFIG_RX65N_ETH_NTXDESC).
-           */
+  if (dev->d_buf == NULL)
+    {
+      /* Terminate the poll. */
 
-          if ((priv->txhead->tdes0 & TACT) != 0 ||
-               priv->txhead->tdes2 != 0)
-            {
-              /* We have to terminate the poll if we have no more descriptors
-               * available for another transfer.
-               */
-
-              return -EBUSY;
-            }
-
-          /* We have the descriptor, we can continue the poll. Allocate a new
-           * buffer for the poll.
-           */
-
-          dev->d_buf = rx65n_allocbuffer(priv);
-
-          /* We can't continue the poll if we have no buffers */
-
-          if (dev->d_buf == NULL)
-            {
-              /* Terminate the poll. */
-
-              return -ENOMEM;
-            }
-        }
+      return -ENOMEM;
     }
 
   /* If zero is returned, the polling will continue until all connections
@@ -1548,17 +1516,14 @@ static void rx65n_receive(FAR struct rx65n_ethmac_s *priv)
         {
           ninfo("IPv4 frame\n");
 
-          /* Handle ARP on input then give the IPv4 packet to the network
-           * layer
-           */
+          /* Receive an IPv4 packet from the network device */
 
           /* Increment statistics */
 
 #if defined(CONFIG_NETDEV_STATISTICS)
-  (priv->dev.d_statistics.rx_ipv4)++;
+          (priv->dev.d_statistics.rx_ipv4)++;
 #endif
 
-          arp_ipin(&priv->dev);
           ipv4_input(&priv->dev);
 
           /* If the above function invocation resulted in data
@@ -1569,21 +1534,6 @@ static void rx65n_receive(FAR struct rx65n_ethmac_s *priv)
 
           if (priv->dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv6
-              if (IFF_IS_IPv4(priv->dev.d_flags))
-#endif
-                {
-                  arp_out(&priv->dev);
-                }
-#ifdef CONFIG_NET_IPv6
-              else
-                {
-                  neighbor_out(&priv->dev);
-                }
-#endif
-
               /* And send the packet */
 
               rx65n_transmit(priv);
@@ -1607,21 +1557,6 @@ static void rx65n_receive(FAR struct rx65n_ethmac_s *priv)
 
           if (priv->dev.d_len > 0)
             {
-              /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv4
-              if (IFF_IS_IPv4(priv->dev.d_flags))
-                {
-                  arp_out(&priv->dev);
-                }
-              else
-#endif
-#ifdef CONFIG_NET_IPv6
-                {
-                  neighbor_out(&priv->dev);
-                }
-#endif
-
               /* And send the packet */
 
               rx65n_transmit(priv);
@@ -3985,13 +3920,13 @@ int rx65n_ethinitialize(int intf)
 }
 
 /****************************************************************************
- * Function: up_netinitialize
+ * Function: renesas_netinitialize
  *
  * Description:
  *   This is the "standard" network initialization logic called from the
  *   low-level initialization logic in up_initialize.c.  If RX65N_NETHERNET
  *   greater than one, then board specific logic will have to supply a
- *   version of up_netinitialize() that calls rx65n_ethinitialize() with
+ *   version of renesas_netinitialize() that calls rx65n_ethinitialize() with
  *   the appropriate interface number.
  *
  * Input Parameters:
@@ -4005,7 +3940,7 @@ int rx65n_ethinitialize(int intf)
  ****************************************************************************/
 
 #if defined (CONFIG_NET) && !defined(CONFIG_NETDEV_LATEINIT)
-void up_netinitialize(void)
+void renesas_netinitialize(void)
 {
   int ret;
 

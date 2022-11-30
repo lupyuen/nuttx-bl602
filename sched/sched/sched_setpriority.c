@@ -140,9 +140,14 @@ static inline void nxsched_running_setpriority(FAR struct tcb_s *tcb,
 
   if (sched_priority <= nxttcb->sched_priority)
     {
+      FAR struct tcb_s *rtcb = this_task();
+
       /* A context switch will occur. */
 
-      up_reprioritize_rtr(tcb, (uint8_t)sched_priority);
+      if (nxsched_reprioritize_rtr(tcb, sched_priority))
+        {
+          up_switch_context(this_task(), rtcb);
+        }
     }
 
   /* Otherwise, we can just change priority since it has no effect */
@@ -223,7 +228,10 @@ static void nxsched_readytorun_setpriority(FAR struct tcb_s *tcb,
     {
       /* A context switch will occur. */
 
-      up_reprioritize_rtr(tcb, (uint8_t)sched_priority);
+      if (nxsched_reprioritize_rtr(tcb, sched_priority))
+        {
+          up_switch_context(this_task(), rtcb);
+        }
     }
 
   /* Otherwise, we can just change priority and re-schedule (since it have
@@ -236,7 +244,7 @@ static void nxsched_readytorun_setpriority(FAR struct tcb_s *tcb,
        * It should not be at the head of the list.
        */
 
-      bool check = nxsched_remove_readytorun(tcb);
+      bool check = nxsched_remove_readytorun(tcb, false);
       DEBUGASSERT(check == false);
       UNUSED(check);
 

@@ -459,14 +459,14 @@ int pthread_attr_getaffinity_np(FAR const pthread_attr_t *attr,
 
 int pthread_attr_setstacksize(FAR pthread_attr_t *attr, size_t stacksize);
 int pthread_attr_getstacksize(FAR const pthread_attr_t *attr,
-                              FAR size_t *stackaddr);
+                              FAR size_t *stacksize);
 
 /* Set or obtain stack address and size attributes */
 
 int pthread_attr_setstack(FAR pthread_attr_t *attr,
-                          FAR void *stackaddr, long stacksize);
+                          FAR void *stackaddr, size_t stacksize);
 int pthread_attr_getstack(FAR pthread_attr_t *attr,
-                          FAR void **stackaddr, FAR long *stacksize);
+                          FAR void **stackaddr, FAR size_t *stacksize);
 
 /* Set or get the name of a thread */
 
@@ -525,7 +525,7 @@ void pthread_yield(void);
 
 /* A thread may obtain a copy of its own thread handle. */
 
-#define pthread_self() ((pthread_t)getpid())
+#define pthread_self() ((pthread_t)gettid())
 
 /* Compare two thread IDs. */
 

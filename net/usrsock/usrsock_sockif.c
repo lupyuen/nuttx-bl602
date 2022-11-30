@@ -66,7 +66,12 @@ const struct sock_intf_s g_usrsock_sockif =
   usrsock_sendmsg,            /* si_sendmsg */
   usrsock_recvmsg,            /* si_recvmsg */
   usrsock_sockif_close,       /* si_close */
-  usrsock_ioctl               /* si_ioctl */
+  usrsock_ioctl,              /* si_ioctl */
+  NULL                        /* si_socketpair */
+#ifdef CONFIG_NET_SOCKOPTS
+  , usrsock_getsockopt        /* si_getsockopt */
+  , usrsock_setsockopt        /* si_setsockopt */
+#endif
 };
 
 /****************************************************************************
@@ -94,49 +99,7 @@ const struct sock_intf_s g_usrsock_sockif =
 
 static int usrsock_sockif_setup(FAR struct socket *psock, int protocol)
 {
-  int domain = psock->s_domain;
-  int type = psock->s_type;
   int ret;
-
-#ifdef CONFIG_NET_USRSOCK_NO_INET
-  if (domain == PF_INET)
-    {
-      return -ENETDOWN;
-    }
-#endif
-
-#ifdef CONFIG_NET_USRSOCK_NO_INET6
-  if (domain == PF_INET6)
-    {
-      return -ENETDOWN;
-    }
-#endif
-
-  if (domain == PF_INET || domain == PF_INET6)
-    {
-#ifndef CONFIG_NET_USRSOCK_UDP
-      if (type == SOCK_DGRAM)
-        {
-          return -ENETDOWN;
-        }
-#endif
-
-#ifndef CONFIG_NET_USRSOCK_TCP
-      if (type == SOCK_STREAM)
-        {
-          return -ENETDOWN;
-        }
-#endif
-    }
-  else
-    {
-#ifndef CONFIG_NET_USRSOCK_OTHER
-      return -ENETDOWN;
-#endif
-    }
-
-  psock->s_type = PF_UNSPEC;
-  psock->s_conn = NULL;
 
   /* Let the user socket logic handle the setup...
    *
@@ -147,7 +110,7 @@ static int usrsock_sockif_setup(FAR struct socket *psock, int protocol)
    * to open socket with kernel networking stack in this case.
    */
 
-  ret = usrsock_socket(domain, type, protocol, psock);
+  ret = usrsock_socket(psock->s_domain, psock->s_type, protocol, psock);
   if (ret == -ENETDOWN)
     {
       nwarn("WARNING: usrsock daemon is not running\n");

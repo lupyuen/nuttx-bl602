@@ -34,7 +34,7 @@
 #include <arch/board/board.h>
 
 #include "clock/clock.h"
-#include "up_internal.h"
+#include "x86_64_internal.h"
 
 #include <stdio.h>
 
@@ -129,6 +129,4 @@ void up_timer_initialize(void)
   asm volatile("mfence" : : : "memory");
 
   apic_timer_set(NS_PER_MSEC);
-
-  return;
 }
