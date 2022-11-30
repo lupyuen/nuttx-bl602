@@ -255,50 +255,9 @@ static int skel_txpoll(FAR struct net_driver_s *dev)
   FAR struct skel_driver_s *priv =
     (FAR struct skel_driver_s *)dev->d_private;
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value > 0.
-   */
+  /* Send the packet */
 
-  if (priv->sk_dev.d_len > 0)
-    {
-      /* Look up the destination MAC address and add it to the Ethernet
-       * header.
-       */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      if (IFF_IS_IPv4(priv->sk_dev.d_flags))
-#endif
-        {
-          arp_out(&priv->sk_dev);
-        }
-#endif /* CONFIG_NET_IPv4 */
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      else
-#endif
-        {
-          neighbor_out(&priv->sk_dev);
-        }
-#endif /* CONFIG_NET_IPv6 */
-
-      /* Check if the network is sending this packet to the IP address of
-       * this device.  If so, just loop the packet back into the network but
-       * don't attempt to put it on the wire.
-       */
-
-      if (!devif_loopback(&priv->sk_dev))
-        {
-          /* Send the packet */
-
-          skel_transmit(priv);
-
-          /* Check if there is room in the device to hold another packet.
-           * If not, return a non-zero value to terminate the poll.
-           */
-        }
-    }
+  skel_transmit(priv);
 
   /* If zero is returned, the polling will continue until all connections
    * have been examined.
@@ -334,30 +293,6 @@ static void skel_reply(struct skel_driver_s *priv)
 
   if (priv->sk_dev.d_len > 0)
     {
-      /* Update the Ethernet header with the correct MAC address */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      /* Check for an outgoing IPv4 packet */
-
-      if (IFF_IS_IPv4(priv->sk_dev.d_flags))
-#endif
-        {
-          arp_out(&priv->sk_dev);
-        }
-#endif
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      /* Otherwise, it must be an outgoing IPv6 packet */
-
-      else
-#endif
-        {
-          neighbor_out(&priv->sk_dev);
-        }
-#endif
-
       /* And send the packet */
 
       skel_transmit(priv);
@@ -409,11 +344,8 @@ static void skel_receive(FAR struct skel_driver_s *priv)
           ninfo("IPv4 frame\n");
           NETDEV_RXIPV4(&priv->sk_dev);
 
-          /* Handle ARP on input, then dispatch IPv4 packet to the network
-           * layer.
-           */
+          /* Receive an IPv4 packet from the network device */
 
-          arp_ipin(&priv->sk_dev);
           ipv4_input(&priv->sk_dev);
 
           /* Check for a reply to the IPv4 packet */

@@ -36,7 +36,8 @@
 #include <nuttx/sched_note.h>
 
 #include "sched/sched.h"
-#include "up_internal.h"
+#include "init/init.h"
+#include "sparc_internal.h"
 
 #ifdef CONFIG_BUILD_KERNEL
 #  include "s698pm_mmu.h"

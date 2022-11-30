@@ -51,7 +51,7 @@
 
 #include <arch/board/board.h>
 
-#include "up_internal.h"
+#include "renesas_internal.h"
 #include "chip.h"
 #include "rx65n_usbhost.h"
 
@@ -2881,8 +2881,6 @@ void usb_hstd_brdy_pipe_process(uint16_t bitsts)
             }
         }
     }
-
-  return;
 }
 
 /****************************************************************************
@@ -2908,8 +2906,6 @@ void usb_hstd_nrdy_pipe_process(uint16_t bitsts)
           usb_hstd_nrdy_endprocess(i);
         }
     }
-
-  return;
 }
 
 /****************************************************************************
@@ -2970,8 +2966,6 @@ void usb_hstd_bemp_pipe_process(uint16_t bitsts)
             }
         }
     }
-
-  return;
 }
 
 /****************************************************************************

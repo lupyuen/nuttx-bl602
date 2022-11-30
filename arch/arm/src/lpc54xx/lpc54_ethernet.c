@@ -757,81 +757,49 @@ static int lpc54_eth_txpoll(struct net_driver_s *dev)
   DEBUGASSERT(dev->d_private != NULL && dev->d_buf != NULL);
   priv = (struct lpc54_ethdriver_s *)dev->d_private;
 
-  /* If the polling resulted in data that should be sent out on the network,
-   * the field d_len is set to a value > 0.
+  /* Send the packet */
+
+  chan   = lpc54_eth_getring(priv);
+  txring = &priv->eth_txring[chan];
+
+  (txring->tr_buffers)[txring->tr_supply] =
+    (uint32_t *)priv->eth_dev.d_buf;
+
+  lpc54_eth_transmit(priv, chan);
+
+  txring0 = &priv->eth_txring[0];
+#ifdef CONFIG_LPC54_ETH_MULTIQUEUE
+  txring1 = &priv->eth_txring[1];
+
+  /* We cannot perform the Tx poll now if all of the Tx descriptors
+   * for both channels are in-use.
    */
 
-  if (priv->eth_dev.d_len > 0)
-    {
-      /* Look up the destination MAC address and add it to the Ethernet
-       * header.
-       */
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      if (IFF_IS_IPv4(priv->eth_dev.d_flags))
-#endif
-        {
-          arp_out(&priv->eth_dev);
-        }
-#endif /* CONFIG_NET_IPv4 */
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      else
-#endif
-        {
-          neighbor_out(&priv->eth_dev);
-        }
-#endif /* CONFIG_NET_IPv6 */
-
-      if (!devif_loopback(&priv->eth_dev))
-        {
-          /* Send the packet */
-
-          chan   = lpc54_eth_getring(priv);
-          txring = &priv->eth_txring[chan];
-
-          (txring->tr_buffers)[txring->tr_supply] =
-            (uint32_t *)priv->eth_dev.d_buf;
-
-          lpc54_eth_transmit(priv, chan);
-
-          txring0 = &priv->eth_txring[0];
-#ifdef CONFIG_LPC54_ETH_MULTIQUEUE
-          txring1 = &priv->eth_txring[1];
-
-          /* We cannot perform the Tx poll now if all of the Tx descriptors
-           * for both channels are in-use.
-           */
-
-          if (txring0->tr_inuse >= txring0->tr_ndesc ||
-              txring1->tr_inuse >= txring1->tr_ndesc)
+  if (txring0->tr_inuse >= txring0->tr_ndesc ||
+      txring1->tr_inuse >= txring1->tr_ndesc)
 #else
-          /* We cannot continue the Tx poll now if all of the Tx descriptors
-           * for this channel 0 are in-use.
-           */
+  /* We cannot continue the Tx poll now if all of the Tx descriptors
+   * for this channel 0 are in-use.
+   */
 
-          if (txring0->tr_inuse >= txring0->tr_ndesc)
+  if (txring0->tr_inuse >= txring0->tr_ndesc)
 #endif
-            {
-              /* Stop the poll.. no more Tx descriptors */
+    {
+      /* Stop the poll.. no more Tx descriptors */
 
-              return 1;
-            }
+      return 1;
+    }
 
-          /* There is a free descriptor in the ring, allocate a new Tx buffer
-           * to perform the poll.
-           */
+  /* There is a free descriptor in the ring, allocate a new Tx buffer
+   * to perform the poll.
+   */
 
-          priv->eth_dev.d_buf = (uint8_t *)lpc54_pktbuf_alloc(priv);
-          if (priv->eth_dev.d_buf == NULL)
-            {
-              /* Stop the poll.. no more packet buffers */
+  priv->eth_dev.d_buf = (uint8_t *)lpc54_pktbuf_alloc(priv);
+  if (priv->eth_dev.d_buf == NULL)
+    {
+      /* Stop the poll.. no more packet buffers */
 
-              return 1;
-            }
-        }
+      return 1;
     }
 
   /* If zero is returned, the polling will continue until all connections
@@ -877,28 +845,6 @@ static void lpc54_eth_reply(struct lpc54_ethdriver_s *priv)
 #ifdef CONFIG_LPC54_ETH_MULTIQUEUE
       /* Check for an outgoing 802.1q VLAN packet */
 #warning Missing Logic
-#endif
-
-#ifdef CONFIG_NET_IPv4
-#ifdef CONFIG_NET_IPv6
-      /* Check for an outgoing IPv4 packet */
-
-      if (IFF_IS_IPv4(priv->eth_dev.d_flags))
-#endif
-        {
-          arp_out(&priv->eth_dev);
-        }
-#endif
-
-#ifdef CONFIG_NET_IPv6
-#ifdef CONFIG_NET_IPv4
-      /* Otherwise, it must be an outgoing IPv6 packet */
-
-      else
-#endif
-        {
-          neighbor_out(&priv->eth_dev);
-        }
 #endif
 
       /* And send the packet */
@@ -949,11 +895,8 @@ static void lpc54_eth_rxdispatch(struct lpc54_ethdriver_s *priv)
       ninfo("IPv4 packet\n");
       NETDEV_RXIPV4(dev);
 
-      /* Handle ARP on input,
-       * then dispatch IPv4 packet to the network layer
-       */
+      /* Receive an IPv4 packet from the network device */
 
-      arp_ipin(dev);
       ipv4_input(dev);
 
       /* Check for a reply to the IPv4 packet */

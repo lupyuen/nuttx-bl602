@@ -384,50 +384,24 @@ FAR void *up_stack_frame(FAR struct tcb_s *tcb, size_t frame_size);
 void up_release_stack(FAR struct tcb_s *dtcb, uint8_t ttype);
 
 /****************************************************************************
- * Name: up_unblock_task
+ * Name: up_switch_context
  *
  * Description:
- *   A task is currently in an inactive task list
- *   but has been prepped to execute.  Move the TCB to the
- *   ready-to-run list, restore its context, and start execution.
+ *   A task is currently in the ready-to-run list but has been prepped
+ *   to execute. Restore its context, and start execution.
  *
  *   This function is called only from the NuttX scheduling
  *   logic.  Interrupts will always be disabled when this
  *   function is called.
  *
  * Input Parameters:
- *   tcb: Refers to the tcb to be unblocked.  This tcb is
- *     in one of the waiting tasks lists.  It must be moved to
- *     the ready-to-run list and, if it is the highest priority
- *     ready to run task, executed.
+ *   tcb: Refers to the head task of the ready-to-run list
+ *     which will be executed.
+ *   rtcb: Refers to the running task which will be blocked.
  *
  ****************************************************************************/
 
-void up_unblock_task(FAR struct tcb_s *tcb);
-
-/****************************************************************************
- * Name: up_block_task
- *
- * Description:
- *   The currently executing task at the head of the ready to run list must
- *   be stopped.  Save its context and move it to the inactive list
- *   specified by task_state.
- *
- *   This function is called only from the NuttX scheduling logic.
- *   Interrupts will always be disabled when this function is called.
- *
- * Input Parameters:
- *   tcb: Refers to a task in the ready-to-run list (normally the task at
- *     the head of the list).  It must be stopped, its context saved and
- *     moved into one of the waiting task lists.  If it was the task at the
- *     head of the ready-to-run list, then a context switch to the new ready
- *     to run task must be performed.
- *   task_state: Specifies which waiting task list should be
- *     hold the blocked task TCB.
- *
- ****************************************************************************/
-
-void up_block_task(FAR struct tcb_s *tcb, tstate_t task_state);
+void up_switch_context(FAR struct tcb_s *tcb, FAR struct tcb_s *rtcb);
 
 /****************************************************************************
  * Name: up_release_pending
@@ -447,31 +421,6 @@ void up_block_task(FAR struct tcb_s *tcb, tstate_t task_state);
  ****************************************************************************/
 
 void up_release_pending(void);
-
-/****************************************************************************
- * Name: up_reprioritize_rtr
- *
- * Description:
- *   Called when the priority of a running or
- *   ready-to-run task changes and the reprioritization will
- *   cause a context switch.  Two cases:
- *
- *   1) The priority of the currently running task drops and the next
- *      task in the ready to run list has priority.
- *   2) An idle, ready to run task's priority has been raised above the
- *      priority of the current, running task and it now has the priority.
- *
- *   This function is called only from the NuttX scheduling
- *   logic.  Interrupts will always be disabled when this
- *   function is called.
- *
- * Input Parameters:
- *   tcb: The TCB of the task that has been reprioritized
- *   priority: The new task priority
- *
- ****************************************************************************/
-
-void up_reprioritize_rtr(FAR struct tcb_s *tcb, uint8_t priority);
 
 /****************************************************************************
  * Name: up_exit
