@@ -39,6 +39,7 @@ __NuttX on PinePhone__
 -   [__"Rendering PinePhone's Display (DE and TCON0)"__](https://lupyuen.github.io/articles/de)
 -   [__"NuttX RTOS for PinePhone: Render Graphics in Zig"__](https://lupyuen.github.io/articles/de2)
 -   [__"Preparing a Pull Request for Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pr)
+-   [__"NuttX RTOS for PinePhone: MIPI Display Serial Interface"__](https://lupyuen.github.io/articles/dsi3)
 
 # APACHE NUTTX
 
