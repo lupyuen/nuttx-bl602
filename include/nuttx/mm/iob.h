@@ -127,7 +127,7 @@ struct iob_s
 #if CONFIG_IOB_HEADSIZE > 0
   uint8_t  io_head[CONFIG_IOB_HEADSIZE];
 #endif
-  uint8_t  io_data[CONFIG_IOB_BUFSIZE];
+  uint8_t  io_data[CONFIG_IOB_BUFSIZE] aligned_data(CONFIG_IOB_ALIGNMENT);
 };
 
 #if CONFIG_IOB_NCHAINS > 0
@@ -464,8 +464,33 @@ unsigned int iob_tailroom(FAR struct iob_s *iob);
  *
  ****************************************************************************/
 
-int iob_clone(FAR struct iob_s *iob1,
-              FAR struct iob_s *iob2, bool throttled);
+int iob_clone(FAR struct iob_s *iob1, FAR struct iob_s *iob2,
+              bool throttled, bool block);
+
+/****************************************************************************
+ * Name: iob_clone_partial
+ *
+ * Description:
+ *   Duplicate the data from partial bytes of iob1 to iob2
+ *
+ * Input Parameters:
+ *   iob1      - Pointer to source iob_s
+ *   len       - Number of bytes to copy
+ *   offset1   - Offset of source iobs_s
+ *   iob2      - Pointer to destination iob_s
+ *   offset2   - Offset of destination iobs_s
+ *   throttled - An indication of the IOB allocation is "throttled"
+ *   block     - Flag of Enable/Disable nonblocking operation
+ *
+ * Returned Value:
+ *   == 0  - Partial clone successfully.
+ *   < 0   - No available to clone to destination iob.
+ *
+ ****************************************************************************/
+
+int iob_clone_partial(FAR struct iob_s *iob1, unsigned int len,
+                      unsigned int offset1, FAR struct iob_s *iob2,
+                      unsigned int offset2, bool throttled, bool block);
 
 /****************************************************************************
  * Name: iob_concat

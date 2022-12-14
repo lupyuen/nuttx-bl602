@@ -177,7 +177,7 @@ RUN cd /tools/renesas-tools/build/gcc && \
 FROM nuttx-toolchain-base AS nuttx-toolchain-riscv
 # Download the latest RISCV GCC toolchain prebuilt by SiFive
 RUN mkdir riscv64-unknown-elf-gcc && \
-  curl -s -L "https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14.tar.gz" \
+  curl -s -L "https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.12/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14.tar.gz" \
   | tar -C riscv64-unknown-elf-gcc --strip-components 1 -xz
 
 ###############################################################################
@@ -245,11 +245,12 @@ RUN apt-get update -qq && DEBIAN_FRONTEND="noninteractive" apt-get install -y -q
   libasound2-dev libasound2-dev:i386 \
   libc6-dev-i386 \
   libcurl4-openssl-dev \
-  libncurses5-dev \
   libmad0-dev:i386 \
+  libncurses5-dev \
   libpulse-dev libpulse-dev:i386 \
   libpython2.7 \
   libtinfo5 \
+  libv4l-dev libv4l-dev:i386 \
   libx11-dev libx11-dev:i386 \
   libxext-dev libxext-dev:i386 \
   linux-headers-generic \
