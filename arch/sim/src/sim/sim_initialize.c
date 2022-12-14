@@ -180,7 +180,7 @@ static int sim_loop_task(int argc, char **argv)
 #endif
 
 #ifdef CONFIG_SIM_NETUSRSOCK
-      usrsock_host_loop();
+      host_usrsock_loop();
 #endif
 
 #ifdef CONFIG_RPTUN
@@ -193,6 +193,10 @@ static int sim_loop_task(int argc, char **argv)
 
 #ifdef CONFIG_SIM_SOUND
       sim_audio_loop();
+#endif
+
+#ifdef CONFIG_SIM_VIDEO
+      sim_video_loop();
 #endif
 
 #ifdef CONFIG_MOTOR_FOC_DUMMY

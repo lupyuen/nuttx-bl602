@@ -94,7 +94,7 @@ ifeq ($(CONFIG_HOST_MACOS),y)
   HOSTCFLAGS += -Wno-deprecated-declarations
 endif
 
-HOSTSRCS = sim_hostirq.c sim_hostmemory.c sim_hosttime.c sim_hostuart.c sim_hostmisc.c
+HOSTSRCS = sim_hostirq.c sim_hostmemory.c sim_hostmisc.c sim_hosttime.c sim_hostuart.c
 STDLIBS += -lpthread
 ifeq ($(CONFIG_HOST_MACOS),y)
 ifeq ($(CONFIG_HAVE_CXXINITIALIZE),y)
@@ -172,7 +172,7 @@ endif # CONFIG_WINDOWS_CYGWIN != y
 else ifeq ($(CONFIG_SIM_NETDEV_VPNKIT),y)
   CSRCS += sim_netdriver.c
   HOSTSRCS += sim_vpnkit.c
-  VPATH += :sim/vpnkit
+  VPATH += :sim/posix/vpnkit
   HOSTSRCS += sim_protocol.c sim_negotiate.c
 endif
 
@@ -201,6 +201,13 @@ endif
 ifeq ($(CONFIG_SIM_SOUND_ALSA),y)
   CSRCS += sim_alsa.c
   STDLIBS += -lasound
+  STDLIBS += -lmad
+endif
+
+ifeq ($(CONFIG_SIM_VIDEO_V4L2),y)
+  HOSTSRCS += sim_host_v4l2.c
+  CSRCS += sim_video.c
+  STDLIBS += -lv4l2
 endif
 
 ifeq ($(CONFIG_SIM_HOSTFS),y)
