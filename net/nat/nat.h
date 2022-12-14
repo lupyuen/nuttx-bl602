@@ -71,6 +71,16 @@ struct ipv4_nat_entry
   uint32_t   expire_time;    /* The expiration time of this entry. */
 };
 
+/* NAT IP/Port manipulate type, to indicate whether to manipulate source or
+ * destination IP/Port in a packet.
+ */
+
+enum nat_manip_type_e
+{
+  NAT_MANIP_SRC,
+  NAT_MANIP_DST
+};
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -147,6 +157,7 @@ int ipv4_nat_inbound(FAR struct net_driver_s *dev,
  * Input Parameters:
  *   dev   - The device on which the packet will be sent.
  *   ipv4  - Points to the IPv4 header to be filled into dev->d_buf later.
+ *   manip_type - Whether local IP/Port is in source or destination.
  *
  * Returned Value:
  *   Zero is returned if NAT is successfully applied, or is not enabled for
@@ -156,7 +167,8 @@ int ipv4_nat_inbound(FAR struct net_driver_s *dev,
  ****************************************************************************/
 
 int ipv4_nat_outbound(FAR struct net_driver_s *dev,
-                      FAR struct ipv4_hdr_s *ipv4);
+                      FAR struct ipv4_hdr_s *ipv4,
+                      enum nat_manip_type_e manip_type);
 
 /****************************************************************************
  * Name: ipv4_nat_port_inuse
@@ -208,6 +220,7 @@ ipv4_nat_inbound_entry_find(uint8_t protocol, uint16_t external_port,
  *   protocol   - The L4 protocol of the packet.
  *   local_ip   - The local ip of the packet.
  *   local_port - The local port of the packet.
+ *   try_create - Try create the entry if no entry found.
  *
  * Returned Value:
  *   Pointer to entry on success; null on failure
@@ -216,7 +229,8 @@ ipv4_nat_inbound_entry_find(uint8_t protocol, uint16_t external_port,
 
 FAR struct ipv4_nat_entry *
 ipv4_nat_outbound_entry_find(FAR struct net_driver_s *dev, uint8_t protocol,
-                             in_addr_t local_ip, uint16_t local_port);
+                             in_addr_t local_ip, uint16_t local_port,
+                             bool try_create);
 
 #endif /* CONFIG_NET_NAT && CONFIG_NET_IPv4 */
 #endif /* __NET_NAT_NAT_H */

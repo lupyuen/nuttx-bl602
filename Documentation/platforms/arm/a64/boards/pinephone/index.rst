@@ -82,7 +82,7 @@ Configure the NuttX project and build the project:
 This produces the file ``Image.gz``, which will be copied to PinePhone in the next step.
 
 If the build fails with the error ``token "@" is not valid in preprocessor``,
-`apply this patch <https://github.com/apache/incubator-nuttx/pull/7284/commits/518b0eb31cb66f25b590ae9a79ab16c319b96b94#diff-12291efd8a0ded1bc38bad733d99e4840ae5112b465c04287f91ba5169612c73>`_
+`apply this patch <https://github.com/apache/nuttx/pull/7284/commits/518b0eb31cb66f25b590ae9a79ab16c319b96b94#diff-12291efd8a0ded1bc38bad733d99e4840ae5112b465c04287f91ba5169612c73>`_
 to ``gcc-arm-none-eabi/arm-none-eabi/include/_newlib_version.h``
 in the ARM64 Toolchain.
 
@@ -113,6 +113,19 @@ To see the available commands in NuttShell:
 
    $ help
 
+LEDs
+====
+
+The supported PinePhone LEDs are:
+
+===== ========= ===
+Index LED       PIO
+===== ========= ===
+LED1  Green LED PD18
+LED2  Red LED   PD19
+LED3  Blue LED  PD20
+===== ========= ===
+
 Configurations
 ==============
 
@@ -132,5 +145,6 @@ NuttX for PinePhone supports these peripherals:
 =========== ======= =====
 Peripheral  Support NOTES
 =========== ======= =====
+PIO          Yes
 UART         Yes    Only UART0 is supported
 =========== ======= =====
