@@ -8,6 +8,10 @@
 
 name: BL602 Upstream
 
+permissions:
+  ## Allow publishing of GitHub Release
+  contents: write
+
 on:
 
   ## Run every day at 0:30 UTC, because 0:00 UTC seems too busy for the scheduler
@@ -179,7 +183,18 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: upstream-${{ steps.date.outputs.date }}
-        files: nuttx/nuttx/nuttx.zip
         draft: false
         prerelease: false
         generate_release_notes: false
+        files: |
+          nuttx/nuttx/nuttx.zip
+          nuttx/nuttx/nuttx
+          nuttx/nuttx/nuttx.S
+          nuttx/nuttx/nuttx.bin
+          nuttx/nuttx/nuttx.map
+          nuttx/nuttx/nuttx.hex
+          nuttx/nuttx/nuttx.config
+          nuttx/nuttx/nuttx.bringup
+          nuttx/nuttx/nuttx.board
+          nuttx/nuttx/nuttx.manifest
+          nuttx/nuttx/nuttx.hash
