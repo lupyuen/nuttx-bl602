@@ -64,7 +64,15 @@ jobs:
         ## Add toolchain to PATH
         export PATH=$PATH:$PWD/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin
         cd nuttx/nuttx
-        
+
+        ## Dump the git hash
+        hash1=`git rev-parse HEAD`
+        pushd ../apps
+        hash2=`git rev-parse HEAD`
+        popd
+        echo NuttX Source: https://github.com/apache/nuttx/tree/$hash1 >nuttx.hash
+        echo NuttX Apps: https://github.com/apache/nuttx-apps/tree/$hash2 >>nuttx.hash
+
         ## Configure the build
         ./tools/configure.sh bl602evb:nsh
 
