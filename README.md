@@ -27,19 +27,6 @@ __Read the articles...__
 -   [__"Zig Visual Programming with Blockly"__](https://lupyuen.github.io/articles/blockly)
 -   [__"Visual Programming with Zig and NuttX Sensors"__](https://lupyuen.github.io/articles/visual)
 
-__NuttX on PinePhone__
-
--   [__"Apache NuttX RTOS on Arm Cortex-A53: How it might run on PinePhone"__](https://lupyuen.github.io/articles/arm)
--   [__"PinePhone boots Apache NuttX RTOS"__](https://lupyuen.github.io/articles/uboot)
--   [__"NuttX RTOS for PinePhone: Fixing the Interrupts"__](https://lupyuen.github.io/articles/interrupt)
--   [__"NuttX RTOS for PinePhone: UART Driver"__](https://lupyuen.github.io/articles/serial)
--   [__"NuttX RTOS for PinePhone: Blinking the LEDs"__](https://lupyuen.github.io/articles/pio)
--   [__"Understanding PinePhone's Display (MIPI DSI)"__](https://lupyuen.github.io/articles/dsi)
--   [__"NuttX RTOS for PinePhone: Display Driver in Zig"__](https://lupyuen.github.io/articles/dsi2)
--   [__"Rendering PinePhone's Display (DE and TCON0)"__](https://lupyuen.github.io/articles/de)
--   [__"NuttX RTOS for PinePhone: Render Graphics in Zig"__](https://lupyuen.github.io/articles/de2)
--   [__"Preparing a Pull Request for Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pr)
-
 # APACHE NUTTX
 
 * Introduction
