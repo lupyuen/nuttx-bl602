@@ -1,11 +1,8 @@
 [![Daily Build of NuttX for BL602](https://github.com/lupyuen/nuttx/actions/workflows/bl602.yml/badge.svg)](https://github.com/lupyuen/nuttx/actions/workflows/bl602.yml)
 
-__Apache NuttX RTOS for PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinedio)
-
-__Apache NuttX RTOS for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
-
 __Read the articles...__
 
+-   [__"The RISC-V BL602 / BL604 Book"__](https://lupyuen.github.io/articles/book)
 -   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
 -   [__"Apache NuttX OS on RISC-V BL602 and BL604"__](https://lupyuen.github.io/articles/nuttx)
 -   [__"SPI on Apache NuttX OS"__](https://lupyuen.github.io/articles/spi2)
@@ -26,6 +23,30 @@ __Read the articles...__
 -   [__"Read NuttX Sensor Data with Zig"__](https://lupyuen.github.io/articles/sensor)
 -   [__"Zig Visual Programming with Blockly"__](https://lupyuen.github.io/articles/blockly)
 -   [__"Visual Programming with Zig and NuttX Sensors"__](https://lupyuen.github.io/articles/visual)
+
+__Apache NuttX RTOS customised for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
+
+__Apache NuttX RTOS customised for PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinedio)
+
+# NuttX Automated Daily Build for BL602
+
+NuttX for BL602 is now built and tested automatically every day via GitHub Actions.
+
+The Daily Releases and Test Logs are available here...
+
+- [nuttx/releases (upstream)](https://github.com/lupyuen/nuttx/releases?q=BUILD_PREFIX%3Dupstream&expanded=true)
+
+[nuttx.hash](https://github.com/lupyuen/nuttx/releases/download/upstream-2023-08-13/nuttx.hash) contains the Commit Hash of the NuttX Kernel and NuttX Apps repos...
+
+```text
+NuttX Source: https://github.com/apache/nuttx/tree/d7aea88727a856589c6a6ec0cf0b8cc1c8aa608b
+NuttX Apps: https://github.com/apache/nuttx-apps/tree/2db68e26c449ab6f3651131c19805510fbeb3714
+```
+
+The GitHub Actions Workflow and Automated Test Script are here...
+
+- [bl602.yml](https://github.com/lupyuen/nuttx/blob/master/.github/workflows/bl602.yml)
+- [test.sh](https://github.com/lupyuen/remote-bl602/blob/main/scripts/test.sh)
 
 # APACHE NUTTX
 
