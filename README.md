@@ -1,3 +1,5 @@
+[![Daily Build of NuttX for BL602](https://github.com/lupyuen/nuttx/actions/workflows/bl602.yml/badge.svg)](https://github.com/lupyuen/nuttx/actions/workflows/bl602.yml)
+
 __Apache NuttX RTOS for PineDio Stack BL604:__ See the [`pinedio` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinedio)
 
 __Apache NuttX RTOS for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
