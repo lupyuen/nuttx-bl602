@@ -6,7 +6,7 @@
 ## Why are we doing this? So that we can pick a stable upstream version of NuttX to merge into our fork of NuttX
 ## See https://github.com/lupyuen/remote-bl602
 
-name: BL602 Upstream
+name: Daily Build of NuttX for BL602
 
 permissions:
   ## Allow publishing of GitHub Release
