@@ -4,8 +4,6 @@ __Apache NuttX RTOS for PineDio Stack BL604:__ See the [`pinedio` branch](https:
 
 __Apache NuttX RTOS for PineCone BL602:__ See the [`master` branch](https://github.com/lupyuen/incubator-nuttx)
 
-__Apache NuttX RTOS for PinePhone:__ See the [`pinephone` branch](https://github.com/lupyuen/incubator-nuttx/tree/pinephone)
-
 __Read the articles...__
 
 -   [__"PineDio Stack BL604 runs Apache NuttX RTOS"__](https://lupyuen.github.io/articles/pinedio2)
