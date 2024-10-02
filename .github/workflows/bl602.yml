@@ -19,8 +19,8 @@ on:
     - cron: '30 0 * * *'
 
   ## Run on every commit
-  push:
-    branches: [ master ]
+  ## push:
+  ##   branches: [ main ]
 
 jobs:
   build:
