@@ -78,6 +78,9 @@ jobs:
         echo NuttX Apps: https://github.com/apache/nuttx-apps/tree/$hash2 >>nuttx.hash
         cat nuttx.hash
 
+        ## Show the GCC version
+        riscv-none-elf-gcc -v
+
         ## Configure the build
         ./tools/configure.sh bl602evb:nsh
 
@@ -158,7 +161,7 @@ jobs:
         make
 
         ## Dump the disassembly to nuttx.S
-        riscv64-unknown-elf-objdump \
+        riscv-none-elf-objdump \
           -t -S --demangle --line-numbers --wide \
           nuttx \
           >nuttx.S \
